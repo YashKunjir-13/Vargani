@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # Pauti Pustak - Multi-tenant Event Financial-Management Platform
 
 Full-stack monorepo enterprise foundation for **Pauti Pustak**.
@@ -87,3 +88,6 @@ npx pnpm run dev:scheduler
 ```bash
 npx pnpm run validate
 ```
+=======
+# Vargani
+>>>>>>> 793328865821b904f23a1614a8f402eddfce0f49
