@@ -73,13 +73,13 @@ services:
     networks:
       - pauti_network
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:9000/minio/health/live"]
-      interval: 10s
+      test: ["CMD", "mc", "ready", "local"]
+      interval: 5s
       timeout: 5s
       retries: 5
 
   minio-init:
-    image: minio/mc:RELEASE.2024-02-16T15-50-02Z
+    image: minio/mc:latest
     container_name: pauti-minio-init
     profiles: ["core"]
     depends_on:
