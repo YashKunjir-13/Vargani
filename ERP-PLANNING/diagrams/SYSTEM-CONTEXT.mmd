@@ -1,0 +1,11 @@
+flowchart LR
+  Contributor[Contributor] --> Flutter[Flutter App / Web]
+  Committee[Committee & Treasurer] --> Flutter
+  Collector[Collector] --> Flutter
+  Flutter --> Gateway[API Gateway]
+  Gateway --> Services[Domain Services]
+  Services --> DB[(Service-owned PostgreSQL)]
+  Services --> NATS[NATS JetStream]
+  Services --> Redis[Redis / BullMQ]
+  Services --> S3[Private Object Storage]
+  Services --> Providers[Razorpay / WhatsApp / Email / SMS]

@@ -1,0 +1,86 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "type": "shell",
+      "label": "Install dependencies",
+      "command": "npx pnpm install",
+      "problemMatcher": []
+    },
+    {
+      "type": "shell",
+      "label": "Start core Docker services",
+      "command": "docker compose --profile core up -d",
+      "problemMatcher": []
+    },
+    {
+      "type": "shell",
+      "label": "Stop Docker services",
+      "command": "docker compose --profile core --profile messaging --profile observability down",
+      "problemMatcher": []
+    },
+    {
+      "type": "shell",
+      "label": "Run API",
+      "command": "npx pnpm run dev:api",
+      "problemMatcher": []
+    },
+    {
+      "type": "shell",
+      "label": "Run worker",
+      "command": "npx pnpm run dev:worker",
+      "problemMatcher": []
+    },
+    {
+      "type": "shell",
+      "label": "Run Flutter Android",
+      "command": "flutter run -d android -t lib/main_dev.dart",
+      "options": {
+        "cwd": "${workspaceFolder}/apps/mobile"
+      },
+      "problemMatcher": []
+    },
+    {
+      "type": "shell",
+      "label": "Run Flutter Chrome",
+      "command": "flutter run -d chrome -t lib/main_dev.dart",
+      "options": {
+        "cwd": "${workspaceFolder}/apps/mobile"
+      },
+      "problemMatcher": []
+    },
+    {
+      "type": "shell",
+      "label": "Generate Prisma client",
+      "command": "npx pnpm run prisma:generate",
+      "problemMatcher": []
+    },
+    {
+      "type": "shell",
+      "label": "Generate Flutter code",
+      "command": "dart run build_runner build --delete-conflicting-outputs",
+      "options": {
+        "cwd": "${workspaceFolder}/apps/mobile"
+      },
+      "problemMatcher": []
+    },
+    {
+      "type": "shell",
+      "label": "Lint all",
+      "command": "npx pnpm run lint",
+      "problemMatcher": []
+    },
+    {
+      "type": "shell",
+      "label": "Test all",
+      "command": "npx pnpm run test",
+      "problemMatcher": []
+    },
+    {
+      "type": "shell",
+      "label": "Validate workspace",
+      "command": "npx pnpm run validate",
+      "problemMatcher": []
+    }
+  ]
+}

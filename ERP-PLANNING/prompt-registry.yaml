@@ -1,0 +1,118 @@
+# Pauti Pustak Prompt Registry
+registry_version: 1.0.0
+project: Pauti Pustak
+prompts:
+  - id: PP-LIFE-01
+    name: Phase 1 Software Idea Description
+    version: 1.0.0
+    status: ready-for-review
+    path: phase-prompts/PHASE_1_SOFTWARE_IDEA_DESCRIPTION.md
+    owner_role: Product-Architecture-Governance
+  - id: PP-LIFE-02
+    name: Phase 2 Enterprise Planning
+    version: 1.0.0
+    status: ready-for-review
+    path: phase-prompts/PHASE_2_ENTERPRISE_PLANNING.md
+    owner_role: Product-Architecture-Governance
+  - id: PP-LIFE-03
+    name: Phase 3 Plan Audit
+    version: 1.0.0
+    status: ready-for-review
+    path: phase-prompts/PHASE_3_PLAN_AUDIT.md
+    owner_role: Product-Architecture-Governance
+  - id: PP-LIFE-04
+    name: Phase 4 Implementation Roadmap
+    version: 1.0.0
+    status: ready-for-review
+    path: phase-prompts/PHASE_4_IMPLEMENTATION_ROADMAP.md
+    owner_role: Product-Architecture-Governance
+  - id: PP-LIFE-05
+    name: Phase 5 Roadmap Audit
+    version: 1.0.0
+    status: ready-for-review
+    path: phase-prompts/PHASE_5_ROADMAP_AUDIT.md
+    owner_role: Product-Architecture-Governance
+  - id: PP-LIFE-06
+    name: Phase 6 Implementation Prompt Generator
+    version: 1.0.0
+    status: ready-for-review
+    path: phase-prompts/PHASE_6_IMPLEMENTATION_PROMPT_GENERATOR.md
+    owner_role: Product-Architecture-Governance
+  - id: PP-LIFE-07
+    name: Phase 7 Prompt Engineering Architecture
+    version: 1.0.0
+    status: ready-for-review
+    path: phase-prompts/PHASE_7_PROMPT_ENGINEERING_ARCHITECTURE.md
+    owner_role: Product-Architecture-Governance
+  - id: PP-GOV-AUDIT-001
+    name: Audit All Phases
+    version: 1.0.0
+    status: ready-for-review
+    path: phase-prompts/AUDIT_ALL_PHASES.md
+    owner_role: Product-Architecture-Governance
+  - id: PP-IMP-00
+    name: Core Engineering Foundation
+    version: 1.0.0
+    status: stage-master-template
+    path: implementation-prompts/PHASE_0_FOUNDATION.md
+    owner_role: Engineering
+  - id: PP-IMP-01
+    name: Identity, Organizations, Memberships, and Permissions
+    version: 1.0.0
+    status: stage-master-template
+    path: implementation-prompts/PHASE_1_IDENTITY_TENANCY.md
+    owner_role: Engineering
+  - id: PP-IMP-02
+    name: Event Management
+    version: 1.0.0
+    status: stage-master-template
+    path: implementation-prompts/PHASE_2_EVENT_MANAGEMENT.md
+    owner_role: Engineering
+  - id: PP-IMP-03
+    name: Volunteers and Contributors
+    version: 1.0.0
+    status: stage-master-template
+    path: implementation-prompts/PHASE_3_VOLUNTEERS_CONTRIBUTORS.md
+    owner_role: Engineering
+  - id: PP-IMP-04
+    name: Personalized Contribution Bills
+    version: 1.0.0
+    status: stage-master-template
+    path: implementation-prompts/PHASE_4_CONTRIBUTION_BILLS.md
+    owner_role: Engineering
+  - id: PP-IMP-05
+    name: Collections and Payments
+    version: 1.0.0
+    status: stage-master-template
+    path: implementation-prompts/PHASE_5_COLLECTIONS_PAYMENTS.md
+    owner_role: Engineering
+  - id: PP-IMP-06
+    name: Contributions and Receipts
+    version: 1.0.0
+    status: stage-master-template
+    path: implementation-prompts/PHASE_6_CONTRIBUTIONS_RECEIPTS.md
+    owner_role: Engineering
+  - id: PP-IMP-07
+    name: Expenses, Accounts, and Ledger
+    version: 1.0.0
+    status: stage-master-template
+    path: implementation-prompts/PHASE_7_EXPENSES_ACCOUNTS_LEDGER.md
+    owner_role: Engineering
+  - id: PP-IMP-08
+    name: Reports, Notifications, and Transparency
+    version: 1.0.0
+    status: stage-master-template
+    path: implementation-prompts/PHASE_8_REPORTS_NOTIFICATIONS.md
+    owner_role: Engineering
+  - id: PP-IMP-09
+    name: Enterprise Hardening
+    version: 1.0.0
+    status: stage-master-template
+    path: implementation-prompts/PHASE_9_HARDENING.md
+    owner_role: Engineering
+  - id: PP-IMP-10
+    name: Production Deployment and Release
+    version: 1.0.0
+    status: stage-master-template
+    path: implementation-prompts/PHASE_10_DEPLOYMENT_RELEASE.md
+    owner_role: Engineering

@@ -1,0 +1,14 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(node --input-type=module -e ' *)",
+      "Bash(flutter --version)",
+      "Bash(npx --version)",
+      "Bash(node_modules/.bin/prisma --version)",
+      "Bash(node_modules/.bin/prisma validate *)",
+      "Bash(DATABASE_URL=\"postgresql://pauti_user:pauti_password@localhost:5432/pauti_pustak_db?schema=public\" node_modules/.bin/prisma validate --schema packages/backend-database/prisma/schema.prisma)",
+      "Bash(DATABASE_URL=\"postgresql://pauti_user:pauti_password@localhost:5432/pauti_pustak_db?schema=public\" node_modules/.bin/prisma generate --schema packages/backend-database/prisma/schema.prisma)",
+      "Bash(node_modules/.bin/tsc --noEmit -p apps/api/tsconfig.json)"
+    ]
+  }
+}

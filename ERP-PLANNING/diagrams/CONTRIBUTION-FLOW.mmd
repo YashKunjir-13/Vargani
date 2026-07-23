@@ -1,0 +1,15 @@
+sequenceDiagram
+  participant C as Collector/Contributor
+  participant API as Contribution API
+  participant P as Payment Service
+  participant F as Finance Service
+  participant D as Document Service
+  participant N as Notification Service
+  C->>API: Record or initiate payment (idempotency key)
+  API->>P: Verify provider/manual collection
+  P-->>API: Verified payment event
+  API->>API: Update bill + create contribution
+  API->>F: Post ledger command/event
+  API->>D: Allocate and generate receipt
+  D-->>N: Receipt ready
+  N-->>C: Deliver receipt

@@ -1,0 +1,541 @@
+{
+  "project": "Pauti Pustak",
+  "file_count_before_manifest": 107,
+  "files": [
+    {
+      "path": "ARCHITECTURE-BIBLE.md",
+      "sha256": "44988dabdb73101121c5d4b1465431f442f31fd5ed038da7830a98fe0d719876",
+      "bytes": 3230
+    },
+    {
+      "path": "BUSINESS-RULES.md",
+      "sha256": "d0a69f1a7b4fc4c0de444825ada5d2236b0d9eb7d6ef59bf1e43574b68ea2a51",
+      "bytes": 2295
+    },
+    {
+      "path": "DOMAIN-GLOSSARY.md",
+      "sha256": "7b0d3daa9ad065f3c192269e23244c28460548230459e6dad167f006a70b6c5c",
+      "bytes": 1352
+    },
+    {
+      "path": "MASTER-EXECUTION-GUIDE.md",
+      "sha256": "bf793c2fa67bb142de1718f77ade0c90f3de88ec0879a7523d069b3f73cef5fb",
+      "bytes": 2322
+    },
+    {
+      "path": "PROJECT-CONTEXT.md",
+      "sha256": "ba30fdf50588b139bcdedc5f5c3920e0a3cf26d9031cfad53cae512798af2453",
+      "bytes": 2750
+    },
+    {
+      "path": "README.md",
+      "sha256": "20fe0b0492c0009f374cfd3b57394c3c3ef86e81f2fe17cd78199ca1d77d835f",
+      "bytes": 2185
+    },
+    {
+      "path": "apis/API-CATALOG.md",
+      "sha256": "23c8b5e439726b7e32376421644d2d2a0320f76fdb07c139457bf052b6af8fa8",
+      "bytes": 666
+    },
+    {
+      "path": "apis/API-STANDARDS.md",
+      "sha256": "3aabcf80ed9ea25fbd9272b726db678b539474c32d857ba5013e30297eb7c00a",
+      "bytes": 565
+    },
+    {
+      "path": "apis/EVENT-CATALOG.md",
+      "sha256": "fe09205cc698fbf0d28239100759b3455d1d17c22dd555eb7d04700d677284e0",
+      "bytes": 615
+    },
+    {
+      "path": "apis/WEBHOOK-STANDARDS.md",
+      "sha256": "d4f715689adf53307def6931d3d78209e3fd4a6878ff9ac597a72809835db84a",
+      "bytes": 459
+    },
+    {
+      "path": "architecture/ADR-INDEX.md",
+      "sha256": "28e159a3e9695cf6983645b2aa7490c1cafe733b561515a1b9da497b51da95e7",
+      "bytes": 505
+    },
+    {
+      "path": "architecture/BACKEND-ARCHITECTURE-REFERENCE.md",
+      "sha256": "63bd097a5b378493bbf1797a3d8cb6882f61808d3edd39f1c776a43b4412c9d4",
+      "bytes": 629
+    },
+    {
+      "path": "architecture/DOCUMENT-BOUNDARIES.md",
+      "sha256": "30466b58f116c779024559915ba3a0adc740bf9911515d5ad528bdc33df09513",
+      "bytes": 525
+    },
+    {
+      "path": "architecture/FLUTTER-ARCHITECTURE-REFERENCE.md",
+      "sha256": "9b4cd028f5f6c6d39fa2d55829b7a3dafedf884c7ad997315415b4acfc8e92cb",
+      "bytes": 1059
+    },
+    {
+      "path": "architecture/MULTI-TENANCY-REFERENCE.md",
+      "sha256": "ff810d9fe91df0dfe5154ee51d5bcdf5ea34c527fb9b249a77ff3070e65bb7d1",
+      "bytes": 845
+    },
+    {
+      "path": "architecture/SYSTEM-ARCHITECTURE-REFERENCE.md",
+      "sha256": "534c7141d4278307ea9f37c370985db60b978c6c02ecc8a807f17f213395142b",
+      "bytes": 973
+    },
+    {
+      "path": "assets/README.md",
+      "sha256": "e3e6b1149e1890226c4248860ec74e74ac1395e9227374bfbb54ee9441a0bf49",
+      "bytes": 319
+    },
+    {
+      "path": "assets/reference-images/erp-planning-folder-reference.png",
+      "sha256": "d89f4b3b53f536fa70e2b7da85e3ae586894463bf5f6f937a9efd4d8926254e0",
+      "bytes": 114193
+    },
+    {
+      "path": "assets/reference-images/phase-prompts-reference.png",
+      "sha256": "3ab0fc975dcb614c496f93cf5bd87137dda5b2b14046483818a938b108301b2a",
+      "bytes": 720085
+    },
+    {
+      "path": "assets/references/Pauti_Pustak_Backend_System_Architecture_Module_Requirements_Enterprise_v2.1_Revised.pdf",
+      "sha256": "b57ab81a787e606e1b715f0d15687d313d69ca1fd1825ddbba5ff4defcf510e2",
+      "bytes": 505647
+    },
+    {
+      "path": "database/DATA-OWNERSHIP-MATRIX.md",
+      "sha256": "aa2816aa1fbad016269f6b439264e497e49ae188b852e35b6558eda5b117d05d",
+      "bytes": 642
+    },
+    {
+      "path": "database/DATABASE-ENGINEERING-REFERENCE.md",
+      "sha256": "9725b102aedea87c145dbf115ff5aa48f8cd1cf8d0c593c5f36570d415660b3c",
+      "bytes": 799
+    },
+    {
+      "path": "database/MIGRATION-STANDARDS.md",
+      "sha256": "4ed640bcf3d3ee0e8a7a9ad83ba1a03f34943dc0b99d771cbc5cf9cfe4a50c33",
+      "bytes": 339
+    },
+    {
+      "path": "deployment/DEVOPS-DEPLOYMENT-REFERENCE.md",
+      "sha256": "2a1d0da1e55c3576e179cd2e92c67886297aa8a36b3229f44611a7eedf0c5bdb",
+      "bytes": 582
+    },
+    {
+      "path": "deployment/ENVIRONMENT-MATRIX.md",
+      "sha256": "2308a6d635b8625cad9d580f8d716f7da4463133dc8a766c1d290b2f40c653c4",
+      "bytes": 555
+    },
+    {
+      "path": "deployment/RELEASE-RUNBOOK-TEMPLATE.md",
+      "sha256": "6652df0d03560e5bc2186937fb854db48bcb9d87a3574e49d821ab1326596d6b",
+      "bytes": 281
+    },
+    {
+      "path": "diagrams/CONTEXT-SWITCH-FLOW.mmd",
+      "sha256": "88ed6e1aff079a3ce9d36bda7151a4e7d66f9d4b402a9b2081fa5d8f41defdb5",
+      "bytes": 372
+    },
+    {
+      "path": "diagrams/CONTRIBUTION-FLOW.mmd",
+      "sha256": "a115e25b716fe18cc6de6a1fc67e6ec8580b80f3209dc0b8c920c019c57153ed",
+      "bytes": 552
+    },
+    {
+      "path": "diagrams/README.md",
+      "sha256": "e33a3a6bf5ad8bed6f5b457203f7d32acaf3367052452222119854b0efddbde6",
+      "bytes": 170
+    },
+    {
+      "path": "diagrams/SYSTEM-CONTEXT.mmd",
+      "sha256": "9d590e02fb995f4c0aafe643a8410436668badfcfba75697c05aa8131c6a7bd1",
+      "bytes": 449
+    },
+    {
+      "path": "implementation-prompts/AUDIT_IMPLEMENTATION_PHASE.md",
+      "sha256": "5426af8622ecdfad49fe68bef405c787c71ca2a1b2df754e0dd8c745ea3fd731",
+      "bytes": 818
+    },
+    {
+      "path": "implementation-prompts/PHASE_0_FOUNDATION.md",
+      "sha256": "a6f59f041129ef83bf37ea9ab4e83b3e14c175902b1c40624a6dfc4907c91985",
+      "bytes": 2757
+    },
+    {
+      "path": "implementation-prompts/PHASE_10_DEPLOYMENT_RELEASE.md",
+      "sha256": "2c4ab1d3775190d9c514cbb31b8e8aa4838ac4fc4660ff7e0e7bf3819400bf97",
+      "bytes": 2775
+    },
+    {
+      "path": "implementation-prompts/PHASE_1_IDENTITY_TENANCY.md",
+      "sha256": "61740503276e0519f623bae8f8ff86c428bcbbaf1e311ecf25165f23296b58c0",
+      "bytes": 2830
+    },
+    {
+      "path": "implementation-prompts/PHASE_2_EVENT_MANAGEMENT.md",
+      "sha256": "64e387d8812857aa490554046ca4ce466b40f34716bd561b5cf516d2f7484be6",
+      "bytes": 2707
+    },
+    {
+      "path": "implementation-prompts/PHASE_3_VOLUNTEERS_CONTRIBUTORS.md",
+      "sha256": "0d35f13b30642d3471ff9858905c3926a915545f52ec666046b9eb071a4e1c8b",
+      "bytes": 2761
+    },
+    {
+      "path": "implementation-prompts/PHASE_4_CONTRIBUTION_BILLS.md",
+      "sha256": "c1a0f89c2aef443b3ed45ff467d89f1c1a5811bb2f14859ba3dc753eaf440657",
+      "bytes": 2763
+    },
+    {
+      "path": "implementation-prompts/PHASE_5_COLLECTIONS_PAYMENTS.md",
+      "sha256": "d656b1efef8f54807dcbb591c5bc6a9cd24d94bafc91e7bb0532e277f9fb78d9",
+      "bytes": 2768
+    },
+    {
+      "path": "implementation-prompts/PHASE_6_CONTRIBUTIONS_RECEIPTS.md",
+      "sha256": "1fbf7ee0fec3df87b39964d80acde4b4d7fcc69c9d066ab3ff4c3cc5a397599f",
+      "bytes": 2782
+    },
+    {
+      "path": "implementation-prompts/PHASE_7_EXPENSES_ACCOUNTS_LEDGER.md",
+      "sha256": "c86e4fbeb974b1f92f2e8ac8ac886a6b6b3219bd143877a973f166175f42767a",
+      "bytes": 2751
+    },
+    {
+      "path": "implementation-prompts/PHASE_8_REPORTS_NOTIFICATIONS.md",
+      "sha256": "9ed3e0d3de61e1eb55ffcc2ec0c35f698f48d3ef3e9932562d50719fe7ec7e50",
+      "bytes": 2762
+    },
+    {
+      "path": "implementation-prompts/PHASE_9_HARDENING.md",
+      "sha256": "5f2aa51f6c99259ae52a0795ab38bd948738c204e57d625bdf28d0486b395b16",
+      "bytes": 2717
+    },
+    {
+      "path": "implementation-prompts/README.md",
+      "sha256": "bfba3b446325da45f813dc3d12a2a36b32d15556fe3f296f9ae11510a63bf0d1",
+      "bytes": 201
+    },
+    {
+      "path": "implementation-roadmap/DEPENDENCY-MATRIX.csv",
+      "sha256": "7b6419bbf85cce7e70fa4941549721674d67e0a69c996acdff518b80afd00824",
+      "bytes": 67
+    },
+    {
+      "path": "implementation-roadmap/README.md",
+      "sha256": "6ea59ffe17883902bd4dd60f297fdb6f927dcc6fdfe88418771309c32e0d8873",
+      "bytes": 125
+    },
+    {
+      "path": "implementation-roadmap/REFERENCE-DOCUMENT.md",
+      "sha256": "fac1bac5eb838726ce749dceea7a92d889051e3c0c92eb1a9c4a9c65291d5a80",
+      "bytes": 866
+    },
+    {
+      "path": "implementation-roadmap/TASK-BACKLOG.csv",
+      "sha256": "e02ad0711c1b9a96a0530e3d9bef0d35dd122f30a7d1e7c18f5b5d466cd78012",
+      "bytes": 158
+    },
+    {
+      "path": "phase-completions/COMPLETION-REPORT-TEMPLATE.md",
+      "sha256": "2dd6db10d1859cf9335e8d6ab729a466d49cd437362c18dd535209581588cff3",
+      "bytes": 531
+    },
+    {
+      "path": "phase-completions/PHASE_0_FOUNDATION_COMPLETION.md",
+      "sha256": "a69e73cbe7fd489e558d2bec1ed9b38e99f78ff64c6ab737b7e183b6fc1e0b44",
+      "bytes": 217
+    },
+    {
+      "path": "phase-completions/PHASE_10_DEPLOYMENT-RELEASE_COMPLETION.md",
+      "sha256": "5de81b2b2d2e591788d6dfdf3e6d6c576dc03bce19df59f7a78c339ebf00c7ba",
+      "bytes": 226
+    },
+    {
+      "path": "phase-completions/PHASE_1_IDENTITY-TENANCY_COMPLETION.md",
+      "sha256": "5825986924029047b59787df11ab02302453d132e8623afba3642e6f9492f596",
+      "bytes": 223
+    },
+    {
+      "path": "phase-completions/PHASE_2_EVENTS_COMPLETION.md",
+      "sha256": "c4c41903df78665fb1657f1fa361e5fa992a6074632cde1445b3fba89d72ecbf",
+      "bytes": 213
+    },
+    {
+      "path": "phase-completions/PHASE_3_VOLUNTEERS-CONTRIBUTORS_COMPLETION.md",
+      "sha256": "0f34857e22fe13c339e9985690ae8aa9d9d71d1967aa3cc9d56b6f64d26fef11",
+      "bytes": 230
+    },
+    {
+      "path": "phase-completions/PHASE_4_CONTRIBUTION-BILLS_COMPLETION.md",
+      "sha256": "f26f2bd28f29fb18e10f8654297138d5227780c382c9557450c7b8aa9e9d4b31",
+      "bytes": 225
+    },
+    {
+      "path": "phase-completions/PHASE_5_COLLECTIONS-PAYMENTS_COMPLETION.md",
+      "sha256": "5d8527e7287f05842d3e8a8e8b8072cbf36c6e5bd7acfab9da815e4cfb1a9092",
+      "bytes": 227
+    },
+    {
+      "path": "phase-completions/PHASE_6_CONTRIBUTIONS-RECEIPTS_COMPLETION.md",
+      "sha256": "a5c8a79acb4fef2f9346fd509fcffb3583fc0efa33c84a230c5389b89659a8fe",
+      "bytes": 229
+    },
+    {
+      "path": "phase-completions/PHASE_7_EXPENSES-ACCOUNTS-LEDGER_COMPLETION.md",
+      "sha256": "9636e7ef22a33d71f83c369a5974066cf97e615a61a692a054671c6e1b30382f",
+      "bytes": 231
+    },
+    {
+      "path": "phase-completions/PHASE_8_REPORTS-NOTIFICATIONS_COMPLETION.md",
+      "sha256": "bf887b267663bce2f9f328d2aca9150cba019d8b8b776d43820973fc0d9d668d",
+      "bytes": 228
+    },
+    {
+      "path": "phase-completions/PHASE_9_HARDENING_COMPLETION.md",
+      "sha256": "3d85f5dc9eac51e0c2cc79dfe55a4ef518b6dcd3f5ed537e6fcc7f1cef6114df",
+      "bytes": 216
+    },
+    {
+      "path": "phase-completions/README.md",
+      "sha256": "fa0be86b525e979405bcf77d1de9be895c023ee2f9302007e09bc05e0ad3778c",
+      "bytes": 151
+    },
+    {
+      "path": "phase-prompts/AUDIT_ALL_PHASES.md",
+      "sha256": "c50976a629540e7720a5bdc862649b7a2e6ba81c6a1ed6e92f584a179aec04e3",
+      "bytes": 866
+    },
+    {
+      "path": "phase-prompts/PHASE_1_SOFTWARE_IDEA_DESCRIPTION.md",
+      "sha256": "4bcc0a23da154bce7e35eebbcbe2d683336f6f46e90be937ee1bf82118d950ba",
+      "bytes": 2304
+    },
+    {
+      "path": "phase-prompts/PHASE_2_ENTERPRISE_PLANNING.md",
+      "sha256": "fabcae0a87075de61fc1a540fb252dd5865ee58b1db52ff9217993e75243ca86",
+      "bytes": 2587
+    },
+    {
+      "path": "phase-prompts/PHASE_3_PLAN_AUDIT.md",
+      "sha256": "f298e34d972e9e67e557db75690567e001d05e64ea5c41b318ab733445b5bb8f",
+      "bytes": 1471
+    },
+    {
+      "path": "phase-prompts/PHASE_4_IMPLEMENTATION_ROADMAP.md",
+      "sha256": "be0f3ba8b44859ac6a0b85acad97b4e11491b3abee219abfb763bf929e2e4633",
+      "bytes": 1732
+    },
+    {
+      "path": "phase-prompts/PHASE_5_ROADMAP_AUDIT.md",
+      "sha256": "48a5d6bf6a43070126eabff218844f4a4aa9edf2a023b0dffa49d57517f5b7b4",
+      "bytes": 1365
+    },
+    {
+      "path": "phase-prompts/PHASE_6_IMPLEMENTATION_PROMPT_GENERATOR.md",
+      "sha256": "8355e80dc0ce174801325d19e68a4d24c1b501310827f7dc2d5e6affd3093e3c",
+      "bytes": 1814
+    },
+    {
+      "path": "phase-prompts/PHASE_7_PROMPT_ENGINEERING_ARCHITECTURE.md",
+      "sha256": "fb39c9010f5b3460eeb4516052bcbaf5197d54178ad03a72c48c53cb30893008",
+      "bytes": 1435
+    },
+    {
+      "path": "phase-prompts/README.md",
+      "sha256": "2dfab0f2f066d7afcd2fa4c0fce5bfae27908f81b57174d83fb91a9ac51ccc31",
+      "bytes": 141
+    },
+    {
+      "path": "phase-prompts/SESSION_STARTER.md",
+      "sha256": "8715af85ae1cb1bf403bbeed2d24a712f8b54227cad65266ea1c4be2114e5bbc",
+      "bytes": 973
+    },
+    {
+      "path": "plan-audit/FINDINGS-REGISTER.csv",
+      "sha256": "d825941f330725255e9a262d355410bcc78e4c6694fe0f483f7b14267868065a",
+      "bytes": 119
+    },
+    {
+      "path": "plan-audit/REFERENCE-DOCUMENT.md",
+      "sha256": "7b0c9cbada2d77344b6f0c72b8d35d9a34d1c32a8c217e830fa43641a7993e6a",
+      "bytes": 1024
+    },
+    {
+      "path": "prompt-engineering/AGENT-TOOL-COMPATIBILITY.md",
+      "sha256": "a4c76615e385226217ddb92db49e2cd7f5aa1bcc18e9d8945b9bb20eec01b5a4",
+      "bytes": 290
+    },
+    {
+      "path": "prompt-engineering/CONTEXT-MANAGEMENT.md",
+      "sha256": "19f168ae61cf07c527e8d3190b90d8e96e770628d1431bcf81b75dbd46cc490c",
+      "bytes": 568
+    },
+    {
+      "path": "prompt-engineering/EXECUTION-WORKFLOW.md",
+      "sha256": "3beeb00ea1d1cc231e71148163c73b5fac698e0db72c84ee6fa5a9f22269bab8",
+      "bytes": 346
+    },
+    {
+      "path": "prompt-engineering/FAILURE-AND-RECOVERY-PATTERNS.md",
+      "sha256": "8d3ca2bcb211fb853997aa43875dcd825e0bbd0d805ee83960dd0fa1999c794a",
+      "bytes": 489
+    },
+    {
+      "path": "prompt-engineering/PROMPT-EVALUATION-RUBRIC.md",
+      "sha256": "41b6614b715bb4cee1df5d7e2bdc9eb403d1525fc9aeaa23f62c4086fcea42d0",
+      "bytes": 419
+    },
+    {
+      "path": "prompt-engineering/PROMPT-GOVERNANCE.md",
+      "sha256": "5ea3b41be070d9cae290975c9320c9f5f0bf3da4363b7fd013203621ee7b7300",
+      "bytes": 401
+    },
+    {
+      "path": "prompt-engineering/PROMPT-NAMING-AND-VERSIONING.md",
+      "sha256": "6b7f2df5ac5d02fa6c8cca2ad2cf870e58c2ec9b683ebc427ce8dff2d9b79cdf",
+      "bytes": 354
+    },
+    {
+      "path": "prompt-engineering/PROMPT-REVIEW-CHECKLIST.md",
+      "sha256": "27f89fcc1fe57bcd7cd27bdf2bc33e29b40792e7c73184faa8ae086de834bc52",
+      "bytes": 584
+    },
+    {
+      "path": "prompt-engineering/REFERENCE-DOCUMENT.md",
+      "sha256": "e1845681bedaae6320e88c12b2ab710e96725331636b1524544c3ad36c2811c0",
+      "bytes": 769
+    },
+    {
+      "path": "prompt-engineering/templates/API-PROMPT-TEMPLATE.md",
+      "sha256": "78f9f02250bfca92ee20e95d86b57c9142d6eb38632251d1b7c6dbb6c07264e2",
+      "bytes": 154
+    },
+    {
+      "path": "prompt-engineering/templates/BACKEND-PROMPT-TEMPLATE.md",
+      "sha256": "f882a383597700706c58e4fd5326bc95028461e39e7288377e7c45775c0d3e48",
+      "bytes": 162
+    },
+    {
+      "path": "prompt-engineering/templates/CODE-REVIEW-PROMPT-TEMPLATE.md",
+      "sha256": "b2496215884c8945ffcf9aaaeeed13dd4ca0f625ecd97e9895d10390e19c752e",
+      "bytes": 170
+    },
+    {
+      "path": "prompt-engineering/templates/DATABASE-PROMPT-TEMPLATE.md",
+      "sha256": "5ece7815ffcda6eb640a40f9226892a3dfedfa711346b21984468db4b67e1c4f",
+      "bytes": 164
+    },
+    {
+      "path": "prompt-engineering/templates/DEPLOYMENT-PROMPT-TEMPLATE.md",
+      "sha256": "63d19b7f0b8cb4bfa28b02d245cb06477433f87426f0afb64da50f36c8d73533",
+      "bytes": 168
+    },
+    {
+      "path": "prompt-engineering/templates/FLUTTER-PROMPT-TEMPLATE.md",
+      "sha256": "8f75d41eb6493c86715ca93cccdfcd3d12a39811110c502b3671bda78b2bfd1f",
+      "bytes": 162
+    },
+    {
+      "path": "prompt-engineering/templates/REFACTORING-PROMPT-TEMPLATE.md",
+      "sha256": "8fa670966bbbb695960af47af360907455a1410be8b5153971a25145a7cf41d3",
+      "bytes": 170
+    },
+    {
+      "path": "prompt-engineering/templates/SECURITY-REVIEW-PROMPT-TEMPLATE.md",
+      "sha256": "2e3931b3fa98743d31ae80b7d2b5a472c329e0a502275a7203043542611c7543",
+      "bytes": 178
+    },
+    {
+      "path": "prompt-engineering/templates/TESTING-PROMPT-TEMPLATE.md",
+      "sha256": "49fa2e0165ac69c5902f417b0a9316d3402d641a7201bd91132ca7a2b1b982f7",
+      "bytes": 162
+    },
+    {
+      "path": "prompt-registry.yaml",
+      "sha256": "b1508b659890061ae7700a88d88755ae6dd2fc17ac3b0b651067027da21a08e7",
+      "bytes": 4000
+    },
+    {
+      "path": "roadmap-audit/FINDINGS-REGISTER.csv",
+      "sha256": "cd52cde231deb9db5fe5f10c0321061ba3b4af539ab6ff3ceb700e957d0eca16",
+      "bytes": 94
+    },
+    {
+      "path": "roadmap-audit/REFERENCE-DOCUMENT.md",
+      "sha256": "6912142870492e336ac29ca0f1a977f0083acdf9f99fd3ddb0906ce95824fe8f",
+      "bytes": 662
+    },
+    {
+      "path": "security/SECURITY-ENGINEERING-REFERENCE.md",
+      "sha256": "03b4d979d224f610812457d0a61c21fe26776620a833b27e384cd5b8bd6ece41",
+      "bytes": 751
+    },
+    {
+      "path": "security/THREAT-MODEL-TEMPLATE.md",
+      "sha256": "160306fa9529ed65ed1562d5151b739f29763a1ba78ed3920c7b314d5b978f7f",
+      "bytes": 274
+    },
+    {
+      "path": "software-idea/INPUT-QUESTIONNAIRE.md",
+      "sha256": "d1a5242de45b2748ad527636b22d928f7feefc7e149ad9afec82aaa300ae2473",
+      "bytes": 671
+    },
+    {
+      "path": "software-idea/REFERENCE-DOCUMENT.md",
+      "sha256": "51f521d06b5db266b44a00b034761837351c39d4f36365f9124f0046029efb76",
+      "bytes": 844
+    },
+    {
+      "path": "system-planning/REFERENCE-DOCUMENT.md",
+      "sha256": "a191d81560447a2c2044c2c5c02ee5b6f778312c8b90a5028a96c290e4bd593a",
+      "bytes": 1548
+    },
+    {
+      "path": "templates/ADR-TEMPLATE.md",
+      "sha256": "b697fd16982cebeb8a33f9683d089cb102fbaa87d9f0eff59847ba6a5289a5c8",
+      "bytes": 249
+    },
+    {
+      "path": "templates/AUDIT-FINDING-TEMPLATE.md",
+      "sha256": "fc66699643cf7e30c6b74d25041fa6e47336d0d87f7b0ed09b12d982328c38f8",
+      "bytes": 257
+    },
+    {
+      "path": "templates/EXECUTION-REPORT-TEMPLATE.md",
+      "sha256": "08cb1cb52cb238332731ac1a891f8c5d24eea9555201bb623bd275164385e5f3",
+      "bytes": 385
+    },
+    {
+      "path": "templates/IMPLEMENTATION-TASK-TEMPLATE.md",
+      "sha256": "fc4b604837916f7a685f82a45811ca51313145136a451264cb9fa4f90c1fbb88",
+      "bytes": 596
+    },
+    {
+      "path": "templates/REQUIREMENT-TRACEABILITY-TEMPLATE.csv",
+      "sha256": "211e8a45e7714e4c591499e96ab71ad7feb32906fa209e5254a73eba0da2694b",
+      "bytes": 138
+    },
+    {
+      "path": "templates/USER-STORY-TEMPLATE.md",
+      "sha256": "18a97e5a8f717edca4c546e5db4e1fcbfc11efe7a22b7b81898f1bcf65ea4c2a",
+      "bytes": 256
+    },
+    {
+      "path": "testing/TEST-CASE-TEMPLATE.md",
+      "sha256": "763d21ea3f5391f61605537e93c1cdf172e0e531664ed33451de9ff8bab05701",
+      "bytes": 219
+    },
+    {
+      "path": "testing/TESTING-STRATEGY-REFERENCE.md",
+      "sha256": "b2340888bf9ba1b7624aaa7f41d5b82a67485bb7583fd40997760cb3e77cb1d5",
+      "bytes": 882
+    },
+    {
+      "path": "ui-ux/UI-UX-REFERENCE.md",
+      "sha256": "281498c7be65c3bc81110a423e44ea60da1eb94838650574e3527c772f96dec5",
+      "bytes": 703
+    }
+  ]
+}

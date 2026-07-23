@@ -1,0 +1,33 @@
+{
+  "name": "@pauti-pustak/worker",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "build": "tsc -b",
+    "start": "node dist/main.js",
+    "dev": "tsx watch src/main.ts"
+  },
+  "dependencies": {
+    "@nestjs/bullmq": "^11.0.2",
+    "@nestjs/common": "^11.0.10",
+    "@nestjs/config": "^4.0.0",
+    "@nestjs/core": "^11.0.10",
+    "@pauti-pustak/backend-config": "workspace:*",
+    "@pauti-pustak/backend-database": "workspace:*",
+    "@pauti-pustak/backend-observability": "workspace:*",
+    "@pauti-pustak/backend-shared-kernel": "workspace:*",
+    "bullmq": "^5.41.4",
+    "handlebars": "^4.7.8",
+    "ioredis": "^5.5.0",
+    "nodemailer": "^6.10.0",
+    "puppeteer": "^24.2.1",
+    "reflect-metadata": "^0.2.2",
+    "rxjs": "^7.8.1"
+  },
+  "devDependencies": {
+    "@types/node": "^22.13.4",
+    "@types/nodemailer": "^6.4.17",
+    "tsx": "^4.19.2",
+    "typescript": "^5.7.3"
+  }
+}

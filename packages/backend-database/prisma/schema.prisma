@@ -1,0 +1,1573 @@
+generator client {
+  provider      = "prisma-client-js"
+  output        = "../src/generated/client"
+  binaryTargets = ["native"]
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ============================================================
+// Cross-cutting infrastructure (unchanged from Phase 0 scaffold)
+// ============================================================
+
+model HealthCheckRecord {
+  id        String   @id @default(uuid()) @db.Uuid
+  status    String   @db.VarChar(50)
+  details   Json?    @db.JsonB
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+
+  @@index([createdAt])
+  @@map("health_check_records")
+}
+
+model IdempotencyRecord {
+  id             String    @id @default(uuid()) @db.Uuid
+  idempotencyKey String    @unique @map("idempotency_key") @db.VarChar(255)
+  tenantId       String?   @map("tenant_id") @db.Uuid
+  requestPath    String    @map("request_path") @db.VarChar(500)
+  requestHash    String    @map("request_hash") @db.VarChar(64)
+  responseStatus Int       @map("response_status")
+  responseBody   Json      @map("response_body") @db.JsonB
+  createdAt      DateTime  @default(now()) @map("created_at") @db.Timestamptz(6)
+  expiresAt      DateTime? @map("expires_at") @db.Timestamptz(6)
+
+  @@index([idempotencyKey])
+  @@index([tenantId, idempotencyKey])
+  @@index([expiresAt])
+  @@map("idempotency_records")
+}
+
+model OutboxEvent {
+  id            String    @id @default(uuid()) @db.Uuid
+  tenantId      String?   @map("tenant_id") @db.Uuid
+  aggregateType String    @map("aggregate_type") @db.VarChar(100)
+  aggregateId   String    @map("aggregate_id") @db.VarChar(255)
+  eventType     String    @map("event_type") @db.VarChar(100)
+  payload       Json      @db.JsonB
+  amountPaise   BigInt?   @map("amount_paise") @db.BigInt
+  status        String    @default("PENDING") @db.VarChar(20)
+  retryCount    Int       @default(0) @map("retry_count")
+  lastError     String?   @map("last_error") @db.Text
+  createdAt     DateTime  @default(now()) @map("created_at") @db.Timestamptz(6)
+  processedAt   DateTime? @map("processed_at") @db.Timestamptz(6)
+
+  @@index([status, createdAt])
+  @@index([tenantId, aggregateType])
+  @@map("outbox_events")
+}
+
+model InboxMessage {
+  id          String    @id @default(uuid()) @db.Uuid
+  messageId   String    @unique @map("message_id") @db.VarChar(255)
+  tenantId    String?   @map("tenant_id") @db.Uuid
+  sourceTopic String    @map("source_topic") @db.VarChar(100)
+  payload     Json      @db.JsonB
+  status      String    @default("PENDING") @db.VarChar(20)
+  createdAt   DateTime  @default(now()) @map("created_at") @db.Timestamptz(6)
+  processedAt DateTime? @map("processed_at") @db.Timestamptz(6)
+
+  @@index([messageId])
+  @@index([status, createdAt])
+  @@map("inbox_messages")
+}
+
+// ============================================================
+// NOTE ON THE MODELS BELOW
+//
+// Added in one pass from the backend spec
+// (Pauti_Pustak_Backend_System_Architecture_Module_Requirements_Enterprise_v2.1_Revised.pdf).
+// A handful of models in that source PDF were column-misaligned by
+// PDF text extraction (attributes shifted onto the wrong field). Where
+// that happened, the field was reconstructed from the module's stated
+// functional requirements and enum shapes rather than copied verbatim
+// -- flagged inline with "// reconstructed". Relations (`@relation`)
+// were only added where the source text showed them explicitly, or
+// where a model on one side already declares a back-relation array
+// that requires a matching foreign side; every other cross-model
+// reference is intentionally a plain scalar *Id column with no FK,
+// matching the spec's own "no cross-service FK" convention for fields
+// that belong to a different bounded context/service.
+//
+// This has not been run through `prisma validate`/`prisma format` in
+// this environment (no Prisma CLI available) -- do that before relying
+// on it, per this project's own evidence policy.
+// ============================================================
+
+// ------------------------------------------------------------
+// Service: identity-service -- Users, Authentication, Sessions
+// ------------------------------------------------------------
+
+enum UserStatus {
+  ACTIVE
+  DEACTIVATED
+  LOCKED
+  MERGED
+}
+
+enum PreferredLanguage {
+  EN
+  MR
+  HI
+}
+
+enum PlatformRole {
+  USER
+  SUPER_ADMIN
+}
+
+model User {
+  id                 String            @id @default(uuid()) @db.Uuid
+  displayName        String            @db.VarChar(150)
+  preferredLanguage  PreferredLanguage @default(EN)
+  platformRole       PlatformRole      @default(USER)
+  status             UserStatus        @default(ACTIVE)
+  primaryMobile      String?           @unique @db.VarChar(20)
+  primaryEmail       String?           @unique @db.VarChar(320)
+  avatarDocumentId   String?           @db.Uuid
+  mobileVerifiedAt   DateTime?
+  emailVerifiedAt    DateTime?
+  tokenVersion       Int               @default(1)
+  deactivatedAt      DateTime?
+  deactivationReason String?           @db.Text
+  mergedIntoUserId   String?           @db.Uuid
+  createdAt          DateTime          @default(now())
+  updatedAt          DateTime          @updatedAt
+
+  mergedInto  User?            @relation("UserMerge", fields: [mergedIntoUserId], references: [id])
+  mergedUsers User[]           @relation("UserMerge")
+  identities  AuthIdentity[]
+  sessions    RefreshSession[]
+  otpChallenges OtpChallenge[]
+
+  @@index([status, createdAt])
+  @@index([platformRole, status])
+  @@map("users")
+}
+
+enum AuthProvider {
+  MOBILE_OTP
+  EMAIL_PASSWORD
+}
+
+enum AuthSessionStatus {
+  ACTIVE
+  REVOKED
+  EXPIRED
+  COMPROMISED
+}
+
+enum OtpPurpose {
+  LOGIN
+  VERIFY_MOBILE
+  PASSWORD_RESET
+  INVITATION_ACCEPTANCE
+}
+
+model AuthIdentity {
+  id                  String       @id @default(uuid()) @db.Uuid
+  userId              String       @db.Uuid
+  provider            AuthProvider
+  normalizedValue     String       @db.VarChar(320)
+  isVerified          Boolean      @default(false)
+  passwordHash        String?
+  failedLoginCount    Int          @default(0)
+  lockedUntil         DateTime?
+  lastAuthenticatedAt DateTime?
+  createdAt           DateTime     @default(now())
+  updatedAt           DateTime     @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, normalizedValue])
+  @@index([userId, isVerified])
+  @@map("auth_identities")
+}
+
+model OtpChallenge {
+  id               String     @id @default(uuid()) @db.Uuid
+  userId           String?    @db.Uuid
+  normalizedMobile String     @db.VarChar(20)
+  purpose          OtpPurpose
+  otpHash          String
+  attemptCount     Int        @default(0)
+  maxAttempts      Int        @default(5)
+  expiresAt        DateTime
+  consumedAt       DateTime?
+  requestIpHash    String?
+  createdAt        DateTime   @default(now())
+
+  user User? @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([normalizedMobile, purpose, expiresAt])
+  @@map("otp_challenges")
+}
+
+model RefreshSession {
+  id               String            @id @default(uuid()) @db.Uuid
+  userId           String            @db.Uuid
+  tokenFamilyId    String            @default(uuid()) @db.Uuid // reconstructed
+  tokenHash        String
+  status           AuthSessionStatus @default(ACTIVE)
+  tokenVersion     Int               @default(1)
+  userAgentHash    String?
+  ipAddressHash    String?
+  expiresAt        DateTime
+  rotatedAt        DateTime?
+  revokedAt        DateTime?
+  revocationReason String?
+  createdAt        DateTime          @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, status])
+  @@index([tokenFamilyId])
+  @@index([expiresAt])
+  @@map("refresh_sessions")
+}
+
+// ------------------------------------------------------------
+// Service: donor-service -- canonical donor identity & merge
+// ------------------------------------------------------------
+
+enum DonorProfileStatus {
+  UNCLAIMED
+  ACTIVE
+  DEACTIVATED
+  MERGED
+}
+
+model DonorProfile {
+  id              String             @id @default(uuid()) @db.Uuid
+  userId          String             @unique @db.Uuid
+  fullName        String             @db.VarChar(150)
+  mobile          String?            @db.VarChar(20)
+  email           String?            @db.VarChar(320)
+  status          DonorProfileStatus @default(UNCLAIMED)
+  createdByUserId String?            @db.Uuid
+  createdByOrgId  String?            @db.Uuid
+  claimedAt       DateTime?
+  deactivatedAt   DateTime?
+  createdAt       DateTime           @default(now())
+  updatedAt       DateTime           @updatedAt
+
+  aliases DonorAlias[]
+
+  @@index([mobile])
+  @@index([email])
+  @@index([createdByOrgId, createdAt])
+  @@map("donor_profiles")
+}
+
+model DonorAlias {
+  id               String   @id @default(uuid()) @db.Uuid
+  survivingDonorId String   @db.Uuid
+  mergedDonorId    String   @unique @db.Uuid
+  previousMobile   String?
+  previousEmail    String?
+  mergeLogId       String   @db.Uuid
+  createdAt        DateTime @default(now())
+
+  survivingDonor DonorProfile @relation(fields: [survivingDonorId], references: [id])
+
+  @@index([survivingDonorId])
+  @@map("donor_aliases")
+}
+
+model DonorMergeLog {
+  id                String   @id @default(uuid()) @db.Uuid
+  survivingDonorId  String   @db.Uuid
+  mergedDonorId     String   @db.Uuid
+  performedByUserId String   @db.Uuid
+  reason            String   @db.Text
+  referenceCounts   Json
+  preMergeSnapshot  Json
+  createdAt         DateTime @default(now())
+
+  @@unique([survivingDonorId, mergedDonorId])
+  @@map("donor_merge_logs")
+}
+
+// ------------------------------------------------------------
+// Service: tenant-service -- Organizations, Memberships, Roles
+// ------------------------------------------------------------
+
+enum OrganizationStatus {
+  ACTIVE
+  CORRECTION_REQUIRED
+  SUSPENDED
+  REJECTED
+  CLOSED
+}
+
+model Organization {
+  id                     String             @id @default(uuid()) @db.Uuid
+  code                   String             @unique @db.VarChar(20)
+  name                   String             @db.VarChar(200)
+  addressLine1           String             @db.VarChar(250)
+  addressLine2           String?            @db.VarChar(250)
+  city                   String             @db.VarChar(100)
+  state                  String             @db.VarChar(100)
+  postalCode             String             @db.VarChar(12)
+  countryCode            String             @default("IN") @db.Char(2)
+  status                 OrganizationStatus @default(ACTIVE)
+  ownerUserId            String             @db.Uuid
+  logoDocumentId         String?            @db.Uuid
+  registrationNumber     String?            @db.VarChar(100)
+  panEncrypted           String?
+  registrationDocumentId String?            @db.Uuid
+  primaryMobile          String?            @db.VarChar(20)
+  primaryEmail           String?            @db.VarChar(320)
+  bankAccountConfigured  Boolean            @default(false)
+  upiConfigured          Boolean            @default(false)
+  correctionNotes        String?            @db.Text
+  statusReason           String?            @db.Text
+  activatedAt            DateTime           @default(now())
+  suspendedAt            DateTime?
+  closedAt               DateTime?
+  createdAt              DateTime           @default(now())
+  updatedAt              DateTime           @updatedAt
+
+  roles OrganizationRole[]
+
+  @@index([status, createdAt])
+  @@index([ownerUserId])
+  @@index([name])
+  @@map("organizations")
+}
+
+enum MembershipStatus {
+  INVITED
+  ACTIVE
+  INACTIVE
+  REMOVED
+  EXPIRED
+  REVOKED
+}
+
+enum InvitationDeliveryMethod {
+  MOBILE
+  EMAIL
+  DIRECT_CREATE
+}
+
+model OrganizationMembership {
+  id              String                    @id @default(uuid()) @db.Uuid
+  organizationId  String                    @db.Uuid
+  userId          String                    @db.Uuid
+  roleId          String                    @db.Uuid
+  status          MembershipStatus          @default(ACTIVE)
+  isOwner         Boolean                   @default(false)
+  invitedByUserId String?                   @db.Uuid
+  deliveryMethod  InvitationDeliveryMethod?
+  invitedAt       DateTime?
+  acceptedAt      DateTime?
+  removedAt       DateTime?
+  createdAt       DateTime                  @default(now())
+  updatedAt       DateTime                  @updatedAt
+
+  role OrganizationRole @relation(fields: [roleId], references: [id], onDelete: Restrict)
+
+  // "Enforce one active organization membership per user across the platform"
+  // (FR45) is a platform-wide rule, not a per-organization one, so it is not
+  // representable as a single-column DB constraint here -- enforce it in the
+  // membership-creation transaction at the application layer.
+  @@unique([organizationId, userId])
+  @@index([organizationId, status])
+  @@index([userId, status])
+  @@map("organization_memberships")
+}
+
+model Permission {
+  id          String   @id @default(uuid()) @db.Uuid
+  code        String   @unique @db.VarChar(100)
+  module      String   @db.VarChar(50)
+  action      String   @db.VarChar(50)
+  description String   @db.VarChar(250)
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+
+  rolePermissions RolePermission[]
+
+  @@map("permissions")
+}
+
+model OrganizationRole {
+  id              String   @id @default(uuid()) @db.Uuid
+  organizationId  String   @db.Uuid
+  name            String   @db.VarChar(100)
+  description     String?  @db.VarChar(250)
+  isSystem        Boolean  @default(false)
+  isOwnerRole     Boolean  @default(false)
+  isActive        Boolean  @default(true)
+  createdByUserId String   @db.Uuid
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  organization Organization             @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  permissions  RolePermission[]
+  memberships  OrganizationMembership[]
+
+  @@unique([organizationId, name])
+  @@index([organizationId, isActive])
+  @@map("organization_roles")
+}
+
+model RolePermission {
+  roleId          String   @db.Uuid
+  permissionId    String   @db.Uuid
+  grantedByUserId String   @db.Uuid
+  grantedAt       DateTime @default(now())
+
+  role       OrganizationRole @relation(fields: [roleId], references: [id], onDelete: Cascade)
+  permission Permission       @relation(fields: [permissionId], references: [id], onDelete: Restrict)
+
+  @@id([roleId, permissionId])
+  @@index([permissionId])
+  @@map("role_permissions")
+}
+
+// ------------------------------------------------------------
+// Service: event-service -- Events & lifecycle
+// ------------------------------------------------------------
+
+enum EventStatus {
+  DRAFT
+  ACTIVE
+  COMPLETED
+  FINANCIALLY_CLOSED
+  ARCHIVED
+}
+
+model Event {
+  id                String      @id @default(uuid()) @db.Uuid
+  organizationId    String      @db.Uuid
+  eventTypeCode     String      @db.VarChar(50)
+  code              String      @db.VarChar(20)
+  name              String      @db.VarChar(200) // reconstructed
+  status            EventStatus @default(DRAFT)
+  startDate         DateTime? // reconstructed
+  endDate           DateTime? // reconstructed
+  location          String?     @db.VarChar(250) // reconstructed
+  financialYear     String?     @db.VarChar(20) // reconstructed
+  targetAmountPaise BigInt? // reconstructed
+  activatedByUserId String?     @db.Uuid
+  activatedAt       DateTime?
+  completedByUserId String?     @db.Uuid
+  completedAt       DateTime?
+  closedByUserId    String?     @db.Uuid
+  closedAt          DateTime?
+  reopenedReason    String?     @db.Text
+  archivedByUserId  String?     @db.Uuid
+  archivedAt        DateTime?
+  createdByUserId   String      @db.Uuid
+  createdAt         DateTime    @default(now())
+  updatedAt         DateTime    @updatedAt
+
+  @@unique([organizationId, code])
+  @@index([organizationId, status])
+  @@map("events")
+}
+
+// ------------------------------------------------------------
+// Service: volunteer-service -- Volunteers & assignments
+// ------------------------------------------------------------
+
+enum VolunteerStatus {
+  DRAFT
+  ACTIVE
+  SUSPENDED
+  INACTIVE
+}
+
+enum VolunteerType {
+  GENERAL
+  DONATION_COLLECTOR
+  EVENT_COORDINATOR
+  FINANCE_VOLUNTEER
+  DECORATION
+  FOOD_DISTRIBUTION
+  CROWD_MANAGEMENT
+  CUSTOM
+}
+
+model Volunteer {
+  id                        String          @id @default(uuid()) @db.Uuid
+  organizationId            String          @db.Uuid
+  linkedUserId              String?         @unique @db.Uuid
+  volunteerCode             String          @db.VarChar(30)
+  type                      VolunteerType
+  customTypeLabel           String?         @db.VarChar(100)
+  status                    VolunteerStatus @default(DRAFT)
+  fullName                  String          @db.VarChar(160)
+  mobileEncrypted           String
+  mobileHash                String          @db.VarChar(128)
+  emailEncrypted            String?
+  preferredLanguage         String          @default("mr") @db.VarChar(10)
+  addressSnapshot           Json?
+  emergencyContactEncrypted String?
+  joinedOn                  DateTime?
+  profileDocumentId         String?         @db.Uuid
+  createdByUserId           String          @db.Uuid
+  version                   Int             @default(1)
+  createdAt                 DateTime        @default(now())
+  updatedAt                 DateTime        @updatedAt
+
+  @@unique([organizationId, volunteerCode])
+  @@index([organizationId, status, type])
+  @@index([organizationId, mobileHash])
+  @@map("volunteers")
+}
+
+enum VolunteerAssignmentStatus {
+  PLANNED
+  ACTIVE
+  COMPLETED
+  CANCELLED
+}
+
+enum AssignmentScopeType {
+  EVENT
+  AREA
+  ROUTE
+  SOCIETY
+  VILLAGE
+  WARD
+  CONTRIBUTOR_PORTFOLIO
+  RECEIPT_BOOK
+  CAMPAIGN
+}
+
+model VolunteerAssignment {
+  id               String                    @id @default(uuid()) @db.Uuid
+  organizationId   String                    @db.Uuid
+  eventId          String                    @db.Uuid
+  volunteerId      String                    @db.Uuid
+  roleCode         String                    @db.VarChar(80)
+  scopeType        AssignmentScopeType
+  scopeReferenceId String?                   @db.VarChar(120)
+  scopeSnapshot    Json
+  startsAt         DateTime
+  endsAt           DateTime?
+  status           VolunteerAssignmentStatus @default(PLANNED)
+  assignedByUserId String                    @db.Uuid
+  endedByUserId    String?                   @db.Uuid
+  endReason        String?                   @db.Text
+  createdAt        DateTime                  @default(now())
+
+  @@index([organizationId, eventId, volunteerId, status])
+  @@index([organizationId, eventId, scopeType, scopeReferenceId])
+  @@map("volunteer_assignments")
+}
+
+// ------------------------------------------------------------
+// Service: donor-service -- event-scoped Contributor Accounts
+// ------------------------------------------------------------
+
+enum ContributorAccountType {
+  INDIVIDUAL
+  FAMILY_HOUSEHOLD
+  SHOP_BUSINESS
+  HOUSING_SOCIETY
+  INSTITUTION
+  SPONSOR
+  GOVERNMENT_BODY
+  OTHER
+}
+
+enum BillingMode {
+  FIXED
+  SUGGESTED
+  OPEN_AMOUNT
+  NO_BILL
+}
+
+enum ContributorAccountStatus {
+  ACTIVE
+  INACTIVE
+  MERGED
+}
+
+enum PublicVisibility {
+  NAME_AND_AMOUNT
+  PRIVATE
+}
+
+model ContributorAccount {
+  id                     String                   @id @default(uuid()) @db.Uuid
+  organizationId         String                   @db.Uuid
+  eventId                String                   @db.Uuid
+  donorProfileId         String                   @db.Uuid
+  accountCode            String                   @db.VarChar(40)
+  type                   ContributorAccountType
+  status                 ContributorAccountStatus @default(ACTIVE)
+  displayName            String                   @db.VarChar(200)
+  contactPerson          String?                  @db.VarChar(160)
+  contactSnapshot        Json
+  billingAddressSnapshot Json
+  areaCode               String?                  @db.VarChar(80)
+  routeCode              String?                  @db.VarChar(80)
+  categoryCode           String?                  @db.VarChar(80)
+  billingMode            BillingMode              @default(SUGGESTED)
+  requestedAmountPaise   BigInt?
+  assignedVolunteerId    String?                  @db.Uuid
+  preferredLanguage      String                   @default("mr") @db.VarChar(10)
+  publicVisibility       PublicVisibility         @default(NAME_AND_AMOUNT)
+  createdByUserId        String                   @db.Uuid
+  version                Int                      @default(1)
+  createdAt              DateTime                 @default(now())
+  updatedAt              DateTime                 @updatedAt
+
+  @@unique([organizationId, eventId, accountCode])
+  @@index([organizationId, eventId, status, areaCode])
+  @@index([organizationId, eventId, assignedVolunteerId])
+  @@map("contributor_accounts")
+}
+
+// ------------------------------------------------------------
+// Service: contribution-service -- Receipt Books & numbering
+// ------------------------------------------------------------
+
+enum ReceiptBookStatus {
+  OPEN
+  CLOSED
+}
+
+model ReceiptBook {
+  id                  String            @id @default(uuid()) @db.Uuid
+  organizationId      String            @db.Uuid
+  eventId             String            @db.Uuid
+  code                String            @db.VarChar(20)
+  displayName         String            @db.VarChar(100)
+  assignedCollectorId String?           @db.Uuid
+  status              ReceiptBookStatus @default(OPEN)
+  openedByUserId      String            @db.Uuid
+  openedAt            DateTime          @default(now())
+  closedByUserId      String?           @db.Uuid
+  closedAt            DateTime?
+  closeReason         String?           @db.Text
+
+  @@unique([organizationId, eventId, code])
+  @@index([organizationId, eventId, status])
+  @@map("receipt_books")
+}
+
+model ReceiptCounter {
+  id             String   @id @default(uuid()) @db.Uuid
+  organizationId String   @db.Uuid
+  eventId        String   @db.Uuid
+  calendarYear   Int
+  lastSequence   BigInt   @default(0)
+  updatedAt      DateTime @updatedAt
+
+  @@unique([organizationId, eventId, calendarYear])
+  @@map("receipt_counters")
+}
+
+model ReceiptNumberReservation {
+  id             String   @id @default(uuid()) @db.Uuid
+  organizationId String   @db.Uuid
+  eventId        String   @db.Uuid
+  receiptBookId  String   @db.Uuid
+  calendarYear   Int
+  sequence       BigInt
+  receiptNumber  String   @unique @db.VarChar(80)
+  receiptId      String   @unique @db.Uuid
+  allocatedAt    DateTime @default(now())
+
+  @@unique([organizationId, eventId, calendarYear, sequence])
+  @@index([receiptBookId, allocatedAt])
+  @@map("receipt_number_reservations")
+}
+
+// ------------------------------------------------------------
+// Service: contribution-service -- Personalized Contribution Bills
+// ------------------------------------------------------------
+
+enum ContributionBillStatus {
+  DRAFT
+  GENERATED
+  ISSUED
+  PARTIALLY_PAID
+  PAID
+  OVERDUE
+  WAIVED
+  CANCELLED
+  RENDER_FAILED
+  REPLACED
+}
+
+enum BillAmountMode {
+  FIXED
+  OPEN_AMOUNT
+}
+
+enum ContributionType {
+  CONTRIBUTION
+  SPONSORSHIP
+  ADVERTISEMENT
+  MEMBERSHIP
+  GRANT
+  OTHER
+}
+
+model ContributionBill {
+  id                       String                 @id @default(uuid()) @db.Uuid
+  organizationId           String                 @db.Uuid
+  eventId                  String                 @db.Uuid
+  contributorAccountId     String                 @db.Uuid
+  assignedVolunteerId      String?                @db.Uuid
+  billNumber               String?                @unique @db.VarChar(90)
+  sequence                 BigInt?
+  calendarYear             Int?
+  status                   ContributionBillStatus @default(DRAFT)
+  amountMode               BillAmountMode         @default(FIXED)
+  requestedAmountPaise     BigInt?
+  waiverAmountPaise        BigInt                 @default(0)
+  payableAmountPaise       BigInt?
+  confirmedCollectionPaise BigInt                 @default(0)
+  outstandingAmountPaise   BigInt?
+  issueDate                DateTime?
+  dueDate                  DateTime?
+  personalizedMessage      String?                @db.Text
+  languageCode             String                 @default("mr") @db.VarChar(10)
+  snapshot                 Json?
+  paymentTokenHash         String?                @unique
+  pdfDocumentId            String?                @unique @db.Uuid
+  templateVersion          String?                @db.VarChar(60)
+  issuedByUserId           String?                @db.Uuid
+  cancelledByUserId        String?                @db.Uuid
+  cancellationReason       String?                @db.Text
+  replacesBillId           String?                @unique @db.Uuid
+  replacedByBillId         String?                @unique @db.Uuid
+  idempotencyKey           String                 @unique @db.VarChar(120)
+  version                  Int                    @default(1)
+  createdAt                DateTime               @default(now())
+  updatedAt                DateTime               @updatedAt
+
+  lines ContributionBillLine[]
+
+  @@index([organizationId, eventId, status, issueDate])
+  @@index([organizationId, eventId, assignedVolunteerId])
+  @@index([contributorAccountId, createdAt])
+  @@map("contribution_bills")
+}
+
+model ContributionBillLine {
+  id               String           @id @default(uuid()) @db.Uuid
+  billId           String           @db.Uuid
+  lineNo           Int
+  contributionType ContributionType
+  description      String           @db.VarChar(250)
+  amountPaise      BigInt?
+  metadata         Json?
+
+  bill ContributionBill @relation(fields: [billId], references: [id], onDelete: Cascade)
+
+  @@unique([billId, lineNo])
+  @@map("contribution_bill_lines")
+}
+
+enum JobStatus {
+  QUEUED
+  RUNNING
+  COMPLETED
+  FAILED
+}
+
+model BillGenerationJob {
+  id                 String    @id @default(uuid()) @db.Uuid
+  organizationId     String    @db.Uuid
+  eventId            String    @db.Uuid
+  requestedByUserId  String    @db.Uuid
+  filters            Json
+  templateVersion    String    @db.VarChar(60)
+  idempotencyKey     String    @unique @db.VarChar(120)
+  status             JobStatus @default(QUEUED)
+  totalCount         Int       @default(0)
+  generatedCount     Int       @default(0)
+  skippedCount       Int       @default(0)
+  failedCount        Int       @default(0)
+  manifestDocumentId String?   @db.Uuid
+  createdAt          DateTime  @default(now())
+
+  @@map("bill_generation_jobs")
+}
+
+// ------------------------------------------------------------
+// Service: contribution-service -- Payment Collection Records
+// ------------------------------------------------------------
+
+enum CollectionStatus {
+  RECORDED
+  PENDING_VERIFICATION
+  PENDING_CHEQUE_CLEARANCE
+  CONFIRMED
+  REJECTED
+  CANCELLED
+  CHEQUE_BOUNCED
+  PARTIALLY_REFUNDED
+  REFUNDED
+}
+
+enum CollectionMode {
+  CASH
+  UPI
+  BANK_TRANSFER
+  CHEQUE
+  RAZORPAY
+  CARD
+  OTHER
+}
+
+enum CollectionSource {
+  ADMIN_WEB
+  COLLECTOR_WEB
+  COLLECTOR_MOBILE
+  PUBLIC_PAYMENT
+  IMPORT
+  API
+}
+
+model CollectionRecord {
+  id                   String           @id @default(uuid()) @db.Uuid
+  organizationId       String           @db.Uuid
+  eventId              String           @db.Uuid
+  contributorAccountId String           @db.Uuid
+  billId               String?          @db.Uuid
+  contributionId       String?          @db.Uuid
+  collectorVolunteerId String?          @db.Uuid
+  status               CollectionStatus @default(RECORDED)
+  mode                 CollectionMode
+  source               CollectionSource
+  amountPaise          BigInt
+  currency             String           @default("INR") @db.Char(3)
+  collectedAt          DateTime
+  paymentReference     String?          @db.VarChar(160)
+  providerPaymentId    String?          @unique @db.VarChar(160)
+  chequeSnapshot       Json?
+  locationSnapshot     Json?
+  evidenceDocumentId   String?          @db.Uuid
+  contributorSnapshot  Json?
+  collectorSnapshot    Json?
+  verifiedByUserId     String?          @db.Uuid
+  verifiedAt           DateTime?
+  rejectionReason      String?          @db.Text
+  receiptId            String?          @unique @db.Uuid
+  idempotencyKey       String           @unique @db.VarChar(120)
+  createdByUserId      String           @db.Uuid
+  createdAt            DateTime         @default(now())
+  updatedAt            DateTime         @updatedAt
+
+  allocations CollectionAllocation[]
+
+  @@index([organizationId, eventId, status, collectedAt])
+  @@index([organizationId, eventId, collectorVolunteerId])
+  @@index([billId, status])
+  @@map("collection_records")
+}
+
+model CollectionAllocation {
+  id                 String   @id @default(uuid()) @db.Uuid
+  collectionRecordId String   @db.Uuid
+  billId             String?  @db.Uuid
+  contributionId     String   @db.Uuid
+  amountPaise        BigInt
+  createdAt          DateTime @default(now())
+
+  collection CollectionRecord @relation(fields: [collectionRecordId], references: [id], onDelete: Restrict)
+
+  @@unique([collectionRecordId, contributionId, billId])
+  @@index([billId, createdAt])
+  @@map("collection_allocations")
+}
+
+enum SettlementStatus {
+  SUBMITTED
+  APPROVED
+  REJECTED
+}
+
+model CollectorSettlement {
+  id                   String           @id @default(uuid()) @db.Uuid
+  organizationId       String           @db.Uuid
+  eventId              String           @db.Uuid
+  collectorVolunteerId String           @db.Uuid
+  settlementDate       DateTime
+  expectedCashPaise    BigInt
+  handedOverCashPaise  BigInt
+  variancePaise        BigInt
+  status               SettlementStatus @default(SUBMITTED)
+  reason               String?          @db.Text
+  submittedByUserId    String           @db.Uuid
+  approvedByUserId     String?          @db.Uuid
+  idempotencyKey       String           @unique @db.VarChar(120)
+  createdAt            DateTime         @default(now())
+
+  @@unique([organizationId, eventId, collectorVolunteerId, settlementDate])
+  @@map("collector_settlements")
+}
+
+// ------------------------------------------------------------
+// Service: contribution-service -- Unified Contribution Records
+// ------------------------------------------------------------
+
+enum ContributionSourceType {
+  BILL_COLLECTION
+  DIRECT
+  SPONSORSHIP
+  ADVERTISEMENT
+  MEMBERSHIP
+  GOVERNMENT_GRANT
+  INSTITUTIONAL_GRANT
+  IMPORTED_LEGACY
+}
+
+enum ContributionStatus {
+  DRAFT
+  PENDING
+  PARTIALLY_RECEIVED
+  CONFIRMED
+  RECEIPT_ISSUED
+  CANCELLED
+  PARTIALLY_REFUNDED
+  REFUNDED
+}
+
+model ContributionRecord {
+  id                   String                 @id @default(uuid()) @db.Uuid
+  legacyDonationId     String?                @unique @db.Uuid
+  organizationId       String                 @db.Uuid
+  eventId              String                 @db.Uuid
+  contributorAccountId String                 @db.Uuid
+  sourceType           ContributionSourceType
+  status               ContributionStatus     @default(DRAFT)
+  billId               String?                @db.Uuid
+  pledgedAmountPaise   BigInt?
+  confirmedAmountPaise BigInt                 @default(0)
+  refundedAmountPaise  BigInt                 @default(0)
+  purpose              String?                @db.VarChar(250)
+  publicVisibility     PublicVisibility       @default(NAME_AND_AMOUNT)
+  snapshot             Json?
+  idempotencyKey       String                 @unique @db.VarChar(120)
+  createdByUserId      String                 @db.Uuid
+  createdAt            DateTime               @default(now())
+  updatedAt            DateTime               @updatedAt
+
+  @@index([organizationId, eventId, status, createdAt])
+  @@index([contributorAccountId, createdAt])
+  @@index([billId])
+  @@map("contribution_records")
+}
+
+// ------------------------------------------------------------
+// Service: contribution-service -- Contribution Receipts
+// ------------------------------------------------------------
+
+enum ReceiptSourceType {
+  CONTRIBUTION_COLLECTION
+  IN_KIND_CONTRIBUTION
+  LEGACY_DONATION_INSTALLMENT
+}
+
+enum ReceiptStatus {
+  GENERATING
+  ISSUED
+  CANCELLED
+  PARTIALLY_REFUNDED
+  REFUNDED
+  RENDER_FAILED
+  REPLACED
+}
+
+model Receipt {
+  id                        String            @id @default(uuid()) @db.Uuid
+  organizationId            String            @db.Uuid
+  eventId                   String            @db.Uuid
+  receiptBookId             String            @db.Uuid
+  sourceType                ReceiptSourceType
+  contributionId            String?           @db.Uuid
+  collectionRecordId        String?           @unique @db.Uuid
+  billId                    String?           @db.Uuid
+  contributorAccountId      String            @db.Uuid
+  collectorVolunteerId      String?           @db.Uuid
+  receiptNumber             String            @unique @db.VarChar(90)
+  sequence                  BigInt
+  calendarYear              Int
+  status                    ReceiptStatus     @default(GENERATING)
+  amountPaise               BigInt?
+  cumulativeConfirmedPaise  BigInt?
+  remainingBillBalancePaise BigInt?
+  verificationTokenHash     String            @unique
+  snapshot                  Json
+  snapshotChecksum          String            @db.VarChar(128)
+  pdfDocumentId             String?           @unique @db.Uuid
+  templateVersion           String            @db.VarChar(60)
+  issuedByUserId            String            @db.Uuid
+  issuedAt                  DateTime?
+  replacesReceiptId         String?           @unique @db.Uuid
+  replacedByReceiptId       String?           @unique @db.Uuid
+  createdAt                 DateTime          @default(now())
+  updatedAt                 DateTime          @updatedAt
+
+  @@index([organizationId, eventId, issuedAt])
+  @@index([billId, issuedAt])
+  @@index([collectorVolunteerId, issuedAt])
+  @@map("receipts")
+}
+
+// ------------------------------------------------------------
+// Service: finance-service -- Vendors
+// ------------------------------------------------------------
+
+enum VendorStatus {
+  ACTIVE
+  INACTIVE
+}
+
+model Vendor {
+  id                   String       @id @default(uuid()) @db.Uuid
+  organizationId       String       @db.Uuid
+  name                 String       @db.VarChar(200)
+  contactPerson        String?      @db.VarChar(150)
+  mobile               String?      @db.VarChar(20)
+  email                String?      @db.VarChar(320)
+  address              String?      @db.Text
+  gstinEncrypted       String?
+  panEncrypted         String?
+  bankAccountEncrypted String?
+  bankIfscEncrypted    String?
+  status               VendorStatus @default(ACTIVE)
+  createdByUserId      String       @db.Uuid
+  deactivatedByUserId  String?      @db.Uuid
+  deactivatedAt        DateTime?
+  createdAt            DateTime     @default(now())
+  updatedAt            DateTime     @updatedAt
+
+  expenses Expense[]
+
+  @@unique([organizationId, name])
+  @@index([organizationId, status])
+  @@index([organizationId, mobile])
+  @@map("vendors")
+}
+
+// ------------------------------------------------------------
+// Service: finance-service -- Expense Approval Policies
+// ------------------------------------------------------------
+
+model ExpenseApprovalPolicy {
+  id                String    @id @default(uuid()) @db.Uuid
+  organizationId    String    @db.Uuid
+  version           Int
+  name              String    @db.VarChar(120)
+  isActive          Boolean   @default(false)
+  effectiveFrom     DateTime
+  effectiveTo       DateTime?
+  createdByUserId   String    @db.Uuid
+  activatedByUserId String?   @db.Uuid
+  createdAt         DateTime  @default(now())
+
+  bands ExpenseApprovalPolicyBand[]
+
+  @@unique([organizationId, version])
+  @@index([organizationId, isActive, effectiveFrom])
+  @@map("expense_approval_policies")
+}
+
+model ExpenseApprovalPolicyBand {
+  id                      String  @id @default(uuid()) @db.Uuid
+  policyId                String  @db.Uuid
+  minAmountPaise          BigInt
+  maxAmountPaise          BigInt?
+  requiredApprovals       Int
+  requiredRoleNames       Json
+  requireOwnerOrTreasurer Boolean @default(false)
+  sequenceDefinition      Json
+
+  policy ExpenseApprovalPolicy @relation(fields: [policyId], references: [id], onDelete: Cascade)
+
+  @@index([policyId, minAmountPaise])
+  @@map("expense_approval_policy_bands")
+}
+
+model ExpenseApprovalPolicySnapshot {
+  id                   String   @id @default(uuid()) @db.Uuid
+  expenseId            String   @unique @db.Uuid
+  sourcePolicyId       String   @db.Uuid
+  sourcePolicyVersion  Int
+  evaluatedAmountPaise BigInt
+  requiredApprovals    Int
+  steps                Json
+  snapshot             Json
+  createdAt            DateTime @default(now())
+
+  @@index([sourcePolicyId, sourcePolicyVersion])
+  @@map("expense_approval_policy_snapshots")
+}
+
+// ------------------------------------------------------------
+// Service: finance-service -- Expense Management & Payments
+// ------------------------------------------------------------
+
+enum ExpenseStatus {
+  DRAFT
+  SUBMITTED
+  UNDER_APPROVAL
+  APPROVED
+  PARTIALLY_PAID
+  PAID
+  REJECTED
+  CANCELLATION_PENDING
+  CANCELLED
+}
+
+enum ApprovalDecision {
+  PENDING
+  APPROVED
+  REJECTED
+}
+
+enum ExpensePaymentStatus {
+  PENDING
+  CONFIRMED
+  FAILED
+  CANCELLED
+}
+
+// Not given an explicit enum in the source spec text for this module;
+// modeled as its own type distinct from CollectionMode since expense
+// payments never go out via a donor-facing gateway like Razorpay.
+enum PaymentMode {
+  CASH
+  BANK_TRANSFER
+  UPI
+  CHEQUE
+  CARD
+  OTHER
+}
+
+model Expense {
+  id                            String        @id @default(uuid()) @db.Uuid
+  organizationId                String        @db.Uuid
+  eventId                       String        @db.Uuid
+  vendorId                      String        @db.Uuid
+  status                        ExpenseStatus @default(DRAFT)
+  categoryCode                  String        @db.VarChar(80)
+  description                   String        @db.Text
+  expenseDate                   DateTime
+  baseAmountPaise               BigInt
+  taxAmountPaise                BigInt        @default(0)
+  requestedAmountPaise          BigInt
+  approvedAmountPaise           BigInt?
+  paidAmountPaise                BigInt       @default(0)
+  outstandingAmountPaise         BigInt?
+  vendorSnapshot                 Json?
+  policySnapshotId                String?      @unique @db.Uuid
+  submittedByUserId                String?      @db.Uuid
+  submittedAt                     DateTime?
+  rejectedByUserId                 String?      @db.Uuid
+  rejectionReason                   String?      @db.Text
+  rejectedAt                       DateTime?
+  cancellationRequestedByUserId     String?      @db.Uuid
+  cancellationApprovedByUserId      String?      @db.Uuid
+  cancellationReason                 String?      @db.Text
+  cancelledAt                       DateTime?
+  createdByUserId                   String       @db.Uuid
+  createdAt                         DateTime     @default(now())
+  updatedAt                         DateTime     @updatedAt
+
+  vendor      Vendor              @relation(fields: [vendorId], references: [id], onDelete: Restrict)
+  approvals   ExpenseApproval[]
+  payments    ExpensePayment[]
+  attachments ExpenseAttachment[]
+
+  @@index([organizationId, eventId, status])
+  @@index([vendorId, expenseDate])
+  @@map("expenses")
+}
+
+model ExpenseApproval {
+  id                String           @id @default(uuid()) @db.Uuid
+  expenseId         String           @db.Uuid
+  stepNumber        Int
+  requiredRoleNames Json
+  decision          ApprovalDecision @default(PENDING)
+  decidedByUserId   String?          @db.Uuid
+  reason            String?          @db.Text
+  decidedAt         DateTime?
+  createdAt         DateTime         @default(now())
+
+  expense Expense @relation(fields: [expenseId], references: [id], onDelete: Restrict)
+
+  @@unique([expenseId, stepNumber])
+  @@index([decision, createdAt])
+  @@map("expense_approvals")
+}
+
+model ExpensePayment {
+  id                   String               @id @default(uuid()) @db.Uuid
+  expenseId            String               @db.Uuid
+  accountId            String               @db.Uuid
+  amountPaise          BigInt
+  paymentMode          PaymentMode
+  transactionReference String?              @db.VarChar(150)
+  status               ExpensePaymentStatus @default(PENDING)
+  paidByUserId         String               @db.Uuid
+  confirmedAt          DateTime?
+  ledgerTransactionId  String?              @unique @db.Uuid
+  createdAt            DateTime             @default(now())
+
+  expense Expense @relation(fields: [expenseId], references: [id], onDelete: Restrict)
+
+  @@index([expenseId, status])
+  @@index([accountId, confirmedAt])
+  @@map("expense_payments")
+}
+
+model ExpenseAttachment {
+  expenseId  String  @db.Uuid
+  documentId String  @db.Uuid
+  isVoucher  Boolean @default(true)
+  sortOrder  Int     @default(0)
+
+  expense Expense @relation(fields: [expenseId], references: [id], onDelete: Restrict)
+
+  @@id([expenseId, documentId])
+  @@map("expense_attachments")
+}
+
+// ------------------------------------------------------------
+// Service: finance-service -- Financial Accounts & Transfers
+// ------------------------------------------------------------
+
+enum FinancialAccountType {
+  CASH
+  BANK
+  UPI
+  CHEQUE_CLEARING
+  RAZORPAY_SETTLEMENT
+  CARD_SETTLEMENT
+}
+
+enum FinancialAccountStatus {
+  ACTIVE
+  INACTIVE
+}
+
+enum TransferStatus {
+  PENDING
+  POSTED
+  FAILED
+  CANCELLED
+}
+
+model FinancialAccount {
+  id                         String                 @id @default(uuid()) @db.Uuid
+  organizationId             String                 @db.Uuid
+  type                       FinancialAccountType
+  displayName                String                 @db.VarChar(120)
+  status                     FinancialAccountStatus @default(ACTIVE)
+  maskedIdentifier           String?                @db.VarChar(100)
+  encryptedConfiguration     String?
+  openingBalancePaise        BigInt                 @default(0)
+  openingLedgerTransactionId String?                @unique @db.Uuid
+  createdByUserId            String                 @db.Uuid
+  deactivatedByUserId        String?                @db.Uuid
+  deactivatedAt              DateTime?
+  createdAt                  DateTime               @default(now())
+  updatedAt                  DateTime               @updatedAt
+
+  @@unique([organizationId, type])
+  @@index([organizationId, status])
+  @@map("financial_accounts")
+}
+
+model InternalTransfer {
+  id                   String         @id @default(uuid()) @db.Uuid
+  organizationId       String         @db.Uuid
+  eventId              String?        @db.Uuid
+  sourceAccountId      String         @db.Uuid
+  destinationAccountId String         @db.Uuid
+  amountPaise          BigInt
+  status               TransferStatus @default(PENDING)
+  reference            String?        @db.VarChar(150)
+  description          String?        @db.VarChar(250)
+  initiatedByUserId    String         @db.Uuid
+  ledgerTransactionId  String?        @unique @db.Uuid
+  postedAt             DateTime?
+  createdAt            DateTime       @default(now())
+
+  @@index([organizationId, createdAt])
+  @@index([sourceAccountId, status])
+  @@index([destinationAccountId, status])
+  @@map("internal_transfers")
+}
+
+// ------------------------------------------------------------
+// Service: finance-service -- Immutable Financial Ledger
+// ------------------------------------------------------------
+
+enum LedgerTransactionType {
+  OPENING_BALANCE
+  DONATION_RECEIPT
+  EXPENSE_PAYMENT
+  GATEWAY_FEE
+  REFUND
+  INTERNAL_TRANSFER
+  COMPENSATING_ADJUSTMENT
+}
+
+enum LedgerTransactionStatus {
+  PENDING
+  POSTED
+  FAILED
+}
+
+enum LedgerEntrySide {
+  DEBIT
+  CREDIT
+}
+
+enum LedgerAccountClass {
+  ASSET
+  INCOME
+  EXPENSE
+  LIABILITY
+  EQUITY
+}
+
+model LedgerTransaction {
+  id             String                  @id @default(uuid()) @db.Uuid
+  organizationId String                  @db.Uuid
+  eventId        String?                 @db.Uuid
+  type           LedgerTransactionType
+  status         LedgerTransactionStatus @default(PENDING)
+  sourceType     String                  @db.VarChar(80)
+  sourceId       String                  @db.Uuid
+  idempotencyKey String                  @unique @db.VarChar(120)
+  description    String?                 @db.VarChar(250)
+  postedByUserId String?                 @db.Uuid
+  postedAt       DateTime?
+  createdAt      DateTime                @default(now())
+
+  entries LedgerEntry[]
+
+  @@unique([organizationId, sourceType, sourceId, type])
+  @@index([organizationId, eventId, postedAt])
+  @@index([status, createdAt])
+  @@map("ledger_transactions")
+}
+
+model LedgerEntry {
+  id                  String             @id @default(uuid()) @db.Uuid
+  ledgerTransactionId String             @db.Uuid
+  organizationId      String             @db.Uuid
+  eventId             String?            @db.Uuid
+  financialAccountId  String?            @db.Uuid
+  accountCode         String             @db.VarChar(80)
+  accountClass        LedgerAccountClass
+  side                LedgerEntrySide
+  amountPaise         BigInt
+  createdAt           DateTime           @default(now())
+
+  transaction LedgerTransaction @relation(fields: [ledgerTransactionId], references: [id], onDelete: Restrict)
+
+  @@index([organizationId, eventId, createdAt])
+  @@index([financialAccountId, createdAt])
+  @@index([accountCode, createdAt])
+  @@map("ledger_entries")
+}
+
+// ------------------------------------------------------------
+// Service: public-query-service -- Public Event Transparency
+// ------------------------------------------------------------
+
+enum PublicPageStatus {
+  DISABLED
+  DRAFT
+  PUBLISHED
+}
+
+model PublicEventPage {
+  id                 String           @id @default(uuid()) @db.Uuid
+  organizationId     String           @db.Uuid
+  eventId            String           @unique @db.Uuid
+  publicSlug         String           @unique @db.VarChar(120)
+  status             PublicPageStatus @default(DRAFT)
+  showLiveTotals     Boolean          @default(true)
+  showDonorList      Boolean          @default(true)
+  showExpenseSummary Boolean          @default(true)
+  showRedactedBills  Boolean          @default(true)
+  approvedByUserId   String?          @db.Uuid
+  publishedAt        DateTime?
+  createdAt          DateTime         @default(now())
+  updatedAt          DateTime         @updatedAt
+
+  snapshots PublicFinancialSnapshot[]
+
+  @@index([organizationId, status])
+  @@map("public_event_pages")
+}
+
+model PublicFinancialSnapshot {
+  id                       String   @id @default(uuid()) @db.Uuid
+  publicEventPageId        String   @db.Uuid
+  version                  Int
+  confirmedDonationPaise   BigInt
+  verifiedInKindValuePaise BigInt
+  paidExpensePaise         BigInt
+  outstandingApprovedPaise BigInt
+  availableBalancePaise    BigInt
+  projectedBalancePaise    BigInt
+  categorySummary          Json
+  donorPublicationSnapshot Json
+  createdAt                DateTime @default(now())
+
+  publicEventPage PublicEventPage @relation(fields: [publicEventPageId], references: [id], onDelete: Cascade)
+
+  @@unique([publicEventPageId, version])
+  @@map("public_financial_snapshots")
+}
+
+// ------------------------------------------------------------
+// Service: audit-service -- Append-only audit evidence
+// ------------------------------------------------------------
+
+enum AuditScope {
+  PLATFORM
+  ORGANIZATION
+}
+
+model AuditLog {
+  id                String     @id @default(uuid()) @db.Uuid
+  scope             AuditScope
+  organizationId    String?    @db.Uuid
+  eventId           String?    @db.Uuid
+  actionType        String     @db.VarChar(120)
+  performedByUserId String     @db.Uuid
+  approvedByUserId  String?    @db.Uuid
+  reason            String?    @db.Text
+  targetType        String     @db.VarChar(80)
+  targetId          String     @db.Uuid
+  beforeSnapshot    Json?
+  afterSnapshot     Json?
+  requestId         String     @db.VarChar(100)
+  ipAddressHash     String?    @db.VarChar(128)
+  userAgent         String?    @db.VarChar(500)
+  previousHash      String?    @db.Char(64)
+  recordHash        String     @unique @db.Char(64)
+  createdAt         DateTime   @default(now())
+
+  @@index([scope, organizationId, createdAt])
+  @@index([eventId, createdAt])
+  @@index([targetType, targetId])
+  @@index([performedByUserId, createdAt])
+  @@map("audit_logs")
+}
+
+// ------------------------------------------------------------
+// Service: platform-admin-service -- Platform Administration
+// ------------------------------------------------------------
+
+enum PlatformCaseType {
+  ORGANIZATION_CORRECTION
+  ORGANIZATION_SUSPENSION
+  ORGANIZATION_REJECTION
+  ORGANIZATION_CLOSURE
+  DONOR_ACCOUNT_REVIEW
+}
+
+enum PlatformCaseStatus {
+  OPEN
+  AWAITING_RESPONSE
+  RESOLVED
+  CLOSED
+}
+
+model PlatformAdminCase {
+  id               String             @id @default(uuid()) @db.Uuid
+  caseType         PlatformCaseType
+  status           PlatformCaseStatus @default(OPEN)
+  organizationId   String?            @db.Uuid
+  donorProfileId   String?            @db.Uuid
+  openedByUserId   String             @db.Uuid
+  assignedToUserId String?            @db.Uuid
+  reason           String             @db.Text
+  requestedActions Json?
+  resolutionNotes  String?            @db.Text
+  openedAt         DateTime           @default(now())
+  resolvedAt       DateTime?
+
+  @@index([status, caseType, openedAt])
+  @@index([organizationId])
+  @@index([donorProfileId])
+  @@map("platform_admin_cases")
+}
+
+// ------------------------------------------------------------
+// Service: document-service -- Documents, Vouchers & Redaction
+// ------------------------------------------------------------
+
+enum DocumentPurpose {
+  ORGANIZATION_LOGO
+  REGISTRATION_CERTIFICATE
+  RECEIPT_PDF
+  EXPENSE_VOUCHER
+  IN_KIND_ATTACHMENT
+  REPORT_EXPORT
+  PUBLIC_REDACTED_VOUCHER
+  AUTHORIZED_SIGNATURE
+}
+
+enum DocumentStatus {
+  UPLOAD_PENDING
+  SCANNING
+  AVAILABLE
+  QUARANTINED
+  REJECTED
+  DELETED
+}
+
+model DocumentAsset {
+  id                String          @id @default(uuid()) @db.Uuid
+  organizationId    String?         @db.Uuid
+  ownerUserId       String          @db.Uuid
+  purpose           DocumentPurpose
+  status            DocumentStatus  @default(UPLOAD_PENDING)
+  objectKey         String          @unique @db.VarChar(500)
+  originalFileName  String          @db.VarChar(255)
+  mimeType          String          @db.VarChar(100)
+  fileSizeBytes     BigInt
+  sha256            String          @db.Char(64)
+  malwareScanResult String?         @db.VarChar(80)
+  isImmutable       Boolean         @default(false)
+  immutableAt       DateTime?
+  retentionUntil    DateTime?
+  uploadedAt        DateTime?
+  createdAt         DateTime        @default(now())
+
+  @@index([organizationId, purpose, status])
+  @@index([ownerUserId, createdAt])
+  @@map("document_assets")
+}
+
+model RedactedDocument {
+  id                 String    @id @default(uuid()) @db.Uuid
+  organizationId     String    @db.Uuid
+  sourceDocumentId   String    @db.Uuid
+  redactedDocumentId String    @unique @db.Uuid
+  redactionProfile   String    @db.VarChar(100)
+  redactionSummary   Json
+  generatedByUserId  String    @db.Uuid
+  approvedByUserId   String?   @db.Uuid
+  generatedAt        DateTime  @default(now())
+  approvedAt         DateTime?
+  publishedAt        DateTime?
+
+  @@unique([sourceDocumentId, redactedDocumentId])
+  @@index([organizationId, approvedAt])
+  @@map("redacted_documents")
+}

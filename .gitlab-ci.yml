@@ -1,0 +1,138 @@
+stages:
+  - validate
+  - lint
+  - test
+  - security
+  - build
+
+variables:
+  NODE_VERSION: "22"
+  PNPM_CACHE_DIR: .pnpm-store
+
+default:
+  image: node:22-alpine
+
+.node_cache:
+  cache:
+    key:
+      files:
+        - pnpm-lock.yaml
+    paths:
+      - .pnpm-store
+
+# ==========================================
+# STAGE: VALIDATE
+# ==========================================
+install_dependencies:
+  stage: validate
+  extends: .node_cache
+  script:
+    - corepack enable
+    - pnpm install --frozen-lockfile
+
+prisma_generate:
+  stage: validate
+  extends: .node_cache
+  script:
+    - corepack enable
+    - pnpm run prisma:generate
+
+typecheck:
+  stage: validate
+  extends: .node_cache
+  script:
+    - corepack enable
+    - pnpm run typecheck
+
+# ==========================================
+# STAGE: LINT
+# ==========================================
+eslint:
+  stage: lint
+  extends: .node_cache
+  script:
+    - corepack enable
+    - pnpm run lint
+
+flutter_analyze:
+  stage: lint
+  image: ghcr.io/cirrusci/flutter:3.19.0
+  script:
+    - cd apps/mobile
+    - flutter pub get
+    - dart format --output=none --set-exit-if-changed .
+    - flutter analyze
+
+# ==========================================
+# STAGE: TEST
+# ==========================================
+jest_tests:
+  stage: test
+  extends: .node_cache
+  script:
+    - corepack enable
+    - pnpm run test
+
+flutter_tests:
+  stage: test
+  image: ghcr.io/cirrusci/flutter:3.19.0
+  script:
+    - cd apps/mobile
+    - flutter pub get
+    - flutter test
+
+# ==========================================
+# STAGE: SECURITY (Optional scanner jobs)
+# ==========================================
+gitleaks_scan:
+  stage: security
+  image: zricethezav/gitleaks:latest
+  allow_failure: true
+  script:
+    - gitleaks detect --source . --verbose
+
+trivy_scan:
+  stage: security
+  image: aquasec/trivy:latest
+  allow_failure: true
+  script:
+    - trivy fs . --severity HIGH,CRITICAL
+
+semgrep_scan:
+  stage: security
+  image: returntocorp/semgrep:latest
+  allow_failure: true
+  script:
+    - semgrep ci
+
+# ==========================================
+# STAGE: BUILD
+# ==========================================
+backend_build:
+  stage: build
+  extends: .node_cache
+  script:
+    - corepack enable
+    - pnpm run build
+  artifacts:
+    paths:
+      - dist/
+
+flutter_web_build:
+  stage: build
+  image: ghcr.io/cirrusci/flutter:3.19.0
+  script:
+    - cd apps/mobile
+    - flutter pub get
+    - flutter build web -t lib/main_dev.dart
+  artifacts:
+    paths:
+      - apps/mobile/build/web/
+
+docker_build_validation:
+  stage: build
+  image: docker:25.0-cli
+  services:
+    - docker:25.0-dind
+  script:
+    - docker compose config

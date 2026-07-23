@@ -1,0 +1,10 @@
+flowchart TD
+  A[User selects new organization/event] --> B[Enter blocking transition]
+  B --> C[Cancel old requests]
+  C --> D[Pause sync]
+  D --> E[Dispose context providers]
+  E --> F[Close old streams and purge scoped cache]
+  F --> G[Commit new context version]
+  G --> H[Reload permissions and minimum data]
+  H --> I[Resume sync]
+  I --> J[Render new context only]

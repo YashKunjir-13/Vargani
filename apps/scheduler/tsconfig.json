@@ -1,0 +1,14 @@
+{
+  "extends": "../../tsconfig.base.json",
+  "compilerOptions": {
+    "outDir": "./dist",
+    "rootDir": "./src"
+  },
+  "include": ["src/**/*"],
+  "references": [
+    { "path": "../../packages/backend-config" },
+    { "path": "../../packages/backend-database" },
+    { "path": "../../packages/backend-observability" },
+    { "path": "../../packages/backend-shared-kernel" }
+  ]
+}

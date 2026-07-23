@@ -1,0 +1,31 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "Debug API Gateway",
+      "type": "node",
+      "request": "launch",
+      "runtimeExecutable": "npx",
+      "runtimeArgs": ["tsx", "watch", "apps/api/src/main.ts"],
+      "console": "integratedTerminal",
+      "restart": true,
+      "sourceMaps": true
+    },
+    {
+      "name": "Debug Worker Service",
+      "type": "node",
+      "request": "launch",
+      "runtimeExecutable": "npx",
+      "runtimeArgs": ["tsx", "watch", "apps/worker/src/main.ts"],
+      "console": "integratedTerminal",
+      "restart": true,
+      "sourceMaps": true
+    },
+    {
+      "name": "Flutter Mobile (Dev)",
+      "type": "dart",
+      "request": "launch",
+      "program": "apps/mobile/lib/main_dev.dart"
+    }
+  ]
+}

@@ -1,0 +1,6 @@
+apiVersion: v2
+name: pauti-pustak
+description: Helm Chart for Pauti Pustak Multi-tenant Financial Platform
+type: application
+version: 0.1.0
+appVersion: "1.0.0"

@@ -1,0 +1,31 @@
+packages:
+  - 'apps/*'
+  - 'packages/*'
+
+allowBuilds:
+  '@firebase/util': set this to true or false
+  '@prisma/client': set this to true or false
+  '@prisma/engines': set this to true or false
+  '@scarf/scarf': set this to true or false
+  argon2: set this to true or false
+  cpu-features: set this to true or false
+  esbuild: set this to true or false
+  msgpackr-extract: set this to true or false
+  nx: set this to true or false
+  prisma: set this to true or false
+  protobufjs: set this to true or false
+  puppeteer: set this to true or false
+  ssh2: set this to true or false
+
+onlyBuiltDependencies:
+  - '@firebase/util'
+  - '@prisma/client'
+  - '@prisma/engines'
+  - '@scarf/scarf'
+  - 'argon2'
+  - 'esbuild'
+  - 'msgpackr-extract'
+  - 'nx'
+  - 'prisma'
+  - 'protobufjs'
+  - 'puppeteer'

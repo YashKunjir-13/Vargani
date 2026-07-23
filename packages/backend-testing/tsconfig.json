@@ -1,0 +1,14 @@
+{
+  "extends": "../../tsconfig.base.json",
+  "compilerOptions": {
+    "outDir": "./dist",
+    "rootDir": "./src"
+  },
+  "include": ["src/**/*"],
+  "exclude": ["**/*.spec.ts"],
+  "references": [
+    { "path": "../backend-config" },
+    { "path": "../backend-contracts" },
+    { "path": "../backend-security" }
+  ]
+}
