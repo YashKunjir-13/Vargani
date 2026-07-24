@@ -6,7 +6,7 @@ yarn-debug.log*
 yarn-error.log*
 pnpm-debug.log*
 lerna-debug.log*
-.nx/cache
+.nx/
 
 # Build outputs
 dist/
@@ -66,6 +66,9 @@ Thumbs.db
 !.vscode/tasks.json
 !.vscode/launch.json
 !.vscode/extensions.json
+
+# Claude Code -- settings.local.json is personal/per-machine by convention
+.claude/settings.local.json
 
 # Test & Coverage
 coverage/

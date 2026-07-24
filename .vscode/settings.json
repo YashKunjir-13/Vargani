@@ -38,5 +38,6 @@
     "**/build": true,
     "**/.dart_tool": true,
     "**/packages/backend-database/src/generated": true
-  }
+  },
+  "prisma.pinToPrisma6": true
 }

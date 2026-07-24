@@ -556,6 +556,9 @@ importers:
       '@nestjs/common':
         specifier: ^11.0.10
         version: 11.1.28(class-transformer@0.5.1)(class-validator@0.14.4)(reflect-metadata@0.2.2)(rxjs@7.8.2)(supports-color@8.1.1)
+      '@nestjs/core':
+        specifier: ^11.0.10
+        version: 11.1.28(@nestjs/common@11.1.28(class-transformer@0.5.1)(class-validator@0.14.4)(reflect-metadata@0.2.2)(rxjs@7.8.2)(supports-color@8.1.1))(@nestjs/platform-express@11.1.28)(reflect-metadata@0.2.2)(rxjs@7.8.2)
       '@nestjs/jwt':
         specifier: ^11.0.0
         version: 11.0.2(@nestjs/common@11.1.28(class-transformer@0.5.1)(class-validator@0.14.4)(reflect-metadata@0.2.2)(rxjs@7.8.2)(supports-color@8.1.1))
@@ -612,6 +615,15 @@ importers:
 
   packages/backend-testing:
     dependencies:
+      '@pauti-pustak/backend-config':
+        specifier: workspace:*
+        version: link:../backend-config
+      '@pauti-pustak/backend-contracts':
+        specifier: workspace:*
+        version: link:../backend-contracts
+      '@pauti-pustak/backend-security':
+        specifier: workspace:*
+        version: link:../backend-security
       '@testcontainers/postgresql':
         specifier: ^10.18.0
         version: 10.28.0(supports-color@8.1.1)
