@@ -12,6 +12,10 @@ async function bootstrap() {
 
   const app = await NestFactory.create(AppModule, {
     bufferLogs: true,
+    // Required for Razorpay webhook signature verification, which must be
+    // computed over the exact raw request bytes -- see
+    // src/payments/razorpay-signature.verifier.ts.
+    rawBody: true,
   });
 
   const logger = new AppLoggerService();

@@ -13,6 +13,7 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.text('Pauti Pustak'), findsOneWidget);
-    expect(find.text('Enterprise Foundation Ready'), findsOneWidget);
+    expect(find.text('Shree Ganesh Mandal'), findsOneWidget);
+    expect(find.text('Core App Modules'), findsOneWidget);
   });
 }
