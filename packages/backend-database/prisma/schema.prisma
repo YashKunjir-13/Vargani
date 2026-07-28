@@ -149,6 +149,7 @@ model User {
 
 enum AuthProvider {
   MOBILE_OTP
+  MOBILE_PASSWORD
   EMAIL_PASSWORD
 }
 
@@ -246,6 +247,10 @@ model DonorProfile {
   mobile          String?            @db.VarChar(20)
   email           String?            @db.VarChar(320)
   status          DonorProfileStatus @default(UNCLAIMED)
+  addressLine1    String?            @db.VarChar(250)
+  city            String?            @db.VarChar(100)
+  postalCode      String?            @db.VarChar(12)
+  panEncrypted    String?
   createdByUserId String?            @db.Uuid
   createdByOrgId  String?            @db.Uuid
   claimedAt       DateTime?
@@ -316,6 +321,8 @@ model Organization {
   ownerUserId            String             @db.Uuid
   logoDocumentId         String?            @db.Uuid
   registrationNumber     String?            @db.VarChar(100)
+  presidentName          String?            @db.VarChar(150)
+  festivalYear           Int?
   panEncrypted           String?
   registrationDocumentId String?            @db.Uuid
   primaryMobile          String?            @db.VarChar(20)
