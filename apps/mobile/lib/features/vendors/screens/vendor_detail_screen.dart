@@ -120,7 +120,11 @@ class VendorDetailScreen extends ConsumerWidget {
                   children: [
                     Expanded(
                       child: RoleGate(
-                        allowedRoles: const [Role.owner, Role.treasurer],
+                        allowedRoles: const [
+                          UserRole.trustPresident,
+                          UserRole.vicePresident,
+                          UserRole.treasurer,
+                        ],
                         child: AppButton(
                           label: 'Edit Vendor',
                           onPressed: () {
@@ -137,7 +141,11 @@ class VendorDetailScreen extends ConsumerWidget {
                       const SizedBox(width: AppSpacing.sm),
                       Expanded(
                         child: RoleGate(
-                          allowedRoles: const [Role.owner, Role.treasurer],
+                          allowedRoles: const [
+                            UserRole.trustPresident,
+                            UserRole.vicePresident,
+                            UserRole.treasurer,
+                          ],
                           child: AppButton(
                             label: 'Deactivate Vendor',
                             variant: AppButtonVariant.secondary,

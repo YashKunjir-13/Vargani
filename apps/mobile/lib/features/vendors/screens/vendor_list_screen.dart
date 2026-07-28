@@ -93,7 +93,11 @@ class VendorListScreen extends ConsumerWidget {
         ),
       ),
       floatingActionButton: RoleGate(
-        allowedRoles: const [Role.owner, Role.treasurer, Role.expenseApprover],
+        allowedRoles: const [
+          UserRole.trustPresident,
+          UserRole.vicePresident,
+          UserRole.treasurer,
+        ],
         child: AppFab(
           label: '+ Bill',
           onPressed: () {

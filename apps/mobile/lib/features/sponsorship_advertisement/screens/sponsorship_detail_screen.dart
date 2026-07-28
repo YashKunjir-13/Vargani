@@ -29,8 +29,9 @@ class SponsorshipDetailScreen extends ConsumerWidget {
           );
         }
 
-        final canViewSensitive =
-            role == Role.owner || role == Role.president || role == Role.treasurer;
+        final canViewSensitive = role == UserRole.trustPresident ||
+            role == UserRole.vicePresident ||
+            role == UserRole.treasurer;
 
         return AppScaffold(
           title: sponsorship.sponsorName,
@@ -124,7 +125,11 @@ class SponsorshipDetailScreen extends ConsumerWidget {
                 const SizedBox(height: AppSpacing.xl),
                 if (sponsorship.status != SponsorshipStatus.confirmed)
                   RoleGate(
-                    allowedRoles: const [Role.owner, Role.treasurer],
+                    allowedRoles: const [
+                      UserRole.trustPresident,
+                      UserRole.vicePresident,
+                      UserRole.treasurer,
+                    ],
                     child: Padding(
                       padding: const EdgeInsets.only(bottom: AppSpacing.md),
                       child: AppButton(
@@ -138,7 +143,11 @@ class SponsorshipDetailScreen extends ConsumerWidget {
             ),
           ),
           floatingActionButton: RoleGate(
-            allowedRoles: const [Role.owner, Role.president, Role.treasurer],
+            allowedRoles: const [
+              UserRole.trustPresident,
+              UserRole.vicePresident,
+              UserRole.treasurer,
+            ],
             child: AppFab(
               label: 'Edit',
               onPressed: () {

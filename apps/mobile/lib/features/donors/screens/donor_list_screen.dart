@@ -73,10 +73,10 @@ class DonorListScreen extends ConsumerWidget {
       ),
       floatingActionButton: RoleGate(
         allowedRoles: const [
-          Role.owner,
-          Role.secretary,
-          Role.donationCollector,
-          Role.member
+          UserRole.trustPresident,
+          UserRole.vicePresident,
+          UserRole.treasurer,
+          UserRole.volunteer,
         ],
         child: AppFab(
             label: 'Add',

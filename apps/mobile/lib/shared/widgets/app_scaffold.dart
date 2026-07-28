@@ -27,6 +27,7 @@ class AppScaffold extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final themePreference = ref.watch(themeProvider);
     final language = ref.watch(localeProvider);
+    final isDark = themePreference == AppThemePreference.dark;
 
     return Scaffold(
       appBar: AppBar(
@@ -39,16 +40,25 @@ class AppScaffold extends ConsumerWidget {
         title: Text(title),
         actions: [
           ...?actions,
-          Switch(
-            value: themePreference == AppThemePreference.dark,
-            onChanged: (_) => ref.read(themeProvider.notifier).toggleTheme(),
+          // Theme toggle — use a styled icon button so it's visible in both modes
+          IconButton(
+            tooltip: isDark ? 'Switch to light mode' : 'Switch to dark mode',
+            icon: Icon(
+              isDark ? Icons.light_mode_outlined : Icons.dark_mode_outlined,
+              color: Theme.of(context).colorScheme.onSurface,
+            ),
+            onPressed: () => ref.read(themeProvider.notifier).toggleTheme(),
           ),
-          const SizedBox(width: 8),
           TextButton(
-            onPressed: () => ref.read(localeProvider.notifier).setLanguage(AppLanguage.values[(AppLanguage.values.indexOf(language) + 1) % AppLanguage.values.length]),
+            onPressed: () => ref.read(localeProvider.notifier).setLanguage(
+                AppLanguage.values[(AppLanguage.values.indexOf(language) + 1) %
+                    AppLanguage.values.length]),
             child: Text(language.name.toUpperCase()),
           ),
-          IconButton(icon: const Icon(Icons.notifications_outlined), onPressed: () {}),
+          IconButton(
+            icon: const Icon(Icons.notifications_outlined),
+            onPressed: () {},
+          ),
         ],
       ),
       body: body,

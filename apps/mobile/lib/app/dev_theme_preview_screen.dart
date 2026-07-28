@@ -104,12 +104,12 @@ class DevThemePreviewScreen extends ConsumerWidget {
             const SizedBox(height: AppSpacing.lg),
             const AppSearchBar(hint: 'Search sponsors'),
             const SizedBox(height: AppSpacing.lg),
-            DropdownButtonFormField<Role>(
+            DropdownButtonFormField<UserRole>(
               initialValue: currentRole,
               decoration: const InputDecoration(labelText: 'Acting as'),
-              items: Role.values
+              items: UserRole.values
                   .map(
-                    (role) => DropdownMenuItem<Role>(
+                    (role) => DropdownMenuItem<UserRole>(
                       value: role,
                       child: Text(role.label),
                     ),
@@ -123,7 +123,7 @@ class DevThemePreviewScreen extends ConsumerWidget {
             ),
             const SizedBox(height: AppSpacing.lg),
             const RoleGate(
-              allowedRoles: [Role.treasurer],
+              allowedRoles: [UserRole.treasurer],
               child: AppCard(
                 title: 'Treasurer-only panel',
                 subtitle: 'Visible only for Treasurer',

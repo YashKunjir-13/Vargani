@@ -1,10 +1,19 @@
 enum UserRole {
-  owner,
-  president,
-  secretary,
+  trustPresident,
+  vicePresident,
   treasurer,
-  donationCollector,
-  expenseApprover,
-  auditor,
-  member,
+  volunteer,
+  donor,
+}
+
+extension UserRoleDisplay on UserRole {
+  String get label {
+    return switch (this) {
+      UserRole.trustPresident => 'Trust President',
+      UserRole.vicePresident => 'Vice President',
+      UserRole.treasurer => 'Treasurer',
+      UserRole.volunteer => 'Volunteer',
+      UserRole.donor => 'Donor',
+    };
+  }
 }

@@ -86,7 +86,11 @@ class AdvertisementDetailScreen extends ConsumerWidget {
                 const SizedBox(height: AppSpacing.xl),
                 if (ad.status != AdvertisementStatus.active)
                   RoleGate(
-                    allowedRoles: const [Role.owner, Role.treasurer],
+                    allowedRoles: const [
+                      UserRole.trustPresident,
+                      UserRole.vicePresident,
+                      UserRole.treasurer,
+                    ],
                     child: Padding(
                       padding: const EdgeInsets.only(bottom: AppSpacing.md),
                       child: AppButton(
@@ -100,7 +104,11 @@ class AdvertisementDetailScreen extends ConsumerWidget {
             ),
           ),
           floatingActionButton: RoleGate(
-            allowedRoles: const [Role.owner, Role.president, Role.treasurer],
+            allowedRoles: const [
+              UserRole.trustPresident,
+              UserRole.vicePresident,
+              UserRole.treasurer,
+            ],
             child: AppFab(
               label: 'Edit',
               onPressed: () {

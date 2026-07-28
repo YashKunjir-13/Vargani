@@ -15,7 +15,10 @@ import 'sponsorship_detail_screen.dart';
 import 'sponsorship_form_screen.dart';
 
 class SponsorshipAdvertisementScreen extends ConsumerStatefulWidget {
-  const SponsorshipAdvertisementScreen({super.key});
+  /// [initialTab]: 0 = Sponsors (default), 1 = Advertisements
+  const SponsorshipAdvertisementScreen({super.key, this.initialTab = 0});
+
+  final int initialTab;
 
   @override
   ConsumerState<SponsorshipAdvertisementScreen> createState() =>
@@ -30,8 +33,10 @@ class _SponsorshipAdvertisementScreenState
   @override
   void initState() {
     super.initState();
-    final initialTab = ref.read(selectedSponsorshipTabProvider);
-    _tabController = TabController(length: 2, vsync: this, initialIndex: initialTab);
+    // Use widget.initialTab if provided, otherwise restore from provider
+    final savedTab = ref.read(selectedSponsorshipTabProvider);
+    final startTab = widget.initialTab != 0 ? widget.initialTab : savedTab;
+    _tabController = TabController(length: 2, vsync: this, initialIndex: startTab);
     _tabController.addListener(() {
       if (!_tabController.indexIsChanging) {
         ref.read(selectedSponsorshipTabProvider.notifier).state =
@@ -96,6 +101,7 @@ class _SponsorshipAdvertisementScreenState
 
     return sponsorshipsAsync.when(
       data: (sponsorships) {
+        // Totals computed from full unfiltered list for accuracy
         final confirmedTotal = sponsorships
             .where((s) => s.status == SponsorshipStatus.confirmed)
             .fold<int>(0, (sum, s) => sum + s.confirmedAmountPaise);
@@ -125,7 +131,7 @@ class _SponsorshipAdvertisementScreenState
                         context: context,
                         label: 'Confirmed',
                         value: formatPaiseAsRupees(confirmedTotal),
-                        lightBg: const Color(0xFFE8F5E9), // Soft green tint
+                        lightBg: const Color(0xFFE8F5E9),
                         darkBg: const Color(0xFF064E3B).withValues(alpha: 0.35),
                         textColor: Theme.of(context).brightness == Brightness.dark
                             ? AppColors.darkSuccess
@@ -138,7 +144,7 @@ class _SponsorshipAdvertisementScreenState
                         context: context,
                         label: 'Pledged',
                         value: formatPaiseAsRupees(pledgedTotal),
-                        lightBg: const Color(0xFFFFF3E0), // Soft orange tint
+                        lightBg: const Color(0xFFFFF3E0),
                         darkBg: const Color(0xFF78350F).withValues(alpha: 0.35),
                         textColor: Theme.of(context).brightness == Brightness.dark
                             ? AppColors.darkWarning
@@ -151,7 +157,7 @@ class _SponsorshipAdvertisementScreenState
                         context: context,
                         label: 'Pending',
                         value: formatPaiseAsRupees(pendingTotal),
-                        lightBg: const Color(0xFFE3F2FD), // Soft blue tint
+                        lightBg: const Color(0xFFE3F2FD),
                         darkBg: const Color(0xFF1E3A8A).withValues(alpha: 0.35),
                         textColor: Theme.of(context).brightness == Brightness.dark
                             ? AppColors.darkInfo
@@ -160,9 +166,20 @@ class _SponsorshipAdvertisementScreenState
                     ),
                   ],
                 ),
-                const SizedBox(height: AppSpacing.lg),
+                const SizedBox(height: AppSpacing.md),
+                AppSearchBar(
+                  hint: 'Search sponsors',
+                  onChanged: (value) => ref
+                      .read(sponsorshipListControllerProvider.notifier)
+                      .updateSearch(value),
+                ),
+                const SizedBox(height: AppSpacing.md),
                 RoleGate(
-                  allowedRoles: const [Role.owner, Role.president, Role.treasurer],
+                  allowedRoles: const [
+                    UserRole.trustPresident,
+                    UserRole.vicePresident,
+                    UserRole.treasurer,
+                  ],
                   child: AppButton(
                     label: '+ Add Sponsor',
                     icon: Icons.add,
@@ -175,11 +192,11 @@ class _SponsorshipAdvertisementScreenState
                     },
                   ),
                 ),
-                const SizedBox(height: AppSpacing.lg),
+                const SizedBox(height: AppSpacing.md),
                 if (sponsorships.isEmpty)
                   const AppEmptyState(
                     title: 'No sponsors found',
-                    message: 'Click + Add Sponsor to record a sponsorship.',
+                    message: 'Try a different search or add a new sponsor.',
                   )
                 else
                   ListView.separated(
@@ -229,8 +246,19 @@ class _SponsorshipAdvertisementScreenState
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
+                AppSearchBar(
+                  hint: 'Search advertisements',
+                  onChanged: (value) => ref
+                      .read(advertisementListControllerProvider.notifier)
+                      .updateSearch(value),
+                ),
+                const SizedBox(height: AppSpacing.md),
                 RoleGate(
-                  allowedRoles: const [Role.owner, Role.president, Role.treasurer],
+                  allowedRoles: const [
+                    UserRole.trustPresident,
+                    UserRole.vicePresident,
+                    UserRole.treasurer,
+                  ],
                   child: AppButton(
                     label: '+ Book Advertisement',
                     icon: Icons.add,
@@ -243,11 +271,11 @@ class _SponsorshipAdvertisementScreenState
                     },
                   ),
                 ),
-                const SizedBox(height: AppSpacing.lg),
+                const SizedBox(height: AppSpacing.md),
                 if (ads.isEmpty)
                   const AppEmptyState(
                     title: 'No advertisements booked',
-                    message: 'Click + Book Advertisement to add a new placement.',
+                    message: 'Try a different search or book a new placement.',
                   )
                 else
                   ListView.separated(

@@ -17,15 +17,18 @@ class VolunteerDetailScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final volunteerAsync = ref.watch(volunteerDetailProvider(volunteerId));
-    final assignmentsAsync =
-        ref.watch(volunteerAssignmentsProvider(volunteerId));
+    final assignmentsAsync = ref.watch(volunteerAssignmentsProvider(volunteerId));
     final role = ref.watch(roleProvider);
-    final canManageVolunteers = role == Role.secretary ||
-        role == Role.treasurer ||
-        role == Role.president ||
-        role == Role.owner;
-    final canViewSensitive =
-        role == Role.owner || role == Role.president || role == Role.secretary;
+
+    // trustPresident, vicePresident, treasurer can manage volunteers
+    final canManageVolunteers = role == UserRole.trustPresident ||
+        role == UserRole.vicePresident ||
+        role == UserRole.treasurer;
+
+    // sensitive data (full mobile) visible only to trustPresident, vicePresident, treasurer
+    final canViewSensitive = role == UserRole.trustPresident ||
+        role == UserRole.vicePresident ||
+        role == UserRole.treasurer;
 
     return AppScaffold(
       title: 'Volunteer Details',
@@ -87,6 +90,7 @@ class VolunteerDetailScreen extends ConsumerWidget {
                           AppButton(
                             label: 'Add assignment',
                             variant: AppButtonVariant.secondary,
+                            fullWidth: false,
                             onPressed: () async {
                               final newAssignment =
                                   await showDialog<VolunteerAssignment>(
@@ -233,6 +237,7 @@ class _AssignmentDialogState extends State<_AssignmentDialog> {
             child: const Text('Cancel')),
         AppButton(
           label: 'Save',
+          fullWidth: false,
           onPressed: () {
             Navigator.pop(
               context,

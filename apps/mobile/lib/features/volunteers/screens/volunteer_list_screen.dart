@@ -19,7 +19,10 @@ class VolunteerListScreen extends ConsumerWidget {
     final volunteersAsync = ref.watch(volunteerListProvider);
     final role = ref.watch(roleProvider);
 
-    final canManageVolunteers = role == Role.secretary || role == Role.treasurer || role == Role.president || role == Role.owner;
+    // trustPresident, vicePresident, treasurer can manage volunteers
+    final canManageVolunteers = role == UserRole.trustPresident ||
+        role == UserRole.vicePresident ||
+        role == UserRole.treasurer;
 
     return AppScaffold(
       title: 'Volunteers',
@@ -87,7 +90,10 @@ class VolunteerListScreen extends ConsumerWidget {
                     separatorBuilder: (_, __) => const SizedBox(height: AppSpacing.md),
                     itemBuilder: (context, index) {
                       final volunteer = volunteers[index];
-                      final canViewSensitive = role == Role.owner || role == Role.president || role == Role.secretary;
+                      // sensitive data visible only to trustPresident, vicePresident, treasurer
+                      final canViewSensitive = role == UserRole.trustPresident ||
+                          role == UserRole.vicePresident ||
+                          role == UserRole.treasurer;
                       return AppCard(
                         child: ListTile(
                           contentPadding: EdgeInsets.zero,

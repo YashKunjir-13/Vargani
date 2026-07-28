@@ -58,7 +58,9 @@ class _VolunteerFormScreenState extends ConsumerState<VolunteerFormScreen> {
   @override
   Widget build(BuildContext context) {
     final role = ref.watch(roleProvider);
-    final canManageVolunteers = role == Role.secretary || role == Role.treasurer || role == Role.president || role == Role.owner;
+    final canManageVolunteers = role == UserRole.trustPresident ||
+        role == UserRole.vicePresident ||
+        role == UserRole.treasurer;
 
     if (!canManageVolunteers) {
       return AppScaffold(

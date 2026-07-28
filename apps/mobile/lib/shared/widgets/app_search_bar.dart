@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+/// A simple search bar with no clear button.
 class AppSearchBar extends StatelessWidget {
   const AppSearchBar({super.key, this.hint = 'Search', this.onChanged});
 
@@ -13,10 +14,6 @@ class AppSearchBar extends StatelessWidget {
       decoration: InputDecoration(
         hintText: hint,
         prefixIcon: const Icon(Icons.search_outlined),
-        suffixIcon: IconButton(
-          icon: const Icon(Icons.clear_outlined),
-          onPressed: () {},
-        ),
       ),
     );
   }
