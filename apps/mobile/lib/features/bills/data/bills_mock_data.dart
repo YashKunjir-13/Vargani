@@ -1,0 +1,67 @@
+import '../models/bill.dart';
+
+List<Bill> buildMockBills() {
+  final now = DateTime.now();
+  return [
+    Bill(
+      id: 'bill-1',
+      billNumber: 'BILL-2026-000012',
+      receiverName: 'Ganesh Decorators',
+      contact: '9812345670',
+      amount: 15000,
+      date: now.subtract(const Duration(days: 4)),
+      taskOrField: 'Mandap Decoration',
+      isRegisteredVendor: true,
+      status: BillStatus.draft,
+      createdBy: 'Treasurer: Vikram Rao',
+    ),
+    Bill(
+      id: 'bill-2',
+      billNumber: 'BILL-2026-000013',
+      receiverName: 'Om Sound Systems',
+      amount: 8000,
+      date: now.subtract(const Duration(days: 3)),
+      taskOrField: 'Sound & Lighting',
+      status: BillStatus.pendingApproval,
+      createdBy: 'Treasurer: Vikram Rao',
+    ),
+    Bill(
+      id: 'bill-3',
+      billNumber: 'BILL-2026-000011',
+      receiverName: 'Laxmi Caterers',
+      contact: '9900112233',
+      amount: 42000,
+      date: now.subtract(const Duration(days: 6)),
+      taskOrField: 'Prasad Catering',
+      isRegisteredVendor: true,
+      status: BillStatus.approved,
+      createdBy: 'Treasurer: Vikram Rao',
+      approvedBy: 'Trust President: Dilip Kale',
+    ),
+    Bill(
+      id: 'bill-4',
+      billNumber: 'BILL-2026-000009',
+      receiverName: 'Shubham Electricals',
+      amount: 6500,
+      date: now.subtract(const Duration(days: 9)),
+      taskOrField: 'Pandal Wiring',
+      status: BillStatus.paid,
+      createdBy: 'Treasurer: Vikram Rao',
+      approvedBy: 'Trust President: Dilip Kale',
+      paymentMode: BillPaymentMode.upi,
+    ),
+    Bill(
+      id: 'bill-5',
+      billNumber: 'BILL-2026-000007',
+      receiverName: 'Ashok Flower Suppliers',
+      amount: 2200,
+      date: now.subtract(const Duration(days: 12)),
+      taskOrField: 'Flower Decoration',
+      status: BillStatus.cancelled,
+      createdBy: 'Treasurer: Vikram Rao',
+      approvedBy: 'Trust President: Dilip Kale',
+      paymentMode: BillPaymentMode.cash,
+      cancelReason: 'Vendor invoice was duplicated by mistake',
+    ),
+  ];
+}

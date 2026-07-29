@@ -1,53 +1,107 @@
 import 'package:flutter/material.dart';
 
-enum AppButtonVariant { primary, secondary, text }
+enum AppButtonVariant { primary, secondary, outlined, text, danger }
 
 class AppButton extends StatelessWidget {
+  final String label;
+  final VoidCallback? onPressed;
+  final AppButtonVariant variant;
+  final IconData? icon;
+  final bool isLoading;
+  final bool isFullWidth;
+  final double? height;
+
+  bool get fullWidth => isFullWidth;
+
   const AppButton({
     super.key,
     required this.label,
-    this.variant = AppButtonVariant.primary,
     this.onPressed,
-    this.isLoading = false,
+    this.variant = AppButtonVariant.primary,
     this.icon,
-    this.fullWidth = true,
-  });
-
-  final String label;
-  final AppButtonVariant variant;
-  final VoidCallback? onPressed;
-  final bool isLoading;
-  final IconData? icon;
-  final bool fullWidth;
+    this.isLoading = false,
+    bool? isFullWidth,
+    bool? fullWidth,
+    this.height = 50,
+  }) : isFullWidth = fullWidth ?? isFullWidth ?? true;
 
   @override
   Widget build(BuildContext context) {
-    final child = Row(
-      mainAxisSize: MainAxisSize.min,
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: [
-        if (icon != null) ...[
-          Icon(icon, size: 18),
-          const SizedBox(width: 8),
-        ],
-        Flexible(
-          child: Text(label, overflow: TextOverflow.ellipsis),
-        ),
-      ],
-    );
+    final theme = Theme.of(context);
 
-    final button = switch (variant) {
-      AppButtonVariant.primary =>
-        ElevatedButton(onPressed: onPressed, child: child),
-      AppButtonVariant.secondary =>
-        OutlinedButton(onPressed: onPressed, child: child),
-      AppButtonVariant.text => TextButton(onPressed: onPressed, child: child),
-    };
+    Widget child = isLoading
+        ? SizedBox(
+            height: 20,
+            width: 20,
+            child: CircularProgressIndicator(
+              strokeWidth: 2.5,
+              color: variant == AppButtonVariant.primary ? Colors.white : theme.colorScheme.primary,
+            ),
+          )
+        : Row(
+            mainAxisSize: MainAxisSize.min,
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              if (icon != null) ...[
+                Icon(icon, size: 18),
+                const SizedBox(width: 8),
+              ],
+              Flexible(
+                child: Text(label, overflow: TextOverflow.ellipsis),
+              ),
+            ],
+          );
 
-    if (!fullWidth) {
-      return button;
+    Widget button;
+    switch (variant) {
+      case AppButtonVariant.primary:
+        button = ElevatedButton(
+          onPressed: isLoading ? null : onPressed,
+          child: child,
+        );
+        break;
+      case AppButtonVariant.secondary:
+        button = ElevatedButton(
+          style: ElevatedButton.styleFrom(
+            backgroundColor: theme.colorScheme.secondary,
+            foregroundColor: theme.colorScheme.onSecondary,
+          ),
+          onPressed: isLoading ? null : onPressed,
+          child: child,
+        );
+        break;
+      case AppButtonVariant.outlined:
+        button = OutlinedButton(
+          onPressed: isLoading ? null : onPressed,
+          child: child,
+        );
+        break;
+      case AppButtonVariant.text:
+        button = TextButton(
+          onPressed: isLoading ? null : onPressed,
+          child: child,
+        );
+        break;
+      case AppButtonVariant.danger:
+        button = ElevatedButton(
+          style: ElevatedButton.styleFrom(
+            backgroundColor: theme.colorScheme.error,
+            foregroundColor: theme.colorScheme.onError,
+          ),
+          onPressed: isLoading ? null : onPressed,
+          child: child,
+        );
+        break;
     }
 
-    return SizedBox(width: double.infinity, child: button);
+    if (height != null) {
+      button = SizedBox(height: height, child: button);
+    }
+
+    if (isFullWidth) {
+      return SizedBox(width: double.infinity, child: button);
+    }
+
+    return button;
   }
 }

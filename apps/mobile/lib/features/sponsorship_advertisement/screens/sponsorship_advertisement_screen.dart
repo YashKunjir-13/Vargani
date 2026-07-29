@@ -39,7 +39,7 @@ class _SponsorshipAdvertisementScreenState
     _tabController = TabController(length: 2, vsync: this, initialIndex: startTab);
     _tabController.addListener(() {
       if (!_tabController.indexIsChanging) {
-        ref.read(selectedSponsorshipTabProvider.notifier).state =
+        ref.read(selectedSponsorshipTabProvider.notifier).value =
             _tabController.index;
       }
     });

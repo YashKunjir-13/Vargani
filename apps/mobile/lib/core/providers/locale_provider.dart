@@ -2,8 +2,9 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 enum AppLanguage { en, mr, hi }
 
-class LocaleNotifier extends StateNotifier<AppLanguage> {
-  LocaleNotifier() : super(AppLanguage.en);
+class LocaleNotifier extends Notifier<AppLanguage> {
+  @override
+  AppLanguage build() => AppLanguage.en;
 
   void setLanguage(AppLanguage language) {
     state = language;
@@ -11,6 +12,6 @@ class LocaleNotifier extends StateNotifier<AppLanguage> {
   }
 }
 
-final localeProvider = StateNotifierProvider<LocaleNotifier, AppLanguage>(
-  (ref) => LocaleNotifier(),
+final localeProvider = NotifierProvider<LocaleNotifier, AppLanguage>(
+  LocaleNotifier.new,
 );

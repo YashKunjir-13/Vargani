@@ -21,8 +21,9 @@ class VendorListState {
   }
 }
 
-class VendorListController extends StateNotifier<VendorListState> {
-  VendorListController() : super(const VendorListState());
+class VendorListNotifier extends Notifier<VendorListState> {
+  @override
+  VendorListState build() => const VendorListState();
 
   void updateSearch(String search) {
     state = state.copyWith(search: search);
@@ -34,8 +35,8 @@ class VendorListController extends StateNotifier<VendorListState> {
 }
 
 final vendorListControllerProvider =
-    StateNotifierProvider<VendorListController, VendorListState>(
-  (ref) => VendorListController(),
+    NotifierProvider<VendorListNotifier, VendorListState>(
+  VendorListNotifier.new,
 );
 
 final vendorListProvider = FutureProvider<List<Vendor>>((ref) async {

@@ -1,7 +1,6 @@
-<<<<<<< HEAD
-# Pauti Pustak - Multi-tenant Event Financial-Management Platform
+# Pauti Pustak (Vargani) - Multi-tenant Event Financial-Management Platform
 
-Full-stack monorepo enterprise foundation for **Pauti Pustak**.
+Full-stack monorepo enterprise foundation for **Pauti Pustak / Vargani**.
 
 ## System Architecture Overview
 
@@ -88,6 +87,4 @@ npx pnpm run dev:scheduler
 ```bash
 npx pnpm run validate
 ```
-=======
-# Vargani
->>>>>>> 793328865821b904f23a1614a8f402eddfce0f49
+

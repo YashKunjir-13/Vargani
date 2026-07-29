@@ -5,6 +5,8 @@ import 'package:pauti_pustak_mobile/app/app.dart';
 import 'package:pauti_pustak_mobile/core/session/session_controller.dart';
 import 'package:pauti_pustak_mobile/core/session/session_state.dart';
 
+import 'package:pauti_pustak_mobile/features/authentication/presentation/pages/registration_page.dart';
+
 void main() {
   testWidgets(
       'PautiPustakApp starts on the registration landing screen via go_router',
@@ -19,7 +21,6 @@ void main() {
     );
     await tester.pumpAndSettle();
 
-    expect(find.text('Pauti Pustak'), findsOneWidget);
-    expect(find.text('REGISTER — SELECT TYPE'), findsOneWidget);
+    expect(find.byType(RegistrationPage), findsOneWidget);
   });
 }

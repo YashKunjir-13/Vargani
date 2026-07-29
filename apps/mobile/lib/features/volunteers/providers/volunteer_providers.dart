@@ -23,8 +23,9 @@ class VolunteerListState {
   }
 }
 
-class VolunteerListController extends StateNotifier<VolunteerListState> {
-  VolunteerListController() : super(const VolunteerListState());
+class VolunteerListNotifier extends Notifier<VolunteerListState> {
+  @override
+  VolunteerListState build() => const VolunteerListState();
 
   void updateSearch(String search) {
     state = state.copyWith(search: search);
@@ -39,8 +40,8 @@ class VolunteerListController extends StateNotifier<VolunteerListState> {
   }
 }
 
-final volunteerListControllerProvider = StateNotifierProvider<VolunteerListController, VolunteerListState>(
-  (ref) => VolunteerListController(),
+final volunteerListControllerProvider = NotifierProvider<VolunteerListNotifier, VolunteerListState>(
+  VolunteerListNotifier.new,
 );
 
 final volunteerListProvider = FutureProvider<List<Volunteer>>((ref) async {
