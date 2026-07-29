@@ -9,6 +9,9 @@ import 'app_typography.dart';
 class AppTheme {
   AppTheme._();
 
+  static ThemeData light() => lightTheme;
+  static ThemeData dark() => darkTheme;
+
   static ThemeData get lightTheme {
     final textTheme = AppTypography.textTheme(false);
 
@@ -368,5 +371,3 @@ class AppThemeModeNotifier extends Notifier<ThemeMode> {
 }
 
 final appThemeModeProvider = NotifierProvider<AppThemeModeNotifier, ThemeMode>(AppThemeModeNotifier.new);
-
-

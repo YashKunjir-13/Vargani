@@ -62,6 +62,60 @@ class AppColors {
   static const Color optionalTagBg = Color(0xFFFEF3C7);
   static const Color optionalTagText = Color(0xFF92400E);
 
+  // Legacy Theme Alias Constants
+  static const Color lightScaffoldBackground = bgLight;
+  static const Color lightSurface = surfaceLight;
+  static const Color lightCard = surfaceLight;
+  static const Color lightPrimary = primaryLight;
+  static const Color lightOnPrimary = Colors.white;
+  static const Color lightSecondary = secondaryLight;
+  static const Color lightOnSecondary = Colors.white;
+  static const Color lightMutedText = textMutedLight;
+  static const Color lightBorder = borderLight;
+  static const Color lightShadow = Color(0x1F000000);
+  static const Color lightSuccess = Color(0xFF2E8B57);
+  static const Color lightPending = Color(0xFFDAA520);
+  static const Color lightWarning = Color(0xFFD97706);
+  static const Color lightError = Color(0xFFDC2626);
+  static const Color lightInfo = Color(0xFF2563EB);
+  static const Color lightNeutral = Color(0xFF64748B);
+
+  static const Color darkScaffoldBackground = bgDark;
+  static const Color darkSurface = surfaceDark;
+  static const Color darkCard = surfaceDark;
+  static const Color darkPrimary = primaryDark;
+  static const Color darkOnPrimary = Colors.black;
+  static const Color darkSecondary = secondaryDark;
+  static const Color darkOnSecondary = Colors.black;
+  static const Color darkMutedText = textMutedDark;
+  static const Color darkBorder = borderDark;
+  static const Color darkShadow = Color(0x33000000);
+  static const Color darkSuccess = Color(0xFF34D399);
+  static const Color darkPending = Color(0xFFFBBF24);
+  static const Color darkWarning = Color(0xFFF59E0B);
+  static const Color darkError = Color(0xFFF87171);
+  static const Color darkInfo = Color(0xFF60A5FA);
+  static const Color darkNeutral = Color(0xFF94A3B8);
+
+  // Dynamic Theme Helpers
+  static Color surfaceFor(BuildContext context) =>
+      Theme.of(context).brightness == Brightness.dark ? surfaceDark : surfaceLight;
+  static Color cardFor(BuildContext context) =>
+      Theme.of(context).brightness == Brightness.dark ? surfaceDark : surfaceLight;
+  static Color borderFor(BuildContext context) =>
+      Theme.of(context).brightness == Brightness.dark ? borderDark : borderLight;
+  static Color mutedTextFor(BuildContext context) =>
+      Theme.of(context).brightness == Brightness.dark ? textMutedDark : textMutedLight;
+  static Color shadowFor(BuildContext context) =>
+      Theme.of(context).brightness == Brightness.dark ? darkShadow : lightShadow;
+
+  static Color statusColor(BuildContext context, {bool isSurface = false, required Color fallback}) {
+    final brightness = Theme.of(context).brightness;
+    return brightness == Brightness.dark
+        ? fallback.withValues(alpha: 0.2)
+        : fallback.withValues(alpha: 0.12);
+  }
+
   // Elevation & Glow Shadows
   static final List<BoxShadow> softShadowLight = [
     BoxShadow(

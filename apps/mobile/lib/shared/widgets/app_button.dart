@@ -11,16 +11,19 @@ class AppButton extends StatelessWidget {
   final bool isFullWidth;
   final double? height;
 
+  bool get fullWidth => isFullWidth;
+
   const AppButton({
     super.key,
     required this.label,
-    required this.onPressed,
+    this.onPressed,
     this.variant = AppButtonVariant.primary,
     this.icon,
     this.isLoading = false,
-    this.isFullWidth = true,
+    bool? isFullWidth,
+    bool? fullWidth,
     this.height = 50,
-  });
+  }) : isFullWidth = fullWidth ?? isFullWidth ?? true;
 
   @override
   Widget build(BuildContext context) {
@@ -43,7 +46,9 @@ class AppButton extends StatelessWidget {
                 Icon(icon, size: 18),
                 const SizedBox(width: 8),
               ],
-              Text(label),
+              Flexible(
+                child: Text(label, overflow: TextOverflow.ellipsis),
+              ),
             ],
           );
 

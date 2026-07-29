@@ -8,21 +8,25 @@ class AppTextField extends StatelessWidget {
   final String label;
   final bool isOptional;
   final String? hintText;
+  final String? errorText;
   final TextEditingController? controller;
   final FormFieldValidator<String>? validator;
   final ValueChanged<String>? onChanged;
   final TextInputType? keyboardType;
   final IconData? prefixIcon;
-  final Widget? suffixIcon;
+  final dynamic suffixIcon;
   final int maxLines;
   final bool readOnly;
+  final bool obscureText;
   final VoidCallback? onTap;
 
   const AppTextField({
     super.key,
     required this.label,
     this.isOptional = false,
-    this.hintText,
+    String? hintText,
+    String? hint,
+    this.errorText,
     this.controller,
     this.validator,
     this.onChanged,
@@ -31,12 +35,20 @@ class AppTextField extends StatelessWidget {
     this.suffixIcon,
     this.maxLines = 1,
     this.readOnly = false,
+    this.obscureText = false,
     this.onTap,
-  });
+  }) : hintText = hintText ?? hint;
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+
+    Widget? suffixWidget;
+    if (suffixIcon is Widget) {
+      suffixWidget = suffixIcon as Widget;
+    } else if (suffixIcon is IconData) {
+      suffixWidget = Icon(suffixIcon as IconData, size: 20);
+    }
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -78,14 +90,17 @@ class AppTextField extends StatelessWidget {
           keyboardType: keyboardType,
           maxLines: maxLines,
           readOnly: readOnly,
+          obscureText: obscureText,
           onTap: onTap,
           decoration: InputDecoration(
             hintText: hintText ?? 'Enter $label',
+            errorText: errorText,
             prefixIcon: prefixIcon != null ? Icon(prefixIcon, size: 20) : null,
-            suffixIcon: suffixIcon,
+            suffixIcon: suffixWidget,
           ),
         ),
       ],
     );
   }
 }
+
