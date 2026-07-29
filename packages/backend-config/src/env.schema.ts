@@ -30,6 +30,7 @@ export const EnvironmentSchema = z.object({
   EMAIL_FROM: z.string().email().default("no-reply@pautipustak.local"),
   OTEL_EXPORTER_OTLP_ENDPOINT: z.string().url().default("http://localhost:4318"),
   OTEL_SERVICE_NAME: z.string().default("pauti-pustak-backend"),
+  PAN_ENCRYPTION_KEY: z.string(),
 });
 
 export type AppEnvironment = z.infer<typeof EnvironmentSchema>;

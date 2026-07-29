@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../core/localization/locale_controller.dart';
 import '../core/theme/app_theme.dart';
+import '../l10n/app_localizations.dart';
 import 'router.dart';
 
 class PautiPustakApp extends ConsumerWidget {
@@ -13,6 +15,7 @@ class PautiPustakApp extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final router = ref.watch(appRouterProvider);
     final themeMode = ref.watch(appThemeModeProvider);
+    final locale = ref.watch(localeControllerProvider);
 
     return MaterialApp.router(
       title: 'Pauti Pustak ($environment)',
@@ -20,9 +23,13 @@ class PautiPustakApp extends ConsumerWidget {
       theme: AppTheme.lightTheme,
       darkTheme: AppTheme.darkTheme,
       themeMode: themeMode,
+      locale: locale,
+      localizationsDelegates: AppLocalizations.localizationsDelegates,
+      supportedLocales: AppLocalizations.supportedLocales,
       routerConfig: router,
     );
   }
 }
+
 
 

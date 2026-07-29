@@ -2,18 +2,25 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:pauti_pustak_mobile/app/app.dart';
 
+import 'package:pauti_pustak_mobile/core/session/session_controller.dart';
+import 'package:pauti_pustak_mobile/core/session/session_state.dart';
+
+import 'package:pauti_pustak_mobile/features/authentication/presentation/pages/registration_page.dart';
+
 void main() {
-  testWidgets('PautiPustakApp renders the home screen via go_router',
+  testWidgets(
+      'PautiPustakApp starts on the registration landing screen via go_router',
       (tester) async {
     await tester.pumpWidget(
-      const ProviderScope(
-        child: PautiPustakApp(environment: 'test'),
+      ProviderScope(
+        overrides: [
+          initialSessionStateProvider.overrideWithValue(SessionState.unauthenticated),
+        ],
+        child: const PautiPustakApp(environment: 'test'),
       ),
     );
     await tester.pumpAndSettle();
 
-    expect(find.text('Pauti Pustak'), findsOneWidget);
-    expect(find.text('Shree Ganesh Mandal'), findsOneWidget);
-    expect(find.text('Core App Modules'), findsOneWidget);
+    expect(find.byType(RegistrationPage), findsOneWidget);
   });
 }

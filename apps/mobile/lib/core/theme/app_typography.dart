@@ -6,7 +6,11 @@ import 'app_colors.dart';
 class AppTypography {
   AppTypography._();
 
-  static TextTheme textTheme(bool isDark) {
+  static TextTheme textTheme(dynamic isDarkOrBrightness) {
+    final bool isDark = isDarkOrBrightness is bool
+        ? isDarkOrBrightness
+        : isDarkOrBrightness == Brightness.dark;
+
     final primaryColor = isDark ? AppColors.textPrimaryDark : AppColors.textPrimaryLight;
     final secondaryColor = isDark ? AppColors.textSecondaryDark : AppColors.textSecondaryLight;
     final mutedColor = isDark ? AppColors.textMutedDark : AppColors.textMutedLight;
@@ -145,4 +149,5 @@ class AppTypography {
         const TextStyle(fontSize: 12);
   }
 }
+
 
