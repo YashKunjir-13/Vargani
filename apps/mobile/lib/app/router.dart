@@ -2,12 +2,20 @@ import 'package:flutter/material.dart' hide StepState;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../core/session/session_controller.dart';
+import '../core/session/session_state.dart';
+import '../features/authentication/data/models/auth_models.dart';
+import '../features/authentication/presentation/pages/login_page.dart';
+import '../features/authentication/presentation/pages/registration_page.dart';
 import '../features/audit_logs/advanced_filters_sheet.dart';
 import '../features/audit_logs/audit_detail_screen.dart';
 import '../features/audit_logs/audit_overview_screen.dart';
 import '../features/audit_logs/audit_search_screen.dart';
 import '../features/audit_logs/audit_timeline_screen.dart';
 import '../features/audit_logs/models/audit_models.dart';
+import '../features/bills/screens/bill_detail_screen.dart';
+import '../features/bills/screens/bills_list_screen.dart';
+import '../features/bills/screens/create_bill_screen.dart';
 import '../features/budget/advanced_filters_sheet.dart';
 import '../features/budget/budget_approval_screen.dart';
 import '../features/budget/budget_details_screen.dart';
@@ -16,29 +24,75 @@ import '../features/budget/budget_revision_screen.dart';
 import '../features/budget/budget_table_screen.dart';
 import '../features/budget/export_budget_sheet.dart';
 import '../features/budget/models/budget_models.dart';
+import '../features/contribution_receipts/screens/contribution_receipt_detail_screen.dart';
+import '../features/contribution_receipts/screens/contribution_receipts_list_screen.dart';
+import '../features/contributions/screens/contribution_detail_screen.dart';
+import '../features/contributions/screens/contributions_list_screen.dart';
+import '../features/contributions/screens/create_contribution_screen.dart';
 import '../features/dashboard/dashboard_screen.dart';
 import '../features/notifications/advanced_filters_sheet.dart';
 import '../features/notifications/models/notification_models.dart';
 import '../features/notifications/notification_center_screen.dart';
 import '../features/notifications/notification_detail_screen.dart';
 import '../features/notifications/notification_settings_screen.dart';
+import '../features/payments/screens/create_payment_screen.dart';
+import '../features/payments/screens/payment_detail_screen.dart';
+import '../features/payments/screens/payments_list_screen.dart';
+import '../features/receipts/screens/receipt_detail_screen.dart';
+import '../features/receipts/screens/receipts_list_screen.dart';
+import '../features/templates/screens/template_calibration_screen.dart';
 import '../shared/ui_kit/chips/severity_badge.dart';
 import '../shared/ui_kit/navigation/approval_stepper.dart';
+import '../shared/widgets/scaffold_with_nav_bar.dart';
 import 'coming_soon_screen.dart';
+import 'home_screen.dart';
 
-/// Root app router.
-///
-/// The tenant-scoped `(organizationId, eventId)` context-switch guard lands
-/// alongside the auth/tenant route trees in a later feature phase.
-///
-/// Detail screens receive their data via `state.extra`, passed by the hub
-/// screen that navigated to them (e.g. tapping a budget category passes
-/// that category's [BudgetCategoryData]). This is a deliberate placeholder:
-/// once Step 9/10 wire real Riverpod providers backed by a repository,
-/// these mock constants are replaced by `ref.watch(...)` reads and the
-/// route builders stop constructing data themselves -- the route
-/// *structure* below does not change.
+/// Helper to build ultra-smooth fade and slide transitions for sub-routes.
+CustomTransitionPage<void> _buildSmoothPage({
+  required BuildContext context,
+  required GoRouterState state,
+  required Widget child,
+}) {
+  return CustomTransitionPage<void>(
+    key: state.pageKey,
+    child: child,
+    transitionDuration: const Duration(milliseconds: 240),
+    reverseTransitionDuration: const Duration(milliseconds: 200),
+    transitionsBuilder: (context, animation, secondaryAnimation, child) {
+      final fadeAnimation = CurvedAnimation(
+        parent: animation,
+        curve: Curves.easeOutCubic,
+      );
+      final slideAnimation = Tween<Offset>(
+        begin: const Offset(0.04, 0),
+        end: Offset.zero,
+      ).animate(CurvedAnimation(
+        parent: animation,
+        curve: Curves.easeOutCubic,
+      ));
+      return FadeTransition(
+        opacity: fadeAnimation,
+        child: SlideTransition(
+          position: slideAnimation,
+          child: child,
+        ),
+      );
+    },
+  );
+}
+
+class _RouterRefreshNotifier extends ChangeNotifier {
+  _RouterRefreshNotifier(Ref ref) {
+    ref.listen(sessionControllerProvider, (_, __) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        notifyListeners();
+      });
+    });
+  }
+}
+
 final appRouterProvider = Provider<GoRouter>((ref) {
+  final refreshNotifier = _RouterRefreshNotifier(ref);
   return GoRouter(
     initialLocation: '/register',
     refreshListenable: refreshNotifier,
@@ -67,13 +121,146 @@ final appRouterProvider = Provider<GoRouter>((ref) {
       return null;
     },
     routes: [
-      // ---------------- Dashboard ----------------
       GoRoute(
-        path: '/',
-        name: 'dashboard',
-        builder: (context, state) => const DashboardScreen(),
+        path: '/register',
+        name: 'register',
+        builder: (context, state) => RegistrationPage(
+          onLoginRequested: () => context.go('/login'),
+        ),
       ),
-
+      GoRoute(
+        path: '/login',
+        name: 'login',
+        builder: (context, state) => LoginPage(
+          onBackToRegistration: () => context.go('/register'),
+        ),
+      ),
+      ShellRoute(
+        builder: (context, state, child) => ScaffoldWithNavBar(child: child),
+        routes: [
+          GoRoute(
+            path: '/',
+            name: 'home',
+            builder: (context, state) => const HomeScreen(),
+          ),
+          GoRoute(
+            path: '/payments',
+            name: 'payments',
+            builder: (context, state) => const PaymentsListScreen(),
+            routes: [
+              GoRoute(
+                path: 'new',
+                name: 'payments-new',
+                pageBuilder: (context, state) => _buildSmoothPage(
+                  context: context,
+                  state: state,
+                  child: const CreatePaymentScreen(),
+                ),
+              ),
+              GoRoute(
+                path: ':id',
+                name: 'payments-detail',
+                pageBuilder: (context, state) => _buildSmoothPage(
+                  context: context,
+                  state: state,
+                  child: PaymentDetailScreen(paymentId: state.pathParameters['id']!),
+                ),
+              ),
+            ],
+          ),
+          GoRoute(
+            path: '/receipts',
+            name: 'receipts',
+            builder: (context, state) => const ReceiptsListScreen(),
+            routes: [
+              GoRoute(
+                path: ':id',
+                name: 'receipts-detail',
+                pageBuilder: (context, state) => _buildSmoothPage(
+                  context: context,
+                  state: state,
+                  child: ReceiptDetailScreen(receiptId: state.pathParameters['id']!),
+                ),
+              ),
+            ],
+          ),
+          GoRoute(
+            path: '/bills',
+            name: 'bills',
+            builder: (context, state) => const BillsListScreen(),
+            routes: [
+              GoRoute(
+                path: 'new',
+                name: 'bills-new',
+                pageBuilder: (context, state) => _buildSmoothPage(
+                  context: context,
+                  state: state,
+                  child: const CreateBillScreen(),
+                ),
+              ),
+              GoRoute(
+                path: ':id',
+                name: 'bills-detail',
+                pageBuilder: (context, state) => _buildSmoothPage(
+                  context: context,
+                  state: state,
+                  child: BillDetailScreen(billId: state.pathParameters['id']!),
+                ),
+              ),
+            ],
+          ),
+          GoRoute(
+            path: '/contributions',
+            name: 'contributions',
+            builder: (context, state) => const ContributionsListScreen(),
+            routes: [
+              GoRoute(
+                path: 'new',
+                name: 'contributions-new',
+                pageBuilder: (context, state) => _buildSmoothPage(
+                  context: context,
+                  state: state,
+                  child: const CreateContributionScreen(),
+                ),
+              ),
+              GoRoute(
+                path: ':id',
+                name: 'contributions-detail',
+                pageBuilder: (context, state) => _buildSmoothPage(
+                  context: context,
+                  state: state,
+                  child: ContributionDetailScreen(contributionId: state.pathParameters['id']!),
+                ),
+              ),
+            ],
+          ),
+          GoRoute(
+            path: '/contribution-receipts',
+            name: 'contribution-receipts',
+            builder: (context, state) => const ContributionReceiptsListScreen(),
+            routes: [
+              GoRoute(
+                path: ':id',
+                name: 'contribution-receipts-detail',
+                pageBuilder: (context, state) => _buildSmoothPage(
+                  context: context,
+                  state: state,
+                  child: ContributionReceiptDetailScreen(receiptId: state.pathParameters['id']!),
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
+      GoRoute(
+        path: '/templates',
+        name: 'templates',
+        pageBuilder: (context, state) => _buildSmoothPage(
+          context: context,
+          state: state,
+          child: const TemplateCalibrationScreen(),
+        ),
+      ),
       // ---------------- Budget ----------------
       GoRoute(
         path: '/budget',
@@ -211,22 +398,10 @@ final appRouterProvider = Provider<GoRouter>((ref) {
           ),
         ],
       ),
-
-      // ---------------- Remaining stubs (out of scope for this spec) ----------------
-      GoRoute(
-        path: '/contributions',
-        name: 'contributions',
-        builder: (context, state) => const ComingSoonScreen(title: 'Contributions'),
-      ),
       GoRoute(
         path: '/expenses',
         name: 'expenses',
         builder: (context, state) => const ComingSoonScreen(title: 'Expenses'),
-      ),
-      GoRoute(
-        path: '/receipts',
-        name: 'receipts',
-        builder: (context, state) => const ComingSoonScreen(title: 'Receipts'),
       ),
       GoRoute(
         path: '/reports',

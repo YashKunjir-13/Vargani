@@ -1,7 +1,7 @@
 import { Body, Controller, Get, HttpCode, HttpStatus, Post, UseGuards } from "@nestjs/common";
 import { ApiBearerAuth, ApiOperation, ApiTags } from "@nestjs/swagger";
 import { createApiResponse } from "@pauti-pustak/backend-contracts";
-import { AuthenticatedUser } from "@pauti-pustak/backend-security";
+import { AuthenticatedUser, Public } from "@pauti-pustak/backend-security";
 import { AuthService } from "./auth.service";
 import { CurrentUser } from "./current-user.decorator";
 import { LoginDto } from "./dto/login.dto";
@@ -32,6 +32,7 @@ export class AuthController {
   }
 
   @Post("login")
+  @Public()
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: "Login with phone number and password" })
   async login(@Body() dto: LoginDto) {

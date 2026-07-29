@@ -5,14 +5,43 @@ import {
   Injectable,
   UnauthorizedException,
 } from "@nestjs/common";
+import { Reflector } from "@nestjs/core";
 import { AuthenticatedUser, PlatformRole } from "./auth.interfaces";
+import { IS_PUBLIC_KEY } from "./public.decorator";
+
+/**
+ * Extracts whatever organizationId a client tried to smuggle into this
+ * request outside of the trusted, server-verified `user.organizationId`
+ * (header, body, or query string). Presence of one of these is only ever
+ * used to *detect and reject* a mismatch -- never to establish tenant
+ * identity by itself.
+ */
+function extractClaimedTenantId(request: any): string | undefined {
+  return (
+    request.headers?.["x-tenant-id"] ??
+    request.body?.organizationId ??
+    request.query?.organizationId
+  );
+}
 
 @Injectable()
 export class TenantGuard implements CanActivate {
+  // Default-constructible so existing `new TenantGuard()` unit tests keep
+  // working; Nest's DI container still injects the real Reflector when this
+  // is registered as a provider (e.g. via APP_GUARD).
+  constructor(private readonly reflector: Reflector = new Reflector()) {}
+
   canActivate(context: ExecutionContext): boolean {
+    const isPublic = this.reflector.getAllAndOverride<boolean>(IS_PUBLIC_KEY, [
+      context.getHandler(),
+      context.getClass(),
+    ]);
+    if (isPublic) {
+      return true;
+    }
+
     const request = context.switchToHttp().getRequest();
     const user: AuthenticatedUser = request.user;
-    const headerTenantId = request.headers["x-tenant-id"];
 
     if (!user) {
       throw new UnauthorizedException("Unauthenticated request");
@@ -22,12 +51,21 @@ export class TenantGuard implements CanActivate {
       return true;
     }
 
-    const tenantId = user.organizationId || headerTenantId;
-    if (!tenantId) {
+    if (!user.organizationId) {
       throw new ForbiddenException("Tenant isolation violation: Tenant ID missing");
     }
 
-    request.tenantId = tenantId;
+    // A client-supplied organizationId (header/body/query) is never trusted
+    // as the tenant identity -- it is only checked for consistency. Any
+    // mismatch against the token-derived organizationId is treated as a
+    // forgery attempt and rejected outright, never silently overridden or
+    // silently ignored.
+    const claimedTenantId = extractClaimedTenantId(request);
+    if (claimedTenantId && claimedTenantId !== user.organizationId) {
+      throw new ForbiddenException("Tenant isolation violation: organizationId mismatch");
+    }
+
+    request.tenantId = user.organizationId;
     return true;
   }
 }
