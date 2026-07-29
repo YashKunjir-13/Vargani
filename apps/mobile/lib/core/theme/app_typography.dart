@@ -1,56 +1,53 @@
 import 'package:flutter/material.dart';
 
+/// Builds the approved compact MD3 type scale on top of Flutter's default
+/// [TextTheme], overriding only the roles the design spec defines. Every
+/// other role keeps Flutter's Material 3 default rather than being left null.
 class AppTypography {
-  static TextStyle display(BuildContext context, {Color? color}) {
-    return Theme.of(context).textTheme.headlineSmall?.copyWith(
-              fontWeight: FontWeight.w700,
-              color: color,
-            ) ??
-        const TextStyle(fontSize: 24, fontWeight: FontWeight.w700);
-  }
+  AppTypography._();
 
-  static TextStyle titleLarge(BuildContext context, {Color? color}) {
-    return Theme.of(context).textTheme.titleLarge?.copyWith(
-              fontWeight: FontWeight.w700,
-              color: color,
-            ) ??
-        const TextStyle(fontSize: 18, fontWeight: FontWeight.w700);
-  }
+  static TextTheme textTheme(Brightness brightness) {
+    final base = brightness == Brightness.light
+        ? ThemeData.light(useMaterial3: true).textTheme
+        : ThemeData.dark(useMaterial3: true).textTheme;
 
-  static TextStyle titleMedium(BuildContext context, {Color? color}) {
-    return Theme.of(context).textTheme.titleMedium?.copyWith(
-              fontWeight: FontWeight.w600,
-              color: color,
-            ) ??
-        const TextStyle(fontSize: 16, fontWeight: FontWeight.w600);
-  }
-
-  static TextStyle body(BuildContext context, {Color? color}) {
-    return Theme.of(context).textTheme.bodyMedium?.copyWith(
-              color: color,
-            ) ??
-        const TextStyle(fontSize: 14);
-  }
-
-  static TextStyle label(BuildContext context, {Color? color}) {
-    return Theme.of(context).textTheme.labelMedium?.copyWith(
-              fontWeight: FontWeight.w600,
-              color: color,
-            ) ??
-        const TextStyle(fontSize: 12, fontWeight: FontWeight.w600);
-  }
-
-  static TextStyle bodySmall(BuildContext context, {Color? color}) {
-    return Theme.of(context).textTheme.bodySmall?.copyWith(
-              color: color,
-            ) ??
-        const TextStyle(fontSize: 12);
-  }
-
-  static TextStyle caption(BuildContext context, {Color? color}) {
-    return Theme.of(context).textTheme.bodySmall?.copyWith(
-              color: color,
-            ) ??
-        const TextStyle(fontSize: 12);
+    return base.copyWith(
+      // Display -> page titles
+      headlineMedium: base.headlineMedium?.copyWith(
+        fontSize: 26,
+        fontWeight: FontWeight.w700,
+      ),
+      // Headline -> section titles
+      titleLarge: base.titleLarge?.copyWith(
+        fontSize: 20,
+        fontWeight: FontWeight.w600,
+      ),
+      // Title -> card titles
+      titleMedium: base.titleMedium?.copyWith(
+        fontSize: 16,
+        fontWeight: FontWeight.w600,
+      ),
+      // Body Large -> primary content
+      bodyLarge: base.bodyLarge?.copyWith(
+        fontSize: 15,
+        fontWeight: FontWeight.w400,
+      ),
+      // Body Medium -> secondary content
+      bodyMedium: base.bodyMedium?.copyWith(
+        fontSize: 13,
+        fontWeight: FontWeight.w400,
+      ),
+      // Label Large -> buttons
+      labelLarge: base.labelLarge?.copyWith(
+        fontSize: 14,
+        fontWeight: FontWeight.w700,
+      ),
+      // Label Medium -> metadata / eyebrows
+      labelMedium: base.labelMedium?.copyWith(
+        fontSize: 11,
+        fontWeight: FontWeight.w700,
+        letterSpacing: 0.66,
+      ),
+    );
   }
 }

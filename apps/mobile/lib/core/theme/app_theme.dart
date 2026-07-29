@@ -1,126 +1,48 @@
 import 'package:flutter/material.dart';
 
-import 'app_colors.dart';
-import 'app_spacing.dart';
+import 'app_color_scheme.dart';
+import 'app_typography.dart';
+import 'semantic_colors.dart';
 
+/// Assembles the approved color scheme, typography and semantic colors into
+/// the two [ThemeData] instances the app switches between.
+///
+/// Component-level overrides (button shapes, chip themes, etc.) are
+/// deliberately not set here yet -- MD3 defaults already render correctly
+/// once [ColorScheme] is right, so those are added only when a specific
+/// shared component needs one.
 class AppTheme {
+  AppTheme._();
+
   static ThemeData light() {
-    final base = ThemeData.light(useMaterial3: true);
-    return base.copyWith(
-      scaffoldBackgroundColor: AppColors.lightScaffoldBackground,
-      cardColor: AppColors.lightCard,
-      colorScheme: base.colorScheme.copyWith(
-        primary: AppColors.lightPrimary,
-        onPrimary: AppColors.lightOnPrimary,
-        secondary: AppColors.lightSecondary,
-        onSecondary: AppColors.lightOnSecondary,
-        surface: AppColors.lightSurface,
-        onSurface: const Color(0xFF1F2937),
-        onSurfaceVariant: AppColors.lightMutedText,
-        outline: AppColors.lightBorder,
-        error: AppColors.lightError,
-        tertiary: AppColors.lightInfo,
-      ),
-      appBarTheme: const AppBarTheme(
-        backgroundColor: AppColors.lightScaffoldBackground,
-        foregroundColor: Color(0xFF1F2937),
-        elevation: 0,
-      ),
-      cardTheme: const CardThemeData(
-        color: AppColors.lightCard,
-        elevation: AppSpacing.elevationMd,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.all(Radius.circular(AppSpacing.radiusMd)),
-        ),
-      ),
-      elevatedButtonTheme: ElevatedButtonThemeData(
-        style: ElevatedButton.styleFrom(
-          backgroundColor: AppColors.lightPrimary,
-          foregroundColor: AppColors.lightOnPrimary,
-          shape: const RoundedRectangleBorder(
-            borderRadius:
-                BorderRadius.all(Radius.circular(AppSpacing.radiusMd)),
-          ),
-        ),
-      ),
-      outlinedButtonTheme: OutlinedButtonThemeData(
-        style: OutlinedButton.styleFrom(
-          foregroundColor: AppColors.lightPrimary,
-          side: const BorderSide(color: AppColors.lightBorder),
-          shape: const RoundedRectangleBorder(
-            borderRadius:
-                BorderRadius.all(Radius.circular(AppSpacing.radiusMd)),
-          ),
-        ),
-      ),
-      inputDecorationTheme: const InputDecorationTheme(
-        filled: true,
-        fillColor: AppColors.lightSurface,
-        border: OutlineInputBorder(
-          borderRadius: BorderRadius.all(Radius.circular(AppSpacing.radiusMd)),
-          borderSide: BorderSide(color: AppColors.lightBorder),
-        ),
-      ),
+    final colorScheme = AppColorScheme.light();
+    final textTheme = AppTypography.textTheme(Brightness.light).apply(
+      bodyColor: colorScheme.onSurface,
+      displayColor: colorScheme.onSurface,
+    );
+
+    return ThemeData(
+      useMaterial3: true,
+      brightness: Brightness.light,
+      colorScheme: colorScheme,
+      textTheme: textTheme,
+      extensions: const [SemanticColors.light],
     );
   }
 
   static ThemeData dark() {
-    final base = ThemeData.dark(useMaterial3: true);
-    return base.copyWith(
-      scaffoldBackgroundColor: AppColors.darkScaffoldBackground,
-      cardColor: AppColors.darkCard,
-      colorScheme: base.colorScheme.copyWith(
-        primary: AppColors.darkPrimary,
-        onPrimary: AppColors.darkOnPrimary,
-        secondary: AppColors.darkSecondary,
-        onSecondary: AppColors.darkOnSecondary,
-        surface: AppColors.darkSurface,
-        onSurface: const Color(0xFFF8FAFC),
-        onSurfaceVariant: AppColors.darkMutedText,
-        outline: AppColors.darkBorder,
-        error: AppColors.darkError,
-        tertiary: AppColors.darkInfo,
-      ),
-      appBarTheme: const AppBarTheme(
-        backgroundColor: AppColors.darkScaffoldBackground,
-        foregroundColor: Color(0xFFF8FAFC),
-        elevation: 0,
-      ),
-      cardTheme: const CardThemeData(
-        color: AppColors.darkCard,
-        elevation: AppSpacing.elevationMd,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.all(Radius.circular(AppSpacing.radiusMd)),
-        ),
-      ),
-      elevatedButtonTheme: ElevatedButtonThemeData(
-        style: ElevatedButton.styleFrom(
-          backgroundColor: AppColors.darkPrimary,
-          foregroundColor: AppColors.darkOnPrimary,
-          shape: const RoundedRectangleBorder(
-            borderRadius:
-                BorderRadius.all(Radius.circular(AppSpacing.radiusMd)),
-          ),
-        ),
-      ),
-      outlinedButtonTheme: OutlinedButtonThemeData(
-        style: OutlinedButton.styleFrom(
-          foregroundColor: AppColors.darkPrimary,
-          side: const BorderSide(color: AppColors.darkBorder),
-          shape: const RoundedRectangleBorder(
-            borderRadius:
-                BorderRadius.all(Radius.circular(AppSpacing.radiusMd)),
-          ),
-        ),
-      ),
-      inputDecorationTheme: const InputDecorationTheme(
-        filled: true,
-        fillColor: AppColors.darkSurface,
-        border: OutlineInputBorder(
-          borderRadius: BorderRadius.all(Radius.circular(AppSpacing.radiusMd)),
-          borderSide: BorderSide(color: AppColors.darkBorder),
-        ),
-      ),
+    final colorScheme = AppColorScheme.dark();
+    final textTheme = AppTypography.textTheme(Brightness.dark).apply(
+      bodyColor: colorScheme.onSurface,
+      displayColor: colorScheme.onSurface,
+    );
+
+    return ThemeData(
+      useMaterial3: true,
+      brightness: Brightness.dark,
+      colorScheme: colorScheme,
+      textTheme: textTheme,
+      extensions: const [SemanticColors.dark],
     );
   }
 }
