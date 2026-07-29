@@ -40,7 +40,32 @@ import 'coming_soon_screen.dart';
 /// *structure* below does not change.
 final appRouterProvider = Provider<GoRouter>((ref) {
   return GoRouter(
-    initialLocation: '/',
+    initialLocation: '/register',
+    refreshListenable: refreshNotifier,
+    redirect: (context, state) {
+      final session = ref.read(sessionControllerProvider);
+      final isAuthRoute = state.matchedLocation == '/login' || state.matchedLocation == '/register';
+      final isDashboardRoute = state.matchedLocation == '/mandal-dashboard' || state.matchedLocation == '/donor-dashboard';
+
+      if (!session.isAuthenticated && !isAuthRoute) {
+        return '/register';
+      }
+
+      if (session.isAuthenticated) {
+        final targetRoute = (session.activeRole == LoginRole.donor) ? '/donor-dashboard' : '/mandal-dashboard';
+
+        if (isAuthRoute || state.matchedLocation == '/') {
+          return targetRoute;
+        }
+
+        // Prevent donor from accessing mandal dashboard directly or vice versa
+        if (isDashboardRoute && state.matchedLocation != targetRoute) {
+          return targetRoute;
+        }
+      }
+
+      return null;
+    },
     routes: [
       // ---------------- Dashboard ----------------
       GoRoute(
