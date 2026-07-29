@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
+import '../../../shared/ui_kit/charts/mini_sparkline.dart';
 import '../models/dashboard_models.dart';
-import 'mini_sparkline.dart';
 
 class ChartCard extends StatelessWidget {
   final List<ChartTabData> tabs;

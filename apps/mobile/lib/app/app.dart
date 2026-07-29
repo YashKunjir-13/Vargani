@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../core/theme/app_theme.dart';
 import 'router.dart';
 
 class PautiPustakApp extends ConsumerWidget {
@@ -15,20 +16,8 @@ class PautiPustakApp extends ConsumerWidget {
     return MaterialApp.router(
       title: 'Pauti Pustak ($environment)',
       debugShowCheckedModeBanner: environment != 'prod',
-      theme: ThemeData(
-        useMaterial3: true,
-        colorScheme: ColorScheme.fromSeed(
-          seedColor: const Color(0xFF1E3A8A), // Rich Navy Blue
-          brightness: Brightness.light,
-        ),
-      ),
-      darkTheme: ThemeData(
-        useMaterial3: true,
-        colorScheme: ColorScheme.fromSeed(
-          seedColor: const Color(0xFF1E3A8A),
-          brightness: Brightness.dark,
-        ),
-      ),
+      theme: AppTheme.light(),
+      darkTheme: AppTheme.dark(),
       themeMode: ThemeMode.system,
       routerConfig: router,
     );

@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
+import '../../../shared/ui_kit/chips/status_chip.dart';
 import '../models/dashboard_models.dart';
 import 'progress_widget.dart';
-import 'status_badge.dart';
 
 class FinancialSummaryCard extends StatelessWidget {
   final FinancialSummaryData data;
@@ -52,7 +52,7 @@ class FinancialSummaryCard extends StatelessWidget {
                   ),
                 ],
               ),
-              StatusBadge(label: data.liveStatusLabel, type: StatusType.success),
+              StatusChip(label: data.liveStatusLabel, type: StatusChipType.success),
             ],
           ),
           const SizedBox(height: 20),

@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
+import '../../../shared/ui_kit/chips/status_chip.dart';
 import '../models/dashboard_models.dart';
-import 'status_badge.dart';
 
 class TimelineItem extends StatelessWidget {
   final ActivityItemData data;
@@ -52,7 +52,7 @@ class TimelineItem extends StatelessWidget {
                 ),
                 if (data.statusLabel != null) ...[
                   const SizedBox(height: 6),
-                  StatusBadge(label: data.statusLabel!, type: StatusType.neutral),
+                  StatusChip(label: data.statusLabel!, type: StatusChipType.neutral),
                 ],
               ],
             ),

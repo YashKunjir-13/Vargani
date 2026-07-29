@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../../shared/ui_kit/charts/mini_sparkline.dart';
+import '../../../shared/ui_kit/chips/status_chip.dart';
 import '../models/dashboard_models.dart';
-import 'mini_sparkline.dart';
-import 'status_badge.dart';
 
 class AnalyticsCard extends StatelessWidget {
   final AnalyticsCardData data;
@@ -68,7 +68,7 @@ class AnalyticsCard extends StatelessWidget {
                 const SizedBox(height: 8),
                 MiniSparkline(values: data.sparklineData, color: data.accentColor, height: 32),
                 const SizedBox(height: 8),
-                StatusBadge(label: data.statusLabel, type: StatusType.info),
+                StatusChip(label: data.statusLabel, type: StatusChipType.info),
               ],
             ),
           ),

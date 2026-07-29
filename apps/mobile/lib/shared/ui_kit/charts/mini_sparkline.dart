@@ -1,7 +1,13 @@
 import 'package:flutter/material.dart';
 
+/// Visual style for [MiniSparkline].
 enum SparklineStyle { line, bar }
 
+/// A compact trend chart for KPI cards and analytics tiles.
+///
+/// Animates in on first build/data change via a 0->1 [TweenAnimationBuilder]
+/// driving the painter's `progress`, then repaints only when [values],
+/// [color] or [style] actually change (see [_SparklinePainter.shouldRepaint]).
 class MiniSparkline extends StatelessWidget {
   final List<double> values;
   final Color color;
