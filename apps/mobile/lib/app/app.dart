@@ -11,9 +11,9 @@ class PautiPustakApp extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final router = ref.watch(appRouterProvider);
+    final preference = ref.watch(themeProvider);
 
-    return MaterialApp.router(
+    return MaterialApp(
       title: 'Pauti Pustak ($environment)',
       debugShowCheckedModeBanner: environment != 'prod',
       theme: AppTheme.light(),
