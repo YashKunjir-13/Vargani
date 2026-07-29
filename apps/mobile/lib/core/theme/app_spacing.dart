@@ -13,19 +13,18 @@ class AppSpacing {
   static const double space48 = 48;
   static const double space64 = 64;
 
-  static const double xs = 4;
-  static const double sm = 8;
-  static const double md = 16;
-  static const double lg = 24;
-  static const double xl = 32;
-  static const double xxl = 48;
+  // Backward compatibility aliases
+  static const double xs = space4;
+  static const double sm = space8;
+  static const double md = space16;
+  static const double lg = space24;
+  static const double xl = space32;
+  static const double xxl = space48;
 
-  static const double radiusSm = 8;
-  static const double radiusMd = 12;
-  static const double radiusLg = 16;
-
-  static const double elevationSm = 1;
-  static const double elevationMd = 3;
+  static const double radiusSm = 8.0;
+  static const double radiusMd = 12.0;
+  static const double radiusLg = 16.0;
+  static const double radiusXl = 24.0;
 }
 
 class AppRadius {

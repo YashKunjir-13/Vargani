@@ -3,10 +3,10 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../core/session/session_controller.dart';
-import '../core/session/session_state.dart';
 import '../features/authentication/data/models/auth_models.dart';
 import '../features/authentication/presentation/pages/login_page.dart';
 import '../features/authentication/presentation/pages/registration_page.dart';
+
 import '../features/audit_logs/advanced_filters_sheet.dart';
 import '../features/audit_logs/audit_detail_screen.dart';
 import '../features/audit_logs/audit_overview_screen.dart';
@@ -30,6 +30,8 @@ import '../features/contributions/screens/contribution_detail_screen.dart';
 import '../features/contributions/screens/contributions_list_screen.dart';
 import '../features/contributions/screens/create_contribution_screen.dart';
 import '../features/dashboard/dashboard_screen.dart';
+import '../features/dashboard/presentation/pages/mandal_dashboard_screen.dart';
+import '../features/dashboard/presentation/pages/donor_dashboard_screen.dart';
 import '../features/notifications/advanced_filters_sheet.dart';
 import '../features/notifications/models/notification_models.dart';
 import '../features/notifications/notification_center_screen.dart';
@@ -91,8 +93,29 @@ class _RouterRefreshNotifier extends ChangeNotifier {
   }
 }
 
-final appRouterProvider = Provider<GoRouter>((ref) {
-  final refreshNotifier = _RouterRefreshNotifier(ref);
+/// Notifies go_router's redirect logic to re-run whenever the session state
+/// changes (login, logout, restore), without recreating the whole router.
+class _SessionRefreshNotifier extends ChangeNotifier {
+  _SessionRefreshNotifier(Ref ref) {
+    ref.listen(sessionControllerProvider, (_, __) => notifyListeners());
+  }
+}
+
+/// Root app router.
+///
+/// The tenant-scoped `(organizationId, eventId)` context-switch guard lands
+/// alongside the auth/tenant route trees in a later feature phase.
+///
+/// Detail screens receive their data via `state.extra`, passed by the hub
+/// screen that navigated to them (e.g. tapping a budget category passes
+/// that category's [BudgetCategoryData]). This is a deliberate placeholder:
+/// once Step 9/10 wire real Riverpod providers backed by a repository,
+/// these mock constants are replaced by `ref.watch(...)` reads and the
+/// route builders stop constructing data themselves -- the route
+/// *structure* below does not change.
+final appRouterProvider = Provider.family<GoRouter, String>((ref, environment) {
+  final refreshNotifier = _SessionRefreshNotifier(ref);
+
   return GoRouter(
     initialLocation: '/register',
     refreshListenable: refreshNotifier,
@@ -121,6 +144,23 @@ final appRouterProvider = Provider<GoRouter>((ref) {
       return null;
     },
     routes: [
+      // ---------------- Authentication ----------------
+      GoRoute(
+        path: '/login',
+        name: 'login',
+        builder: (context, state) => LoginPage(
+          onBackToRegistration: () => context.go('/register'),
+        ),
+      ),
+      GoRoute(
+        path: '/register',
+        name: 'register',
+        builder: (context, state) => RegistrationPage(
+          onLoginRequested: () => context.go('/login'),
+        ),
+      ),
+
+      // ---------------- Dashboard ----------------
       GoRoute(
         path: '/register',
         name: 'register',
@@ -261,6 +301,17 @@ final appRouterProvider = Provider<GoRouter>((ref) {
           child: const TemplateCalibrationScreen(),
         ),
       ),
+      GoRoute(
+        path: '/mandal-dashboard',
+        name: 'mandal-dashboard',
+        builder: (context, state) => const MandalDashboardScreen(),
+      ),
+      GoRoute(
+        path: '/donor-dashboard',
+        name: 'donor-dashboard',
+        builder: (context, state) => const DonorDashboardScreen(),
+      ),
+
       // ---------------- Budget ----------------
       GoRoute(
         path: '/budget',

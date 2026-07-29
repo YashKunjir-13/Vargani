@@ -14,6 +14,13 @@ rootProject.layout.buildDirectory.value(newBuildDir)
 subprojects {
     val newSubprojectBuildDir: Directory = newBuildDir.dir(project.name)
     project.layout.buildDirectory.value(newSubprojectBuildDir)
+
+    // jni 1.0.1 explicitly skips applying the Kotlin plugin for AGP >= 9,
+    // which causes a 'Could not find method kotlin()' error.
+    // Injecting it here resolves the issue without editing the pub cache.
+    if (project.name == "jni") {
+        apply(plugin = "org.jetbrains.kotlin.android")
+    }
 }
 subprojects {
     project.evaluationDependsOn(":app")

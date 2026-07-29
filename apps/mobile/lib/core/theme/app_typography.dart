@@ -96,57 +96,40 @@ class AppTypography {
     );
   }
 
+  // Backward compatibility methods for feature screens
   static TextStyle display(BuildContext context, {Color? color}) {
-    return Theme.of(context).textTheme.headlineSmall?.copyWith(
-              fontWeight: FontWeight.w700,
-              color: color,
-            ) ??
-        const TextStyle(fontSize: 24, fontWeight: FontWeight.w700);
+    final style = Theme.of(context).textTheme.headlineMedium!;
+    return color != null ? style.copyWith(color: color) : style;
   }
 
   static TextStyle titleLarge(BuildContext context, {Color? color}) {
-    return Theme.of(context).textTheme.titleLarge?.copyWith(
-              fontWeight: FontWeight.w700,
-              color: color,
-            ) ??
-        const TextStyle(fontSize: 18, fontWeight: FontWeight.w700);
+    final style = Theme.of(context).textTheme.titleLarge!;
+    return color != null ? style.copyWith(color: color) : style;
   }
 
   static TextStyle titleMedium(BuildContext context, {Color? color}) {
-    return Theme.of(context).textTheme.titleMedium?.copyWith(
-              fontWeight: FontWeight.w600,
-              color: color,
-            ) ??
-        const TextStyle(fontSize: 16, fontWeight: FontWeight.w600);
+    final style = Theme.of(context).textTheme.titleMedium!;
+    return color != null ? style.copyWith(color: color) : style;
   }
 
   static TextStyle body(BuildContext context, {Color? color}) {
-    return Theme.of(context).textTheme.bodyMedium?.copyWith(
-              color: color,
-            ) ??
-        const TextStyle(fontSize: 14);
+    final style = Theme.of(context).textTheme.bodyLarge!;
+    return color != null ? style.copyWith(color: color) : style;
   }
 
   static TextStyle label(BuildContext context, {Color? color}) {
-    return Theme.of(context).textTheme.labelMedium?.copyWith(
-              fontWeight: FontWeight.w600,
-              color: color,
-            ) ??
-        const TextStyle(fontSize: 12, fontWeight: FontWeight.w600);
-  }
-
-  static TextStyle bodySmall(BuildContext context, {Color? color}) {
-    return Theme.of(context).textTheme.bodySmall?.copyWith(
-              color: color,
-            ) ??
-        const TextStyle(fontSize: 12);
+    final style = Theme.of(context).textTheme.labelLarge!;
+    return color != null ? style.copyWith(color: color) : style;
   }
 
   static TextStyle caption(BuildContext context, {Color? color}) {
-    return Theme.of(context).textTheme.bodySmall?.copyWith(
-              color: color,
-            ) ??
-        const TextStyle(fontSize: 12);
+    final style = Theme.of(context).textTheme.labelMedium!;
+    return color != null ? style.copyWith(color: color) : style;
+  }
+
+  static TextStyle bodySmall(BuildContext context, {Color? color}) {
+    final style = Theme.of(context).textTheme.bodySmall!;
+    return color != null ? style.copyWith(color: color) : style;
   }
 }
 

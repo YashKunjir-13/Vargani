@@ -15,6 +15,7 @@ import 'package:pauti_pustak_mobile/features/dashboard/presentation/widgets/modu
 import 'package:pauti_pustak_mobile/features/dashboard/presentation/widgets/quick_actions_bar.dart';
 import 'package:pauti_pustak_mobile/features/dashboard/presentation/widgets/summary_card.dart';
 import 'package:pauti_pustak_mobile/features/dashboard/presentation/widgets/transaction_list.dart';
+import 'package:pauti_pustak_mobile/shared/widgets/app_bottom_nav.dart';
 
 class MandalDashboardScreen extends ConsumerStatefulWidget {
   const MandalDashboardScreen({super.key});
@@ -83,40 +84,39 @@ class _MandalDashboardScreenState extends ConsumerState<MandalDashboardScreen> {
           color: colors.card,
           border: Border(top: BorderSide(color: colors.border)),
         ),
-        child: BottomNavigationBar(
+        child: AppBottomNav(
           currentIndex: _currentIndex,
           onTap: (index) => setState(() => _currentIndex = index),
-          type: BottomNavigationBarType.fixed,
-          backgroundColor: colors.card,
-          selectedItemColor: colors.brandOrange,
-          unselectedItemColor: colors.secondaryText,
-          selectedLabelStyle: const TextStyle(fontWeight: FontWeight.w800, fontSize: 12),
-          unselectedLabelStyle: const TextStyle(fontWeight: FontWeight.w600, fontSize: 11),
           items: [
-            BottomNavigationBarItem(
-              icon: const Icon(Icons.dashboard_outlined),
-              activeIcon: const Icon(Icons.dashboard),
+            AppBottomNavItem(
+              icon: Icons.dashboard_outlined,
+              selectedIcon: Icons.dashboard,
               label: l10n.mandalDashboardTitle.split(' ').first,
+              route: '',
             ),
-            const BottomNavigationBarItem(
-              icon: Icon(Icons.monetization_on_outlined),
-              activeIcon: Icon(Icons.monetization_on),
+            const AppBottomNavItem(
+              icon: Icons.monetization_on_outlined,
+              selectedIcon: Icons.monetization_on,
               label: 'Contributions',
+              route: '',
             ),
-            const BottomNavigationBarItem(
-              icon: Icon(Icons.description_outlined),
-              activeIcon: Icon(Icons.description),
+            const AppBottomNavItem(
+              icon: Icons.description_outlined,
+              selectedIcon: Icons.description,
               label: 'Bills',
+              route: '',
             ),
-            const BottomNavigationBarItem(
-              icon: Icon(Icons.assessment_outlined),
-              activeIcon: Icon(Icons.assessment),
+            const AppBottomNavItem(
+              icon: Icons.assessment_outlined,
+              selectedIcon: Icons.assessment,
               label: 'Reports',
+              route: '',
             ),
-            BottomNavigationBarItem(
-              icon: const Icon(Icons.person_outline),
-              activeIcon: const Icon(Icons.person),
+            AppBottomNavItem(
+              icon: Icons.person_outline,
+              selectedIcon: Icons.person,
               label: l10n.profile,
+              route: '',
             ),
           ],
         ),
