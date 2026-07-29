@@ -6,7 +6,8 @@ import 'package:pauti_pustak_mobile/l10n/app_localizations.dart';
 
 import 'package:pauti_pustak_mobile/core/theme/theme_controller.dart';
 
-import 'router.dart';
+import '../core/core.dart';
+import 'home_screen.dart';
 
 class PautiPustakApp extends ConsumerWidget {
   final String environment;
