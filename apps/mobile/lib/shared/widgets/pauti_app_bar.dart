@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 
 import '../../core/l10n/app_localizations.dart';
 import '../../core/theme/app_colors.dart';
+import '../../core/theme/app_theme.dart';
 
 /// Reusable app bar matching the exact screenshot design with prominent Back Button:
 /// - Prominent Back Button ('<')
@@ -187,6 +188,33 @@ class PautiAppBar extends ConsumerWidget implements PreferredSizeWidget {
                     ),
                   );
                 }).toList(),
+              ),
+            ),
+            const SizedBox(width: 6),
+
+            // Smooth Light/Dark Mode Toggle Button
+            InkWell(
+              onTap: () {
+                ref.read(appThemeModeProvider.notifier).toggleTheme();
+              },
+              borderRadius: BorderRadius.circular(10),
+              child: AnimatedContainer(
+                duration: const Duration(milliseconds: 200),
+                width: 34,
+                height: 34,
+                decoration: BoxDecoration(
+                  color: isDark ? AppColors.surfaceVariantDark : const Color(0xFFFFF7ED),
+                  borderRadius: BorderRadius.circular(10),
+                  border: Border.all(
+                    color: isDark ? AppColors.borderDark : const Color(0xFFFFEDD5),
+                    width: 1.2,
+                  ),
+                ),
+                child: Icon(
+                  isDark ? Icons.dark_mode_rounded : Icons.light_mode_rounded,
+                  size: 17,
+                  color: isDark ? AppColors.primaryDark : AppColors.primaryLight,
+                ),
               ),
             ),
             const SizedBox(width: 6),
