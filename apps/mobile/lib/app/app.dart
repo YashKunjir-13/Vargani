@@ -6,9 +6,8 @@ import 'package:pauti_pustak_mobile/l10n/app_localizations.dart';
 
 import 'package:pauti_pustak_mobile/core/theme/theme_controller.dart';
 
-import '../core/core.dart';
+import '../core/theme/app_theme.dart';
 import 'router.dart';
-import 'home_screen.dart';
 
 class PautiPustakApp extends ConsumerWidget {
   final String environment;
@@ -24,24 +23,9 @@ class PautiPustakApp extends ConsumerWidget {
     return MaterialApp.router(
       title: 'Pauti Pustak ($environment)',
       debugShowCheckedModeBanner: environment != 'prod',
-      theme: ThemeData(
-        useMaterial3: true,
-        colorScheme: ColorScheme.fromSeed(
-          seedColor: const Color(0xFFF57400),
-          brightness: Brightness.light,
-        ),
-      ),
-      darkTheme: ThemeData(
-        useMaterial3: true,
-        colorScheme: ColorScheme.fromSeed(
-          seedColor: const Color(0xFFF57400),
-          brightness: Brightness.dark,
-        ),
-      ),
-      themeMode: themeMode,
-      locale: locale,
-      localizationsDelegates: AppLocalizations.localizationsDelegates,
-      supportedLocales: supportedLocales,
+      theme: AppTheme.light(),
+      darkTheme: AppTheme.dark(),
+      themeMode: ThemeMode.system,
       routerConfig: router,
     );
   }
