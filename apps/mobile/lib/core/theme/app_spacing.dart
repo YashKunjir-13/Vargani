@@ -12,6 +12,19 @@ class AppSpacing {
   static const double space40 = 40;
   static const double space48 = 48;
   static const double space64 = 64;
+
+  /// Short aliases for the scale above, used by widget code that favors
+  /// t-shirt sizing over explicit pixel values.
+  static const double xs = space4;
+  static const double sm = space8;
+  static const double md = space16;
+  static const double lg = space24;
+  static const double xl = space32;
+  static const double xxl = space48;
+
+  /// Alias for [AppRadius.medium], for call sites that reach for spacing
+  /// and corner radius together (e.g. `BorderRadius.circular(AppSpacing.radiusMd)`).
+  static const double radiusMd = AppRadius.medium;
 }
 
 class AppRadius {

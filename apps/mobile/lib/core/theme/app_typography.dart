@@ -50,4 +50,37 @@ class AppTypography {
       ),
     );
   }
+
+  /// Page titles / hero stat values.
+  static TextStyle display(BuildContext context, {Color? color}) =>
+      _resolve(Theme.of(context).textTheme.headlineMedium, color);
+
+  /// Section titles.
+  static TextStyle titleLarge(BuildContext context, {Color? color}) =>
+      _resolve(Theme.of(context).textTheme.titleLarge, color);
+
+  /// Card / list-item titles.
+  static TextStyle titleMedium(BuildContext context, {Color? color}) =>
+      _resolve(Theme.of(context).textTheme.titleMedium, color);
+
+  /// Primary body content.
+  static TextStyle body(BuildContext context, {Color? color}) =>
+      _resolve(Theme.of(context).textTheme.bodyLarge, color);
+
+  /// Secondary body content.
+  static TextStyle bodySmall(BuildContext context, {Color? color}) =>
+      _resolve(Theme.of(context).textTheme.bodyMedium, color);
+
+  /// Muted captions / subtitles.
+  static TextStyle caption(BuildContext context, {Color? color}) =>
+      _resolve(Theme.of(context).textTheme.bodySmall, color);
+
+  /// Field labels, badges, metadata.
+  static TextStyle label(BuildContext context, {Color? color}) =>
+      _resolve(Theme.of(context).textTheme.labelMedium, color);
+
+  static TextStyle _resolve(TextStyle? base, Color? color) {
+    final resolved = base ?? const TextStyle();
+    return color != null ? resolved.copyWith(color: color) : resolved;
+  }
 }

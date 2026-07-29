@@ -2,6 +2,10 @@ import 'package:flutter/material.dart' hide StepState;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../core/session/session_controller.dart';
+import '../features/authentication/data/models/auth_models.dart';
+import '../features/authentication/presentation/pages/login_page.dart';
+import '../features/authentication/presentation/pages/registration_page.dart';
 import '../features/audit_logs/advanced_filters_sheet.dart';
 import '../features/audit_logs/audit_detail_screen.dart';
 import '../features/audit_logs/audit_overview_screen.dart';
@@ -17,6 +21,8 @@ import '../features/budget/budget_table_screen.dart';
 import '../features/budget/export_budget_sheet.dart';
 import '../features/budget/models/budget_models.dart';
 import '../features/dashboard/dashboard_screen.dart';
+import '../features/dashboard/presentation/pages/donor_dashboard_screen.dart';
+import '../features/dashboard/presentation/pages/mandal_dashboard_screen.dart';
 import '../features/notifications/advanced_filters_sheet.dart';
 import '../features/notifications/models/notification_models.dart';
 import '../features/notifications/notification_center_screen.dart';
@@ -39,6 +45,13 @@ import 'coming_soon_screen.dart';
 /// route builders stop constructing data themselves -- the route
 /// *structure* below does not change.
 final appRouterProvider = Provider<GoRouter>((ref) {
+  final refreshNotifier = _RouterRefreshNotifier();
+  ref.listen(
+    sessionControllerProvider,
+    (_, __) => refreshNotifier.refresh(),
+  );
+  ref.onDispose(refreshNotifier.dispose);
+
   return GoRouter(
     initialLocation: '/register',
     refreshListenable: refreshNotifier,
@@ -67,6 +80,32 @@ final appRouterProvider = Provider<GoRouter>((ref) {
       return null;
     },
     routes: [
+      // ---------------- Authentication ----------------
+      GoRoute(
+        path: '/register',
+        name: 'register',
+        builder: (context, state) => RegistrationPage(
+          onLoginRequested: () => context.go('/login'),
+        ),
+      ),
+      GoRoute(
+        path: '/login',
+        name: 'login',
+        builder: (context, state) => LoginPage(
+          onBackToRegistration: () => context.go('/register'),
+        ),
+      ),
+      GoRoute(
+        path: '/mandal-dashboard',
+        name: 'mandal-dashboard',
+        builder: (context, state) => const MandalDashboardScreen(),
+      ),
+      GoRoute(
+        path: '/donor-dashboard',
+        name: 'donor-dashboard',
+        builder: (context, state) => const DonorDashboardScreen(),
+      ),
+
       // ---------------- Dashboard ----------------
       GoRoute(
         path: '/',
@@ -236,6 +275,10 @@ final appRouterProvider = Provider<GoRouter>((ref) {
     ],
   );
 });
+
+class _RouterRefreshNotifier extends ChangeNotifier {
+  void refresh() => notifyListeners();
+}
 
 // ============================================================
 // Temporary mock data -- superseded by the repository layer in Step 10.
