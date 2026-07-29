@@ -16,15 +16,15 @@ class AdvertisementListState {
       AdvertisementListState(search: search ?? this.search);
 }
 
-class AdvertisementListController
-    extends StateNotifier<AdvertisementListState> {
-  AdvertisementListController() : super(const AdvertisementListState());
+class AdvertisementListNotifier extends Notifier<AdvertisementListState> {
+  @override
+  AdvertisementListState build() => const AdvertisementListState();
   void updateSearch(String search) => state = state.copyWith(search: search);
 }
 
 final advertisementListControllerProvider =
-    StateNotifierProvider<AdvertisementListController, AdvertisementListState>(
-  (ref) => AdvertisementListController(),
+    NotifierProvider<AdvertisementListNotifier, AdvertisementListState>(
+  AdvertisementListNotifier.new,
 );
 
 final advertisementListProvider =

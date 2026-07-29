@@ -13,6 +13,7 @@ import 'package:pauti_pustak_mobile/features/dashboard/presentation/widgets/dash
 import 'package:pauti_pustak_mobile/features/dashboard/presentation/widgets/quick_actions_bar.dart';
 import 'package:pauti_pustak_mobile/features/dashboard/presentation/widgets/summary_card.dart';
 import 'package:pauti_pustak_mobile/features/dashboard/presentation/widgets/transaction_list.dart';
+import 'package:pauti_pustak_mobile/shared/widgets/app_bottom_nav.dart';
 
 class DonorDashboardScreen extends ConsumerStatefulWidget {
   const DonorDashboardScreen({super.key});
@@ -69,35 +70,33 @@ class _DonorDashboardScreenState extends ConsumerState<DonorDashboardScreen> {
           color: colors.card,
           border: Border(top: BorderSide(color: colors.border)),
         ),
-        child: BottomNavigationBar(
+        child: AppBottomNav(
           currentIndex: _currentIndex,
           onTap: (index) => setState(() => _currentIndex = index),
-          type: BottomNavigationBarType.fixed,
-          backgroundColor: colors.card,
-          selectedItemColor: colors.brandOrange,
-          unselectedItemColor: colors.secondaryText,
-          selectedLabelStyle: const TextStyle(fontWeight: FontWeight.w800, fontSize: 12),
-          unselectedLabelStyle: const TextStyle(fontWeight: FontWeight.w600, fontSize: 11),
           items: [
-            const BottomNavigationBarItem(
-              icon: Icon(Icons.home_outlined),
-              activeIcon: Icon(Icons.home),
+            const AppBottomNavItem(
+              icon: Icons.home_outlined,
+              selectedIcon: Icons.home,
               label: 'Home',
+              route: '',
             ),
-            const BottomNavigationBarItem(
-              icon: Icon(Icons.history_outlined),
-              activeIcon: Icon(Icons.history),
+            const AppBottomNavItem(
+              icon: Icons.history_outlined,
+              selectedIcon: Icons.history,
               label: 'History',
+              route: '',
             ),
-            const BottomNavigationBarItem(
-              icon: Icon(Icons.receipt_outlined),
-              activeIcon: Icon(Icons.receipt),
+            const AppBottomNavItem(
+              icon: Icons.receipt_outlined,
+              selectedIcon: Icons.receipt,
               label: 'Receipts',
+              route: '',
             ),
-            BottomNavigationBarItem(
-              icon: const Icon(Icons.person_outline),
-              activeIcon: const Icon(Icons.person),
+            AppBottomNavItem(
+              icon: Icons.person_outline,
+              selectedIcon: Icons.person,
               label: l10n.profile,
+              route: '',
             ),
           ],
         ),

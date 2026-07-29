@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:pauti_pustak_mobile/core/localization/localization_extensions.dart';
-import 'package:pauti_pustak_mobile/core/theme/theme_controller.dart';
 import 'package:pauti_pustak_mobile/features/authentication/presentation/widgets/auth_design_tokens.dart';
 import 'package:pauti_pustak_mobile/features/authentication/presentation/widgets/language_selector.dart';
 
@@ -29,7 +28,6 @@ class DashboardHeader extends ConsumerWidget implements PreferredSizeWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final colors = context.authColors;
-    final isDark = Theme.of(context).brightness == Brightness.dark;
     final l10n = context.l10n;
 
     return Container(
@@ -102,27 +100,7 @@ class DashboardHeader extends ConsumerWidget implements PreferredSizeWidget {
 
             const SizedBox(width: 8),
 
-            // Sun/Moon Dark Mode Toggle Button
-            IconButton(
-              onPressed: () {
-                ref.read(themeControllerProvider.notifier).toggleTheme(!isDark);
-              },
-              style: IconButton.styleFrom(
-                backgroundColor: colors.surfaceMuted,
-                padding: const EdgeInsets.all(8),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12),
-                ),
-              ),
-              icon: Icon(
-                isDark ? Icons.light_mode_outlined : Icons.dark_mode_outlined,
-                color: isDark ? colors.gold : colors.text,
-                size: 20,
-              ),
-              tooltip: l10n.darkMode,
-            ),
 
-            const SizedBox(width: 6),
 
             // Compact Language Selector
             const AuthLanguageSelector(),

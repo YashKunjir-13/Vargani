@@ -2,12 +2,19 @@ import 'package:flutter/material.dart' hide StepState;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../core/session/session_controller.dart';
 import '../features/audit_logs/advanced_filters_sheet.dart';
 import '../features/audit_logs/audit_detail_screen.dart';
 import '../features/audit_logs/audit_overview_screen.dart';
 import '../features/audit_logs/audit_search_screen.dart';
 import '../features/audit_logs/audit_timeline_screen.dart';
 import '../features/audit_logs/models/audit_models.dart';
+import '../features/authentication/data/models/auth_models.dart';
+import '../features/authentication/presentation/pages/login_page.dart';
+import '../features/authentication/presentation/pages/registration_page.dart';
+import '../features/bills/screens/bill_detail_screen.dart';
+import '../features/bills/screens/bills_list_screen.dart';
+import '../features/bills/screens/create_bill_screen.dart';
 import '../features/budget/advanced_filters_sheet.dart';
 import '../features/budget/budget_approval_screen.dart';
 import '../features/budget/budget_details_screen.dart';
@@ -16,20 +23,78 @@ import '../features/budget/budget_revision_screen.dart';
 import '../features/budget/budget_table_screen.dart';
 import '../features/budget/export_budget_sheet.dart';
 import '../features/budget/models/budget_models.dart';
-import '../features/dashboard/dashboard_screen.dart';
+import '../features/contribution_receipts/screens/contribution_receipt_detail_screen.dart';
+import '../features/contribution_receipts/screens/contribution_receipts_list_screen.dart';
+import '../features/contributions/screens/contribution_detail_screen.dart';
+import '../features/contributions/screens/contributions_list_screen.dart';
+import '../features/contributions/screens/create_contribution_screen.dart';
+import '../features/dashboard/presentation/pages/donor_dashboard_screen.dart';
+import '../features/dashboard/presentation/pages/mandal_dashboard_screen.dart';
 import '../features/notifications/advanced_filters_sheet.dart';
 import '../features/notifications/models/notification_models.dart';
 import '../features/notifications/notification_center_screen.dart';
 import '../features/notifications/notification_detail_screen.dart';
 import '../features/notifications/notification_settings_screen.dart';
+import '../features/payments/screens/create_payment_screen.dart';
+import '../features/payments/screens/payment_detail_screen.dart';
+import '../features/payments/screens/payments_list_screen.dart';
+import '../features/receipts/screens/receipt_detail_screen.dart';
+import '../features/receipts/screens/receipts_list_screen.dart';
+import '../features/templates/screens/template_calibration_screen.dart';
 import '../shared/ui_kit/chips/severity_badge.dart';
 import '../shared/ui_kit/navigation/approval_stepper.dart';
-import '../core/session/session_controller.dart';
-import '../features/authentication/data/models/auth_models.dart';
+import '../shared/widgets/scaffold_with_nav_bar.dart';
 import 'coming_soon_screen.dart';
+import 'home_screen.dart';
+
+/// Helper to build ultra-smooth fade and slide transitions for sub-routes.
+CustomTransitionPage<void> _buildSmoothPage({
+  required BuildContext context,
+  required GoRouterState state,
+  required Widget child,
+}) {
+  return CustomTransitionPage<void>(
+    key: state.pageKey,
+    child: child,
+    transitionDuration: const Duration(milliseconds: 240),
+    reverseTransitionDuration: const Duration(milliseconds: 200),
+    transitionsBuilder: (context, animation, secondaryAnimation, child) {
+      final fadeAnimation = CurvedAnimation(
+        parent: animation,
+        curve: Curves.easeOutCubic,
+      );
+      final slideAnimation = Tween<Offset>(
+        begin: const Offset(0.04, 0),
+        end: Offset.zero,
+      ).animate(CurvedAnimation(
+        parent: animation,
+        curve: Curves.easeOutCubic,
+      ));
+      return FadeTransition(
+        opacity: fadeAnimation,
+        child: SlideTransition(
+          position: slideAnimation,
+          child: child,
+        ),
+      );
+    },
+  );
+}
 
 class _RouterRefreshNotifier extends ChangeNotifier {
   _RouterRefreshNotifier(Ref ref) {
+    ref.listen(sessionControllerProvider, (_, __) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        notifyListeners();
+      });
+    });
+  }
+}
+
+/// Notifies go_router's redirect logic to re-run whenever the session state
+/// changes (login, logout, restore), without recreating the whole router.
+class _SessionRefreshNotifier extends ChangeNotifier {
+  _SessionRefreshNotifier(Ref ref) {
     ref.listen(sessionControllerProvider, (_, __) => notifyListeners());
   }
 }
@@ -46,22 +111,27 @@ class _RouterRefreshNotifier extends ChangeNotifier {
 /// these mock constants are replaced by `ref.watch(...)` reads and the
 /// route builders stop constructing data themselves -- the route
 /// *structure* below does not change.
-final appRouterProvider = Provider<GoRouter>((ref) {
-  final refreshNotifier = _RouterRefreshNotifier(ref);
+final appRouterProvider = Provider.family<GoRouter, String>((ref, environment) {
+  final refreshNotifier = _SessionRefreshNotifier(ref);
+
   return GoRouter(
     initialLocation: '/register',
     refreshListenable: refreshNotifier,
     redirect: (context, state) {
       final session = ref.read(sessionControllerProvider);
-      final isAuthRoute = state.matchedLocation == '/login' || state.matchedLocation == '/register';
-      final isDashboardRoute = state.matchedLocation == '/mandal-dashboard' || state.matchedLocation == '/donor-dashboard';
+      final isAuthRoute = state.matchedLocation == '/login' ||
+          state.matchedLocation == '/register';
+      final isDashboardRoute = state.matchedLocation == '/mandal-dashboard' ||
+          state.matchedLocation == '/donor-dashboard';
 
       if (!session.isAuthenticated && !isAuthRoute) {
         return '/register';
       }
 
       if (session.isAuthenticated) {
-        final targetRoute = (session.activeRole == LoginRole.donor) ? '/donor-dashboard' : '/mandal-dashboard';
+        final targetRoute = (session.activeRole == LoginRole.donor)
+            ? '/donor-dashboard'
+            : '/mandal-dashboard';
 
         if (isAuthRoute || state.matchedLocation == '/') {
           return targetRoute;
@@ -76,11 +146,176 @@ final appRouterProvider = Provider<GoRouter>((ref) {
       return null;
     },
     routes: [
+      // ---------------- Authentication ----------------
+      GoRoute(
+        path: '/login',
+        name: 'login',
+        builder: (context, state) => LoginPage(
+          onBackToRegistration: () => context.go('/register'),
+        ),
+      ),
+      GoRoute(
+        path: '/register',
+        name: 'register',
+        builder: (context, state) => RegistrationPage(
+          onLoginRequested: () => context.go('/login'),
+        ),
+      ),
+
       // ---------------- Dashboard ----------------
       GoRoute(
-        path: '/',
-        name: 'dashboard',
-        builder: (context, state) => const DashboardScreen(),
+        path: '/register',
+        name: 'register',
+        builder: (context, state) => RegistrationPage(
+          onLoginRequested: () => context.go('/login'),
+        ),
+      ),
+      GoRoute(
+        path: '/login',
+        name: 'login',
+        builder: (context, state) => LoginPage(
+          onBackToRegistration: () => context.go('/register'),
+        ),
+      ),
+      ShellRoute(
+        builder: (context, state, child) => ScaffoldWithNavBar(child: child),
+        routes: [
+          GoRoute(
+            path: '/',
+            name: 'home',
+            builder: (context, state) => const HomeScreen(),
+          ),
+          GoRoute(
+            path: '/payments',
+            name: 'payments',
+            builder: (context, state) => const PaymentsListScreen(),
+            routes: [
+              GoRoute(
+                path: 'new',
+                name: 'payments-new',
+                pageBuilder: (context, state) => _buildSmoothPage(
+                  context: context,
+                  state: state,
+                  child: const CreatePaymentScreen(),
+                ),
+              ),
+              GoRoute(
+                path: ':id',
+                name: 'payments-detail',
+                pageBuilder: (context, state) => _buildSmoothPage(
+                  context: context,
+                  state: state,
+                  child: PaymentDetailScreen(
+                      paymentId: state.pathParameters['id']!),
+                ),
+              ),
+            ],
+          ),
+          GoRoute(
+            path: '/receipts',
+            name: 'receipts',
+            builder: (context, state) => const ReceiptsListScreen(),
+            routes: [
+              GoRoute(
+                path: ':id',
+                name: 'receipts-detail',
+                pageBuilder: (context, state) => _buildSmoothPage(
+                  context: context,
+                  state: state,
+                  child: ReceiptDetailScreen(
+                      receiptId: state.pathParameters['id']!),
+                ),
+              ),
+            ],
+          ),
+          GoRoute(
+            path: '/bills',
+            name: 'bills',
+            builder: (context, state) => const BillsListScreen(),
+            routes: [
+              GoRoute(
+                path: 'new',
+                name: 'bills-new',
+                pageBuilder: (context, state) => _buildSmoothPage(
+                  context: context,
+                  state: state,
+                  child: const CreateBillScreen(),
+                ),
+              ),
+              GoRoute(
+                path: ':id',
+                name: 'bills-detail',
+                pageBuilder: (context, state) => _buildSmoothPage(
+                  context: context,
+                  state: state,
+                  child: BillDetailScreen(billId: state.pathParameters['id']!),
+                ),
+              ),
+            ],
+          ),
+          GoRoute(
+            path: '/contributions',
+            name: 'contributions',
+            builder: (context, state) => const ContributionsListScreen(),
+            routes: [
+              GoRoute(
+                path: 'new',
+                name: 'contributions-new',
+                pageBuilder: (context, state) => _buildSmoothPage(
+                  context: context,
+                  state: state,
+                  child: const CreateContributionScreen(),
+                ),
+              ),
+              GoRoute(
+                path: ':id',
+                name: 'contributions-detail',
+                pageBuilder: (context, state) => _buildSmoothPage(
+                  context: context,
+                  state: state,
+                  child: ContributionDetailScreen(
+                      contributionId: state.pathParameters['id']!),
+                ),
+              ),
+            ],
+          ),
+          GoRoute(
+            path: '/contribution-receipts',
+            name: 'contribution-receipts',
+            builder: (context, state) => const ContributionReceiptsListScreen(),
+            routes: [
+              GoRoute(
+                path: ':id',
+                name: 'contribution-receipts-detail',
+                pageBuilder: (context, state) => _buildSmoothPage(
+                  context: context,
+                  state: state,
+                  child: ContributionReceiptDetailScreen(
+                      receiptId: state.pathParameters['id']!),
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
+      GoRoute(
+        path: '/templates',
+        name: 'templates',
+        pageBuilder: (context, state) => _buildSmoothPage(
+          context: context,
+          state: state,
+          child: const TemplateCalibrationScreen(),
+        ),
+      ),
+      GoRoute(
+        path: '/mandal-dashboard',
+        name: 'mandal-dashboard',
+        builder: (context, state) => const MandalDashboardScreen(),
+      ),
+      GoRoute(
+        path: '/donor-dashboard',
+        name: 'donor-dashboard',
+        builder: (context, state) => const DonorDashboardScreen(),
       ),
 
       // ---------------- Budget ----------------
@@ -95,22 +330,26 @@ final appRouterProvider = Provider<GoRouter>((ref) {
           onOpenExport: () => ExportBudgetSheet.show(context),
           onOpenTable: () => context.pushNamed('budget-table'),
           onCreateRevision: () => context.pushNamed('budget-revision'),
-          onOpenCategory: (category) => context.pushNamed('budget-details', extra: category),
+          onOpenCategory: (category) =>
+              context.pushNamed('budget-details', extra: category),
           onOpenRevision: (_) => context.pushNamed('budget-approval'),
         ),
         routes: [
           GoRoute(
             path: 'table',
             name: 'budget-table',
-            builder: (context, state) => const BudgetTableScreen(categories: _mockBudgetCategories),
+            builder: (context, state) =>
+                const BudgetTableScreen(categories: _mockBudgetCategories),
           ),
           GoRoute(
             path: 'details',
             name: 'budget-details',
             builder: (context, state) => BudgetDetailsScreen(
-              category: (state.extra as BudgetCategoryData?) ?? _mockBudgetCategories.first,
+              category: (state.extra as BudgetCategoryData?) ??
+                  _mockBudgetCategories.first,
               linkedExpenses: _mockLinkedExpenses,
-              approvalHistoryNote: 'Revision v3 approved · allocation raised to ₹4,00,000',
+              approvalHistoryNote:
+                  'Revision v3 approved · allocation raised to ₹4,00,000',
             ),
           ),
           GoRoute(
@@ -133,7 +372,8 @@ final appRouterProvider = Provider<GoRouter>((ref) {
               adjustments: _mockRevisionAdjustments,
               netChangeBalances: true,
               onSaveDraft: () => Navigator.of(context).pop(),
-              onSubmitForApproval: () => context.pushReplacementNamed('budget-approval'),
+              onSubmitForApproval: () =>
+                  context.pushReplacementNamed('budget-approval'),
             ),
           ),
         ],
@@ -148,7 +388,8 @@ final appRouterProvider = Provider<GoRouter>((ref) {
           events: _mockAuditEvents,
           criticalAlertTitle: '5 failed login attempts',
           criticalAlertSubtitle: 'IP 103.22.x.x · unrecognized device',
-          onOpenEvent: (event) => context.pushNamed('audit-detail', extra: event),
+          onOpenEvent: (event) =>
+              context.pushNamed('audit-detail', extra: event),
           onOpenSearch: () => context.pushNamed('audit-search'),
           onOpenFilters: () => AuditFiltersSheet.show(context),
         ),
@@ -158,7 +399,8 @@ final appRouterProvider = Provider<GoRouter>((ref) {
             name: 'audit-timeline',
             builder: (context, state) => AuditTimelineScreen(
               events: _mockAuditEvents,
-              onOpenEvent: (event) => context.pushNamed('audit-detail', extra: event),
+              onOpenEvent: (event) =>
+                  context.pushNamed('audit-detail', extra: event),
             ),
           ),
           GoRoute(
@@ -173,9 +415,16 @@ final appRouterProvider = Provider<GoRouter>((ref) {
             path: 'search',
             name: 'audit-search',
             builder: (context, state) => AuditSearchScreen(
-              recentSearches: const ['AUD-88213', 'Rahul S.', 'EXP-2291', 'Role changed'],
+              recentSearches: const [
+                'AUD-88213',
+                'Rahul S.',
+                'EXP-2291',
+                'Role changed'
+              ],
               onSearch: (query) async => _mockSearchResults
-                  .where((r) => (r.beforeMatch + r.matchText + r.afterMatch).toLowerCase().contains(query.toLowerCase()))
+                  .where((r) => (r.beforeMatch + r.matchText + r.afterMatch)
+                      .toLowerCase()
+                      .contains(query.toLowerCase()))
                   .toList(),
             ),
           ),
@@ -191,7 +440,8 @@ final appRouterProvider = Provider<GoRouter>((ref) {
           items: _mockNotificationItems,
           priorityAlertTitle: 'Budget revision awaiting your approval',
           priorityAlertSubtitle: 'Submitted by Priya Deshmukh · 2h ago',
-          onOpenItem: (item) => context.pushNamed('notification-detail', extra: item),
+          onOpenItem: (item) =>
+              context.pushNamed('notification-detail', extra: item),
           onOpenFilters: () => NotificationFiltersSheet.show(context),
           onOpenSettings: () => context.pushNamed('notification-settings'),
           onPrimaryAction: (id) {},
@@ -220,22 +470,10 @@ final appRouterProvider = Provider<GoRouter>((ref) {
           ),
         ],
       ),
-
-      // ---------------- Remaining stubs (out of scope for this spec) ----------------
-      GoRoute(
-        path: '/contributions',
-        name: 'contributions',
-        builder: (context, state) => const ComingSoonScreen(title: 'Contributions'),
-      ),
       GoRoute(
         path: '/expenses',
         name: 'expenses',
         builder: (context, state) => const ComingSoonScreen(title: 'Expenses'),
-      ),
-      GoRoute(
-        path: '/receipts',
-        name: 'receipts',
-        builder: (context, state) => const ComingSoonScreen(title: 'Receipts'),
       ),
       GoRoute(
         path: '/reports',
@@ -326,20 +564,39 @@ const _mockRevisions = <RevisionEntry>[
 ];
 
 const _mockLinkedExpenses = <LinkedExpense>[
-  LinkedExpense(dateLabel: '24 Jul', vendorName: 'Sai Decorators', amountLabel: '₹2,10,000', statusLabel: 'Pending', isPaid: false),
-  LinkedExpense(dateLabel: '22 Jul', vendorName: 'Mandap Wale Bros.', amountLabel: '₹1,45,200', statusLabel: 'Paid', isPaid: true),
+  LinkedExpense(
+      dateLabel: '24 Jul',
+      vendorName: 'Sai Decorators',
+      amountLabel: '₹2,10,000',
+      statusLabel: 'Pending',
+      isPaid: false),
+  LinkedExpense(
+      dateLabel: '22 Jul',
+      vendorName: 'Mandap Wale Bros.',
+      amountLabel: '₹1,45,200',
+      statusLabel: 'Paid',
+      isPaid: true),
 ];
 
 const _mockApprovalRequest = BudgetApprovalRequest(
   revisionVersion: 'v4',
   submittedBy: 'Priya Deshmukh',
   changes: [
-    BudgetFieldChange(fieldLabel: 'Lighting', oldValueLabel: '₹1,80,000', newValueLabel: '₹1,95,000'),
+    BudgetFieldChange(
+        fieldLabel: 'Lighting',
+        oldValueLabel: '₹1,80,000',
+        newValueLabel: '₹1,95,000'),
   ],
   reason: 'Extra LED units needed for stage backdrop.',
   comments: [
-    CommentEntry(authorName: 'Anil Joshi', authorRole: 'President', body: "Confirm this doesn't push Lighting over budget too."),
-    CommentEntry(authorName: 'Priya Deshmukh', authorRole: 'Treasurer', body: 'Confirmed — still at 90%, within threshold.'),
+    CommentEntry(
+        authorName: 'Anil Joshi',
+        authorRole: 'President',
+        body: "Confirm this doesn't push Lighting over budget too."),
+    CommentEntry(
+        authorName: 'Priya Deshmukh',
+        authorRole: 'Treasurer',
+        body: 'Confirmed — still at 90%, within threshold.'),
   ],
 );
 
@@ -351,9 +608,18 @@ const _mockApprovalSteps = [
 ];
 
 const _mockRevisionAdjustments = [
-  RevisionAdjustment(categoryName: 'Decoration', currentAllocationLabel: '₹4,00,000', proposedAllocationLabel: '₹4,00,000'),
-  RevisionAdjustment(categoryName: 'Lighting', currentAllocationLabel: '₹1,80,000', proposedAllocationLabel: '₹1,95,000'),
-  RevisionAdjustment(categoryName: 'Advertising', currentAllocationLabel: '₹1,20,000', proposedAllocationLabel: '₹1,05,000'),
+  RevisionAdjustment(
+      categoryName: 'Decoration',
+      currentAllocationLabel: '₹4,00,000',
+      proposedAllocationLabel: '₹4,00,000'),
+  RevisionAdjustment(
+      categoryName: 'Lighting',
+      currentAllocationLabel: '₹1,80,000',
+      proposedAllocationLabel: '₹1,95,000'),
+  RevisionAdjustment(
+      categoryName: 'Advertising',
+      currentAllocationLabel: '₹1,20,000',
+      proposedAllocationLabel: '₹1,05,000'),
 ];
 
 const _mockAuditSummary = AuditSummaryData(
@@ -417,8 +683,14 @@ const _mockAuditDetail = AuditEventDetail(
   ),
   reason: 'Vendor quote increase',
   relatedEvents: [
-    RelatedEvent(title: 'Budget revision v3 approved', timeAgoLabel: '2d ago', icon: Icons.check_circle_outline),
-    RelatedEvent(title: 'Vendor Sai Decorators quote updated', timeAgoLabel: '2d ago', icon: Icons.storefront_outlined),
+    RelatedEvent(
+        title: 'Budget revision v3 approved',
+        timeAgoLabel: '2d ago',
+        icon: Icons.check_circle_outline),
+    RelatedEvent(
+        title: 'Vendor Sai Decorators quote updated',
+        timeAgoLabel: '2d ago',
+        icon: Icons.storefront_outlined),
   ],
   metadata: AuditMetadata(
     ipAddress: '10.4.22.118',
@@ -504,7 +776,10 @@ const _mockNotificationDetail = NotificationDetailData(
   contextSubtitle: 'Sai Decorators',
   linkedBudgetName: 'Decoration',
   linkedBudgetStatus: 'Over by ₹18,200',
-  activityLog: ['Reminder sent · today, 8:00 AM', 'Invoice attached · 3 days ago'],
+  activityLog: [
+    'Reminder sent · today, 8:00 AM',
+    'Invoice attached · 3 days ago'
+  ],
   attachmentName: 'invoice_sai_decorators.pdf',
   primaryActionLabel: 'Pay Now',
 );

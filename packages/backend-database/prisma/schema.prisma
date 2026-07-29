@@ -1527,6 +1527,8 @@ enum DocumentPurpose {
   REPORT_EXPORT
   PUBLIC_REDACTED_VOUCHER
   AUTHORIZED_SIGNATURE
+  RECEIPT_TEMPLATE
+  ORGANIZATION_STAMP
 }
 
 enum DocumentStatus {
@@ -1577,4 +1579,320 @@ model RedactedDocument {
   @@unique([sourceDocumentId, redactedDocumentId])
   @@index([organizationId, approvedAt])
   @@map("redacted_documents")
+}
+
+// ------------------------------------------------------------
+// Service: shared infrastructure -- cross-module tenancy/RBAC/
+// numbering/delivery building blocks (src/common/*)
+// ------------------------------------------------------------
+
+// Generic, race-condition-safe sequence counter shared by every module that
+// needs org+festival-year-scoped numbering (receipts, bills, contribution
+// receipts, ...). `sequenceName` disambiguates which numbering series this
+// row tracks. Incremented exclusively via a single atomic
+// `INSERT ... ON CONFLICT ... DO UPDATE ... RETURNING` statement (see
+// SequenceCounterService) -- never via a separate read-then-write.
+model SequenceCounter {
+  id             String   @id @default(uuid()) @db.Uuid
+  organizationId String   @db.Uuid
+  festivalYear   Int
+  sequenceName   String   @db.VarChar(60)
+  lastSequence   BigInt   @default(0)
+  updatedAt      DateTime @updatedAt
+
+  @@unique([organizationId, festivalYear, sequenceName])
+  @@map("sequence_counters")
+}
+
+enum WhatsAppDeliveryStatus {
+  PENDING
+  SENT
+  FAILED
+}
+
+// Tracks best-effort WhatsApp delivery of a rendered document (receipt/bill
+// PDF or image) to a recipient phone number. A delivery record's lifecycle
+// is intentionally decoupled from the document it references -- a delivery
+// failure here must never roll back or block retrieval of that document.
+model WhatsAppDeliveryRecord {
+  id                String                 @id @default(uuid()) @db.Uuid
+  organizationId    String                 @db.Uuid
+  recipientPhone    String                 @db.VarChar(20)
+  mediaUrl          String                 @db.Text
+  status            WhatsAppDeliveryStatus @default(PENDING)
+  retryCount        Int                    @default(0)
+  lastError         String?                @db.Text
+  providerMessageId String?                @db.VarChar(200)
+  relatedEntityType String?                @db.VarChar(50)
+  relatedEntityId   String?                @db.Uuid
+  createdAt         DateTime               @default(now())
+  updatedAt         DateTime               @updatedAt
+
+  @@index([organizationId, status])
+  @@index([relatedEntityType, relatedEntityId])
+  @@map("whatsapp_delivery_records")
+}
+
+// ------------------------------------------------------------
+// Service: template-service -- Personalised Bills & Receipts
+// ------------------------------------------------------------
+
+enum TemplateType {
+  RECEIPT
+  BILL
+}
+
+enum TemplateDetectionStatus {
+  PENDING
+  AUTO_DETECTED
+  MANUALLY_CALIBRATED
+  FAILED
+}
+
+// A mandal's uploaded receipt design (or the app-provided standard Bill
+// layout), versioned per organizationId+templateType via the shared
+// SequenceCounter. `fieldMap` is untyped JSON (validated at the application
+// layer, see templates/field-map.validator.ts) rather than a native column
+// set, since each entry is a small heterogeneous placeholder descriptor.
+//
+// Historic Rendering Lock: a Receipt snapshots the *id* of the
+// ReceiptTemplate version active at issuance time (see Receipt.
+// templateVersion) -- never a live pointer to "whichever version is active
+// now". Editing/activating a different version later must never change how
+// an already-issued receipt renders.
+model ReceiptTemplate {
+  id               String                  @id @default(uuid()) @db.Uuid
+  organizationId   String                  @db.Uuid
+  templateType     TemplateType
+  version          Int
+  sourceFileUrl    String?                 @db.VarChar(500)
+  fieldMap         Json                    @default("[]")
+  detectionStatus  TemplateDetectionStatus @default(PENDING)
+  isActive         Boolean                 @default(false)
+  uploadedByUserId String                  @db.Uuid
+  createdAt        DateTime                @default(now())
+  updatedAt        DateTime                @updatedAt
+
+  @@unique([organizationId, templateType, version])
+  @@index([organizationId, templateType, isActive])
+  @@map("receipt_templates")
+}
+
+// ------------------------------------------------------------
+// Service: payment-service -- Payment Collection (digital-only)
+// ------------------------------------------------------------
+
+enum PaymentChannel {
+  IN_APP
+  QR_CODE
+}
+
+// Pending Match: awaiting confirmation -- either a QR entry awaiting manual
+// bank-statement reconciliation, or an InApp order stub awaiting its
+// Razorpay webhook. Confirmed: linked/matched, receipt generation has been
+// triggered (best-effort; see PaymentsService). Receipted: receipt
+// generation succeeded. Voided: corrected via the mandatory-reason void
+// path -- the only way to change a Confirmed/Receipted entry afterward.
+enum PaymentStatus {
+  PENDING_MATCH
+  CONFIRMED
+  RECEIPTED
+  VOIDED
+}
+
+// Payment Collection: the single source-of-truth trigger for Receipt
+// Generation. Digital-only -- physical cash is out of scope here (see the
+// separate Donation Box module). amount is Decimal (not Float) to avoid
+// floating-point drift on money.
+model Payment {
+  id                String         @id @default(uuid()) @db.Uuid
+  organizationId    String         @db.Uuid
+  festivalYear      Int
+  donorId           String?        @db.Uuid
+  donorNameSnapshot String         @db.VarChar(200)
+  addressSnapshot   String?        @db.Text
+  contactSnapshot   String?        @db.VarChar(50)
+  amount            Decimal        @db.Decimal(12, 2)
+  paymentDateTime   DateTime
+  channel           PaymentChannel
+  razorpayOrderId   String?        @unique @db.VarChar(100)
+  razorpayPaymentId String?        @unique @db.VarChar(100)
+  collectedByUserId String?        @db.Uuid
+  status            PaymentStatus  @default(PENDING_MATCH)
+  matchedByUserId   String?        @db.Uuid
+  matchedAt         DateTime?
+  voidReason        String?        @db.Text
+  createdByUserId   String         @db.Uuid
+  createdAt         DateTime       @default(now())
+  updatedAt         DateTime       @updatedAt
+
+  @@index([organizationId, festivalYear, status])
+  @@index([organizationId, channel])
+  @@index([organizationId, donorId])
+  @@index([collectedByUserId])
+  @@map("payments")
+}
+
+// Lightweight, module-scoped audit trail for events that don't fit the
+// platform-wide tamper-evident AuditLog (hash-chained, requires a human
+// performedByUserId): a void action (always has a user + mandatory reason),
+// or a webhook payload that never matched any known payment (system-
+// originated, no user, logged for manual investigation rather than
+// silently dropped or silently auto-creating a payment record).
+model PaymentAuditEvent {
+  id                String   @id @default(uuid()) @db.Uuid
+  organizationId    String?  @db.Uuid
+  paymentId         String?  @db.Uuid
+  actionType        String   @db.VarChar(60)
+  performedByUserId String?  @db.Uuid
+  reason            String?  @db.Text
+  detail            Json?
+  createdAt         DateTime @default(now())
+
+  @@index([organizationId, createdAt])
+  @@index([paymentId])
+  @@map("payment_audit_events")
+}
+
+// ------------------------------------------------------------
+// Service: receipt-generation-service -- Payment Collection's official,
+// sequentially numbered proof-of-donation document. Distinct from the
+// richer bill/collection-driven `Receipt` model above (ReceiptBook/
+// ContributorAccount/CollectionRecord domain): this one has exactly one
+// trigger -- Payment.status transitioning to Confirmed -- and exactly one
+// correction path -- void, never edit or delete.
+// ------------------------------------------------------------
+
+enum PaymentReceiptStatus {
+  ACTIVE
+  VOIDED
+}
+
+model PaymentReceipt {
+  id                     String                 @id @default(uuid()) @db.Uuid
+  organizationId         String                 @db.Uuid
+  festivalYear           Int
+  paymentId              String                 @unique @db.Uuid
+  donorId                String?                @db.Uuid
+  donorNameSnapshot      String                 @db.VarChar(200)
+  amountSnapshot         Decimal                @db.Decimal(12, 2)
+  // Formatted "RCPT-<festivalYear>-<sequence>" (e.g. RCPT-2026-000045).
+  // Not globally unique by itself -- only unique combined with
+  // organizationId+festivalYear (see the @@unique below) -- the sequence
+  // portion is assigned atomically via the shared SequenceCounterService.
+  receiptNumber          String                 @db.VarChar(40)
+  issuedDate             DateTime               @default(now())
+  mandalNameSnapshot     String                 @db.VarChar(200)
+  stampAssetUrl          String?                @db.Text
+  signatureAssetUrl      String?                @db.Text
+  templateVersionId      String?                @db.Uuid
+  pdfUrl                 String                 @db.Text
+  whatsappDeliveryStatus WhatsAppDeliveryStatus @default(PENDING)
+  whatsappRetryCount     Int                    @default(0)
+  status                 PaymentReceiptStatus   @default(ACTIVE)
+  voidedByUserId         String?                @db.Uuid
+  voidReason             String?                @db.Text
+  voidedAt               DateTime?
+  createdAt              DateTime               @default(now())
+  updatedAt              DateTime               @updatedAt
+
+  @@unique([organizationId, festivalYear, receiptNumber])
+  @@index([organizationId, donorId])
+  @@index([organizationId, status])
+  @@map("payment_receipts")
+}
+
+// Same lightweight, module-scoped audit pattern as PaymentAuditEvent --
+// covers generation and voiding of a PaymentReceipt.
+model PaymentReceiptAuditEvent {
+  id                String   @id @default(uuid()) @db.Uuid
+  organizationId    String?  @db.Uuid
+  receiptId         String?  @db.Uuid
+  actionType        String   @db.VarChar(60)
+  performedByUserId String?  @db.Uuid
+  reason            String?  @db.Text
+  detail            Json?
+  createdAt         DateTime @default(now())
+
+  @@index([organizationId, createdAt])
+  @@index([receiptId])
+  @@map("payment_receipt_audit_events")
+}
+
+// ------------------------------------------------------------
+// Service: bill-generation-service -- vendor/expense bills going out
+// (Treasurer submits, Trust President approves, then paid), distinct from
+// the ContributionBill/ContributionBillLine domain above (which bills
+// donors, not vendors) and from the richer Expense/ExpenseApproval/
+// ExpensePayment domain (multi-band configurable approval policies,
+// event-scoped). This is the simpler, single-approver-tier workflow: Draft
+// -> Pending Approval -> Approved -> Paid, with Reject and Cancel as the
+// only two ways off the happy path.
+// ------------------------------------------------------------
+
+enum BillStatus {
+  DRAFT
+  PENDING_APPROVAL
+  APPROVED
+  // Reserved for data-model fidelity with the original product spec, but
+  // never actually assigned by BillsService: the /reject endpoint's own
+  // contract is "mandatory reason -> Draft" (not -> Rejected), so a
+  // rejected bill goes straight back to Draft, editable and resubmittable,
+  // with the reason preserved on rejectionReason and in the audit trail.
+  REJECTED
+  PAID
+  CANCELLED
+}
+
+model Bill {
+  id                   String       @id @default(uuid()) @db.Uuid
+  organizationId       String       @db.Uuid
+  festivalYear         Int
+  // Formatted "BILL-<festivalYear>-<sequence>", assigned atomically via
+  // SequenceCounterService -- unique only combined with
+  // organizationId+festivalYear (see @@unique below), not globally.
+  billNumber           String       @db.VarChar(40)
+  vendorId             String?      @db.Uuid
+  receiverNameSnapshot String       @db.VarChar(200)
+  contactSnapshot      String?      @db.VarChar(50)
+  amount               Decimal      @db.Decimal(12, 2)
+  date                 DateTime
+  taskOrField          String       @db.VarChar(200)
+  milestoneId          String?      @db.Uuid
+  billPhotoUrl         String?      @db.Text
+  status               BillStatus   @default(DRAFT)
+  createdByUserId      String       @db.Uuid
+  submittedAt          DateTime?
+  approvedByUserId     String?      @db.Uuid
+  approvedAt           DateTime?
+  rejectionReason      String?      @db.Text
+  paymentMode          PaymentMode?
+  paidAt               DateTime?
+  cancelReason         String?      @db.Text
+  cancelledByUserId    String?      @db.Uuid
+  cancelledAt          DateTime?
+  createdAt            DateTime     @default(now())
+  updatedAt            DateTime     @updatedAt
+
+  @@unique([organizationId, festivalYear, billNumber])
+  @@index([organizationId, festivalYear, status])
+  @@index([organizationId, vendorId])
+  @@map("bills")
+}
+
+// Same lightweight, module-scoped audit pattern as PaymentAuditEvent /
+// PaymentReceiptAuditEvent.
+model BillAuditEvent {
+  id                String   @id @default(uuid()) @db.Uuid
+  organizationId    String?  @db.Uuid
+  billId            String?  @db.Uuid
+  actionType        String   @db.VarChar(60)
+  performedByUserId String?  @db.Uuid
+  reason            String?  @db.Text
+  detail            Json?
+  createdAt         DateTime @default(now())
+
+  @@index([organizationId, createdAt])
+  @@index([billId])
+  @@map("bill_audit_events")
 }
