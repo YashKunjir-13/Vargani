@@ -122,6 +122,14 @@ class TemplatesNotifier extends Notifier<List<ReceiptTemplate>> {
   void addTemplate(ReceiptTemplate newTmpl) {
     state = [...state, newTmpl];
   }
+
+  void addAndActivateTemplate(ReceiptTemplate newTmpl) {
+    final updated = [
+      for (final tmpl in state) tmpl.copyWith(isActive: false),
+      newTmpl.copyWith(isActive: true),
+    ];
+    state = updated;
+  }
 }
 
 final templatesProvider = NotifierProvider<TemplatesNotifier, List<ReceiptTemplate>>(TemplatesNotifier.new);

@@ -23,12 +23,14 @@ class AppColors {
   static const Color surfaceLight = Color(0xFFFFFFFF);
   static const Color surfaceVariantLight = Color(0xFFF4EFE6);
   static const Color borderLight = Color(0xFFF0E8DD);
+  static const Color navIndicatorLight = Color(0xFFFFEAD5); // Soft Saffron Highlight
 
   // Background & Surface - Dark Mode
-  static const Color bgDark = Color(0xFF0F172A);
-  static const Color surfaceDark = Color(0xFF1E293B);
-  static const Color surfaceVariantDark = Color(0xFF334155);
-  static const Color borderDark = Color(0xFF334155);
+  static const Color bgDark = Color(0xFF0B0F19); // Rich Deep Slate
+  static const Color surfaceDark = Color(0xFF151E2E);
+  static const Color surfaceVariantDark = Color(0xFF1E293B);
+  static const Color borderDark = Color(0xFF27354A);
+  static const Color navIndicatorDark = Color(0xFF431407); // Dark Warm Saffron Container
 
   // Text Colors
   static const Color textPrimaryLight = Color(0xFF1F2937);
@@ -59,4 +61,27 @@ class AppColors {
   // Optional Badge Tag Accent
   static const Color optionalTagBg = Color(0xFFFEF3C7);
   static const Color optionalTagText = Color(0xFF92400E);
+
+  // Elevation & Glow Shadows
+  static final List<BoxShadow> softShadowLight = [
+    BoxShadow(
+      color: const Color(0xFF1F2937).withValues(alpha: 0.04),
+      blurRadius: 10,
+      offset: const Offset(0, 4),
+    ),
+    BoxShadow(
+      color: const Color(0xFF1F2937).withValues(alpha: 0.02),
+      blurRadius: 2,
+      offset: const Offset(0, 1),
+    ),
+  ];
+
+  static final List<BoxShadow> softShadowDark = [
+    BoxShadow(
+      color: Colors.black.withValues(alpha: 0.25),
+      blurRadius: 12,
+      offset: const Offset(0, 4),
+    ),
+  ];
 }
+

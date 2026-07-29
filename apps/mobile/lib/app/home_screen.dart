@@ -39,45 +39,6 @@ class HomeScreen extends ConsumerWidget {
         subtitle: 'Donor Portal',
         showBackButton: false,
       ),
-      bottomNavigationBar: Container(
-        decoration: const BoxDecoration(
-          color: Colors.white,
-          border: Border(top: BorderSide(color: AppColors.borderLight, width: 1)),
-        ),
-        child: BottomNavigationBar(
-          currentIndex: 0,
-          backgroundColor: Colors.white,
-          selectedItemColor: AppColors.primaryLight,
-          unselectedItemColor: AppColors.textSecondaryLight,
-          selectedLabelStyle: const TextStyle(fontWeight: FontWeight.bold, fontSize: 12),
-          unselectedLabelStyle: const TextStyle(fontWeight: FontWeight.w500, fontSize: 12),
-          elevation: 0,
-          onTap: (index) {
-            if (index == 1) {
-              context.push('/receipts');
-            } else if (index == 2) {
-              context.push('/reports');
-            }
-          },
-          items: const [
-            BottomNavigationBarItem(
-              icon: Icon(Icons.home_outlined),
-              activeIcon: Icon(Icons.home_rounded),
-              label: 'Home',
-            ),
-            BottomNavigationBarItem(
-              icon: Icon(Icons.receipt_long_outlined),
-              activeIcon: Icon(Icons.receipt_long_rounded),
-              label: 'Receipts',
-            ),
-            BottomNavigationBarItem(
-              icon: Icon(Icons.bar_chart_outlined),
-              activeIcon: Icon(Icons.bar_chart_rounded),
-              label: 'Reports',
-            ),
-          ],
-        ),
-      ),
       body: ListView(
         padding: const EdgeInsets.all(20),
         children: [

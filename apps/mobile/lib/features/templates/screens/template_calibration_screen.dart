@@ -4,9 +4,12 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/l10n/app_localizations.dart';
 import '../../../core/permissions/permission_guard.dart';
 import '../../../core/permissions/user_role.dart';
+import '../../../core/theme/app_colors.dart';
 import '../../../shared/widgets/app_button.dart';
 import '../../../shared/widgets/app_card.dart';
+import '../../../shared/widgets/app_image_picker.dart';
 import '../../../shared/widgets/pauti_app_bar.dart';
+import '../models/receipt_template.dart';
 import '../state/templates_notifier.dart';
 
 class TemplateCalibrationScreen extends ConsumerStatefulWidget {
@@ -19,6 +22,200 @@ class TemplateCalibrationScreen extends ConsumerStatefulWidget {
 class _TemplateCalibrationScreenState extends ConsumerState<TemplateCalibrationScreen> {
   String? selectedTemplateId;
   String? selectedMarkerId;
+
+  void _showUploadTemplateModal(BuildContext context) {
+    final nameController = TextEditingController(text: 'Shree Ganesh Utsav Receipt Template');
+    final mandalController = TextEditingController(text: 'Shree Ganesh Mandal');
+    String? attachedFileName;
+
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Theme.of(context).colorScheme.surface,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+      ),
+      builder: (ctx) {
+        return StatefulBuilder(
+          builder: (context, setModalState) {
+            final theme = Theme.of(context);
+
+            return Padding(
+              padding: EdgeInsets.only(
+                left: 20,
+                right: 20,
+                top: 20,
+                bottom: MediaQuery.of(ctx).viewInsets.bottom + 24,
+              ),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Row(
+                        children: [
+                          Container(
+                            padding: const EdgeInsets.all(8),
+                            decoration: BoxDecoration(
+                              color: AppColors.primaryLight.withValues(alpha: 0.15),
+                              borderRadius: BorderRadius.circular(10),
+                            ),
+                            child: const Icon(
+                              Icons.upload_file_rounded,
+                              color: AppColors.primaryLight,
+                              size: 22,
+                            ),
+                          ),
+                          const SizedBox(width: 12),
+                          Text(
+                            'Upload Mandal Template',
+                            style: theme.textTheme.titleMedium?.copyWith(
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ],
+                      ),
+                      IconButton(
+                        onPressed: () => Navigator.of(ctx).pop(),
+                        icon: const Icon(Icons.close_rounded),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 14),
+                  const Divider(height: 1),
+                  const SizedBox(height: 16),
+                  TextField(
+                    controller: nameController,
+                    decoration: const InputDecoration(
+                      labelText: 'Template Name',
+                      hintText: 'e.g. Utsav Gold Header Template',
+                    ),
+                  ),
+                  const SizedBox(height: 12),
+                  TextField(
+                    controller: mandalController,
+                    decoration: const InputDecoration(
+                      labelText: 'Mandal Name',
+                      hintText: 'e.g. Shree Ganesh Mandal',
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                  Text(
+                    'Template Background Image',
+                    style: theme.textTheme.bodyMedium?.copyWith(fontWeight: FontWeight.w600),
+                  ),
+                  const SizedBox(height: 8),
+                  AppImagePicker(
+                    label: '',
+                    imagePath: attachedFileName,
+                    hintText: 'Tap to select Mandal receipt background image',
+                    icon: Icons.add_photo_alternate_outlined,
+                    onPickImage: () {
+                      setModalState(() {
+                        attachedFileName = 'mandal_template_${DateTime.now().millisecondsSinceEpoch}.png';
+                      });
+                    },
+                    onRemoveImage: () {
+                      setModalState(() {
+                        attachedFileName = null;
+                      });
+                    },
+                  ),
+                  const SizedBox(height: 20),
+                  Row(
+                    children: [
+                      Expanded(
+                        child: OutlinedButton(
+                          onPressed: () => Navigator.of(ctx).pop(),
+                          child: const Text('Cancel'),
+                        ),
+                      ),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: ElevatedButton.icon(
+                          onPressed: () {
+                            if (nameController.text.trim().isEmpty) return;
+
+                            final newId = 'tmpl-${DateTime.now().millisecondsSinceEpoch.toString().substring(7)}';
+                            final newTemplate = ReceiptTemplate(
+                              id: newId,
+                              name: nameController.text.trim(),
+                              mandalName: mandalController.text.trim().isEmpty
+                                  ? 'Shree Ganesh Mandal'
+                                  : mandalController.text.trim(),
+                              imageUrl: attachedFileName ?? 'assets/images/template_saffron.png',
+                              isActive: true,
+                              markers: [
+                                FieldMarker(
+                                  id: 'donor_name',
+                                  label: 'Donor Name',
+                                  position: const Offset(0.20, 0.32),
+                                  size: const Size(0.55, 0.08),
+                                  color: Colors.blue,
+                                ),
+                                FieldMarker(
+                                  id: 'amount',
+                                  label: 'Amount (₹)',
+                                  position: const Offset(0.70, 0.45),
+                                  size: const Size(0.25, 0.08),
+                                  color: Colors.green,
+                                ),
+                                FieldMarker(
+                                  id: 'receipt_no',
+                                  label: 'Receipt No',
+                                  position: const Offset(0.70, 0.20),
+                                  size: const Size(0.25, 0.06),
+                                  color: Colors.orange,
+                                ),
+                                FieldMarker(
+                                  id: 'date',
+                                  label: 'Date & Time',
+                                  position: const Offset(0.10, 0.20),
+                                  size: const Size(0.30, 0.06),
+                                  color: Colors.purple,
+                                ),
+                                FieldMarker(
+                                  id: 'signature',
+                                  label: 'Trustee Signature',
+                                  position: const Offset(0.65, 0.75),
+                                  size: const Size(0.30, 0.12),
+                                  color: Colors.teal,
+                                ),
+                              ],
+                            );
+
+                            ref.read(templatesProvider.notifier).addAndActivateTemplate(newTemplate);
+
+                            setState(() {
+                              selectedTemplateId = newTemplate.id;
+                              selectedMarkerId = null;
+                            });
+
+                            Navigator.of(ctx).pop();
+
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(
+                                content: Text('Mandal template "${newTemplate.name}" uploaded & activated!'),
+                                backgroundColor: Colors.green,
+                              ),
+                            );
+                          },
+                          icon: const Icon(Icons.cloud_upload_outlined, size: 18),
+                          label: const Text('Upload & Calibrate'),
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            );
+          },
+        );
+      },
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -49,15 +246,33 @@ class _TemplateCalibrationScreenState extends ConsumerState<TemplateCalibrationS
                 children: [
                   Expanded(
                     child: DropdownButtonFormField<String>(
+                      isExpanded: true,
                       initialValue: currentTemplate.id,
                       decoration: const InputDecoration(
                         labelText: 'Select Template',
                         contentPadding: EdgeInsets.symmetric(horizontal: 14, vertical: 10),
                       ),
+                      selectedItemBuilder: (context) {
+                        return templates.map((t) {
+                          return Align(
+                            alignment: Alignment.centerLeft,
+                            child: Text(
+                              '${t.name} ${t.isActive ? "★ Active" : ""}',
+                              overflow: TextOverflow.ellipsis,
+                              maxLines: 1,
+                              softWrap: false,
+                            ),
+                          );
+                        }).toList();
+                      },
                       items: templates
                           .map((t) => DropdownMenuItem(
                                 value: t.id,
-                                child: Text('${t.name} ${t.isActive ? "★ Active" : ""}'),
+                                child: Text(
+                                  '${t.name} ${t.isActive ? "★ Active" : ""}',
+                                  overflow: TextOverflow.ellipsis,
+                                  maxLines: 1,
+                                ),
                               ))
                           .toList(),
                       onChanged: (val) {
@@ -72,11 +287,7 @@ class _TemplateCalibrationScreenState extends ConsumerState<TemplateCalibrationS
                   ),
                   const SizedBox(width: 12),
                   IconButton.filledTonal(
-                    onPressed: () {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(content: Text('Simulated template upload picker triggered')),
-                      );
-                    },
+                    onPressed: () => _showUploadTemplateModal(context),
                     icon: const Icon(Icons.upload_file),
                     tooltip: L10n.tr(ref, 'upload_template'),
                   ),

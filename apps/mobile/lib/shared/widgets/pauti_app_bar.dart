@@ -32,17 +32,19 @@ class PautiAppBar extends ConsumerWidget implements PreferredSizeWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final currentLang = ref.watch(appLanguageProvider);
     final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
 
     return SafeArea(
       child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+        height: 64,
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
         decoration: BoxDecoration(
           color: theme.colorScheme.surface,
-          border: const Border(bottom: BorderSide(color: AppColors.borderLight, width: 1)),
+          border: Border(bottom: BorderSide(color: theme.colorScheme.outline, width: 1)),
         ),
         child: Row(
           children: [
-            // Prominent Back Button
+            // Prominent Back Button or Logo
             if (showBackButton) ...[
               InkWell(
                 onTap: onBackPressed ??
@@ -55,50 +57,53 @@ class PautiAppBar extends ConsumerWidget implements PreferredSizeWidget {
                     },
                 borderRadius: BorderRadius.circular(10),
                 child: Container(
-                  width: 36,
-                  height: 36,
+                  width: 34,
+                  height: 34,
                   decoration: BoxDecoration(
-                    color: const Color(0xFFFFF7ED),
+                    color: isDark ? AppColors.surfaceVariantDark : const Color(0xFFFFF7ED),
                     borderRadius: BorderRadius.circular(10),
-                    border: Border.all(color: const Color(0xFFFFEDD5), width: 1.5),
+                    border: Border.all(
+                      color: isDark ? AppColors.borderDark : const Color(0xFFFFEDD5),
+                      width: 1.2,
+                    ),
                   ),
                   child: const Icon(
                     Icons.arrow_back_ios_new_rounded,
-                    size: 18,
+                    size: 16,
                     color: AppColors.primaryLight,
                   ),
                 ),
               ),
-              const SizedBox(width: 10),
-            ],
-
-            // Orange 'पप' Logo Badge
-            Container(
-              width: 36,
-              height: 36,
-              decoration: BoxDecoration(
-                color: AppColors.primaryLight,
-                borderRadius: BorderRadius.circular(10),
-                boxShadow: [
-                  BoxShadow(
-                    color: AppColors.primaryLight.withValues(alpha: 0.3),
-                    blurRadius: 6,
-                    offset: const Offset(0, 2),
-                  ),
-                ],
-              ),
-              child: const Center(
-                child: Text(
-                  'पप',
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontWeight: FontWeight.bold,
-                    fontSize: 16,
+              const SizedBox(width: 8),
+            ] else ...[
+              // Orange 'पप' Logo Badge (shown on root screen)
+              Container(
+                width: 34,
+                height: 34,
+                decoration: BoxDecoration(
+                  color: AppColors.primaryLight,
+                  borderRadius: BorderRadius.circular(10),
+                  boxShadow: [
+                    BoxShadow(
+                      color: AppColors.primaryLight.withValues(alpha: 0.3),
+                      blurRadius: 4,
+                      offset: const Offset(0, 2),
+                    ),
+                  ],
+                ),
+                child: const Center(
+                  child: Text(
+                    'पप',
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontWeight: FontWeight.bold,
+                      fontSize: 15,
+                    ),
                   ),
                 ),
               ),
-            ),
-            const SizedBox(width: 10),
+              const SizedBox(width: 8),
+            ],
 
             // Title & Subtitle
             Expanded(
@@ -112,27 +117,32 @@ class PautiAppBar extends ConsumerWidget implements PreferredSizeWidget {
                     overflow: TextOverflow.ellipsis,
                     style: theme.textTheme.titleMedium?.copyWith(
                       fontWeight: FontWeight.bold,
-                      fontSize: 16,
+                      fontSize: 15,
+                      height: 1.2,
                     ),
                   ),
                   Text(
                     subtitle,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
                     style: theme.textTheme.bodySmall?.copyWith(
-                      color: AppColors.textSecondaryLight,
+                      color: isDark ? AppColors.textSecondaryDark : AppColors.textSecondaryLight,
                       fontSize: 11,
+                      height: 1.1,
                     ),
                   ),
                 ],
               ),
             ),
+            const SizedBox(width: 6),
 
             // Segmented Language Selector Pill ('म', 'हि', 'EN')
             Container(
-              padding: const EdgeInsets.all(3),
+              padding: const EdgeInsets.all(2),
               decoration: BoxDecoration(
-                color: const Color(0xFFF3EFE6),
-                borderRadius: BorderRadius.circular(12),
-                border: Border.all(color: const Color(0xFFE6DFC5), width: 1),
+                color: isDark ? AppColors.surfaceVariantDark : const Color(0xFFF3EFE6),
+                borderRadius: BorderRadius.circular(10),
+                border: Border.all(color: theme.colorScheme.outline, width: 1),
               ),
               child: Row(
                 mainAxisSize: MainAxisSize.min,
@@ -150,14 +160,14 @@ class PautiAppBar extends ConsumerWidget implements PreferredSizeWidget {
                     },
                     child: AnimatedContainer(
                       duration: const Duration(milliseconds: 150),
-                      padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 5),
+                      padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 4),
                       decoration: BoxDecoration(
-                        color: isSelected ? AppColors.primaryLight : Colors.transparent,
-                        borderRadius: BorderRadius.circular(8),
+                        color: isSelected ? theme.colorScheme.primary : Colors.transparent,
+                        borderRadius: BorderRadius.circular(7),
                         boxShadow: isSelected
                             ? [
                                 BoxShadow(
-                                  color: AppColors.primaryLight.withValues(alpha: 0.3),
+                                  color: theme.colorScheme.primary.withValues(alpha: 0.3),
                                   blurRadius: 4,
                                   offset: const Offset(0, 1),
                                 ),
@@ -167,9 +177,11 @@ class PautiAppBar extends ConsumerWidget implements PreferredSizeWidget {
                       child: Text(
                         displayLabel,
                         style: TextStyle(
-                          color: isSelected ? Colors.white : AppColors.textPrimaryLight,
+                          color: isSelected
+                              ? (isDark ? Colors.black : Colors.white)
+                              : theme.textTheme.bodyMedium?.color,
                           fontWeight: isSelected ? FontWeight.bold : FontWeight.w600,
-                          fontSize: 12,
+                          fontSize: 11,
                         ),
                       ),
                     ),
@@ -188,17 +200,20 @@ class PautiAppBar extends ConsumerWidget implements PreferredSizeWidget {
               },
               borderRadius: BorderRadius.circular(10),
               child: Container(
-                width: 36,
-                height: 36,
+                width: 34,
+                height: 34,
                 decoration: BoxDecoration(
-                  color: const Color(0xFFFFF0F0),
+                  color: isDark ? const Color(0xFF3B1515) : const Color(0xFFFFF0F0),
                   borderRadius: BorderRadius.circular(10),
-                  border: Border.all(color: const Color(0xFFFFD6D6), width: 1),
+                  border: Border.all(
+                    color: isDark ? const Color(0xFF7F1D1D) : const Color(0xFFFFD6D6),
+                    width: 1,
+                  ),
                 ),
                 child: const Icon(
                   Icons.logout_rounded,
                   color: Color(0xFFEF4444),
-                  size: 18,
+                  size: 16,
                 ),
               ),
             ),
