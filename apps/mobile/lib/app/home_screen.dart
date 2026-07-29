@@ -1,41 +1,73 @@
 import 'package:flutter/material.dart';
 
-/// Placeholder landing screen for the foundation phase. Replaced by the
-/// real authenticated shell (dashboard, nav rail, event switcher) once
-/// feature phases land.
+import '../core/core.dart';
+import '../shared/shared.dart';
+import 'all_records_screen.dart';
+
+/// Home landing screen for Pauti Pustak.
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Pauti Pustak'),
-      ),
-      body: Center(
-        child: Padding(
-          padding: const EdgeInsets.all(24.0),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              const Icon(
-                Icons.account_balance_wallet_outlined,
-                size: 72,
-                color: Color(0xFF1E3A8A),
-              ),
-              const SizedBox(height: 16),
-              Text(
-                'Multi-tenant Event Financial-Management',
-                style: Theme.of(context).textTheme.headlineSmall,
-                textAlign: TextAlign.center,
-              ),
-              const SizedBox(height: 8),
-              Text(
-                'Enterprise Foundation Ready',
-                style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: Colors.grey),
-              ),
-            ],
-          ),
+    return AppScaffold(
+      title: 'Pauti Pustak',
+      body: Padding(
+        padding: const EdgeInsets.all(AppSpacing.xl),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // ── Header + All Records button (top-right of body) ───────
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        'Pauti Pustak',
+                        style: AppTypography.display(context),
+                      ),
+                      const SizedBox(height: AppSpacing.xs),
+                      Text(
+                        'Multi-tenant event financial management platform',
+                        style: AppTypography.caption(
+                          context,
+                          color: AppColors.mutedTextFor(context),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(width: AppSpacing.md),
+                // ── All Records button in top-right of body ────────────
+                ElevatedButton.icon(
+                  onPressed: () => Navigator.of(context).push(
+                    MaterialPageRoute(
+                        builder: (_) => const AllRecordsScreen()),
+                  ),
+                  icon: const Icon(Icons.folder_open_outlined, size: 18),
+                  label: const Text('All Records'),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Theme.of(context).colorScheme.primary,
+                    foregroundColor: Theme.of(context).colorScheme.onPrimary,
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: AppSpacing.md,
+                      vertical: AppSpacing.sm,
+                    ),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(AppSpacing.radiusMd),
+                    ),
+                    elevation: 0,
+                    textStyle: AppTypography.label(context).copyWith(
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ],
         ),
       ),
     );
