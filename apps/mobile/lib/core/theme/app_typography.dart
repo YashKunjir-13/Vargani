@@ -1,52 +1,97 @@
 import 'package:flutter/material.dart';
 
-/// Builds the approved compact MD3 type scale on top of Flutter's default
-/// [TextTheme], overriding only the roles the design spec defines. Every
-/// other role keeps Flutter's Material 3 default rather than being left null.
+import 'app_colors.dart';
+
+/// Centralized TextTheme configuration matching design scale.
 class AppTypography {
   AppTypography._();
 
-  static TextTheme textTheme(Brightness brightness) {
-    final base = brightness == Brightness.light
-        ? ThemeData.light(useMaterial3: true).textTheme
-        : ThemeData.dark(useMaterial3: true).textTheme;
+  static TextTheme textTheme(dynamic isDarkOrBrightness) {
+    final bool isDark = isDarkOrBrightness is bool
+        ? isDarkOrBrightness
+        : isDarkOrBrightness == Brightness.dark;
 
-    return base.copyWith(
-      // Display -> page titles
-      headlineMedium: base.headlineMedium?.copyWith(
-        fontSize: 26,
+    final primaryColor = isDark ? AppColors.textPrimaryDark : AppColors.textPrimaryLight;
+    final secondaryColor = isDark ? AppColors.textSecondaryDark : AppColors.textSecondaryLight;
+    final mutedColor = isDark ? AppColors.textMutedDark : AppColors.textMutedLight;
+
+    return TextTheme(
+      displayLarge: TextStyle(
+        fontSize: 32,
+        fontWeight: FontWeight.bold,
+        letterSpacing: -0.6,
+        height: 1.2,
+        color: primaryColor,
+      ),
+      displayMedium: TextStyle(
+        fontSize: 28,
+        fontWeight: FontWeight.bold,
+        letterSpacing: -0.4,
+        height: 1.25,
+        color: primaryColor,
+      ),
+      headlineMedium: TextStyle(
+        fontSize: 22,
         fontWeight: FontWeight.w700,
+        letterSpacing: -0.3,
+        height: 1.3,
+        color: primaryColor,
       ),
-      // Headline -> section titles
-      titleLarge: base.titleLarge?.copyWith(
-        fontSize: 20,
-        fontWeight: FontWeight.w600,
+      titleLarge: TextStyle(
+        fontSize: 18,
+        fontWeight: FontWeight.w700,
+        letterSpacing: -0.2,
+        height: 1.35,
+        color: primaryColor,
       ),
-      // Title -> card titles
-      titleMedium: base.titleMedium?.copyWith(
+      titleMedium: TextStyle(
         fontSize: 16,
         fontWeight: FontWeight.w600,
+        letterSpacing: -0.1,
+        height: 1.35,
+        color: primaryColor,
       ),
-      // Body Large -> primary content
-      bodyLarge: base.bodyLarge?.copyWith(
-        fontSize: 15,
-        fontWeight: FontWeight.w400,
-      ),
-      // Body Medium -> secondary content
-      bodyMedium: base.bodyMedium?.copyWith(
-        fontSize: 13,
-        fontWeight: FontWeight.w400,
-      ),
-      // Label Large -> buttons
-      labelLarge: base.labelLarge?.copyWith(
+      titleSmall: TextStyle(
         fontSize: 14,
-        fontWeight: FontWeight.w700,
+        fontWeight: FontWeight.w600,
+        height: 1.35,
+        color: primaryColor,
       ),
-      // Label Medium -> metadata / eyebrows
-      labelMedium: base.labelMedium?.copyWith(
+      bodyLarge: TextStyle(
+        fontSize: 16,
+        fontWeight: FontWeight.w400,
+        height: 1.45,
+        color: primaryColor,
+      ),
+      bodyMedium: TextStyle(
+        fontSize: 14,
+        fontWeight: FontWeight.w400,
+        height: 1.4,
+        color: secondaryColor,
+      ),
+      bodySmall: TextStyle(
+        fontSize: 12,
+        fontWeight: FontWeight.w400,
+        height: 1.35,
+        color: mutedColor,
+      ),
+      labelLarge: TextStyle(
+        fontSize: 14,
+        fontWeight: FontWeight.w600,
+        letterSpacing: 0.1,
+        color: primaryColor,
+      ),
+      labelMedium: TextStyle(
+        fontSize: 12,
+        fontWeight: FontWeight.w500,
+        letterSpacing: 0.1,
+        color: secondaryColor,
+      ),
+      labelSmall: TextStyle(
         fontSize: 11,
-        fontWeight: FontWeight.w700,
-        letterSpacing: 0.66,
+        fontWeight: FontWeight.w500,
+        letterSpacing: 0.2,
+        color: mutedColor,
       ),
     );
   }
@@ -87,3 +132,5 @@ class AppTypography {
     return color != null ? style.copyWith(color: color) : style;
   }
 }
+
+

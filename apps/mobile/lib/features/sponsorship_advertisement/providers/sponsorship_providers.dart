@@ -16,14 +16,15 @@ class SponsorshipListState {
       SponsorshipListState(search: search ?? this.search);
 }
 
-class SponsorshipListController extends StateNotifier<SponsorshipListState> {
-  SponsorshipListController() : super(const SponsorshipListState());
+class SponsorshipListNotifier extends Notifier<SponsorshipListState> {
+  @override
+  SponsorshipListState build() => const SponsorshipListState();
   void updateSearch(String search) => state = state.copyWith(search: search);
 }
 
 final sponsorshipListControllerProvider =
-    StateNotifierProvider<SponsorshipListController, SponsorshipListState>(
-  (ref) => SponsorshipListController(),
+    NotifierProvider<SponsorshipListNotifier, SponsorshipListState>(
+  SponsorshipListNotifier.new,
 );
 
 final sponsorshipListProvider = FutureProvider<List<Sponsorship>>((ref) async {
@@ -44,4 +45,12 @@ final sponsorshipDetailProvider =
   return repository.getSponsorshipById(id);
 });
 
-final selectedSponsorshipTabProvider = StateProvider<int>((ref) => 0);
+class SelectedSponsorshipTabNotifier extends Notifier<int> {
+  @override
+  int build() => 0;
+  set value(int val) => state = val;
+}
+
+final selectedSponsorshipTabProvider = NotifierProvider<SelectedSponsorshipTabNotifier, int>(
+  SelectedSponsorshipTabNotifier.new,
+);

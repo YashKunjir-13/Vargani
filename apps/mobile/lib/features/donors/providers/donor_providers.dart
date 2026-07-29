@@ -20,8 +20,9 @@ class DonorListState {
   }
 }
 
-class DonorListController extends StateNotifier<DonorListState> {
-  DonorListController() : super(const DonorListState());
+class DonorListNotifier extends Notifier<DonorListState> {
+  @override
+  DonorListState build() => const DonorListState();
 
   void updateSearch(String search) {
     state = state.copyWith(search: search);
@@ -32,8 +33,8 @@ class DonorListController extends StateNotifier<DonorListState> {
   }
 }
 
-final donorListControllerProvider = StateNotifierProvider<DonorListController, DonorListState>(
-  (ref) => DonorListController(),
+final donorListControllerProvider = NotifierProvider<DonorListNotifier, DonorListState>(
+  DonorListNotifier.new,
 );
 
 final donorListProvider = FutureProvider<List<Donor>>((ref) async {

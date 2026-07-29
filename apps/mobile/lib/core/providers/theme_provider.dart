@@ -3,8 +3,9 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 enum AppThemePreference { system, light, dark }
 
-class ThemeNotifier extends StateNotifier<AppThemePreference> {
-  ThemeNotifier() : super(AppThemePreference.system);
+class ThemeNotifier extends Notifier<AppThemePreference> {
+  @override
+  AppThemePreference build() => AppThemePreference.system;
 
   void setTheme(AppThemePreference preference) {
     state = preference;
@@ -22,8 +23,8 @@ class ThemeNotifier extends StateNotifier<AppThemePreference> {
   }
 }
 
-final themeProvider = StateNotifierProvider<ThemeNotifier, AppThemePreference>(
-  (ref) => ThemeNotifier(),
+final themeProvider = NotifierProvider<ThemeNotifier, AppThemePreference>(
+  ThemeNotifier.new,
 );
 
 ThemeMode themeModeFromPreference(AppThemePreference preference) {

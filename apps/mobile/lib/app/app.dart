@@ -15,9 +15,9 @@ class PautiPustakApp extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final router = ref.watch(appRouterProvider(environment));
+    final router = ref.watch(appRouterProvider);
+    final themeMode = ref.watch(appThemeModeProvider);
     final locale = ref.watch(localeControllerProvider);
-    final themeMode = ref.watch(themeControllerProvider);
 
     return MaterialApp.router(
       title: 'Pauti Pustak ($environment)',
@@ -32,3 +32,6 @@ class PautiPustakApp extends ConsumerWidget {
     );
   }
 }
+
+
+

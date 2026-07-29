@@ -8,14 +8,15 @@ typedef Role = UserRole;
 
 /// Role state for UI-only RBAC previews.
 /// Default set to trustPresident (the most privileged role for dev/testing).
-class RoleNotifier extends StateNotifier<UserRole> {
-  RoleNotifier() : super(UserRole.trustPresident);
+class RoleNotifier extends Notifier<UserRole> {
+  @override
+  UserRole build() => UserRole.trustPresident;
 
   void setRole(UserRole role) {
     state = role;
   }
 }
 
-final roleProvider = StateNotifierProvider<RoleNotifier, UserRole>(
-  (ref) => RoleNotifier(),
+final roleProvider = NotifierProvider<RoleNotifier, UserRole>(
+  RoleNotifier.new,
 );
