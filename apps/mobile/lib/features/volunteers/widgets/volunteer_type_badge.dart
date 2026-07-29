@@ -15,13 +15,13 @@ class VolunteerTypeBadge extends StatelessWidget {
         ? customTypeLabel!
         : type.label;
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: AppSpacing.md, vertical: AppSpacing.xs),
+      padding: const EdgeInsets.symmetric(horizontal: AppSpacing.space16, vertical: AppSpacing.space4),
       decoration: BoxDecoration(
         color: Theme.of(context).colorScheme.surfaceContainerHighest,
         borderRadius: BorderRadius.circular(999),
         border: Border.all(color: Theme.of(context).colorScheme.outlineVariant),
       ),
-      child: Text(label, style: AppTypography.label(context)),
+      child: Text(label, style: Theme.of(context).textTheme.labelLarge),
     );
   }
 }

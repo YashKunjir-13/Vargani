@@ -18,6 +18,7 @@ class VolunteerListScreen extends ConsumerWidget {
     final listState = ref.watch(volunteerListControllerProvider);
     final volunteersAsync = ref.watch(volunteerListProvider);
     final role = ref.watch(roleProvider);
+    final textTheme = Theme.of(context).textTheme;
 
     // trustPresident, vicePresident, treasurer can manage volunteers
     final canManageVolunteers = role == UserRole.trustPresident ||
@@ -38,19 +39,19 @@ class VolunteerListScreen extends ConsumerWidget {
       body: Column(
         children: [
           Padding(
-            padding: const EdgeInsets.fromLTRB(AppSpacing.lg, AppSpacing.md, AppSpacing.lg, AppSpacing.sm),
+            padding: const EdgeInsets.fromLTRB(AppSpacing.space24, AppSpacing.space16, AppSpacing.space24, AppSpacing.space8),
             child: AppSearchBar(
               hint: 'Search volunteers',
               onChanged: (value) => ref.read(volunteerListControllerProvider.notifier).updateSearch(value),
             ),
           ),
           Padding(
-            padding: const EdgeInsets.symmetric(horizontal: AppSpacing.lg),
+            padding: const EdgeInsets.symmetric(horizontal: AppSpacing.space24),
             child: Row(
               children: [
                 Expanded(
                   child: DropdownButtonFormField<VolunteerStatus?>(
-                    value: listState.status,
+                    initialValue: listState.status,
                     decoration: const InputDecoration(labelText: 'Status'),
                     items: [
                       const DropdownMenuItem(value: null, child: Text('All')),
@@ -60,10 +61,10 @@ class VolunteerListScreen extends ConsumerWidget {
                     onChanged: (value) => ref.read(volunteerListControllerProvider.notifier).updateStatus(value),
                   ),
                 ),
-                const SizedBox(width: AppSpacing.md),
+                const SizedBox(width: AppSpacing.space16),
                 Expanded(
                   child: DropdownButtonFormField<VolunteerType?>(
-                    value: listState.type,
+                    initialValue: listState.type,
                     decoration: const InputDecoration(labelText: 'Type'),
                     items: [
                       const DropdownMenuItem(value: null, child: Text('All')),
@@ -85,9 +86,9 @@ class VolunteerListScreen extends ConsumerWidget {
                 return RefreshIndicator(
                   onRefresh: () async => ref.invalidate(volunteerListProvider),
                   child: ListView.separated(
-                    padding: const EdgeInsets.all(AppSpacing.lg),
+                    padding: const EdgeInsets.all(AppSpacing.space24),
                     itemCount: volunteers.length,
-                    separatorBuilder: (_, __) => const SizedBox(height: AppSpacing.md),
+                    separatorBuilder: (_, __) => const SizedBox(height: AppSpacing.space16),
                     itemBuilder: (context, index) {
                       final volunteer = volunteers[index];
                       // sensitive data visible only to trustPresident, vicePresident, treasurer
@@ -99,29 +100,29 @@ class VolunteerListScreen extends ConsumerWidget {
                           contentPadding: EdgeInsets.zero,
                           title: Row(
                             children: [
-                              Expanded(child: Text(volunteer.fullName, style: AppTypography.titleMedium(context))),
+                              Expanded(child: Text(volunteer.fullName, style: textTheme.titleMedium)),
                               VolunteerStatusBadge(status: volunteer.status),
                             ],
                           ),
                           subtitle: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              const SizedBox(height: AppSpacing.sm),
+                              const SizedBox(height: AppSpacing.space8),
                               Row(
                                 children: [
                                   VolunteerTypeBadge(type: volunteer.type, customTypeLabel: volunteer.customTypeLabel),
-                                  const SizedBox(width: AppSpacing.sm),
+                                  const SizedBox(width: AppSpacing.space8),
                                   if (volunteer.currentAssignmentSummary != null)
                                     Expanded(
                                       child: Text(
                                         volunteer.currentAssignmentSummary!,
-                                        style: AppTypography.bodySmall(context),
+                                        style: textTheme.bodyMedium,
                                         overflow: TextOverflow.ellipsis,
                                       ),
                                     ),
                                 ],
                               ),
-                              const SizedBox(height: AppSpacing.sm),
+                              const SizedBox(height: AppSpacing.space8),
                               Text('Code: ${volunteer.volunteerCode}'),
                               Text('Mobile: ${maskMobile(volunteer.mobile, canViewSensitive: canViewSensitive)}'),
                               Text('Assignments: ${volunteer.activeAssignmentCount} active'),

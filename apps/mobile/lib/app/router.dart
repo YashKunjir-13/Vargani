@@ -24,7 +24,15 @@ import '../features/notifications/notification_detail_screen.dart';
 import '../features/notifications/notification_settings_screen.dart';
 import '../shared/ui_kit/chips/severity_badge.dart';
 import '../shared/ui_kit/navigation/approval_stepper.dart';
+import '../core/session/session_controller.dart';
+import '../features/authentication/data/models/auth_models.dart';
 import 'coming_soon_screen.dart';
+
+class _RouterRefreshNotifier extends ChangeNotifier {
+  _RouterRefreshNotifier(Ref ref) {
+    ref.listen(sessionControllerProvider, (_, __) => notifyListeners());
+  }
+}
 
 /// Root app router.
 ///
@@ -39,6 +47,7 @@ import 'coming_soon_screen.dart';
 /// route builders stop constructing data themselves -- the route
 /// *structure* below does not change.
 final appRouterProvider = Provider<GoRouter>((ref) {
+  final refreshNotifier = _RouterRefreshNotifier(ref);
   return GoRouter(
     initialLocation: '/register',
     refreshListenable: refreshNotifier,

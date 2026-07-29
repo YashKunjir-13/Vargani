@@ -44,7 +44,6 @@ class _AdvertisementFormScreenState
         _advertiserNameController.text = ad.advertiserName;
         _placementDetailController.text = ad.placementDetail ?? '';
         _selectedType = ad.type;
-        // Internal money is in paise, convert to rupees integer for input UI
         _amountController.text = (ad.amountPaise ~/ 100).toString();
       });
     }
@@ -65,7 +64,7 @@ class _AdvertisementFormScreenState
     return AppScaffold(
       title: isEditing ? 'Edit Advertisement' : 'Book Advertisement',
       body: SingleChildScrollView(
-        padding: const EdgeInsets.all(AppSpacing.lg),
+        padding: const EdgeInsets.all(AppSpacing.space24),
         child: Form(
           key: _formKey,
           child: Column(
@@ -83,9 +82,9 @@ class _AdvertisementFormScreenState
                   return null;
                 },
               ),
-              const SizedBox(height: AppSpacing.md),
+              const SizedBox(height: AppSpacing.space16),
               DropdownButtonFormField<AdvertisementType>(
-                value: _selectedType,
+                initialValue: _selectedType,
                 decoration: const InputDecoration(
                   labelText: 'Advertisement Type',
                   prefixIcon: Icon(Icons.campaign_outlined),
@@ -104,14 +103,14 @@ class _AdvertisementFormScreenState
                   }
                 },
               ),
-              const SizedBox(height: AppSpacing.md),
+              const SizedBox(height: AppSpacing.space16),
               AppTextField(
                 controller: _placementDetailController,
                 label: 'Placement Detail',
                 hint: "e.g. Banner • 4'x8' • Main Gate",
                 prefixIcon: Icons.place_outlined,
               ),
-              const SizedBox(height: AppSpacing.md),
+              const SizedBox(height: AppSpacing.space16),
               AppTextField(
                 controller: _amountController,
                 label: 'Amount (₹)',
@@ -129,7 +128,7 @@ class _AdvertisementFormScreenState
                   return null;
                 },
               ),
-              const SizedBox(height: AppSpacing.xl),
+              const SizedBox(height: AppSpacing.space32),
               AppButton(
                 label: isEditing ? 'Save Changes' : 'Book Advertisement',
                 isLoading: _isLoading,

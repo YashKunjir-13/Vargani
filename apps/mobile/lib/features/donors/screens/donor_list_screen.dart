@@ -20,7 +20,7 @@ class DonorListScreen extends ConsumerWidget {
     return AppScaffold(
       title: 'Donors',
       body: Padding(
-        padding: const EdgeInsets.all(AppSpacing.lg),
+        padding: const EdgeInsets.all(AppSpacing.space24),
         child: Column(
           children: [
             AppSearchBar(
@@ -29,34 +29,35 @@ class DonorListScreen extends ConsumerWidget {
                   .read(donorListControllerProvider.notifier)
                   .updateSearch(value),
             ),
-            const SizedBox(height: AppSpacing.md),
+            const SizedBox(height: AppSpacing.space16),
             DonorStatusFilterChips(
               selectedStatus: state.status,
               onChanged: (status) => ref
                   .read(donorListControllerProvider.notifier)
                   .updateStatus(status),
             ),
-            const SizedBox(height: AppSpacing.md),
+            const SizedBox(height: AppSpacing.space16),
             Expanded(
               child: donorsAsync.when(
                 data: (donors) {
                   if (donors.isEmpty) {
-                    return AppEmptyState(
-                        title: 'No donors found',
-                        message: 'Try a different search or filter.');
+                    return const AppEmptyState(
+                      title: 'No donors found',
+                      message: 'Try a different search or filter.',
+                    );
                   }
                   return ListView.separated(
                     itemCount: donors.length,
                     separatorBuilder: (_, __) =>
-                        const SizedBox(height: AppSpacing.sm),
+                        const SizedBox(height: AppSpacing.space8),
                     itemBuilder: (context, index) {
                       final donor = donors[index];
                       return DonorListItem(
                         donor: donor,
                         onTap: () => Navigator.of(context).push(
                           MaterialPageRoute(
-                              builder: (_) =>
-                                  DonorDetailScreen(donorId: donor.id)),
+                            builder: (_) => DonorDetailScreen(donorId: donor.id),
+                          ),
                         ),
                       );
                     },
@@ -79,12 +80,13 @@ class DonorListScreen extends ConsumerWidget {
           UserRole.volunteer,
         ],
         child: AppFab(
-            label: 'Add',
-            onPressed: () {
-              Navigator.of(context).push(
-                MaterialPageRoute(builder: (_) => const DonorFormScreen()),
-              );
-            }),
+          label: 'Add',
+          onPressed: () {
+            Navigator.of(context).push(
+              MaterialPageRoute(builder: (_) => const DonorFormScreen()),
+            );
+          },
+        ),
       ),
     );
   }

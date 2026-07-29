@@ -25,7 +25,7 @@ class VendorListScreen extends ConsumerWidget {
     return AppScaffold(
       title: 'Vendors',
       body: Padding(
-        padding: const EdgeInsets.all(AppSpacing.lg),
+        padding: const EdgeInsets.all(AppSpacing.space24),
         child: Column(
           children: [
             Row(
@@ -40,7 +40,7 @@ class VendorListScreen extends ConsumerWidget {
                     ),
                   ),
                 ),
-                const SizedBox(width: AppSpacing.sm),
+                const SizedBox(width: AppSpacing.space8),
                 Expanded(
                   child: AppSummaryStatCard(
                     label: 'Outstanding',
@@ -50,34 +50,35 @@ class VendorListScreen extends ConsumerWidget {
                 ),
               ],
             ),
-            const SizedBox(height: AppSpacing.md),
+            const SizedBox(height: AppSpacing.space16),
             AppSearchBar(
               hint: 'Search vendors',
               onChanged: (value) => ref
                   .read(vendorListControllerProvider.notifier)
                   .updateSearch(value),
             ),
-            const SizedBox(height: AppSpacing.md),
+            const SizedBox(height: AppSpacing.space16),
             Expanded(
               child: vendorsAsync.when(
                 data: (vendors) {
                   if (vendors.isEmpty) {
-                    return AppEmptyState(
-                        title: 'No vendors found',
-                        message: 'Try a different search.');
+                    return const AppEmptyState(
+                      title: 'No vendors found',
+                      message: 'Try a different search.',
+                    );
                   }
                   return ListView.separated(
                     itemCount: vendors.length,
                     separatorBuilder: (_, __) =>
-                        const SizedBox(height: AppSpacing.sm),
+                        const SizedBox(height: AppSpacing.space8),
                     itemBuilder: (context, index) {
                       final vendor = vendors[index];
                       return VendorListItem(
                         vendor: vendor,
                         onTap: () => Navigator.of(context).push(
                           MaterialPageRoute(
-                              builder: (_) =>
-                                  VendorDetailScreen(vendorId: vendor.id)),
+                            builder: (_) => VendorDetailScreen(vendorId: vendor.id),
+                          ),
                         ),
                       );
                     },
@@ -101,8 +102,6 @@ class VendorListScreen extends ConsumerWidget {
         child: AppFab(
           label: '+ Bill',
           onPressed: () {
-            // TODO: this is intentionally scoped to vendor create/edit UI until the
-            // future expenses/bills module exists in the backend contract.
             Navigator.of(context).push(
                 MaterialPageRoute(builder: (_) => const VendorFormScreen()));
           },

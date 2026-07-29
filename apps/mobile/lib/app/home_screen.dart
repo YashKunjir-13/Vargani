@@ -10,10 +10,12 @@ class HomeScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final textTheme = Theme.of(context).textTheme;
+
     return AppScaffold(
       title: 'Pauti Pustak',
       body: Padding(
-        padding: const EdgeInsets.all(AppSpacing.xl),
+        padding: const EdgeInsets.all(AppSpacing.space32),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -27,25 +29,25 @@ class HomeScreen extends StatelessWidget {
                     children: [
                       Text(
                         'Pauti Pustak',
-                        style: AppTypography.display(context),
+                        style: textTheme.headlineMedium,
                       ),
-                      const SizedBox(height: AppSpacing.xs),
+                      const SizedBox(height: AppSpacing.space4),
                       Text(
                         'Multi-tenant event financial management platform',
-                        style: AppTypography.caption(
-                          context,
+                        style: textTheme.bodyMedium?.copyWith(
                           color: AppColors.mutedTextFor(context),
                         ),
                       ),
                     ],
                   ),
                 ),
-                const SizedBox(width: AppSpacing.md),
+                const SizedBox(width: AppSpacing.space16),
                 // ── All Records button in top-right of body ────────────
                 ElevatedButton.icon(
                   onPressed: () => Navigator.of(context).push(
                     MaterialPageRoute(
-                        builder: (_) => const AllRecordsScreen()),
+                      builder: (_) => const AllRecordsScreen(),
+                    ),
                   ),
                   icon: const Icon(Icons.folder_open_outlined, size: 18),
                   label: const Text('All Records'),
@@ -53,14 +55,14 @@ class HomeScreen extends StatelessWidget {
                     backgroundColor: Theme.of(context).colorScheme.primary,
                     foregroundColor: Theme.of(context).colorScheme.onPrimary,
                     padding: const EdgeInsets.symmetric(
-                      horizontal: AppSpacing.md,
-                      vertical: AppSpacing.sm,
+                      horizontal: AppSpacing.space16,
+                      vertical: AppSpacing.space8,
                     ),
                     shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(AppSpacing.radiusMd),
+                      borderRadius: BorderRadius.circular(AppRadius.medium),
                     ),
                     elevation: 0,
-                    textStyle: AppTypography.label(context).copyWith(
+                    textStyle: textTheme.labelLarge?.copyWith(
                       fontWeight: FontWeight.w600,
                     ),
                   ),

@@ -17,17 +17,20 @@ class VendorDetailScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final vendorAsync = ref.watch(vendorDetailProvider(vendorId));
+    final textTheme = Theme.of(context).textTheme;
 
     return vendorAsync.when(
       data: (vendor) {
         if (vendor == null) {
-          return AppScaffold(
-              title: 'Vendor', body: AppEmptyState(title: 'Vendor not found'));
+          return const AppScaffold(
+            title: 'Vendor',
+            body: AppEmptyState(title: 'Vendor not found'),
+          );
         }
         return AppScaffold(
           title: vendor.name,
           body: SingleChildScrollView(
-            padding: const EdgeInsets.all(AppSpacing.lg),
+            padding: const EdgeInsets.all(AppSpacing.space24),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -37,13 +40,13 @@ class VendorDetailScreen extends ConsumerWidget {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Text(vendor.name,
-                              style: AppTypography.display(context)),
-                          const SizedBox(height: AppSpacing.xs),
+                          Text(vendor.name, style: textTheme.headlineMedium),
+                          const SizedBox(height: AppSpacing.space4),
                           Text(
                             vendor.category ?? 'Uncategorized',
-                            style: AppTypography.body(context,
-                                color: AppColors.mutedTextFor(context)),
+                            style: textTheme.bodyLarge?.copyWith(
+                              color: AppColors.mutedTextFor(context),
+                            ),
                           ),
                         ],
                       ),
@@ -51,50 +54,48 @@ class VendorDetailScreen extends ConsumerWidget {
                     VendorContractStatusBadge(status: vendor.contractStatus),
                   ],
                 ),
-                const SizedBox(height: AppSpacing.md),
+                const SizedBox(height: AppSpacing.space16),
                 if (vendor.contactPerson != null ||
                     vendor.mobile != null ||
                     vendor.email != null)
                   Wrap(
-                    spacing: AppSpacing.sm,
-                    runSpacing: AppSpacing.sm,
+                    spacing: AppSpacing.space8,
+                    runSpacing: AppSpacing.space8,
                     children: [
                       if (vendor.contactPerson != null)
-                        Text(vendor.contactPerson!,
-                            style: AppTypography.body(context)),
+                        Text(vendor.contactPerson!, style: textTheme.bodyLarge),
                       if (vendor.mobile != null)
-                        Text(vendor.mobile!,
-                            style: AppTypography.body(context)),
+                        Text(vendor.mobile!, style: textTheme.bodyLarge),
                       if (vendor.email != null)
-                        Text(vendor.email!, style: AppTypography.body(context)),
+                        Text(vendor.email!, style: textTheme.bodyLarge),
                     ],
                   ),
                 if (vendor.status == VendorStatus.inactive)
                   Container(
-                    margin: const EdgeInsets.only(top: AppSpacing.md),
-                    padding: const EdgeInsets.all(AppSpacing.md),
+                    margin: const EdgeInsets.only(top: AppSpacing.space16),
+                    padding: const EdgeInsets.all(AppSpacing.space16),
                     decoration: BoxDecoration(
                       color: Theme.of(context)
                           .colorScheme
                           .primary
                           .withValues(alpha: 0.12),
-                      borderRadius: BorderRadius.circular(AppSpacing.radiusMd),
+                      borderRadius: BorderRadius.circular(AppRadius.medium),
                     ),
                     child: Text(
                       'This vendor is deactivated and cannot be assigned to new expenses',
-                      style: AppTypography.body(context),
+                      style: textTheme.bodyLarge,
                     ),
                   ),
-                const SizedBox(height: AppSpacing.xl),
+                const SizedBox(height: AppSpacing.space32),
                 Row(
                   children: [
                     Expanded(
                       child: AppSummaryStatCard(
-                          label: 'Contract',
-                          value:
-                              formatPaiseAsRupees(vendor.contractAmountPaise)),
+                        label: 'Contract',
+                        value: formatPaiseAsRupees(vendor.contractAmountPaise),
+                      ),
                     ),
-                    const SizedBox(width: AppSpacing.sm),
+                    const SizedBox(width: AppSpacing.space8),
                     Expanded(
                       child: AppSummaryStatCard(
                         label: 'Paid',
@@ -102,7 +103,7 @@ class VendorDetailScreen extends ConsumerWidget {
                         valueColor: AppColors.lightSuccess,
                       ),
                     ),
-                    const SizedBox(width: AppSpacing.sm),
+                    const SizedBox(width: AppSpacing.space8),
                     Expanded(
                       child: AppSummaryStatCard(
                         label: 'Balance',
@@ -115,7 +116,7 @@ class VendorDetailScreen extends ConsumerWidget {
                     ),
                   ],
                 ),
-                const SizedBox(height: AppSpacing.xl),
+                const SizedBox(height: AppSpacing.space32),
                 Row(
                   children: [
                     Expanded(
@@ -130,15 +131,16 @@ class VendorDetailScreen extends ConsumerWidget {
                           onPressed: () {
                             Navigator.of(context).push(
                               MaterialPageRoute(
-                                  builder: (_) =>
-                                      VendorFormScreen(vendorId: vendor.id)),
+                                builder: (_) =>
+                                    VendorFormScreen(vendorId: vendor.id),
+                              ),
                             );
                           },
                         ),
                       ),
                     ),
                     if (vendor.status == VendorStatus.active) ...[
-                      const SizedBox(width: AppSpacing.sm),
+                      const SizedBox(width: AppSpacing.space8),
                       Expanded(
                         child: RoleGate(
                           allowedRoles: const [
@@ -195,11 +197,14 @@ class VendorDetailScreen extends ConsumerWidget {
           ),
         );
       },
-      loading: () => AppScaffold(
-          title: 'Vendor',
-          body: const AppLoadingIndicator(label: 'Loading vendor...')),
+      loading: () => const AppScaffold(
+        title: 'Vendor',
+        body: AppLoadingIndicator(label: 'Loading vendor...'),
+      ),
       error: (error, stackTrace) => AppScaffold(
-          title: 'Vendor', body: AppErrorView(message: error.toString())),
+        title: 'Vendor',
+        body: AppErrorView(message: error.toString()),
+      ),
     );
   }
 }

@@ -39,7 +39,7 @@ class SponsorshipListScreen extends ConsumerWidget {
           return RefreshIndicator(
             onRefresh: () async => ref.invalidate(sponsorshipListProvider),
             child: ListView(
-              padding: const EdgeInsets.all(AppSpacing.lg),
+              padding: const EdgeInsets.all(AppSpacing.space24),
               children: [
                 // ── Summary stat row ──────────────────────────────────────
                 Row(
@@ -53,7 +53,7 @@ class SponsorshipListScreen extends ConsumerWidget {
                             : AppColors.lightSuccess,
                       ),
                     ),
-                    const SizedBox(width: AppSpacing.sm),
+                    const SizedBox(width: AppSpacing.space8),
                     Expanded(
                       child: AppSummaryStatCard(
                         label: 'Pledged',
@@ -63,7 +63,7 @@ class SponsorshipListScreen extends ConsumerWidget {
                             : AppColors.lightWarning,
                       ),
                     ),
-                    const SizedBox(width: AppSpacing.sm),
+                    const SizedBox(width: AppSpacing.space8),
                     Expanded(
                       child: AppSummaryStatCard(
                         label: 'Pending',
@@ -72,7 +72,7 @@ class SponsorshipListScreen extends ConsumerWidget {
                     ),
                   ],
                 ),
-                const SizedBox(height: AppSpacing.md),
+                const SizedBox(height: AppSpacing.space16),
                 // ── Search bar ────────────────────────────────────────────
                 AppSearchBar(
                   hint: 'Search sponsors',
@@ -80,7 +80,7 @@ class SponsorshipListScreen extends ConsumerWidget {
                       .read(sponsorshipListControllerProvider.notifier)
                       .updateSearch(value),
                 ),
-                const SizedBox(height: AppSpacing.md),
+                const SizedBox(height: AppSpacing.space16),
                 // ── Add button (management roles only) ───────────────────
                 if (canManage)
                   AppButton(
@@ -90,7 +90,7 @@ class SponsorshipListScreen extends ConsumerWidget {
                           builder: (_) => const SponsorshipFormScreen()),
                     ),
                   ),
-                if (canManage) const SizedBox(height: AppSpacing.md),
+                if (canManage) const SizedBox(height: AppSpacing.space16),
                 // ── List ──────────────────────────────────────────────────
                 if (sponsorships.isEmpty)
                   const AppEmptyState(
@@ -100,7 +100,7 @@ class SponsorshipListScreen extends ConsumerWidget {
                 else
                   ...sponsorships.map(
                     (sponsorship) => Padding(
-                      padding: const EdgeInsets.only(bottom: AppSpacing.sm),
+                      padding: const EdgeInsets.only(bottom: AppSpacing.space8),
                       child: SponsorListItem(
                         sponsorship: sponsorship,
                         onTap: () => Navigator.of(context).push(

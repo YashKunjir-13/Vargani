@@ -13,18 +13,20 @@ class AllRecordsScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final textTheme = Theme.of(context).textTheme;
+
     return AppScaffold(
       title: 'All Records',
       body: ListView(
-        padding: const EdgeInsets.all(AppSpacing.lg),
+        padding: const EdgeInsets.all(AppSpacing.space24),
         children: [
           Text(
             'Browse by category',
-            style: AppTypography.titleMedium(context).copyWith(
+            style: textTheme.titleMedium?.copyWith(
               color: AppColors.mutedTextFor(context),
             ),
           ),
-          const SizedBox(height: AppSpacing.md),
+          const SizedBox(height: AppSpacing.space16),
           _RecordCategoryCard(
             icon: Icons.handshake_outlined,
             label: 'Sponsors',
@@ -33,7 +35,7 @@ class AllRecordsScreen extends StatelessWidget {
               MaterialPageRoute(builder: (_) => const SponsorshipListScreen()),
             ),
           ),
-          const SizedBox(height: AppSpacing.md),
+          const SizedBox(height: AppSpacing.space16),
           _RecordCategoryCard(
             icon: Icons.campaign_outlined,
             label: 'Advertisements',
@@ -42,7 +44,7 @@ class AllRecordsScreen extends StatelessWidget {
               MaterialPageRoute(builder: (_) => const AdvertisementListScreen()),
             ),
           ),
-          const SizedBox(height: AppSpacing.md),
+          const SizedBox(height: AppSpacing.space16),
           _RecordCategoryCard(
             icon: Icons.people_alt_outlined,
             label: 'Donors',
@@ -51,7 +53,7 @@ class AllRecordsScreen extends StatelessWidget {
               MaterialPageRoute(builder: (_) => const DonorListScreen()),
             ),
           ),
-          const SizedBox(height: AppSpacing.md),
+          const SizedBox(height: AppSpacing.space16),
           _RecordCategoryCard(
             icon: Icons.volunteer_activism_outlined,
             label: 'Volunteers',
@@ -60,7 +62,7 @@ class AllRecordsScreen extends StatelessWidget {
               MaterialPageRoute(builder: (_) => const VolunteerListScreen()),
             ),
           ),
-          const SizedBox(height: AppSpacing.md),
+          const SizedBox(height: AppSpacing.space16),
           _RecordCategoryCard(
             icon: Icons.store_outlined,
             label: 'Vendors',
@@ -97,17 +99,18 @@ class _RecordCategoryCard extends StatelessWidget {
         ? primary.withValues(alpha: 0.12)
         : primary.withValues(alpha: 0.06);
     final borderColor = primary.withValues(alpha: isDark ? 0.3 : 0.18);
+    final textTheme = Theme.of(context).textTheme;
 
     return Material(
       color: Colors.transparent,
       child: InkWell(
         onTap: onTap,
-        borderRadius: BorderRadius.circular(AppSpacing.radiusMd),
+        borderRadius: BorderRadius.circular(AppRadius.medium),
         child: Container(
-          padding: const EdgeInsets.all(AppSpacing.lg),
+          padding: const EdgeInsets.all(AppSpacing.space24),
           decoration: BoxDecoration(
             color: cardBg,
-            borderRadius: BorderRadius.circular(AppSpacing.radiusMd),
+            borderRadius: BorderRadius.circular(AppRadius.medium),
             border: Border.all(
               color: borderColor,
               width: 1,
@@ -128,14 +131,14 @@ class _RecordCategoryCard extends StatelessWidget {
                   size: 22,
                 ),
               ),
-              const SizedBox(width: AppSpacing.md),
+              const SizedBox(width: AppSpacing.space16),
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
                       label,
-                      style: AppTypography.titleMedium(context).copyWith(
+                      style: textTheme.titleMedium?.copyWith(
                         fontWeight: FontWeight.bold,
                         color: primary,
                       ),
@@ -143,8 +146,7 @@ class _RecordCategoryCard extends StatelessWidget {
                     const SizedBox(height: 2),
                     Text(
                       description,
-                      style: AppTypography.caption(
-                        context,
+                      style: textTheme.bodyMedium?.copyWith(
                         color: AppColors.mutedTextFor(context),
                       ),
                     ),

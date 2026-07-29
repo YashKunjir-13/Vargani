@@ -27,7 +27,7 @@ class AdvertisementListScreen extends ConsumerWidget {
           return RefreshIndicator(
             onRefresh: () async => ref.invalidate(advertisementListProvider),
             child: ListView(
-              padding: const EdgeInsets.all(AppSpacing.lg),
+              padding: const EdgeInsets.all(AppSpacing.space24),
               children: [
                 // ── Search bar ────────────────────────────────────────────
                 AppSearchBar(
@@ -36,7 +36,7 @@ class AdvertisementListScreen extends ConsumerWidget {
                       .read(advertisementListControllerProvider.notifier)
                       .updateSearch(value),
                 ),
-                const SizedBox(height: AppSpacing.md),
+                const SizedBox(height: AppSpacing.space16),
                 // ── Add button (management roles only) ───────────────────
                 if (canManage)
                   AppButton(
@@ -46,7 +46,7 @@ class AdvertisementListScreen extends ConsumerWidget {
                           builder: (_) => const AdvertisementFormScreen()),
                     ),
                   ),
-                if (canManage) const SizedBox(height: AppSpacing.md),
+                if (canManage) const SizedBox(height: AppSpacing.space16),
                 // ── List ──────────────────────────────────────────────────
                 if (ads.isEmpty)
                   const AppEmptyState(
@@ -56,7 +56,7 @@ class AdvertisementListScreen extends ConsumerWidget {
                 else
                   ...ads.map(
                     (ad) => Padding(
-                      padding: const EdgeInsets.only(bottom: AppSpacing.sm),
+                      padding: const EdgeInsets.only(bottom: AppSpacing.space8),
                       child: AdvertisementListItem(
                         advertisement: ad,
                         onTap: () => Navigator.of(context).push(

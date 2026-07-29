@@ -63,9 +63,9 @@ class _VolunteerFormScreenState extends ConsumerState<VolunteerFormScreen> {
         role == UserRole.treasurer;
 
     if (!canManageVolunteers) {
-      return AppScaffold(
+      return const AppScaffold(
         title: 'Volunteer Form',
-        body: const AppEmptyState(title: 'You do not have access to manage volunteers'),
+        body: AppEmptyState(title: 'You do not have access to manage volunteers'),
       );
     }
 
@@ -74,27 +74,27 @@ class _VolunteerFormScreenState extends ConsumerState<VolunteerFormScreen> {
       body: Form(
         key: _formKey,
         child: ListView(
-          padding: const EdgeInsets.all(AppSpacing.lg),
+          padding: const EdgeInsets.all(AppSpacing.space24),
           children: [
             TextFormField(
               controller: _fullNameController,
               decoration: const InputDecoration(labelText: 'Full name'),
               validator: (value) => value == null || value.isEmpty ? 'Required' : null,
             ),
-            const SizedBox(height: AppSpacing.md),
+            const SizedBox(height: AppSpacing.space16),
             TextFormField(
               controller: _mobileController,
               decoration: const InputDecoration(labelText: 'Mobile'),
               validator: (value) => value == null || value.isEmpty ? 'Required' : null,
             ),
-            const SizedBox(height: AppSpacing.md),
+            const SizedBox(height: AppSpacing.space16),
             TextFormField(
               controller: _emailController,
               decoration: const InputDecoration(labelText: 'Email'),
             ),
-            const SizedBox(height: AppSpacing.md),
+            const SizedBox(height: AppSpacing.space16),
             DropdownButtonFormField<VolunteerType>(
-              value: _type,
+              initialValue: _type,
               decoration: const InputDecoration(labelText: 'Volunteer type'),
               items: [
                 for (final type in VolunteerType.values)
@@ -102,15 +102,15 @@ class _VolunteerFormScreenState extends ConsumerState<VolunteerFormScreen> {
               ],
               onChanged: (value) => setState(() => _type = value),
             ),
-            const SizedBox(height: AppSpacing.md),
+            const SizedBox(height: AppSpacing.space16),
             if (_type == VolunteerType.custom)
               TextFormField(
                 controller: _customTypeController,
                 decoration: const InputDecoration(labelText: 'Custom type label'),
               ),
-            const SizedBox(height: AppSpacing.md),
+            const SizedBox(height: AppSpacing.space16),
             DropdownButtonFormField<String>(
-              value: _preferredLanguage,
+              initialValue: _preferredLanguage,
               decoration: const InputDecoration(labelText: 'Preferred language'),
               items: const [
                 DropdownMenuItem(value: 'en', child: Text('English')),
@@ -119,9 +119,9 @@ class _VolunteerFormScreenState extends ConsumerState<VolunteerFormScreen> {
               ],
               onChanged: (value) => setState(() => _preferredLanguage = value ?? 'mr'),
             ),
-            const SizedBox(height: AppSpacing.md),
+            const SizedBox(height: AppSpacing.space16),
             DropdownButtonFormField<VolunteerStatus>(
-              value: _status,
+              initialValue: _status,
               decoration: const InputDecoration(labelText: 'Status'),
               items: [
                 for (final status in VolunteerStatus.values)
@@ -129,17 +129,22 @@ class _VolunteerFormScreenState extends ConsumerState<VolunteerFormScreen> {
               ],
               onChanged: (value) => setState(() => _status = value),
             ),
-            const SizedBox(height: AppSpacing.md),
+            const SizedBox(height: AppSpacing.space16),
             ListTile(
               title: const Text('Joined on'),
               subtitle: Text(_joinedOn == null ? 'Select date' : _joinedOn!.toLocal().toString().split(' ').first),
               trailing: const Icon(Icons.calendar_today),
               onTap: () async {
-                final picked = await showDatePicker(context: context, initialDate: _joinedOn ?? DateTime.now(), firstDate: DateTime(2020), lastDate: DateTime(2035));
+                final picked = await showDatePicker(
+                  context: context,
+                  initialDate: _joinedOn ?? DateTime.now(),
+                  firstDate: DateTime(2020),
+                  lastDate: DateTime(2035),
+                );
                 if (picked != null) setState(() => _joinedOn = picked);
               },
             ),
-            const SizedBox(height: AppSpacing.md),
+            const SizedBox(height: AppSpacing.space16),
             AppButton(
               label: _isLoading ? 'Saving...' : 'Save volunteer',
               onPressed: _isLoading ? null : _submit,

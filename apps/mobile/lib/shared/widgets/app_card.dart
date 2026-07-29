@@ -22,6 +22,8 @@ class AppCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final textTheme = Theme.of(context).textTheme;
+
     final content = Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -34,20 +36,23 @@ class AppCard extends StatelessWidget {
             children: [
               if (leading != null) ...[
                 leading!,
-                const SizedBox(width: 12),
+                const SizedBox(width: AppSpacing.space12),
               ],
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     if (title != null)
-                      Text(title!, style: AppTypography.titleMedium(context)),
+                      Text(title!, style: textTheme.titleMedium),
                     if (subtitle != null)
                       Padding(
                         padding: const EdgeInsets.only(top: 4),
-                        child: Text(subtitle!,
-                            style: AppTypography.caption(context,
-                                color: AppColors.mutedTextFor(context))),
+                        child: Text(
+                          subtitle!,
+                          style: textTheme.bodyMedium?.copyWith(
+                            color: AppColors.mutedTextFor(context),
+                          ),
+                        ),
                       ),
                   ],
                 ),
@@ -59,7 +64,7 @@ class AppCard extends StatelessWidget {
             subtitle != null ||
             leading != null ||
             trailing != null)
-          const SizedBox(height: 12),
+          const SizedBox(height: AppSpacing.space12),
         child,
       ],
     );
@@ -67,9 +72,9 @@ class AppCard extends StatelessWidget {
     return Card(
       child: InkWell(
         onTap: onTap,
-        borderRadius: BorderRadius.circular(AppSpacing.radiusMd),
+        borderRadius: BorderRadius.circular(AppRadius.medium),
         child: Padding(
-          padding: const EdgeInsets.all(AppSpacing.lg),
+          padding: const EdgeInsets.all(AppSpacing.space24),
           child: content,
         ),
       ),

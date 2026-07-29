@@ -19,6 +19,7 @@ class VolunteerDetailScreen extends ConsumerWidget {
     final volunteerAsync = ref.watch(volunteerDetailProvider(volunteerId));
     final assignmentsAsync = ref.watch(volunteerAssignmentsProvider(volunteerId));
     final role = ref.watch(roleProvider);
+    final textTheme = Theme.of(context).textTheme;
 
     // trustPresident, vicePresident, treasurer can manage volunteers
     final canManageVolunteers = role == UserRole.trustPresident ||
@@ -38,7 +39,7 @@ class VolunteerDetailScreen extends ConsumerWidget {
             return const AppEmptyState(title: 'Volunteer not found');
           }
           return ListView(
-            padding: const EdgeInsets.all(AppSpacing.lg),
+            padding: const EdgeInsets.all(AppSpacing.space24),
             children: [
               AppCard(
                 child: Column(
@@ -47,44 +48,42 @@ class VolunteerDetailScreen extends ConsumerWidget {
                     Row(
                       children: [
                         Expanded(
-                            child: Text(volunteer.fullName,
-                                style: AppTypography.display(context))),
+                          child: Text(volunteer.fullName, style: textTheme.headlineMedium),
+                        ),
                         VolunteerStatusBadge(status: volunteer.status),
                       ],
                     ),
-                    const SizedBox(height: AppSpacing.sm),
+                    const SizedBox(height: AppSpacing.space8),
                     VolunteerTypeBadge(type: volunteer.type),
-                    const SizedBox(height: AppSpacing.md),
+                    const SizedBox(height: AppSpacing.space16),
                     _infoRow(context, 'Code', volunteer.volunteerCode),
                     _infoRow(context, 'Email', volunteer.email ?? '—'),
                     _infoRow(
-                        context,
-                        'Mobile',
-                        maskMobile(volunteer.mobile,
-                            canViewSensitive: canViewSensitive)),
-                    _infoRow(context, 'Preferred language',
-                        volunteer.preferredLanguage.toUpperCase()),
+                      context,
+                      'Mobile',
+                      maskMobile(volunteer.mobile, canViewSensitive: canViewSensitive),
+                    ),
                     _infoRow(
-                        context,
-                        'Joined on',
-                        volunteer.joinedOn
-                                ?.toLocal()
-                                .toString()
-                                .split(' ')
-                                .first ??
-                            '—'),
+                      context,
+                      'Preferred language',
+                      volunteer.preferredLanguage.toUpperCase(),
+                    ),
+                    _infoRow(
+                      context,
+                      'Joined on',
+                      volunteer.joinedOn?.toLocal().toString().split(' ').first ?? '—',
+                    ),
                   ],
                 ),
               ),
-              const SizedBox(height: AppSpacing.md),
+              const SizedBox(height: AppSpacing.space16),
               AppCard(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Row(
                       children: [
-                        Text('Assignments',
-                            style: AppTypography.titleMedium(context)),
+                        Text('Assignments', style: textTheme.titleMedium),
                         const Spacer(),
                         if (canManageVolunteers)
                           AppButton(
@@ -92,56 +91,44 @@ class VolunteerDetailScreen extends ConsumerWidget {
                             variant: AppButtonVariant.secondary,
                             fullWidth: false,
                             onPressed: () async {
-                              final newAssignment =
-                                  await showDialog<VolunteerAssignment>(
+                              final newAssignment = await showDialog<VolunteerAssignment>(
                                 context: context,
                                 builder: (_) => const _AssignmentDialog(),
                               );
                               if (newAssignment != null && context.mounted) {
                                 ScaffoldMessenger.of(context).showSnackBar(
-                                  const SnackBar(
-                                      content: Text('Assignment added (mock)')),
+                                  const SnackBar(content: Text('Assignment added (mock)')),
                                 );
                               }
                             },
                           ),
                       ],
                     ),
-                    const SizedBox(height: AppSpacing.md),
+                    const SizedBox(height: AppSpacing.space16),
                     assignmentsAsync.when(
                       data: (assignments) {
                         if (assignments.isEmpty) {
-                          return const AppEmptyState(
-                              title: 'No assignments yet');
+                          return const AppEmptyState(title: 'No assignments yet');
                         }
                         return Column(
                           children: assignments
                               .map(
                                 (assignment) => Padding(
-                                  padding: const EdgeInsets.only(
-                                      bottom: AppSpacing.sm),
+                                  padding: const EdgeInsets.only(bottom: AppSpacing.space8),
                                   child: Container(
-                                    padding:
-                                        const EdgeInsets.all(AppSpacing.md),
+                                    padding: const EdgeInsets.all(AppSpacing.space16),
                                     decoration: BoxDecoration(
-                                      color: Theme.of(context)
-                                          .colorScheme
-                                          .surfaceContainerHighest,
+                                      color: Theme.of(context).colorScheme.surfaceContainerHighest,
                                       borderRadius: BorderRadius.circular(12),
                                     ),
                                     child: Row(
                                       children: [
                                         Expanded(
                                           child: Column(
-                                            crossAxisAlignment:
-                                                CrossAxisAlignment.start,
+                                            crossAxisAlignment: CrossAxisAlignment.start,
                                             children: [
-                                              Text(assignment.roleCode,
-                                                  style:
-                                                      AppTypography.titleMedium(
-                                                          context)),
-                                              Text(
-                                                  '${assignment.scopeType}: ${assignment.scopeLabel}'),
+                                              Text(assignment.roleCode, style: textTheme.titleMedium),
+                                              Text('${assignment.scopeType}: ${assignment.scopeLabel}'),
                                             ],
                                           ),
                                         ),
@@ -154,22 +141,20 @@ class VolunteerDetailScreen extends ConsumerWidget {
                               .toList(),
                         );
                       },
-                      loading: () => const AppLoadingIndicator(
-                          label: 'Loading assignments...'),
-                      error: (error, stackTrace) =>
-                          AppErrorView(message: error.toString()),
+                      loading: () => const AppLoadingIndicator(label: 'Loading assignments...'),
+                      error: (error, stackTrace) => AppErrorView(message: error.toString()),
                     ),
                   ],
                 ),
               ),
-              const SizedBox(height: AppSpacing.md),
+              const SizedBox(height: AppSpacing.space16),
               if (canManageVolunteers)
                 AppButton(
                   label: 'Edit volunteer',
                   onPressed: () => Navigator.of(context).push(
                     MaterialPageRoute(
-                        builder: (_) =>
-                            VolunteerFormScreen(volunteerId: volunteer.id)),
+                      builder: (_) => VolunteerFormScreen(volunteerId: volunteer.id),
+                    ),
                   ),
                 ),
             ],
@@ -183,13 +168,14 @@ class VolunteerDetailScreen extends ConsumerWidget {
 
   Widget _infoRow(BuildContext context, String label, String value) {
     return Padding(
-      padding: const EdgeInsets.only(bottom: AppSpacing.sm),
+      padding: const EdgeInsets.only(bottom: AppSpacing.space8),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           SizedBox(
-              width: 120,
-              child: Text(label, style: AppTypography.label(context))),
+            width: 120,
+            child: Text(label, style: Theme.of(context).textTheme.labelLarge),
+          ),
           Expanded(child: Text(value)),
         ],
       ),
@@ -217,24 +203,14 @@ class _AssignmentDialogState extends State<_AssignmentDialog> {
       content: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          TextField(
-              controller: _roleController,
-              decoration: const InputDecoration(labelText: 'Role code')),
-          TextField(
-              controller: _scopeController,
-              decoration: const InputDecoration(labelText: 'Scope type')),
-          TextField(
-              controller: _scopeLabelController,
-              decoration: const InputDecoration(labelText: 'Scope label')),
-          TextField(
-              controller: _statusController,
-              decoration: const InputDecoration(labelText: 'Status')),
+          TextField(controller: _roleController, decoration: const InputDecoration(labelText: 'Role code')),
+          TextField(controller: _scopeController, decoration: const InputDecoration(labelText: 'Scope type')),
+          TextField(controller: _scopeLabelController, decoration: const InputDecoration(labelText: 'Scope label')),
+          TextField(controller: _statusController, decoration: const InputDecoration(labelText: 'Status')),
         ],
       ),
       actions: [
-        TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('Cancel')),
+        TextButton(onPressed: () => Navigator.pop(context), child: const Text('Cancel')),
         AppButton(
           label: 'Save',
           fullWidth: false,
