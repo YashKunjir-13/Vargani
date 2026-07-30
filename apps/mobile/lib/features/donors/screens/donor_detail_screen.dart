@@ -20,7 +20,7 @@ class DonorDetailScreen extends ConsumerWidget {
     return donorAsync.when(
       data: (donor) {
         if (donor == null) {
-          return AppScaffold(
+          return const AppScaffold(
               title: 'Donor', body: AppEmptyState(title: 'Donor not found'));
         }
         return AppScaffold(
@@ -139,9 +139,9 @@ class DonorDetailScreen extends ConsumerWidget {
           ),
         );
       },
-      loading: () => AppScaffold(
+      loading: () => const AppScaffold(
           title: 'Donor',
-          body: const AppLoadingIndicator(label: 'Loading donor...')),
+          body: AppLoadingIndicator(label: 'Loading donor...')),
       error: (error, stackTrace) => AppScaffold(
           title: 'Donor', body: AppErrorView(message: error.toString())),
     );

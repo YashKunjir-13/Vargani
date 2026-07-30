@@ -63,9 +63,9 @@ class _VolunteerFormScreenState extends ConsumerState<VolunteerFormScreen> {
         role == UserRole.treasurer;
 
     if (!canManageVolunteers) {
-      return AppScaffold(
+      return const AppScaffold(
         title: 'Volunteer Form',
-        body: const AppEmptyState(title: 'You do not have access to manage volunteers'),
+        body: AppEmptyState(title: 'You do not have access to manage volunteers'),
       );
     }
 
@@ -94,7 +94,7 @@ class _VolunteerFormScreenState extends ConsumerState<VolunteerFormScreen> {
             ),
             const SizedBox(height: AppSpacing.md),
             DropdownButtonFormField<VolunteerType>(
-              value: _type,
+              initialValue: _type,
               decoration: const InputDecoration(labelText: 'Volunteer type'),
               items: [
                 for (final type in VolunteerType.values)
@@ -110,7 +110,7 @@ class _VolunteerFormScreenState extends ConsumerState<VolunteerFormScreen> {
               ),
             const SizedBox(height: AppSpacing.md),
             DropdownButtonFormField<String>(
-              value: _preferredLanguage,
+              initialValue: _preferredLanguage,
               decoration: const InputDecoration(labelText: 'Preferred language'),
               items: const [
                 DropdownMenuItem(value: 'en', child: Text('English')),
@@ -121,7 +121,7 @@ class _VolunteerFormScreenState extends ConsumerState<VolunteerFormScreen> {
             ),
             const SizedBox(height: AppSpacing.md),
             DropdownButtonFormField<VolunteerStatus>(
-              value: _status,
+              initialValue: _status,
               decoration: const InputDecoration(labelText: 'Status'),
               items: [
                 for (final status in VolunteerStatus.values)

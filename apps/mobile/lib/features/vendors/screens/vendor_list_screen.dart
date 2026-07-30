@@ -62,7 +62,7 @@ class VendorListScreen extends ConsumerWidget {
               child: vendorsAsync.when(
                 data: (vendors) {
                   if (vendors.isEmpty) {
-                    return AppEmptyState(
+                    return const AppEmptyState(
                         title: 'No vendors found',
                         message: 'Try a different search.');
                   }

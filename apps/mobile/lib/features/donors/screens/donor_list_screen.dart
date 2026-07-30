@@ -41,7 +41,7 @@ class DonorListScreen extends ConsumerWidget {
               child: donorsAsync.when(
                 data: (donors) {
                   if (donors.isEmpty) {
-                    return AppEmptyState(
+                    return const AppEmptyState(
                         title: 'No donors found',
                         message: 'Try a different search or filter.');
                   }

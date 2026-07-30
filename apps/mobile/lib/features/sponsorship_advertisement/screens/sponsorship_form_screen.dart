@@ -102,7 +102,7 @@ class _SponsorshipFormScreenState extends ConsumerState<SponsorshipFormScreen> {
               ),
               const SizedBox(height: AppSpacing.md),
               DropdownButtonFormField<SponsorshipTier>(
-                value: _selectedTier,
+                initialValue: _selectedTier,
                 decoration: const InputDecoration(
                   labelText: 'Sponsorship Tier',
                   prefixIcon: Icon(Icons.workspace_premium_outlined),

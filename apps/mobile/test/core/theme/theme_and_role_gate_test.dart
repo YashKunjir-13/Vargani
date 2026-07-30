@@ -32,9 +32,9 @@ void main() {
                         }
                       },
                     ),
-                    RoleGate(
-                      allowedRoles: const [Role.treasurer],
-                      child: const Text('Treasurer only'),
+                    const RoleGate(
+                      allowedRoles: [Role.treasurer],
+                      child: Text('Treasurer only'),
                     ),
                   ],
                 ),

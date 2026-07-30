@@ -5,7 +5,6 @@ import 'package:pauti_pustak_mobile/core/localization/locale_preferences.dart';
 import 'package:pauti_pustak_mobile/l10n/app_localizations.dart';
 
 import '../core/theme/app_theme.dart';
-import '../core/theme/theme_controller.dart';
 import 'router.dart';
 
 class PautiPustakApp extends ConsumerWidget {
@@ -15,7 +14,7 @@ class PautiPustakApp extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final router = ref.watch(appRouterProvider);
+    final router = ref.watch(appRouterProvider(environment));
     final themeMode = ref.watch(appThemeModeProvider);
     final locale = ref.watch(localeControllerProvider);
 

@@ -85,7 +85,7 @@ class _AdvertisementFormScreenState
               ),
               const SizedBox(height: AppSpacing.md),
               DropdownButtonFormField<AdvertisementType>(
-                value: _selectedType,
+                initialValue: _selectedType,
                 decoration: const InputDecoration(
                   labelText: 'Advertisement Type',
                   prefixIcon: Icon(Icons.campaign_outlined),
