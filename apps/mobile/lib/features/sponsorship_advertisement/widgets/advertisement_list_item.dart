@@ -18,10 +18,12 @@ class AdvertisementListItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final textTheme = Theme.of(context).textTheme;
+
     return AppCard(
       onTap: onTap,
       child: Padding(
-        padding: const EdgeInsets.all(AppSpacing.md),
+        padding: const EdgeInsets.all(AppSpacing.space16),
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -31,30 +33,29 @@ class AdvertisementListItem extends StatelessWidget {
                 children: [
                   Text(
                     advertisement.advertiserName,
-                    style: AppTypography.titleMedium(context).copyWith(
+                    style: textTheme.titleMedium?.copyWith(
                       fontWeight: FontWeight.bold,
                     ),
                   ),
                   if (advertisement.placementDetail != null &&
                       advertisement.placementDetail!.isNotEmpty) ...[
-                    const SizedBox(height: AppSpacing.xs),
+                    const SizedBox(height: AppSpacing.space4),
                     Text(
                       advertisement.placementDetail!,
-                      style: AppTypography.caption(
-                        context,
+                      style: textTheme.bodyMedium?.copyWith(
                         color: AppColors.mutedTextFor(context),
                       ),
                     ),
                   ],
-                  const SizedBox(height: AppSpacing.sm),
+                  const SizedBox(height: AppSpacing.space8),
                   AdvertisementStatusBadge(status: advertisement.status),
                 ],
               ),
             ),
-            const SizedBox(width: AppSpacing.md),
+            const SizedBox(width: AppSpacing.space16),
             Text(
               formatPaiseAsRupees(advertisement.amountPaise),
-              style: AppTypography.titleLarge(context).copyWith(
+              style: textTheme.titleLarge?.copyWith(
                 fontWeight: FontWeight.bold,
                 color: Theme.of(context).colorScheme.primary,
               ),

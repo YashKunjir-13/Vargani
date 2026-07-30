@@ -12,11 +12,12 @@ class DevRoleSwitcherScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final currentRole = ref.watch(roleProvider);
+    final textTheme = Theme.of(context).textTheme;
 
     return AppScaffold(
       title: '🛠 Dev: Role Switcher',
       body: ListView(
-        padding: const EdgeInsets.all(AppSpacing.lg),
+        padding: const EdgeInsets.all(AppSpacing.space24),
         children: [
           AppCard(
             child: Column(
@@ -24,18 +25,18 @@ class DevRoleSwitcherScreen extends ConsumerWidget {
               children: [
                 Text(
                   'Active Role',
-                  style: AppTypography.label(context).copyWith(
+                  style: textTheme.labelLarge?.copyWith(
                     color: AppColors.mutedTextFor(context),
                   ),
                 ),
-                const SizedBox(height: AppSpacing.sm),
+                const SizedBox(height: AppSpacing.space8),
                 Row(
                   children: [
                     const Icon(Icons.badge_outlined, size: 20),
-                    const SizedBox(width: AppSpacing.sm),
+                    const SizedBox(width: AppSpacing.space8),
                     Text(
                       currentRole.label,
-                      style: AppTypography.titleLarge(context).copyWith(
+                      style: textTheme.titleLarge?.copyWith(
                         fontWeight: FontWeight.bold,
                         color: Theme.of(context).colorScheme.primary,
                       ),
@@ -45,15 +46,15 @@ class DevRoleSwitcherScreen extends ConsumerWidget {
               ],
             ),
           ),
-          const SizedBox(height: AppSpacing.lg),
+          const SizedBox(height: AppSpacing.space24),
           Text(
             'Select a role to simulate:',
-            style: AppTypography.titleMedium(context),
+            style: textTheme.titleMedium,
           ),
-          const SizedBox(height: AppSpacing.md),
+          const SizedBox(height: AppSpacing.space16),
           ...UserRole.values.map(
             (role) => Padding(
-              padding: const EdgeInsets.only(bottom: AppSpacing.sm),
+              padding: const EdgeInsets.only(bottom: AppSpacing.space8),
               child: _RoleTile(
                 role: role,
                 isSelected: currentRole == role,
@@ -64,15 +65,15 @@ class DevRoleSwitcherScreen extends ConsumerWidget {
               ),
             ),
           ),
-          const SizedBox(height: AppSpacing.xl),
+          const SizedBox(height: AppSpacing.space32),
           Container(
-            padding: const EdgeInsets.all(AppSpacing.md),
+            padding: const EdgeInsets.all(AppSpacing.space16),
             decoration: BoxDecoration(
               color: Theme.of(context)
                   .colorScheme
                   .errorContainer
                   .withValues(alpha: 0.25),
-              borderRadius: BorderRadius.circular(AppSpacing.radiusMd),
+              borderRadius: BorderRadius.circular(AppRadius.medium),
               border: Border.all(
                 color: Theme.of(context)
                     .colorScheme
@@ -88,12 +89,11 @@ class DevRoleSwitcherScreen extends ConsumerWidget {
                   size: 18,
                   color: Theme.of(context).colorScheme.error,
                 ),
-                const SizedBox(width: AppSpacing.sm),
+                const SizedBox(width: AppSpacing.space8),
                 Expanded(
                   child: Text(
                     'This switcher is for development/testing only and will not appear in production builds.',
-                    style: AppTypography.caption(
-                      context,
+                    style: textTheme.bodyMedium?.copyWith(
                       color: Theme.of(context).colorScheme.error,
                     ),
                   ),
@@ -121,21 +121,23 @@ class _RoleTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final color = Theme.of(context).colorScheme.primary;
+    final textTheme = Theme.of(context).textTheme;
+
     return InkWell(
       onTap: onTap,
-      borderRadius: BorderRadius.circular(AppSpacing.radiusMd),
+      borderRadius: BorderRadius.circular(AppRadius.medium),
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 180),
         curve: Curves.easeOut,
         padding: const EdgeInsets.symmetric(
-          horizontal: AppSpacing.lg,
-          vertical: AppSpacing.md,
+          horizontal: AppSpacing.space24,
+          vertical: AppSpacing.space16,
         ),
         decoration: BoxDecoration(
           color: isSelected
               ? color.withValues(alpha: 0.12)
               : Theme.of(context).colorScheme.surfaceContainerHighest,
-          borderRadius: BorderRadius.circular(AppSpacing.radiusMd),
+          borderRadius: BorderRadius.circular(AppRadius.medium),
           border: Border.all(
             color: isSelected ? color : Colors.transparent,
             width: 2,
@@ -148,11 +150,11 @@ class _RoleTile extends StatelessWidget {
               color: isSelected ? color : AppColors.mutedTextFor(context),
               size: 20,
             ),
-            const SizedBox(width: AppSpacing.md),
+            const SizedBox(width: AppSpacing.space16),
             Expanded(
               child: Text(
                 role.label,
-                style: AppTypography.body(context).copyWith(
+                style: textTheme.bodyLarge?.copyWith(
                   fontWeight:
                       isSelected ? FontWeight.bold : FontWeight.normal,
                   color: isSelected ? color : null,

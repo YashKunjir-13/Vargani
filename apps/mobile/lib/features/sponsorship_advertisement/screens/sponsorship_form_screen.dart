@@ -45,7 +45,6 @@ class _SponsorshipFormScreenState extends ConsumerState<SponsorshipFormScreen> {
         _contactPersonController.text = sponsorship.contactPerson ?? '';
         _mobileController.text = sponsorship.mobile ?? '';
         _selectedTier = sponsorship.tier;
-        // Internal money is in paise, convert to rupees integer for input UI
         _pledgedAmountController.text = (sponsorship.pledgedAmountPaise ~/ 100).toString();
       });
     }
@@ -67,7 +66,7 @@ class _SponsorshipFormScreenState extends ConsumerState<SponsorshipFormScreen> {
     return AppScaffold(
       title: isEditing ? 'Edit Sponsor' : 'Add Sponsor',
       body: SingleChildScrollView(
-        padding: const EdgeInsets.all(AppSpacing.lg),
+        padding: const EdgeInsets.all(AppSpacing.space24),
         child: Form(
           key: _formKey,
           child: Column(
@@ -85,14 +84,14 @@ class _SponsorshipFormScreenState extends ConsumerState<SponsorshipFormScreen> {
                   return null;
                 },
               ),
-              const SizedBox(height: AppSpacing.md),
+              const SizedBox(height: AppSpacing.space16),
               AppTextField(
                 controller: _contactPersonController,
                 label: 'Contact Person',
                 hint: 'e.g. Sanjay Patil',
                 prefixIcon: Icons.person_outline,
               ),
-              const SizedBox(height: AppSpacing.md),
+              const SizedBox(height: AppSpacing.space16),
               AppTextField(
                 controller: _mobileController,
                 label: 'Mobile',
@@ -100,7 +99,7 @@ class _SponsorshipFormScreenState extends ConsumerState<SponsorshipFormScreen> {
                 keyboardType: TextInputType.phone,
                 prefixIcon: Icons.phone_outlined,
               ),
-              const SizedBox(height: AppSpacing.md),
+              const SizedBox(height: AppSpacing.space16),
               DropdownButtonFormField<SponsorshipTier>(
                 initialValue: _selectedTier,
                 decoration: const InputDecoration(
@@ -121,7 +120,7 @@ class _SponsorshipFormScreenState extends ConsumerState<SponsorshipFormScreen> {
                   }
                 },
               ),
-              const SizedBox(height: AppSpacing.md),
+              const SizedBox(height: AppSpacing.space16),
               AppTextField(
                 controller: _pledgedAmountController,
                 label: 'Pledged Amount (₹)',
@@ -139,7 +138,7 @@ class _SponsorshipFormScreenState extends ConsumerState<SponsorshipFormScreen> {
                   return null;
                 },
               ),
-              const SizedBox(height: AppSpacing.xl),
+              const SizedBox(height: AppSpacing.space32),
               AppButton(
                 label: isEditing ? 'Save Changes' : 'Add Sponsor',
                 isLoading: _isLoading,

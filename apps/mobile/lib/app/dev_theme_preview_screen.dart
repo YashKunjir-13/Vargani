@@ -61,16 +61,12 @@ class DevThemePreviewScreen extends ConsumerWidget {
               spacing: AppSpacing.sm,
               runSpacing: AppSpacing.sm,
               children: [
-                AppStatusBadge(
-                    label: 'Active', status: AppStatus.success),
-                AppStatusBadge(
-                    label: 'Pending', status: AppStatus.pending),
-                AppStatusBadge(
-                    label: 'Warning', status: AppStatus.warning),
+                AppStatusBadge(label: 'Active', status: AppStatus.success),
+                AppStatusBadge(label: 'Pending', status: AppStatus.pending),
+                AppStatusBadge(label: 'Warning', status: AppStatus.warning),
                 AppStatusBadge(label: 'Error', status: AppStatus.error),
                 AppStatusBadge(label: 'Info', status: AppStatus.info),
-                AppStatusBadge(
-                    label: 'Neutral', status: AppStatus.neutral),
+                AppStatusBadge(label: 'Neutral', status: AppStatus.neutral),
               ],
             ),
             const SizedBox(height: AppSpacing.xl),

@@ -69,7 +69,8 @@ class AppTextField extends StatelessWidget {
                 decoration: BoxDecoration(
                   color: AppColors.optionalTagBg,
                   borderRadius: BorderRadius.circular(6),
-                  border: Border.all(color: AppColors.optionalTagText.withValues(alpha: 0.3)),
+                  border: Border.all(
+                      color: AppColors.optionalTagText.withValues(alpha: 0.3)),
                 ),
                 child: const Text(
                   'Optional',
@@ -103,4 +104,3 @@ class AppTextField extends StatelessWidget {
     );
   }
 }
-

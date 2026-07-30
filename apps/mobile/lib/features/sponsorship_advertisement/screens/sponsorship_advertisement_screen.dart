@@ -33,7 +33,6 @@ class _SponsorshipAdvertisementScreenState
   @override
   void initState() {
     super.initState();
-    // Use widget.initialTab if provided, otherwise restore from provider
     final savedTab = ref.read(selectedSponsorshipTabProvider);
     final startTab = widget.initialTab != 0 ? widget.initialTab : savedTab;
     _tabController = TabController(length: 2, vsync: this, initialIndex: startTab);
@@ -53,6 +52,8 @@ class _SponsorshipAdvertisementScreenState
 
   @override
   Widget build(BuildContext context) {
+    final textTheme = Theme.of(context).textTheme;
+
     return AppScaffold(
       title: 'Sponsorship',
       body: Column(
@@ -72,10 +73,10 @@ class _SponsorshipAdvertisementScreenState
               indicatorWeight: 3,
               labelColor: Theme.of(context).colorScheme.primary,
               unselectedLabelColor: AppColors.mutedTextFor(context),
-              labelStyle: AppTypography.titleMedium(context).copyWith(
+              labelStyle: textTheme.titleMedium?.copyWith(
                 fontWeight: FontWeight.bold,
               ),
-              unselectedLabelStyle: AppTypography.titleMedium(context),
+              unselectedLabelStyle: textTheme.titleMedium,
               tabs: const [
                 Tab(text: 'Sponsors'),
                 Tab(text: 'Advertisements'),
@@ -101,7 +102,6 @@ class _SponsorshipAdvertisementScreenState
 
     return sponsorshipsAsync.when(
       data: (sponsorships) {
-        // Totals computed from full unfiltered list for accuracy
         final confirmedTotal = sponsorships
             .where((s) => s.status == SponsorshipStatus.confirmed)
             .fold<int>(0, (sum, s) => sum + s.confirmedAmountPaise);
@@ -120,7 +120,7 @@ class _SponsorshipAdvertisementScreenState
           },
           child: SingleChildScrollView(
             physics: const AlwaysScrollableScrollPhysics(),
-            padding: const EdgeInsets.all(AppSpacing.lg),
+            padding: const EdgeInsets.all(AppSpacing.space24),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
@@ -138,7 +138,7 @@ class _SponsorshipAdvertisementScreenState
                             : AppColors.lightSuccess,
                       ),
                     ),
-                    const SizedBox(width: AppSpacing.sm),
+                    const SizedBox(width: AppSpacing.space8),
                     Expanded(
                       child: _buildTintedStatCard(
                         context: context,
@@ -151,7 +151,7 @@ class _SponsorshipAdvertisementScreenState
                             : AppColors.lightWarning,
                       ),
                     ),
-                    const SizedBox(width: AppSpacing.sm),
+                    const SizedBox(width: AppSpacing.space8),
                     Expanded(
                       child: _buildTintedStatCard(
                         context: context,
@@ -166,14 +166,14 @@ class _SponsorshipAdvertisementScreenState
                     ),
                   ],
                 ),
-                const SizedBox(height: AppSpacing.md),
+                const SizedBox(height: AppSpacing.space16),
                 AppSearchBar(
                   hint: 'Search sponsors',
                   onChanged: (value) => ref
                       .read(sponsorshipListControllerProvider.notifier)
                       .updateSearch(value),
                 ),
-                const SizedBox(height: AppSpacing.md),
+                const SizedBox(height: AppSpacing.space16),
                 RoleGate(
                   allowedRoles: const [
                     UserRole.trustPresident,
@@ -181,8 +181,7 @@ class _SponsorshipAdvertisementScreenState
                     UserRole.treasurer,
                   ],
                   child: AppButton(
-                    label: '+ Add Sponsor',
-                    icon: Icons.add,
+                    label: 'Add Sponsor',
                     onPressed: () {
                       Navigator.of(context).push(
                         MaterialPageRoute(
@@ -192,7 +191,7 @@ class _SponsorshipAdvertisementScreenState
                     },
                   ),
                 ),
-                const SizedBox(height: AppSpacing.md),
+                const SizedBox(height: AppSpacing.space16),
                 if (sponsorships.isEmpty)
                   const AppEmptyState(
                     title: 'No sponsors found',
@@ -204,7 +203,7 @@ class _SponsorshipAdvertisementScreenState
                     physics: const NeverScrollableScrollPhysics(),
                     itemCount: sponsorships.length,
                     separatorBuilder: (_, __) =>
-                        const SizedBox(height: AppSpacing.sm),
+                        const SizedBox(height: AppSpacing.space8),
                     itemBuilder: (context, index) {
                       final sponsorship = sponsorships[index];
                       return SponsorListItem(
@@ -242,7 +241,7 @@ class _SponsorshipAdvertisementScreenState
           },
           child: SingleChildScrollView(
             physics: const AlwaysScrollableScrollPhysics(),
-            padding: const EdgeInsets.all(AppSpacing.lg),
+            padding: const EdgeInsets.all(AppSpacing.space24),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
@@ -252,7 +251,7 @@ class _SponsorshipAdvertisementScreenState
                       .read(advertisementListControllerProvider.notifier)
                       .updateSearch(value),
                 ),
-                const SizedBox(height: AppSpacing.md),
+                const SizedBox(height: AppSpacing.space16),
                 RoleGate(
                   allowedRoles: const [
                     UserRole.trustPresident,
@@ -260,8 +259,7 @@ class _SponsorshipAdvertisementScreenState
                     UserRole.treasurer,
                   ],
                   child: AppButton(
-                    label: '+ Book Advertisement',
-                    icon: Icons.add,
+                    label: 'Book Advertisement',
                     onPressed: () {
                       Navigator.of(context).push(
                         MaterialPageRoute(
@@ -271,7 +269,7 @@ class _SponsorshipAdvertisementScreenState
                     },
                   ),
                 ),
-                const SizedBox(height: AppSpacing.md),
+                const SizedBox(height: AppSpacing.space16),
                 if (ads.isEmpty)
                   const AppEmptyState(
                     title: 'No advertisements booked',
@@ -283,7 +281,7 @@ class _SponsorshipAdvertisementScreenState
                     physics: const NeverScrollableScrollPhysics(),
                     itemCount: ads.length,
                     separatorBuilder: (_, __) =>
-                        const SizedBox(height: AppSpacing.sm),
+                        const SizedBox(height: AppSpacing.space8),
                     itemBuilder: (context, index) {
                       final ad = ads[index];
                       return AdvertisementListItem(
@@ -321,15 +319,16 @@ class _SponsorshipAdvertisementScreenState
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final bg = isDark ? darkBg : lightBg;
     final borderColor = textColor.withValues(alpha: isDark ? 0.35 : 0.25);
+    final textTheme = Theme.of(context).textTheme;
 
     return Container(
       padding: const EdgeInsets.symmetric(
-        horizontal: AppSpacing.md,
-        vertical: AppSpacing.md,
+        horizontal: AppSpacing.space16,
+        vertical: AppSpacing.space16,
       ),
       decoration: BoxDecoration(
         color: bg,
-        borderRadius: BorderRadius.circular(AppSpacing.radiusMd),
+        borderRadius: BorderRadius.circular(AppRadius.medium),
         border: Border.all(color: borderColor, width: 1),
       ),
       child: Column(
@@ -337,18 +336,17 @@ class _SponsorshipAdvertisementScreenState
         children: [
           Text(
             label,
-            style: AppTypography.caption(
-              context,
+            style: textTheme.bodyMedium?.copyWith(
               color: AppColors.mutedTextFor(context),
             ),
           ),
-          const SizedBox(height: AppSpacing.xs),
+          const SizedBox(height: AppSpacing.space4),
           FittedBox(
             fit: BoxFit.scaleDown,
             alignment: Alignment.centerLeft,
             child: Text(
               value,
-              style: AppTypography.titleLarge(context).copyWith(
+              style: textTheme.titleLarge?.copyWith(
                 fontWeight: FontWeight.bold,
                 color: textColor,
               ),

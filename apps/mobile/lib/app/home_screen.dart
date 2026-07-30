@@ -30,8 +30,10 @@ class HomeScreen extends ConsumerWidget {
     final currentRole = ref.watch(userRoleProvider);
     final theme = Theme.of(context);
 
-    final pendingMatchCount = payments.where((p) => p.status == PaymentStatus.pendingMatch).length;
-    final pendingApprovalCount = bills.where((b) => b.status == BillStatus.pendingApproval).length;
+    final pendingMatchCount =
+        payments.where((p) => p.status == PaymentStatus.pendingMatch).length;
+    final pendingApprovalCount =
+        bills.where((b) => b.status == BillStatus.pendingApproval).length;
 
     return Scaffold(
       appBar: const PautiAppBar(
@@ -51,7 +53,8 @@ class HomeScreen extends ConsumerWidget {
                   children: [
                     CircleAvatar(
                       radius: 24,
-                      backgroundColor: AppColors.primaryLight.withValues(alpha: 0.15),
+                      backgroundColor:
+                          AppColors.primaryLight.withValues(alpha: 0.15),
                       child: const Icon(
                         Icons.account_balance_wallet_outlined,
                         size: 28,
@@ -89,7 +92,8 @@ class HomeScreen extends ConsumerWidget {
                     Flexible(
                       child: Row(
                         children: [
-                          const Icon(Icons.person_pin, size: 16, color: AppColors.primaryLight),
+                          const Icon(Icons.person_pin,
+                              size: 16, color: AppColors.primaryLight),
                           const SizedBox(width: 4),
                           Expanded(
                             child: Text(
@@ -109,7 +113,8 @@ class HomeScreen extends ConsumerWidget {
                     const SizedBox(width: 8),
                     Row(
                       children: [
-                        const Icon(Icons.branding_watermark_outlined, size: 16, color: AppColors.primaryLight),
+                        const Icon(Icons.branding_watermark_outlined,
+                            size: 16, color: AppColors.primaryLight),
                         const SizedBox(width: 4),
                         Text(
                           'Tmpl: ${activeTemplate.id}',
@@ -129,7 +134,8 @@ class HomeScreen extends ConsumerWidget {
 
           Text(
             'Core App Modules',
-            style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
+            style: theme.textTheme.titleMedium
+                ?.copyWith(fontWeight: FontWeight.bold),
           ),
           const SizedBox(height: 12),
 
@@ -150,7 +156,9 @@ class HomeScreen extends ConsumerWidget {
             color: Colors.teal,
             title: L10n.tr(ref, 'payment_collection'),
             subtitle: '${payments.length} payments recorded',
-            badge: pendingMatchCount > 0 ? '$pendingMatchCount pending match' : null,
+            badge: pendingMatchCount > 0
+                ? '$pendingMatchCount pending match'
+                : null,
             onTap: () => context.push('/payments'),
           ),
           const SizedBox(height: 12),
@@ -171,7 +179,9 @@ class HomeScreen extends ConsumerWidget {
             color: Colors.deepOrange,
             title: L10n.tr(ref, 'bill_generation'),
             subtitle: '${bills.length} bills tracked • OCR pre-fill review',
-            badge: pendingApprovalCount > 0 ? '$pendingApprovalCount awaiting approval' : null,
+            badge: pendingApprovalCount > 0
+                ? '$pendingApprovalCount awaiting approval'
+                : null,
             onTap: () => context.push('/bills'),
           ),
           const SizedBox(height: 12),
@@ -181,7 +191,8 @@ class HomeScreen extends ConsumerWidget {
             icon: Icons.volunteer_activism_outlined,
             color: Colors.pink,
             title: L10n.tr(ref, 'contributions'),
-            subtitle: '${contributions.length} logged • Dynamic Gold/Silver picker',
+            subtitle:
+                '${contributions.length} logged • Dynamic Gold/Silver picker',
             onTap: () => context.push('/contributions'),
           ),
           const SizedBox(height: 12),
@@ -191,7 +202,8 @@ class HomeScreen extends ConsumerWidget {
             icon: Icons.tag_outlined,
             color: Colors.deepPurple,
             title: L10n.tr(ref, 'contribution_receipts'),
-            subtitle: '${contributionReceipts.length} issued • Independent CRCPT- counter',
+            subtitle:
+                '${contributionReceipts.length} issued • Independent CRCPT- counter',
             onTap: () => context.push('/contribution-receipts'),
           ),
         ],
@@ -235,7 +247,8 @@ class _ModuleCard extends StatelessWidget {
               children: [
                 Text(
                   title,
-                  style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 15),
+                  style: const TextStyle(
+                      fontWeight: FontWeight.bold, fontSize: 15),
                 ),
                 const SizedBox(height: 2),
                 Text(
@@ -259,7 +272,8 @@ class _ModuleCard extends StatelessWidget {
                   badge!,
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
-                  style: TextStyle(color: color, fontSize: 11, fontWeight: FontWeight.w600),
+                  style: TextStyle(
+                      color: color, fontSize: 11, fontWeight: FontWeight.w600),
                 ),
               ),
             ),
@@ -271,4 +285,3 @@ class _ModuleCard extends StatelessWidget {
     );
   }
 }
-

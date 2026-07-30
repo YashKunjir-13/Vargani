@@ -2,6 +2,16 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:pauti_pustak_mobile/features/dashboard/data/models/dashboard_models.dart';
 
+class DashboardTabNotifier extends Notifier<int> {
+  @override
+  int build() => 0;
+
+  void setTab(int index) => state = index;
+}
+
+final dashboardTabProvider =
+    NotifierProvider<DashboardTabNotifier, int>(DashboardTabNotifier.new);
+
 final mandalDashboardProvider = Provider<MandalDashboardData>((ref) {
   return MandalDashboardData(
     mandalName: 'Shree Siddhivinayak Ganpati Mandal',
@@ -114,10 +124,10 @@ final mandalDashboardProvider = Provider<MandalDashboardData>((ref) {
         icon: Icons.card_membership_outlined,
       ),
       MandalModuleItem(
-        id: 'milestones',
-        title: 'Milestones',
-        subtitle: 'Target & event goals',
-        icon: Icons.flag_outlined,
+        id: 'all_records',
+        title: 'All Records',
+        subtitle: 'Browse all category records',
+        icon: Icons.folder_open_outlined,
       ),
       MandalModuleItem(
         id: 'advertisements',

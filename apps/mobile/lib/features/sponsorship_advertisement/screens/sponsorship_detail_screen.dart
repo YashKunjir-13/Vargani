@@ -19,6 +19,7 @@ class SponsorshipDetailScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final sponsorshipAsync = ref.watch(sponsorshipDetailProvider(sponsorshipId));
     final role = ref.watch(roleProvider);
+    final textTheme = Theme.of(context).textTheme;
 
     return sponsorshipAsync.when(
       data: (sponsorship) {
@@ -36,23 +37,23 @@ class SponsorshipDetailScreen extends ConsumerWidget {
         return AppScaffold(
           title: sponsorship.sponsorName,
           body: SingleChildScrollView(
-            padding: const EdgeInsets.all(AppSpacing.lg),
+            padding: const EdgeInsets.all(AppSpacing.space24),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Row(
                   children: [
                     SponsorshipTierBadge(tier: sponsorship.tier),
-                    const SizedBox(width: AppSpacing.sm),
+                    const SizedBox(width: AppSpacing.space8),
                     SponsorshipStatusBadge(status: sponsorship.status),
                   ],
                 ),
-                const SizedBox(height: AppSpacing.md),
+                const SizedBox(height: AppSpacing.space16),
                 Text(
                   sponsorship.sponsorName,
-                  style: AppTypography.display(context),
+                  style: textTheme.headlineMedium,
                 ),
-                const SizedBox(height: AppSpacing.md),
+                const SizedBox(height: AppSpacing.space16),
                 AppCard(
                   title: 'Contact Information',
                   child: Column(
@@ -63,24 +64,24 @@ class SponsorshipDetailScreen extends ConsumerWidget {
                         Row(
                           children: [
                             const Icon(Icons.person_outline, size: 18),
-                            const SizedBox(width: AppSpacing.sm),
+                            const SizedBox(width: AppSpacing.space8),
                             Text(
                               'Contact: ${sponsorship.contactPerson}',
-                              style: AppTypography.body(context),
+                              style: textTheme.bodyLarge,
                             ),
                           ],
                         ),
-                        const SizedBox(height: AppSpacing.sm),
+                        const SizedBox(height: AppSpacing.space8),
                       ],
                       if (sponsorship.mobile != null &&
                           sponsorship.mobile!.isNotEmpty) ...[
                         Row(
                           children: [
                             const Icon(Icons.phone_outlined, size: 18),
-                            const SizedBox(width: AppSpacing.sm),
+                            const SizedBox(width: AppSpacing.space8),
                             Text(
                               'Mobile: ${maskMobile(sponsorship.mobile!, canViewSensitive: canViewSensitive)}',
-                              style: AppTypography.body(context),
+                              style: textTheme.bodyLarge,
                             ),
                           ],
                         ),
@@ -91,15 +92,14 @@ class SponsorshipDetailScreen extends ConsumerWidget {
                               sponsorship.mobile!.isEmpty))
                         Text(
                           'No contact details provided.',
-                          style: AppTypography.caption(
-                            context,
+                          style: textTheme.bodyMedium?.copyWith(
                             color: AppColors.mutedTextFor(context),
                           ),
                         ),
                     ],
                   ),
                 ),
-                const SizedBox(height: AppSpacing.lg),
+                const SizedBox(height: AppSpacing.space24),
                 Row(
                   children: [
                     Expanded(
@@ -108,7 +108,7 @@ class SponsorshipDetailScreen extends ConsumerWidget {
                         value: formatPaiseAsRupees(sponsorship.pledgedAmountPaise),
                       ),
                     ),
-                    const SizedBox(width: AppSpacing.sm),
+                    const SizedBox(width: AppSpacing.space8),
                     Expanded(
                       child: AppSummaryStatCard(
                         label: 'Confirmed Amount',
@@ -122,7 +122,7 @@ class SponsorshipDetailScreen extends ConsumerWidget {
                     ),
                   ],
                 ),
-                const SizedBox(height: AppSpacing.xl),
+                const SizedBox(height: AppSpacing.space32),
                 if (sponsorship.status != SponsorshipStatus.confirmed)
                   RoleGate(
                     allowedRoles: const [
@@ -131,7 +131,7 @@ class SponsorshipDetailScreen extends ConsumerWidget {
                       UserRole.treasurer,
                     ],
                     child: Padding(
-                      padding: const EdgeInsets.only(bottom: AppSpacing.md),
+                      padding: const EdgeInsets.only(bottom: AppSpacing.space16),
                       child: AppButton(
                         label: 'Mark as Confirmed',
                         icon: Icons.check_circle_outline,
@@ -195,8 +195,6 @@ class SponsorshipDetailScreen extends ConsumerWidget {
             ElevatedButton(
               onPressed: () async {
                 Navigator.of(dialogContext).pop();
-                // Mock logic — note that real confirmation would tie into actual
-                // Contributions/Collections backend modules, out of scope here.
                 await ref
                     .read(sponsorshipRepositoryProvider)
                     .markAsConfirmed(sponsorship.id);
