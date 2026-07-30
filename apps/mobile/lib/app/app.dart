@@ -14,7 +14,7 @@ class PautiPustakApp extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final router = ref.watch(appRouterProvider);
+    final router = ref.watch(appRouterProvider(environment));
     final themeMode = ref.watch(appThemeModeProvider);
     final locale = ref.watch(localeControllerProvider);
 

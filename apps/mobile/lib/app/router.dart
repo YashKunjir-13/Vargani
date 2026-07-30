@@ -81,16 +81,6 @@ CustomTransitionPage<void> _buildSmoothPage({
   );
 }
 
-class _RouterRefreshNotifier extends ChangeNotifier {
-  _RouterRefreshNotifier(Ref ref) {
-    ref.listen(sessionControllerProvider, (_, __) {
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        notifyListeners();
-      });
-    });
-  }
-}
-
 /// Notifies go_router's redirect logic to re-run whenever the session state
 /// changes (login, logout, restore), without recreating the whole router.
 class _SessionRefreshNotifier extends ChangeNotifier {
@@ -163,20 +153,6 @@ final appRouterProvider = Provider.family<GoRouter, String>((ref, environment) {
       ),
 
       // ---------------- Dashboard ----------------
-      GoRoute(
-        path: '/register',
-        name: 'register',
-        builder: (context, state) => RegistrationPage(
-          onLoginRequested: () => context.go('/login'),
-        ),
-      ),
-      GoRoute(
-        path: '/login',
-        name: 'login',
-        builder: (context, state) => LoginPage(
-          onBackToRegistration: () => context.go('/register'),
-        ),
-      ),
       ShellRoute(
         builder: (context, state, child) => ScaffoldWithNavBar(child: child),
         routes: [
