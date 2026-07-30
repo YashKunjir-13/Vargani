@@ -29,7 +29,6 @@ import '../features/contribution_receipts/screens/contribution_receipts_list_scr
 import '../features/contributions/screens/contribution_detail_screen.dart';
 import '../features/contributions/screens/contributions_list_screen.dart';
 import '../features/contributions/screens/create_contribution_screen.dart';
-import '../features/dashboard/dashboard_screen.dart';
 import '../features/dashboard/presentation/pages/mandal_dashboard_screen.dart';
 import '../features/dashboard/presentation/pages/donor_dashboard_screen.dart';
 import '../features/notifications/advanced_filters_sheet.dart';
@@ -81,16 +80,6 @@ CustomTransitionPage<void> _buildSmoothPage({
       );
     },
   );
-}
-
-class _RouterRefreshNotifier extends ChangeNotifier {
-  _RouterRefreshNotifier(Ref ref) {
-    ref.listen(sessionControllerProvider, (_, __) {
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        notifyListeners();
-      });
-    });
-  }
 }
 
 /// Notifies go_router's redirect logic to re-run whenever the session state
@@ -161,20 +150,6 @@ final appRouterProvider = Provider.family<GoRouter, String>((ref, environment) {
       ),
 
       // ---------------- Dashboard ----------------
-      GoRoute(
-        path: '/register',
-        name: 'register',
-        builder: (context, state) => RegistrationPage(
-          onLoginRequested: () => context.go('/login'),
-        ),
-      ),
-      GoRoute(
-        path: '/login',
-        name: 'login',
-        builder: (context, state) => LoginPage(
-          onBackToRegistration: () => context.go('/register'),
-        ),
-      ),
       ShellRoute(
         builder: (context, state, child) => ScaffoldWithNavBar(child: child),
         routes: [
