@@ -1,16 +1,6 @@
 import { ApiProperty } from "@nestjs/swagger";
 import { PaymentChannel } from "@pauti-pustak/backend-database";
-import {
-  IsDateString,
-  IsEnum,
-  IsNotEmpty,
-  IsNumber,
-  IsOptional,
-  IsPositive,
-  IsString,
-  IsUUID,
-  ValidateIf,
-} from "class-validator";
+import { IsDateString, IsEnum, IsNotEmpty, IsNumber, IsOptional, IsPositive, IsString, IsUUID } from "class-validator";
 
 export class CreatePaymentDto {
   @ApiProperty({ enum: PaymentChannel })
@@ -46,12 +36,6 @@ export class CreatePaymentDto {
   @IsOptional()
   @IsDateString()
   paymentDateTime?: string;
-
-  @ApiProperty({ required: false, description: "Required when channel is InApp" })
-  @ValidateIf((dto: CreatePaymentDto) => dto.channel === PaymentChannel.IN_APP)
-  @IsNotEmpty()
-  @IsString()
-  razorpayOrderId?: string;
 
   @ApiProperty({
     required: false,

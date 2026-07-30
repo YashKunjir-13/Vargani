@@ -30,7 +30,15 @@
     "docker:down": "docker compose --profile core --profile messaging --profile observability down",
     "docker:logs": "docker compose logs -f",
     "docker:observability": "docker compose --profile core --profile messaging --profile observability up -d",
-    "validate": "pnpm run format:check && pnpm run lint && pnpm run typecheck && pnpm run test && pnpm run build"
+    "validate": "pnpm run format:check && pnpm run lint && pnpm run typecheck && pnpm run test && pnpm run build",
+    "mobile": "cd apps/mobile && flutter run -t lib/main_dev.dart",
+    "mobile:chrome": "cd apps/mobile && flutter run -d chrome -t lib/main_dev.dart",
+    "mobile:android": "cd apps/mobile && flutter run -d android -t lib/main_dev.dart",
+    "mobile:windows": "cd apps/mobile && flutter run -d windows -t lib/main_dev.dart",
+    "mobile:doctor": "cd apps/mobile && flutter doctor -v",
+    "mobile:pub-get": "cd apps/mobile && flutter pub get",
+    "mobile:test": "cd apps/mobile && flutter test",
+    "mobile:analyze": "cd apps/mobile && flutter analyze"
   },
   "devDependencies": {
     "@commitlint/cli": "^19.7.1",
@@ -117,7 +125,6 @@
     "pino": "^9.6.0",
     "pino-http": "^10.4.0",
     "puppeteer": "^24.2.1",
-    "razorpay": "^2.9.5",
     "reflect-metadata": "^0.2.2",
     "rxjs": "^7.8.1",
     "uuid": "^11.1.0",

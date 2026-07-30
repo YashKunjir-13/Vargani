@@ -1,6 +1,7 @@
 import { MiddlewareConsumer, Module, NestModule } from "@nestjs/common";
 import { ConfigModule } from "@nestjs/config";
 import { ThrottlerModule } from "@nestjs/throttler";
+import { validateEnvironment } from "@pauti-pustak/backend-config";
 import { PrismaModule } from "@pauti-pustak/backend-database";
 import { CorrelationMiddleware } from "@pauti-pustak/backend-observability";
 import { CommonModule } from "./common/common.module";
@@ -27,6 +28,7 @@ import { TemplatesModule } from "./templates/templates.module";
     ConfigModule.forRoot({
       isGlobal: true,
       envFilePath: [".env.local", ".env"],
+      validate: validateEnvironment,
     }),
     ThrottlerModule.forRoot([
       {

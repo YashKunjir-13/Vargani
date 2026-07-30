@@ -51,6 +51,11 @@ function buildPrismaMock() {
       payments.set(where.id, row);
       return Promise.resolve({ ...row });
     }),
+    delete: jest.fn(({ where }: any) => {
+      const row = payments.get(where.id) ?? null;
+      payments.delete(where.id);
+      return Promise.resolve(row);
+    }),
   };
 
   const paymentAuditEvent = {
@@ -78,12 +83,32 @@ function buildReceiptGenerationMock() {
   };
 }
 
-function buildService(overrides: { receiptGeneration?: ReturnType<typeof buildReceiptGenerationMock> } = {}) {
+let razorpayOrderCounter = 0;
+function buildRazorpayOrdersMock() {
+  return {
+    createOrder: jest.fn(({ amountRupees }: { amountRupees: number }) => {
+      razorpayOrderCounter += 1;
+      return Promise.resolve({
+        id: `order_mock_${razorpayOrderCounter}`,
+        amount: Math.round(amountRupees * 100),
+        currency: "INR",
+      });
+    }),
+  };
+}
+
+function buildService(
+  overrides: {
+    receiptGeneration?: ReturnType<typeof buildReceiptGenerationMock>;
+    razorpayOrders?: ReturnType<typeof buildRazorpayOrdersMock>;
+  } = {},
+) {
   const prisma = buildPrismaMock();
   const festivalYear = buildFestivalYearMock();
   const receiptGeneration = overrides.receiptGeneration ?? buildReceiptGenerationMock();
-  const service = new PaymentsService(prisma as any, festivalYear as any, receiptGeneration as any);
-  return { service, prisma, festivalYear, receiptGeneration };
+  const razorpayOrders = overrides.razorpayOrders ?? buildRazorpayOrdersMock();
+  const service = new PaymentsService(prisma as any, festivalYear as any, receiptGeneration as any, razorpayOrders as any);
+  return { service, prisma, festivalYear, receiptGeneration, razorpayOrders };
 }
 
 function qrCreateDto(overrides: Partial<Record<string, any>> = {}) {
@@ -113,20 +138,19 @@ describe("PaymentsService - create", () => {
 });
 
 describe("PaymentsService - Razorpay webhook", () => {
-  function webhookPayload(orderId: string, paymentId = "pay_123") {
-    return { event: "payment.captured", payload: { payment: { entity: { order_id: orderId, id: paymentId } } } };
+  function webhookPayload(orderId: string | null, paymentId = "pay_123") {
+    return {
+      event: "payment.captured",
+      payload: { payment: { entity: { order_id: orderId ?? undefined, id: paymentId } } },
+    };
   }
 
   it("auto-transitions the matching InApp payment to Confirmed with no manual action, then to Receipted", async () => {
     const { service, prisma, receiptGeneration } = buildService();
-    const created = await service.createPayment(
-      ORG_A,
-      "user-1",
-      qrCreateDto({ channel: PaymentChannel.IN_APP, razorpayOrderId: "order_abc" }),
-    );
+    const created = await service.createPayment(ORG_A, "user-1", qrCreateDto({ channel: PaymentChannel.IN_APP }));
     expect(created.status).toBe(PaymentStatus.PENDING_MATCH);
 
-    await service.handleRazorpayWebhook(webhookPayload("order_abc", "pay_999"));
+    await service.handleRazorpayWebhook(webhookPayload(created.razorpayOrderId, "pay_999"));
 
     const reloaded = await prisma.payment.findUnique({ where: { id: created.id } });
     expect(reloaded.status).toBe(PaymentStatus.RECEIPTED);
@@ -150,18 +174,63 @@ describe("PaymentsService - Razorpay webhook", () => {
 
   it("logs (not silently drops) a webhook for an order that is already Confirmed", async () => {
     const { service, prisma } = buildService();
-    const created = await service.createPayment(
-      ORG_A,
-      "user-1",
-      qrCreateDto({ channel: PaymentChannel.IN_APP, razorpayOrderId: "order_replay" }),
-    );
-    await service.handleRazorpayWebhook(webhookPayload("order_replay"));
+    const created = await service.createPayment(ORG_A, "user-1", qrCreateDto({ channel: PaymentChannel.IN_APP }));
+    await service.handleRazorpayWebhook(webhookPayload(created.razorpayOrderId));
     prisma.__auditEvents.length = 0;
 
-    await service.handleRazorpayWebhook(webhookPayload("order_replay"));
+    await service.handleRazorpayWebhook(webhookPayload(created.razorpayOrderId));
 
     expect(prisma.__auditEvents).toHaveLength(1);
     expect(prisma.__auditEvents[0]).toMatchObject({ actionType: "webhook_unmatched", paymentId: created.id });
+  });
+
+  it("ignores a payment.failed event -- it must never confirm a payment or generate a receipt", async () => {
+    const { service, prisma, receiptGeneration } = buildService();
+    const created = await service.createPayment(ORG_A, "user-1", qrCreateDto({ channel: PaymentChannel.IN_APP }));
+
+    await service.handleRazorpayWebhook({
+      event: "payment.failed",
+      payload: { payment: { entity: { order_id: created.razorpayOrderId ?? undefined, id: "pay_failed_1" } } },
+    });
+
+    const reloaded = await prisma.payment.findUnique({ where: { id: created.id } });
+    expect(reloaded.status).toBe(PaymentStatus.PENDING_MATCH);
+    expect(receiptGeneration.generateReceipt).not.toHaveBeenCalled();
+    expect(prisma.__auditEvents).toHaveLength(0);
+  });
+});
+
+describe("PaymentsService - InApp order creation", () => {
+  it("creates a Razorpay order server-side for the recorded amount and stores its id", async () => {
+    const { service, razorpayOrders } = buildService();
+
+    const created = await service.createPayment(ORG_A, "user-1", qrCreateDto({ channel: PaymentChannel.IN_APP, amount: 750 }));
+
+    expect(razorpayOrders.createOrder).toHaveBeenCalledWith(
+      expect.objectContaining({ amountRupees: 750, receipt: created.id }),
+    );
+    expect(created.razorpayOrderId).toMatch(/^order_mock_/);
+  });
+
+  it("never creates a Razorpay order for a QR-code entry", async () => {
+    const { service, razorpayOrders } = buildService();
+
+    await service.createPayment(ORG_A, "user-1", qrCreateDto());
+
+    expect(razorpayOrders.createOrder).not.toHaveBeenCalled();
+  });
+
+  it("rolls back the payment record if Razorpay order creation fails, and never returns a dangling stub", async () => {
+    const razorpayOrders = buildRazorpayOrdersMock();
+    razorpayOrders.createOrder.mockRejectedValueOnce(new Error("Razorpay API unreachable"));
+    const { service, prisma } = buildService({ razorpayOrders });
+
+    await expect(service.createPayment(ORG_A, "user-1", qrCreateDto({ channel: PaymentChannel.IN_APP }))).rejects.toThrow(
+      "Unable to start the Razorpay payment. Please try again.",
+    );
+
+    expect(prisma.payment.delete).toHaveBeenCalledTimes(1);
+    expect(prisma.__payments.size).toBe(0);
   });
 });
 

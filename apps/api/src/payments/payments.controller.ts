@@ -16,6 +16,7 @@ import {
 } from "@nestjs/common";
 import { ApiOperation, ApiTags } from "@nestjs/swagger";
 import { AuthenticatedUser, CurrentUser, Public, RequirePermission } from "@pauti-pustak/backend-security";
+import { PaymentChannel } from "@pauti-pustak/backend-database";
 import type { Request } from "express";
 import { TenantContext } from "../common/tenancy/tenant-context";
 import { CreatePaymentDto } from "./dto/create-payment.dto";
@@ -53,9 +54,23 @@ export class PaymentsController {
   @Post()
   @RequirePermission("payment.create")
   @HttpCode(HttpStatus.CREATED)
-  @ApiOperation({ summary: "Create an InApp order stub or a manual QR-code collection entry" })
+  @ApiOperation({
+    summary:
+      "Create an InApp order (Razorpay order created server-side) or a manual QR-code collection entry. " +
+      "For InApp, the response also carries razorpayKeyId for the client to open Razorpay Checkout with " +
+      "razorpayOrderId; the checkout's own success callback is never trusted -- only the payment.captured " +
+      "webhook confirms a payment.",
+  })
   async create(@Body() dto: CreatePaymentDto, @CurrentUser() user: AuthenticatedUser) {
-    return this.paymentsService.createPayment(this.tenantContext.organizationId, user.userId, dto);
+    const payment = await this.paymentsService.createPayment(this.tenantContext.organizationId, user.userId, dto);
+
+    if (payment.channel !== PaymentChannel.IN_APP) {
+      return payment;
+    }
+
+    // key_id is Razorpay's publishable identifier -- safe to return to the
+    // client, unlike key_secret, which never leaves the server.
+    return { ...payment, razorpayKeyId: process.env.RAZORPAY_KEY_ID };
   }
 
   @Get()
