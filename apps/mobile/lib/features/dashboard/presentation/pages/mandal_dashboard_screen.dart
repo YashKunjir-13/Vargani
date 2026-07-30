@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import 'package:pauti_pustak_mobile/l10n/app_localizations.dart';
 import 'package:pauti_pustak_mobile/core/localization/localization_extensions.dart';
 import 'package:pauti_pustak_mobile/core/session/session_controller.dart';
@@ -15,6 +16,13 @@ import 'package:pauti_pustak_mobile/features/dashboard/presentation/widgets/modu
 import 'package:pauti_pustak_mobile/features/dashboard/presentation/widgets/quick_actions_bar.dart';
 import 'package:pauti_pustak_mobile/features/dashboard/presentation/widgets/summary_card.dart';
 import 'package:pauti_pustak_mobile/features/dashboard/presentation/widgets/transaction_list.dart';
+import 'package:pauti_pustak_mobile/features/donors/screens/donor_list_screen.dart';
+import 'package:pauti_pustak_mobile/features/volunteers/screens/volunteer_list_screen.dart';
+import 'package:pauti_pustak_mobile/features/volunteers/screens/volunteer_form_screen.dart';
+import 'package:pauti_pustak_mobile/features/sponsorship_advertisement/screens/sponsorship_list_screen.dart';
+import 'package:pauti_pustak_mobile/features/sponsorship_advertisement/screens/sponsorship_form_screen.dart';
+import 'package:pauti_pustak_mobile/features/sponsorship_advertisement/screens/advertisement_list_screen.dart';
+import 'package:pauti_pustak_mobile/app/all_records_screen.dart';
 import 'package:pauti_pustak_mobile/shared/widgets/app_bottom_nav.dart';
 
 class MandalDashboardScreen extends ConsumerStatefulWidget {
@@ -253,6 +261,12 @@ class _MandalDashboardScreenState extends ConsumerState<MandalDashboardScreen> {
                 DashboardActionSheets.showCollectDonationSheet(context);
               } else if (action.id == 'expense' || action.id == 'bill') {
                 DashboardActionSheets.showAddExpenseSheet(context);
+              } else if (action.id == 'volunteer') {
+                Navigator.of(context).push(MaterialPageRoute(builder: (_) => const VolunteerFormScreen()));
+              } else if (action.id == 'sponsor') {
+                Navigator.of(context).push(MaterialPageRoute(builder: (_) => const SponsorshipFormScreen()));
+              } else if (action.id == 'reports') {
+                setState(() => _currentIndex = 3);
               } else {
                 ScaffoldMessenger.of(context).showSnackBar(
                   SnackBar(
@@ -280,12 +294,53 @@ class _MandalDashboardScreenState extends ConsumerState<MandalDashboardScreen> {
           MandalModuleGrid(
             modules: data.modules,
             onModuleTap: (module) {
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(
-                  content: Text('Module ${module.title} opened.'),
-                  backgroundColor: colors.brandOrange,
-                ),
-              );
+              switch (module.id) {
+                case 'contributions':
+                  context.push('/contributions');
+                  break;
+                case 'collection':
+                  context.push('/payments/new');
+                  break;
+                case 'receipts':
+                  context.push('/receipts');
+                  break;
+                case 'budget':
+                  context.push('/budget');
+                  break;
+                case 'bills':
+                  context.push('/bills');
+                  break;
+                case 'vendor_payments':
+                  context.push('/payments');
+                  break;
+                case 'sponsors':
+                  Navigator.of(context).push(MaterialPageRoute(builder: (_) => const SponsorshipListScreen()));
+                  break;
+                case 'advertisements':
+                  Navigator.of(context).push(MaterialPageRoute(builder: (_) => const AdvertisementListScreen()));
+                  break;
+                case 'volunteers':
+                  Navigator.of(context).push(MaterialPageRoute(builder: (_) => const VolunteerListScreen()));
+                  break;
+                case 'members':
+                  Navigator.of(context).push(MaterialPageRoute(builder: (_) => const DonorListScreen()));
+                  break;
+                case 'kunda':
+                  context.push('/vault');
+                  break;
+                case 'reports':
+                  context.push('/reports-hub');
+                  break;
+                case 'audit':
+                  context.push('/audit');
+                  break;
+                case 'analytics':
+                  context.push('/reports-hub');
+                  break;
+                default:
+                  Navigator.of(context).push(MaterialPageRoute(builder: (_) => const AllRecordsScreen()));
+                  break;
+              }
             },
           ),
 
@@ -417,6 +472,17 @@ class _MandalDashboardScreenState extends ConsumerState<MandalDashboardScreen> {
     return ListView(
       padding: const EdgeInsets.all(16),
       children: [
+        ElevatedButton.icon(
+          onPressed: () => context.push('/reports-hub'),
+          icon: const Icon(Icons.verified_user),
+          label: const Text('Open Full Reports & Audit Hub →'),
+          style: ElevatedButton.styleFrom(
+            padding: const EdgeInsets.symmetric(vertical: 14),
+            backgroundColor: colors.brandOrange,
+            foregroundColor: Colors.white,
+          ),
+        ),
+        const SizedBox(height: 16),
         IncomeVsExpenseCard(incomePaise: data.totalCollectionPaise, expensePaise: data.totalExpensesPaise),
         const SizedBox(height: 16),
         TopDonorsWidget(topDonors: data.topDonors),

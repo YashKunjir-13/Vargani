@@ -50,7 +50,7 @@ class VolunteerListScreen extends ConsumerWidget {
               children: [
                 Expanded(
                   child: DropdownButtonFormField<VolunteerStatus?>(
-                    value: listState.status,
+                    initialValue: listState.status,
                     decoration: const InputDecoration(labelText: 'Status'),
                     items: [
                       const DropdownMenuItem(value: null, child: Text('All')),
@@ -63,7 +63,7 @@ class VolunteerListScreen extends ConsumerWidget {
                 const SizedBox(width: AppSpacing.md),
                 Expanded(
                   child: DropdownButtonFormField<VolunteerType?>(
-                    value: listState.type,
+                    initialValue: listState.type,
                     decoration: const InputDecoration(labelText: 'Type'),
                     items: [
                       const DropdownMenuItem(value: null, child: Text('All')),
