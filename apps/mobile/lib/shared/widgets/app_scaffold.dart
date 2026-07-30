@@ -34,6 +34,8 @@ class AppScaffold extends ConsumerWidget {
     final colors = context.authColors;
     final l10n = context.l10n;
     final activeTabIndex = ref.watch(dashboardTabProvider);
+    final isDark = ref.watch(appThemeModeProvider) == ThemeMode.dark;
+    final language = ref.watch(localeProvider);
 
     final effectiveBottomNav = bottomNavigationBar ??
         Container(
