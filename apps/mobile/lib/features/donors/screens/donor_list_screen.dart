@@ -42,9 +42,8 @@ class DonorListScreen extends ConsumerWidget {
                 data: (donors) {
                   if (donors.isEmpty) {
                     return const AppEmptyState(
-                      title: 'No donors found',
-                      message: 'Try a different search or filter.',
-                    );
+                        title: 'No donors found',
+                        message: 'Try a different search or filter.');
                   }
                   return ListView.separated(
                     itemCount: donors.length,
@@ -56,7 +55,8 @@ class DonorListScreen extends ConsumerWidget {
                         donor: donor,
                         onTap: () => Navigator.of(context).push(
                           MaterialPageRoute(
-                            builder: (_) => DonorDetailScreen(donorId: donor.id),
+                            builder: (_) =>
+                                DonorDetailScreen(donorId: donor.id),
                           ),
                         ),
                       );

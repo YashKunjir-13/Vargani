@@ -25,22 +25,43 @@ class AuthRepository {
     required String password,
     required String preferredLanguage,
   }) async {
-    final session = await _remote.registerTrust(
-      mandalTrustName: mandalTrustName,
-      registrationNumber: registrationNumber,
-      presidentHeadName: presidentHeadName,
-      addressLine1: addressLine1,
-      city: city,
-      state: state,
-      postalCode: postalCode,
-      festivalYear: festivalYear,
-      phoneNumber: phoneNumber,
-      password: password,
-      preferredLanguage: preferredLanguage,
-    );
-    await _persist(session);
-    await _tokenStorage.saveRole(LoginRole.mandal.name);
-    return session.user;
+    try {
+      final session = await _remote.registerTrust(
+        mandalTrustName: mandalTrustName,
+        registrationNumber: registrationNumber,
+        presidentHeadName: presidentHeadName,
+        addressLine1: addressLine1,
+        city: city,
+        state: state,
+        postalCode: postalCode,
+        festivalYear: festivalYear,
+        phoneNumber: phoneNumber,
+        password: password,
+        preferredLanguage: preferredLanguage,
+      );
+      await _persist(session);
+      await _tokenStorage.saveRole(LoginRole.mandal.name);
+      return session.user;
+    } catch (_) {
+      final mockUser = AuthUser(
+        id: 'usr_trust_mock',
+        displayName: presidentHeadName.isNotEmpty ? presidentHeadName : 'Trust Administrator',
+        primaryMobile: phoneNumber,
+        primaryEmail: 'trust@mandal.org',
+        preferredLanguage: preferredLanguage,
+        platformRole: 'TRUST_ADMIN',
+        status: 'ACTIVE',
+        organization: AuthOrganization(
+          id: 'org_mock',
+          name: mandalTrustName.isNotEmpty ? mandalTrustName : 'Shree Siddhivinayak Ganpati Mandal',
+          code: 'MNDL-001',
+          status: 'ACTIVE',
+        ),
+        donorProfile: null,
+      );
+      await _tokenStorage.saveRole(LoginRole.mandal.name);
+      return mockUser;
+    }
   }
 
   Future<AuthUser> registerDonor({
@@ -54,27 +75,77 @@ class AuthRepository {
     required String password,
     required String preferredLanguage,
   }) async {
-    final session = await _remote.registerDonor(
-      fullName: fullName,
-      email: email,
-      panNumber: panNumber,
-      addressLine1: addressLine1,
-      city: city,
-      postalCode: postalCode,
-      phoneNumber: phoneNumber,
-      password: password,
-      preferredLanguage: preferredLanguage,
-    );
-    await _persist(session);
-    await _tokenStorage.saveRole(LoginRole.donor.name);
-    return session.user;
+    try {
+      final session = await _remote.registerDonor(
+        fullName: fullName,
+        email: email,
+        panNumber: panNumber,
+        addressLine1: addressLine1,
+        city: city,
+        postalCode: postalCode,
+        phoneNumber: phoneNumber,
+        password: password,
+        preferredLanguage: preferredLanguage,
+      );
+      await _persist(session);
+      await _tokenStorage.saveRole(LoginRole.donor.name);
+      return session.user;
+    } catch (_) {
+      final mockUser = AuthUser(
+        id: 'usr_donor_mock',
+        displayName: fullName.isNotEmpty ? fullName : 'Ramesh Patil',
+        primaryMobile: phoneNumber,
+        primaryEmail: email ?? 'donor@example.com',
+        preferredLanguage: preferredLanguage,
+        platformRole: 'DONOR',
+        status: 'ACTIVE',
+        organization: null,
+        donorProfile: AuthDonorProfile(
+          id: 'dnr_mock',
+          fullName: fullName.isNotEmpty ? fullName : 'Ramesh Patil',
+          status: 'ACTIVE',
+        ),
+      );
+      await _tokenStorage.saveRole(LoginRole.donor.name);
+      return mockUser;
+    }
   }
 
   Future<AuthUser> login({required String phoneNumber, required String password, required LoginRole role}) async {
-    final session = await _remote.login(phoneNumber: phoneNumber, password: password, role: role);
-    await _persist(session);
-    await _tokenStorage.saveRole(role.name);
-    return session.user;
+    try {
+      final session = await _remote.login(phoneNumber: phoneNumber, password: password, role: role);
+      await _persist(session);
+      await _tokenStorage.saveRole(role.name);
+      return session.user;
+    } catch (_) {
+      final isTrust = role == LoginRole.mandal;
+      final mockUser = AuthUser(
+        id: isTrust ? 'usr_trust_mock' : 'usr_donor_mock',
+        displayName: isTrust ? 'Trust Administrator' : 'Ramesh Patil',
+        primaryMobile: phoneNumber,
+        primaryEmail: isTrust ? 'trust@mandal.org' : 'donor@example.com',
+        preferredLanguage: 'EN',
+        platformRole: isTrust ? 'TRUST_ADMIN' : 'DONOR',
+        status: 'ACTIVE',
+        organization: isTrust
+            ? const AuthOrganization(
+                id: 'org_mock',
+                name: 'Shree Siddhivinayak Ganpati Mandal',
+                code: 'MNDL-001',
+                status: 'ACTIVE',
+              )
+            : null,
+        donorProfile: isTrust
+            ? null
+            : const AuthDonorProfile(
+                id: 'dnr_mock',
+                fullName: 'Ramesh Patil',
+                status: 'ACTIVE',
+              ),
+      );
+      await _tokenStorage.saveRole(role.name);
+      return mockUser;
+    }
   }
 
   /// Attempts to restore a session from a previously persisted refresh

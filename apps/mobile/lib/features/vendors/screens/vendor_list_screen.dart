@@ -63,9 +63,8 @@ class VendorListScreen extends ConsumerWidget {
                 data: (vendors) {
                   if (vendors.isEmpty) {
                     return const AppEmptyState(
-                      title: 'No vendors found',
-                      message: 'Try a different search.',
-                    );
+                        title: 'No vendors found',
+                        message: 'Try a different search.');
                   }
                   return ListView.separated(
                     itemCount: vendors.length,
@@ -77,7 +76,8 @@ class VendorListScreen extends ConsumerWidget {
                         vendor: vendor,
                         onTap: () => Navigator.of(context).push(
                           MaterialPageRoute(
-                            builder: (_) => VendorDetailScreen(vendorId: vendor.id),
+                            builder: (_) =>
+                                VendorDetailScreen(vendorId: vendor.id),
                           ),
                         ),
                       );

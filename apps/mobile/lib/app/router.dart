@@ -28,8 +28,13 @@ import '../features/contribution_receipts/screens/contribution_receipts_list_scr
 import '../features/contributions/screens/contribution_detail_screen.dart';
 import '../features/contributions/screens/contributions_list_screen.dart';
 import '../features/contributions/screens/create_contribution_screen.dart';
+import '../features/contributions/screens/gold_silver_entry_screen.dart';
 import '../features/dashboard/presentation/pages/donor_dashboard_screen.dart';
 import '../features/dashboard/presentation/pages/mandal_dashboard_screen.dart';
+import '../features/donors/screens/donor_detail_screen.dart';
+import '../features/donors/screens/donor_form_screen.dart';
+import '../features/donors/screens/donor_list_screen.dart';
+import '../features/financial_accounts/screens/ledger_screen.dart';
 import '../features/notifications/advanced_filters_sheet.dart';
 import '../features/notifications/models/notification_models.dart';
 import '../features/notifications/notification_center_screen.dart';
@@ -40,10 +45,25 @@ import '../features/payments/screens/payment_detail_screen.dart';
 import '../features/payments/screens/payments_list_screen.dart';
 import '../features/receipts/screens/receipt_detail_screen.dart';
 import '../features/receipts/screens/receipts_list_screen.dart';
+import '../features/reports/screens/reports_hub_screen.dart';
+import '../features/sponsorship_advertisement/screens/advertisement_detail_screen.dart';
+import '../features/sponsorship_advertisement/screens/advertisement_form_screen.dart';
+import '../features/sponsorship_advertisement/screens/advertisement_list_screen.dart';
+import '../features/sponsorship_advertisement/screens/sponsorship_detail_screen.dart';
+import '../features/sponsorship_advertisement/screens/sponsorship_form_screen.dart';
+import '../features/sponsorship_advertisement/screens/sponsorship_list_screen.dart';
 import '../features/templates/screens/template_calibration_screen.dart';
+import '../features/vault/screens/cash_counting_vault_screen.dart';
+import '../features/vendors/screens/vendor_detail_screen.dart';
+import '../features/vendors/screens/vendor_form_screen.dart';
+import '../features/vendors/screens/vendor_list_screen.dart';
+import '../features/volunteers/screens/volunteer_detail_screen.dart';
+import '../features/volunteers/screens/volunteer_form_screen.dart';
+import '../features/volunteers/screens/volunteer_list_screen.dart';
 import '../shared/ui_kit/chips/severity_badge.dart';
 import '../shared/ui_kit/navigation/approval_stepper.dart';
 import '../shared/widgets/scaffold_with_nav_bar.dart';
+import 'all_records_screen.dart';
 import 'coming_soon_screen.dart';
 import 'home_screen.dart';
 
@@ -90,17 +110,6 @@ class _SessionRefreshNotifier extends ChangeNotifier {
 }
 
 /// Root app router.
-///
-/// The tenant-scoped `(organizationId, eventId)` context-switch guard lands
-/// alongside the auth/tenant route trees in a later feature phase.
-///
-/// Detail screens receive their data via `state.extra`, passed by the hub
-/// screen that navigated to them (e.g. tapping a budget category passes
-/// that category's [BudgetCategoryData]). This is a deliberate placeholder:
-/// once Step 9/10 wire real Riverpod providers backed by a repository,
-/// these mock constants are replaced by `ref.watch(...)` reads and the
-/// route builders stop constructing data themselves -- the route
-/// *structure* below does not change.
 final appRouterProvider = Provider.family<GoRouter, String>((ref, environment) {
   final refreshNotifier = _SessionRefreshNotifier(ref);
 
@@ -151,8 +160,6 @@ final appRouterProvider = Provider.family<GoRouter, String>((ref, environment) {
           onLoginRequested: () => context.go('/login'),
         ),
       ),
-
-      // ---------------- Dashboard ----------------
       ShellRoute(
         builder: (context, state, child) => ScaffoldWithNavBar(child: child),
         routes: [
@@ -455,6 +462,123 @@ final appRouterProvider = Provider.family<GoRouter, String>((ref, environment) {
         path: '/reports',
         name: 'reports',
         builder: (context, state) => const ComingSoonScreen(title: 'Reports'),
+      ),
+
+      // ---------------- Master Records & Feature Modules ----------------
+      GoRoute(
+        path: '/records',
+        name: 'records',
+        builder: (context, state) => const AllRecordsScreen(),
+      ),
+      GoRoute(
+        path: '/donors',
+        name: 'donors',
+        builder: (context, state) => const DonorListScreen(),
+        routes: [
+          GoRoute(
+            path: 'new',
+            name: 'donors-new',
+            builder: (context, state) => const DonorFormScreen(),
+          ),
+          GoRoute(
+            path: ':id',
+            name: 'donors-detail',
+            builder: (context, state) =>
+                DonorDetailScreen(donorId: state.pathParameters['id']!),
+          ),
+        ],
+      ),
+      GoRoute(
+        path: '/vendors',
+        name: 'vendors',
+        builder: (context, state) => const VendorListScreen(),
+        routes: [
+          GoRoute(
+            path: 'new',
+            name: 'vendors-new',
+            builder: (context, state) => const VendorFormScreen(),
+          ),
+          GoRoute(
+            path: ':id',
+            name: 'vendors-detail',
+            builder: (context, state) =>
+                VendorDetailScreen(vendorId: state.pathParameters['id']!),
+          ),
+        ],
+      ),
+      GoRoute(
+        path: '/volunteers',
+        name: 'volunteers',
+        builder: (context, state) => const VolunteerListScreen(),
+        routes: [
+          GoRoute(
+            path: 'new',
+            name: 'volunteers-new',
+            builder: (context, state) => const VolunteerFormScreen(),
+          ),
+          GoRoute(
+            path: ':id',
+            name: 'volunteers-detail',
+            builder: (context, state) =>
+                VolunteerDetailScreen(volunteerId: state.pathParameters['id']!),
+          ),
+        ],
+      ),
+      GoRoute(
+        path: '/sponsorships',
+        name: 'sponsorships',
+        builder: (context, state) => const SponsorshipListScreen(),
+        routes: [
+          GoRoute(
+            path: 'new',
+            name: 'sponsorships-new',
+            builder: (context, state) => const SponsorshipFormScreen(),
+          ),
+          GoRoute(
+            path: ':id',
+            name: 'sponsorships-detail',
+            builder: (context, state) => SponsorshipDetailScreen(
+                sponsorshipId: state.pathParameters['id']!),
+          ),
+        ],
+      ),
+      GoRoute(
+        path: '/advertisements',
+        name: 'advertisements',
+        builder: (context, state) => const AdvertisementListScreen(),
+        routes: [
+          GoRoute(
+            path: 'new',
+            name: 'advertisements-new',
+            builder: (context, state) => const AdvertisementFormScreen(),
+          ),
+          GoRoute(
+            path: ':id',
+            name: 'advertisements-detail',
+            builder: (context, state) => AdvertisementDetailScreen(
+                advertisementId: state.pathParameters['id']!),
+          ),
+        ],
+      ),
+      GoRoute(
+        path: '/vault',
+        name: 'vault',
+        builder: (context, state) => const CashCountingVaultScreen(),
+      ),
+      GoRoute(
+        path: '/ledger',
+        name: 'ledger',
+        builder: (context, state) => const LedgerScreen(),
+      ),
+      GoRoute(
+        path: '/reports-hub',
+        name: 'reports-hub',
+        builder: (context, state) => const ReportsHubScreen(),
+      ),
+      GoRoute(
+        path: '/gold-silver-entry',
+        name: 'gold-silver-entry',
+        builder: (context, state) => const GoldSilverEntryScreen(),
       ),
     ],
   );

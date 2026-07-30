@@ -23,9 +23,7 @@ class VendorDetailScreen extends ConsumerWidget {
       data: (vendor) {
         if (vendor == null) {
           return const AppScaffold(
-            title: 'Vendor',
-            body: AppEmptyState(title: 'Vendor not found'),
-          );
+              title: 'Vendor', body: AppEmptyState(title: 'Vendor not found'));
         }
         return AppScaffold(
           title: vendor.name,
@@ -198,9 +196,8 @@ class VendorDetailScreen extends ConsumerWidget {
         );
       },
       loading: () => const AppScaffold(
-        title: 'Vendor',
-        body: AppLoadingIndicator(label: 'Loading vendor...'),
-      ),
+          title: 'Vendor',
+          body: AppLoadingIndicator(label: 'Loading vendor...')),
       error: (error, stackTrace) => AppScaffold(
         title: 'Vendor',
         body: AppErrorView(message: error.toString()),

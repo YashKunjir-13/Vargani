@@ -12,63 +12,54 @@ class DevThemePreviewScreen extends ConsumerWidget {
     final themePreference = ref.watch(themeProvider);
     final language = ref.watch(localeProvider);
     final currentRole = ref.watch(roleProvider);
-    final textTheme = Theme.of(context).textTheme;
 
     return AppScaffold(
       title: 'Design System Preview',
       body: SingleChildScrollView(
-        padding: const EdgeInsets.all(AppSpacing.space32),
+        padding: const EdgeInsets.all(AppSpacing.xl),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text('Theme & Shared UI Foundation', style: textTheme.headlineMedium),
-            const SizedBox(height: AppSpacing.space8),
+            Text('Theme & Shared UI Foundation',
+                style: AppTypography.display(context)),
+            const SizedBox(height: AppSpacing.sm),
             Text(
               'Previewing the foundation in ${themePreference.name} mode and active locale ${language.name.toUpperCase()} with role ${currentRole.name}',
-              style: textTheme.bodyMedium?.copyWith(
-                color: AppColors.mutedTextFor(context),
-              ),
+              style: AppTypography.caption(context,
+                  color: AppColors.mutedTextFor(context)),
             ),
-            const SizedBox(height: AppSpacing.space32),
+            const SizedBox(height: AppSpacing.xl),
             const Wrap(
-              spacing: AppSpacing.space8,
-              runSpacing: AppSpacing.space8,
+              spacing: AppSpacing.sm,
+              runSpacing: AppSpacing.sm,
               children: [
                 AppButton(
-                  label: '+ Add Sponsor',
-                  icon: Icons.add_circle_outline,
-                ),
+                    label: '+ Add Sponsor', icon: Icons.add_circle_outline),
                 AppButton(
-                  label: 'Secondary',
-                  variant: AppButtonVariant.secondary,
-                  icon: Icons.info_outline,
-                ),
+                    label: 'Secondary',
+                    variant: AppButtonVariant.secondary,
+                    icon: Icons.info_outline),
                 AppButton(label: 'Text', variant: AppButtonVariant.text),
               ],
             ),
-            const SizedBox(height: AppSpacing.space32),
+            const SizedBox(height: AppSpacing.xl),
             const Row(
               children: [
                 Expanded(
-                  child: AppSummaryStatCard(
-                    label: 'Total Vendors',
-                    value: '12',
-                  ),
-                ),
-                SizedBox(width: AppSpacing.space8),
+                    child: AppSummaryStatCard(
+                        label: 'Total Vendors', value: '12')),
+                SizedBox(width: AppSpacing.sm),
                 Expanded(
-                  child: AppSummaryStatCard(
-                    label: 'Outstanding',
-                    value: '₹1.53L',
-                    valueColor: AppColors.lightError,
-                  ),
-                ),
+                    child: AppSummaryStatCard(
+                        label: 'Outstanding',
+                        value: '₹1.53L',
+                        valueColor: AppColors.lightError)),
               ],
             ),
-            const SizedBox(height: AppSpacing.space32),
+            const SizedBox(height: AppSpacing.xl),
             const Wrap(
-              spacing: AppSpacing.space8,
-              runSpacing: AppSpacing.space8,
+              spacing: AppSpacing.sm,
+              runSpacing: AppSpacing.sm,
               children: [
                 AppStatusBadge(label: 'Active', status: AppStatus.success),
                 AppStatusBadge(label: 'Pending', status: AppStatus.pending),
@@ -78,7 +69,7 @@ class DevThemePreviewScreen extends ConsumerWidget {
                 AppStatusBadge(label: 'Neutral', status: AppStatus.neutral),
               ],
             ),
-            const SizedBox(height: AppSpacing.space32),
+            const SizedBox(height: AppSpacing.xl),
             AppCard(
               title: 'Ganpati Utsav Committee',
               subtitle: 'Donation drive • 4 sponsors pledged',
@@ -87,31 +78,28 @@ class DevThemePreviewScreen extends ConsumerWidget {
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Text('₹18,500', style: textTheme.titleMedium),
-                  Text(
-                    'Amount',
-                    style: textTheme.bodyMedium?.copyWith(
-                      color: AppColors.mutedTextFor(context),
-                    ),
-                  ),
+                  Text('₹18,500', style: AppTypography.titleMedium(context)),
+                  Text('Amount',
+                      style: AppTypography.caption(context,
+                          color: AppColors.mutedTextFor(context))),
                 ],
               ),
             ),
-            const SizedBox(height: AppSpacing.space24),
+            const SizedBox(height: AppSpacing.lg),
             const AppListItemCard(
               title: 'Rajat Sharma',
               subtitle: 'Vendor • Catering',
               amount: '₹12,000',
               status: AppStatus.pending,
             ),
-            const SizedBox(height: AppSpacing.space24),
+            const SizedBox(height: AppSpacing.lg),
             const AppTextField(
                 label: 'Committee Name',
                 hint: 'Enter a name',
                 prefixIcon: Icons.person_outline),
-            const SizedBox(height: AppSpacing.space24),
+            const SizedBox(height: AppSpacing.lg),
             const AppSearchBar(hint: 'Search sponsors'),
-            const SizedBox(height: AppSpacing.space24),
+            const SizedBox(height: AppSpacing.lg),
             DropdownButtonFormField<UserRole>(
               initialValue: currentRole,
               decoration: const InputDecoration(labelText: 'Acting as'),
@@ -129,7 +117,7 @@ class DevThemePreviewScreen extends ConsumerWidget {
                 }
               },
             ),
-            const SizedBox(height: AppSpacing.space24),
+            const SizedBox(height: AppSpacing.lg),
             const RoleGate(
               allowedRoles: [UserRole.treasurer],
               child: AppCard(
@@ -139,18 +127,17 @@ class DevThemePreviewScreen extends ConsumerWidget {
                     'This area is hidden unless the role gate permits it.'),
               ),
             ),
-            const SizedBox(height: AppSpacing.space32),
+            const SizedBox(height: AppSpacing.xl),
             const AppEmptyState(
               title: 'No advertisements yet',
               message: 'Add a booked placement once the event is ready.',
               action: AppButton(
-                label: '+ Book Advertisement',
-                icon: Icons.add_circle_outline,
-              ),
+                  label: '+ Book Advertisement',
+                  icon: Icons.add_circle_outline),
             ),
-            const SizedBox(height: AppSpacing.space32),
+            const SizedBox(height: AppSpacing.xl),
             const AppLoadingIndicator(label: 'Loading preview...'),
-            const SizedBox(height: AppSpacing.space32),
+            const SizedBox(height: AppSpacing.xl),
             const AppErrorView(message: 'A preview error occurred.'),
           ],
         ),
