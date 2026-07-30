@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../core/core.dart';
+import '../core/localization/locale_controller.dart';
 import '../shared/shared.dart';
 import '../features/donors/screens/donor_list_screen.dart';
 import '../features/vendors/screens/vendor_list_screen.dart';
@@ -8,20 +10,21 @@ import '../features/volunteers/screens/volunteer_list_screen.dart';
 import '../features/sponsorship_advertisement/screens/sponsorship_list_screen.dart';
 import '../features/sponsorship_advertisement/screens/advertisement_list_screen.dart';
 
-class AllRecordsScreen extends StatelessWidget {
+class AllRecordsScreen extends ConsumerWidget {
   const AllRecordsScreen({super.key});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    ref.watch(localeControllerProvider);
     final textTheme = Theme.of(context).textTheme;
 
     return AppScaffold(
-      title: 'All Records',
+      title: context.allRecords,
       body: ListView(
         padding: const EdgeInsets.all(AppSpacing.space24),
         children: [
           Text(
-            'Browse by category',
+            context.browseByCategory,
             style: textTheme.titleMedium?.copyWith(
               color: AppColors.mutedTextFor(context),
             ),
@@ -29,8 +32,8 @@ class AllRecordsScreen extends StatelessWidget {
           const SizedBox(height: AppSpacing.space16),
           _RecordCategoryCard(
             icon: Icons.handshake_outlined,
-            label: 'Sponsors',
-            description: 'Tiered sponsorship records with pledge & confirmation lifecycle',
+            label: context.sponsors,
+            description: context.sponsorsDesc,
             onTap: () => Navigator.of(context).push(
               MaterialPageRoute(builder: (_) => const SponsorshipListScreen()),
             ),
@@ -38,8 +41,8 @@ class AllRecordsScreen extends StatelessWidget {
           const SizedBox(height: AppSpacing.space16),
           _RecordCategoryCard(
             icon: Icons.campaign_outlined,
-            label: 'Advertisements',
-            description: 'Placement bookings and space advertisement records',
+            label: context.advertisements,
+            description: context.advertisementsDesc,
             onTap: () => Navigator.of(context).push(
               MaterialPageRoute(builder: (_) => const AdvertisementListScreen()),
             ),
@@ -47,8 +50,8 @@ class AllRecordsScreen extends StatelessWidget {
           const SizedBox(height: AppSpacing.space16),
           _RecordCategoryCard(
             icon: Icons.people_alt_outlined,
-            label: 'Donors',
-            description: 'Contributor accounts with contribution history',
+            label: context.donors,
+            description: context.donorsDesc,
             onTap: () => Navigator.of(context).push(
               MaterialPageRoute(builder: (_) => const DonorListScreen()),
             ),
@@ -56,8 +59,8 @@ class AllRecordsScreen extends StatelessWidget {
           const SizedBox(height: AppSpacing.space16),
           _RecordCategoryCard(
             icon: Icons.volunteer_activism_outlined,
-            label: 'Volunteers',
-            description: 'Volunteer assignments and field worker records',
+            label: context.volunteers,
+            description: context.volunteersDesc,
             onTap: () => Navigator.of(context).push(
               MaterialPageRoute(builder: (_) => const VolunteerListScreen()),
             ),
@@ -65,8 +68,8 @@ class AllRecordsScreen extends StatelessWidget {
           const SizedBox(height: AppSpacing.space16),
           _RecordCategoryCard(
             icon: Icons.store_outlined,
-            label: 'Vendors',
-            description: 'Vendor bills, expense tracking, and contract records',
+            label: context.vendors,
+            description: context.vendorsDesc,
             onTap: () => Navigator.of(context).push(
               MaterialPageRoute(builder: (_) => const VendorListScreen()),
             ),

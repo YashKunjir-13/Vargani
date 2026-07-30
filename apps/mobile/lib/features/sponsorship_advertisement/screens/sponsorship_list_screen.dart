@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/core.dart';
+import '../../../core/localization/locale_controller.dart';
 import '../../../shared/shared.dart';
 import '../../../shared/widgets/formatters.dart';
 import '../models/sponsorship.dart';
@@ -15,6 +16,7 @@ class SponsorshipListScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    ref.watch(localeControllerProvider);
     final sponsorshipsAsync = ref.watch(sponsorshipListProvider);
     final role = ref.watch(roleProvider);
 
@@ -23,7 +25,7 @@ class SponsorshipListScreen extends ConsumerWidget {
         role == UserRole.treasurer;
 
     return AppScaffold(
-      title: 'Sponsors',
+      title: context.sponsors,
       body: sponsorshipsAsync.when(
         data: (sponsorships) {
           final confirmedTotal = sponsorships
@@ -41,12 +43,11 @@ class SponsorshipListScreen extends ConsumerWidget {
             child: ListView(
               padding: const EdgeInsets.all(AppSpacing.space24),
               children: [
-                // ── Summary stat row ──────────────────────────────────────
                 Row(
                   children: [
                     Expanded(
                       child: AppSummaryStatCard(
-                        label: 'Confirmed',
+                        label: context.confirmedLabel,
                         value: formatPaiseAsRupees(confirmedTotal),
                         valueColor: Theme.of(context).brightness == Brightness.dark
                             ? AppColors.darkSuccess
@@ -56,7 +57,7 @@ class SponsorshipListScreen extends ConsumerWidget {
                     const SizedBox(width: AppSpacing.space8),
                     Expanded(
                       child: AppSummaryStatCard(
-                        label: 'Pledged',
+                        label: context.pledgedLabel,
                         value: formatPaiseAsRupees(pledgedTotal),
                         valueColor: Theme.of(context).brightness == Brightness.dark
                             ? AppColors.darkWarning
@@ -66,32 +67,29 @@ class SponsorshipListScreen extends ConsumerWidget {
                     const SizedBox(width: AppSpacing.space8),
                     Expanded(
                       child: AppSummaryStatCard(
-                        label: 'Pending',
+                        label: context.pendingLabel,
                         value: formatPaiseAsRupees(pendingTotal),
                       ),
                     ),
                   ],
                 ),
                 const SizedBox(height: AppSpacing.space16),
-                // ── Search bar ────────────────────────────────────────────
                 AppSearchBar(
-                  hint: 'Search sponsors',
+                  hint: context.searchSponsorsHint,
                   onChanged: (value) => ref
                       .read(sponsorshipListControllerProvider.notifier)
                       .updateSearch(value),
                 ),
                 const SizedBox(height: AppSpacing.space16),
-                // ── Add button (management roles only) ───────────────────
                 if (canManage)
                   AppButton(
-                    label: 'Add Sponsor',
+                    label: context.addSponsorBtn,
                     onPressed: () => Navigator.of(context).push(
                       MaterialPageRoute(
                           builder: (_) => const SponsorshipFormScreen()),
                     ),
                   ),
                 if (canManage) const SizedBox(height: AppSpacing.space16),
-                // ── List ──────────────────────────────────────────────────
                 if (sponsorships.isEmpty)
                   const AppEmptyState(
                     title: 'No sponsors found',

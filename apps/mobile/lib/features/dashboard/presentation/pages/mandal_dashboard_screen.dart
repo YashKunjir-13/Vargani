@@ -33,8 +33,6 @@ class MandalDashboardScreen extends ConsumerStatefulWidget {
 }
 
 class _MandalDashboardScreenState extends ConsumerState<MandalDashboardScreen> {
-  int _currentIndex = 0;
-
   String _getGreeting(BuildContext context) {
     final hour = DateTime.now().hour;
     final l10n = context.l10n;
@@ -48,6 +46,30 @@ class _MandalDashboardScreenState extends ConsumerState<MandalDashboardScreen> {
     return '₹${rupees.toString().replaceAllMapped(RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'), (Match m) => '${m[1]},')}';
   }
 
+  String _getAllRecordsLabel(BuildContext context) {
+    final code = Localizations.localeOf(context).languageCode;
+    switch (code) {
+      case 'hi':
+        return 'सभी रिकॉर्ड';
+      case 'mr':
+        return 'सर्व नोंदी';
+      default:
+        return 'All Records';
+    }
+  }
+
+  String _getAllRecordsSubtitle(BuildContext context) {
+    final code = Localizations.localeOf(context).languageCode;
+    switch (code) {
+      case 'hi':
+        return 'सभी श्रेणी रिकॉर्ड ब्राउज़ करें';
+      case 'mr':
+        return 'सर्व वर्गवारी नोंदी पहा';
+      default:
+        return 'Browse all category records';
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final colors = context.authColors;
@@ -58,17 +80,19 @@ class _MandalDashboardScreenState extends ConsumerState<MandalDashboardScreen> {
     final mandalName = user?.organization?.name ?? data.mandalName;
     final greeting = _getGreeting(context);
 
+    final currentIndex = ref.watch(dashboardTabProvider);
+
     return Scaffold(
       backgroundColor: colors.background,
       appBar: DashboardHeader(
         title: '$greeting,',
         subtitle: mandalName,
         badgeText: 'पप',
-        onProfileTap: () => setState(() => _currentIndex = 4),
+        onProfileTap: () => ref.read(dashboardTabProvider.notifier).setTab(4),
       ),
       body: SafeArea(
         child: IndexedStack(
-          index: _currentIndex,
+          index: currentIndex,
           children: [
             // 0: Dashboard (Main Home View)
             _buildMainDashboardView(context, data, colors, l10n),
@@ -93,8 +117,8 @@ class _MandalDashboardScreenState extends ConsumerState<MandalDashboardScreen> {
           border: Border(top: BorderSide(color: colors.border)),
         ),
         child: AppBottomNav(
-          currentIndex: _currentIndex,
-          onTap: (index) => setState(() => _currentIndex = index),
+          currentIndex: currentIndex,
+          onTap: (index) => ref.read(dashboardTabProvider.notifier).setTab(index),
           items: [
             AppBottomNavItem(
               icon: Icons.dashboard_outlined,
@@ -249,6 +273,7 @@ class _MandalDashboardScreenState extends ConsumerState<MandalDashboardScreen> {
           QuickActionsGrid(
             actions: [
               QuickActionButtonItem(id: 'collect', label: l10n.collectDonation, icon: Icons.add_card, primary: true),
+              QuickActionButtonItem(id: 'records', label: _getAllRecordsLabel(context), icon: Icons.folder_open),
               QuickActionButtonItem(id: 'receipt', label: l10n.generateReceipt, icon: Icons.receipt_long),
               QuickActionButtonItem(id: 'expense', label: l10n.addExpense, icon: Icons.attach_money),
               QuickActionButtonItem(id: 'bill', label: l10n.createBill, icon: Icons.post_add),
@@ -257,7 +282,9 @@ class _MandalDashboardScreenState extends ConsumerState<MandalDashboardScreen> {
               QuickActionButtonItem(id: 'reports', label: l10n.viewReports, icon: Icons.bar_chart),
             ],
             onActionTap: (action) {
-              if (action.id == 'collect' || action.id == 'receipt') {
+              if (action.id == 'records') {
+                Navigator.of(context).push(MaterialPageRoute(builder: (_) => const AllRecordsScreen()));
+              } else if (action.id == 'collect' || action.id == 'receipt') {
                 DashboardActionSheets.showCollectDonationSheet(context);
               } else if (action.id == 'expense' || action.id == 'bill') {
                 DashboardActionSheets.showAddExpenseSheet(context);
@@ -266,7 +293,7 @@ class _MandalDashboardScreenState extends ConsumerState<MandalDashboardScreen> {
               } else if (action.id == 'sponsor') {
                 Navigator.of(context).push(MaterialPageRoute(builder: (_) => const SponsorshipFormScreen()));
               } else if (action.id == 'reports') {
-                setState(() => _currentIndex = 3);
+                ref.read(dashboardTabProvider.notifier).setTab(3);
               } else {
                 ScaffoldMessenger.of(context).showSnackBar(
                   SnackBar(
@@ -292,7 +319,17 @@ class _MandalDashboardScreenState extends ConsumerState<MandalDashboardScreen> {
           ),
           const SizedBox(height: 12),
           MandalModuleGrid(
-            modules: data.modules,
+            modules: data.modules.map((m) {
+              if (m.id == 'all_records') {
+                return MandalModuleItem(
+                  id: 'all_records',
+                  title: _getAllRecordsLabel(context),
+                  subtitle: _getAllRecordsSubtitle(context),
+                  icon: Icons.folder_open_outlined,
+                );
+              }
+              return m;
+            }).toList(),
             onModuleTap: (module) {
               switch (module.id) {
                 case 'contributions':
@@ -337,6 +374,9 @@ class _MandalDashboardScreenState extends ConsumerState<MandalDashboardScreen> {
                 case 'analytics':
                   context.push('/reports-hub');
                   break;
+                case 'all_records':
+                  Navigator.of(context).push(MaterialPageRoute(builder: (_) => const AllRecordsScreen()));
+                  break;
                 default:
                   Navigator.of(context).push(MaterialPageRoute(builder: (_) => const AllRecordsScreen()));
                   break;
@@ -360,7 +400,7 @@ class _MandalDashboardScreenState extends ConsumerState<MandalDashboardScreen> {
                 ),
               ),
               TextButton(
-                onPressed: () => setState(() => _currentIndex = 1),
+                onPressed: () => ref.read(dashboardTabProvider.notifier).setTab(1),
                 child: Text(
                   'View All',
                   style: TextStyle(color: colors.brandOrange, fontWeight: FontWeight.w800),

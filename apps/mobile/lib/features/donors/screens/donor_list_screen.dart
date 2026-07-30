@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/core.dart';
+import '../../../core/localization/locale_controller.dart';
 import '../../../shared/shared.dart';
 import '../providers/donor_providers.dart';
 import '../widgets/donor_list_item.dart';
@@ -14,17 +15,18 @@ class DonorListScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    ref.watch(localeControllerProvider);
     final state = ref.watch(donorListControllerProvider);
     final donorsAsync = ref.watch(donorListProvider);
 
     return AppScaffold(
-      title: 'Donors',
+      title: context.donors,
       body: Padding(
         padding: const EdgeInsets.all(AppSpacing.space24),
         child: Column(
           children: [
             AppSearchBar(
-              hint: 'Search donors',
+              hint: context.searchDonorsHint,
               onChanged: (value) => ref
                   .read(donorListControllerProvider.notifier)
                   .updateSearch(value),
@@ -80,7 +82,7 @@ class DonorListScreen extends ConsumerWidget {
           UserRole.volunteer,
         ],
         child: AppFab(
-          label: 'Add',
+          label: context.addBtn,
           onPressed: () {
             Navigator.of(context).push(
               MaterialPageRoute(builder: (_) => const DonorFormScreen()),

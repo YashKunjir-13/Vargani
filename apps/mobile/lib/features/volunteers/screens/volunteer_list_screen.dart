@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/core.dart';
+import '../../../core/localization/locale_controller.dart';
 import '../../../shared/shared.dart';
 import '../models/volunteer.dart';
 import '../providers/volunteer_providers.dart';
@@ -15,18 +16,18 @@ class VolunteerListScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    ref.watch(localeControllerProvider);
     final listState = ref.watch(volunteerListControllerProvider);
     final volunteersAsync = ref.watch(volunteerListProvider);
     final role = ref.watch(roleProvider);
     final textTheme = Theme.of(context).textTheme;
 
-    // trustPresident, vicePresident, treasurer can manage volunteers
     final canManageVolunteers = role == UserRole.trustPresident ||
         role == UserRole.vicePresident ||
         role == UserRole.treasurer;
 
     return AppScaffold(
-      title: 'Volunteers',
+      title: context.volunteers,
       actions: [
         if (canManageVolunteers)
           IconButton(
@@ -41,7 +42,7 @@ class VolunteerListScreen extends ConsumerWidget {
           Padding(
             padding: const EdgeInsets.fromLTRB(AppSpacing.space24, AppSpacing.space16, AppSpacing.space24, AppSpacing.space8),
             child: AppSearchBar(
-              hint: 'Search volunteers',
+              hint: context.searchVolunteersHint,
               onChanged: (value) => ref.read(volunteerListControllerProvider.notifier).updateSearch(value),
             ),
           ),
@@ -52,11 +53,11 @@ class VolunteerListScreen extends ConsumerWidget {
                 Expanded(
                   child: DropdownButtonFormField<VolunteerStatus?>(
                     initialValue: listState.status,
-                    decoration: const InputDecoration(labelText: 'Status'),
+                    decoration: InputDecoration(labelText: context.statusLabel),
                     items: [
-                      const DropdownMenuItem(value: null, child: Text('All')),
+                      DropdownMenuItem(value: null, child: Text(context.allLabel)),
                       for (final status in VolunteerStatus.values)
-                        DropdownMenuItem(value: status, child: Text(_statusLabel(status))),
+                        DropdownMenuItem(value: status, child: Text(_statusLabel(status, context.languageCode))),
                     ],
                     onChanged: (value) => ref.read(volunteerListControllerProvider.notifier).updateStatus(value),
                   ),
@@ -65,9 +66,9 @@ class VolunteerListScreen extends ConsumerWidget {
                 Expanded(
                   child: DropdownButtonFormField<VolunteerType?>(
                     initialValue: listState.type,
-                    decoration: const InputDecoration(labelText: 'Type'),
+                    decoration: InputDecoration(labelText: context.typeLabel),
                     items: [
-                      const DropdownMenuItem(value: null, child: Text('All')),
+                      DropdownMenuItem(value: null, child: Text(context.allLabel)),
                       for (final type in VolunteerType.values)
                         DropdownMenuItem(value: type, child: Text(type.label)),
                     ],
@@ -91,7 +92,6 @@ class VolunteerListScreen extends ConsumerWidget {
                     separatorBuilder: (_, __) => const SizedBox(height: AppSpacing.space16),
                     itemBuilder: (context, index) {
                       final volunteer = volunteers[index];
-                      // sensitive data visible only to trustPresident, vicePresident, treasurer
                       final canViewSensitive = role == UserRole.trustPresident ||
                           role == UserRole.vicePresident ||
                           role == UserRole.treasurer;
@@ -146,12 +146,12 @@ class VolunteerListScreen extends ConsumerWidget {
     );
   }
 
-  String _statusLabel(VolunteerStatus status) {
+  String _statusLabel(VolunteerStatus status, String code) {
     return switch (status) {
-      VolunteerStatus.active => 'Active',
-      VolunteerStatus.draft => 'Draft',
-      VolunteerStatus.suspended => 'Suspended',
-      VolunteerStatus.inactive => 'Inactive',
+      VolunteerStatus.active => code == 'hi' ? 'सक्रिय' : code == 'mr' ? 'सक्रिय' : 'Active',
+      VolunteerStatus.draft => code == 'hi' ? 'ड्राफ्ट' : code == 'mr' ? 'मसुदा' : 'Draft',
+      VolunteerStatus.suspended => code == 'hi' ? 'निलंबित' : code == 'mr' ? 'निलंबित' : 'Suspended',
+      VolunteerStatus.inactive => code == 'hi' ? 'निष्क्रिय' : code == 'mr' ? 'निष्क्रिय' : 'Inactive',
     };
   }
 }
