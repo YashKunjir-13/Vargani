@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../core/core.dart';
-import '../../core/theme/theme_controller.dart';
+
 
 class AppScaffold extends ConsumerWidget {
   const AppScaffold({
@@ -47,7 +47,7 @@ class AppScaffold extends ConsumerWidget {
               isDark ? Icons.light_mode_outlined : Icons.dark_mode_outlined,
               color: Theme.of(context).colorScheme.onSurface,
             ),
-            onPressed: () => ref.read(themeControllerProvider.notifier).toggleTheme(!isDark),
+            onPressed: () => ref.read(appThemeModeProvider.notifier).toggleTheme(),
           ),
           TextButton(
             onPressed: () => ref.read(localeProvider.notifier).setLanguage(
