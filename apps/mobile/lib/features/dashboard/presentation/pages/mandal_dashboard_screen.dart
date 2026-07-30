@@ -325,11 +325,17 @@ class _MandalDashboardScreenState extends ConsumerState<MandalDashboardScreen> {
                 case 'members':
                   Navigator.of(context).push(MaterialPageRoute(builder: (_) => const DonorListScreen()));
                   break;
+                case 'kunda':
+                  context.push('/vault');
+                  break;
                 case 'reports':
-                  setState(() => _currentIndex = 3);
+                  context.push('/reports-hub');
                   break;
                 case 'audit':
                   context.push('/audit');
+                  break;
+                case 'analytics':
+                  context.push('/reports-hub');
                   break;
                 default:
                   Navigator.of(context).push(MaterialPageRoute(builder: (_) => const AllRecordsScreen()));
@@ -466,6 +472,17 @@ class _MandalDashboardScreenState extends ConsumerState<MandalDashboardScreen> {
     return ListView(
       padding: const EdgeInsets.all(16),
       children: [
+        ElevatedButton.icon(
+          onPressed: () => context.push('/reports-hub'),
+          icon: const Icon(Icons.verified_user),
+          label: const Text('Open Full Reports & Audit Hub →'),
+          style: ElevatedButton.styleFrom(
+            padding: const EdgeInsets.symmetric(vertical: 14),
+            backgroundColor: colors.brandOrange,
+            foregroundColor: Colors.white,
+          ),
+        ),
+        const SizedBox(height: 16),
         IncomeVsExpenseCard(incomePaise: data.totalCollectionPaise, expensePaise: data.totalExpensesPaise),
         const SizedBox(height: 16),
         TopDonorsWidget(topDonors: data.topDonors),

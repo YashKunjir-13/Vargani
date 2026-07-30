@@ -46,6 +46,10 @@ import '../features/sponsorship_advertisement/screens/sponsorship_form_screen.da
 import '../features/sponsorship_advertisement/screens/advertisement_list_screen.dart';
 import '../features/sponsorship_advertisement/screens/advertisement_detail_screen.dart';
 import '../features/sponsorship_advertisement/screens/advertisement_form_screen.dart';
+import '../features/vault/screens/cash_counting_vault_screen.dart';
+import '../features/financial_accounts/screens/ledger_screen.dart';
+import '../features/reports/screens/reports_hub_screen.dart';
+import '../features/contributions/screens/gold_silver_entry_screen.dart';
 import '../features/notifications/advanced_filters_sheet.dart';
 import '../features/notifications/models/notification_models.dart';
 import '../features/notifications/notification_center_screen.dart';
@@ -528,6 +532,26 @@ final appRouterProvider = Provider.family<GoRouter, String>((ref, environment) {
             builder: (context, state) => AdvertisementDetailScreen(advertisementId: state.pathParameters['id']!),
           ),
         ],
+      ),
+      GoRoute(
+        path: '/vault',
+        name: 'vault',
+        builder: (context, state) => const CashCountingVaultScreen(),
+      ),
+      GoRoute(
+        path: '/ledger',
+        name: 'ledger',
+        builder: (context, state) => const LedgerScreen(),
+      ),
+      GoRoute(
+        path: '/reports-hub',
+        name: 'reports-hub',
+        builder: (context, state) => const ReportsHubScreen(),
+      ),
+      GoRoute(
+        path: '/gold-silver-entry',
+        name: 'gold-silver-entry',
+        builder: (context, state) => const GoldSilverEntryScreen(),
       ),
     ],
   );
