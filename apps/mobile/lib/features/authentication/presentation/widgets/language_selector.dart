@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:pauti_pustak_mobile/core/localization/locale_controller.dart';
 import 'package:pauti_pustak_mobile/core/localization/localization_extensions.dart';
-import 'package:pauti_pustak_mobile/core/theme/theme_controller.dart';
+import 'package:pauti_pustak_mobile/core/theme/app_theme.dart';
 
 import 'auth_design_tokens.dart';
 
@@ -113,7 +113,7 @@ class AuthThemeToggle extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final colors = context.authColors;
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    final controller = ref.read(themeControllerProvider.notifier);
+    final controller = ref.read(appThemeModeProvider.notifier);
 
     return Semantics(
       label: 'Toggle Theme',
