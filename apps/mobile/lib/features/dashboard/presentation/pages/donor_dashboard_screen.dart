@@ -3,7 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:pauti_pustak_mobile/l10n/app_localizations.dart';
 import 'package:pauti_pustak_mobile/core/localization/localization_extensions.dart';
 import 'package:pauti_pustak_mobile/core/session/session_controller.dart';
-import 'package:pauti_pustak_mobile/core/theme/theme_controller.dart';
+import 'package:pauti_pustak_mobile/core/theme/app_theme.dart';
 import 'package:pauti_pustak_mobile/features/authentication/presentation/widgets/auth_design_tokens.dart';
 import 'package:pauti_pustak_mobile/features/authentication/presentation/widgets/language_selector.dart';
 import 'package:pauti_pustak_mobile/features/dashboard/data/models/dashboard_models.dart';
@@ -465,7 +465,7 @@ class _DonorDashboardScreenState extends ConsumerState<DonorDashboardScreen> {
           title: Text(l10n.darkMode, style: TextStyle(color: colors.text, fontWeight: FontWeight.w700)),
           value: isDark,
           onChanged: (val) {
-            ref.read(themeControllerProvider.notifier).toggleTheme(val);
+            ref.read(appThemeModeProvider.notifier).setThemeMode(val ? ThemeMode.dark : ThemeMode.light);
           },
         ),
         const Divider(),
