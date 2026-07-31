@@ -56,7 +56,7 @@ class _DonorFormScreenState extends ConsumerState<DonorFormScreen> {
     return AppScaffold(
       title: isEditing ? 'Edit Donor' : 'Add Donor',
       body: Padding(
-        padding: const EdgeInsets.all(AppSpacing.lg),
+        padding: const EdgeInsets.all(AppSpacing.space24),
         child: Form(
           key: _formKey,
           child: Column(
@@ -67,14 +67,14 @@ class _DonorFormScreenState extends ConsumerState<DonorFormScreen> {
                 controller: _fullNameController,
                 prefixIcon: Icons.person_outline,
               ),
-              const SizedBox(height: AppSpacing.md),
+              const SizedBox(height: AppSpacing.space16),
               AppTextField(
                 label: 'Mobile',
                 hint: '9876543210',
                 controller: _mobileController,
                 prefixIcon: Icons.phone_outlined,
               ),
-              const SizedBox(height: AppSpacing.md),
+              const SizedBox(height: AppSpacing.space16),
               AppTextField(
                 label: 'Email',
                 hint: 'donor@example.com',
@@ -82,10 +82,11 @@ class _DonorFormScreenState extends ConsumerState<DonorFormScreen> {
                 prefixIcon: Icons.email_outlined,
               ),
               if (_errorText != null) ...[
-                const SizedBox(height: AppSpacing.md),
-                Text(_errorText!,
-                    style:
-                        TextStyle(color: Theme.of(context).colorScheme.error)),
+                const SizedBox(height: AppSpacing.space16),
+                Text(
+                  _errorText!,
+                  style: TextStyle(color: Theme.of(context).colorScheme.error),
+                ),
               ],
               const Spacer(),
               AppButton(

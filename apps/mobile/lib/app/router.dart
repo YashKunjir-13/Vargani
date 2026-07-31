@@ -3,16 +3,15 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../core/session/session_controller.dart';
-import '../features/authentication/data/models/auth_models.dart';
-import '../features/authentication/presentation/pages/login_page.dart';
-import '../features/authentication/presentation/pages/registration_page.dart';
-
 import '../features/audit_logs/advanced_filters_sheet.dart';
 import '../features/audit_logs/audit_detail_screen.dart';
 import '../features/audit_logs/audit_overview_screen.dart';
 import '../features/audit_logs/audit_search_screen.dart';
 import '../features/audit_logs/audit_timeline_screen.dart';
 import '../features/audit_logs/models/audit_models.dart';
+import '../features/authentication/data/models/auth_models.dart';
+import '../features/authentication/presentation/pages/login_page.dart';
+import '../features/authentication/presentation/pages/registration_page.dart';
 import '../features/bills/screens/bill_detail_screen.dart';
 import '../features/bills/screens/bills_list_screen.dart';
 import '../features/bills/screens/create_bill_screen.dart';
@@ -29,27 +28,13 @@ import '../features/contribution_receipts/screens/contribution_receipts_list_scr
 import '../features/contributions/screens/contribution_detail_screen.dart';
 import '../features/contributions/screens/contributions_list_screen.dart';
 import '../features/contributions/screens/create_contribution_screen.dart';
-import '../features/dashboard/presentation/pages/mandal_dashboard_screen.dart';
+import '../features/contributions/screens/gold_silver_entry_screen.dart';
 import '../features/dashboard/presentation/pages/donor_dashboard_screen.dart';
-import '../features/donors/screens/donor_list_screen.dart';
+import '../features/dashboard/presentation/pages/mandal_dashboard_screen.dart';
 import '../features/donors/screens/donor_detail_screen.dart';
 import '../features/donors/screens/donor_form_screen.dart';
-import '../features/vendors/screens/vendor_list_screen.dart';
-import '../features/vendors/screens/vendor_detail_screen.dart';
-import '../features/vendors/screens/vendor_form_screen.dart';
-import '../features/volunteers/screens/volunteer_list_screen.dart';
-import '../features/volunteers/screens/volunteer_detail_screen.dart';
-import '../features/volunteers/screens/volunteer_form_screen.dart';
-import '../features/sponsorship_advertisement/screens/sponsorship_list_screen.dart';
-import '../features/sponsorship_advertisement/screens/sponsorship_detail_screen.dart';
-import '../features/sponsorship_advertisement/screens/sponsorship_form_screen.dart';
-import '../features/sponsorship_advertisement/screens/advertisement_list_screen.dart';
-import '../features/sponsorship_advertisement/screens/advertisement_detail_screen.dart';
-import '../features/sponsorship_advertisement/screens/advertisement_form_screen.dart';
-import '../features/vault/screens/cash_counting_vault_screen.dart';
+import '../features/donors/screens/donor_list_screen.dart';
 import '../features/financial_accounts/screens/ledger_screen.dart';
-import '../features/reports/screens/reports_hub_screen.dart';
-import '../features/contributions/screens/gold_silver_entry_screen.dart';
 import '../features/notifications/advanced_filters_sheet.dart';
 import '../features/notifications/models/notification_models.dart';
 import '../features/notifications/notification_center_screen.dart';
@@ -60,7 +45,21 @@ import '../features/payments/screens/payment_detail_screen.dart';
 import '../features/payments/screens/payments_list_screen.dart';
 import '../features/receipts/screens/receipt_detail_screen.dart';
 import '../features/receipts/screens/receipts_list_screen.dart';
+import '../features/reports/screens/reports_hub_screen.dart';
+import '../features/sponsorship_advertisement/screens/advertisement_detail_screen.dart';
+import '../features/sponsorship_advertisement/screens/advertisement_form_screen.dart';
+import '../features/sponsorship_advertisement/screens/advertisement_list_screen.dart';
+import '../features/sponsorship_advertisement/screens/sponsorship_detail_screen.dart';
+import '../features/sponsorship_advertisement/screens/sponsorship_form_screen.dart';
+import '../features/sponsorship_advertisement/screens/sponsorship_list_screen.dart';
 import '../features/templates/screens/template_calibration_screen.dart';
+import '../features/vault/screens/cash_counting_vault_screen.dart';
+import '../features/vendors/screens/vendor_detail_screen.dart';
+import '../features/vendors/screens/vendor_form_screen.dart';
+import '../features/vendors/screens/vendor_list_screen.dart';
+import '../features/volunteers/screens/volunteer_detail_screen.dart';
+import '../features/volunteers/screens/volunteer_form_screen.dart';
+import '../features/volunteers/screens/volunteer_list_screen.dart';
 import '../shared/ui_kit/chips/severity_badge.dart';
 import '../shared/ui_kit/navigation/approval_stepper.dart';
 import '../shared/widgets/scaffold_with_nav_bar.dart';
@@ -119,15 +118,19 @@ final appRouterProvider = Provider.family<GoRouter, String>((ref, environment) {
     refreshListenable: refreshNotifier,
     redirect: (context, state) {
       final session = ref.read(sessionControllerProvider);
-      final isAuthRoute = state.matchedLocation == '/login' || state.matchedLocation == '/register';
-      final isDashboardRoute = state.matchedLocation == '/mandal-dashboard' || state.matchedLocation == '/donor-dashboard';
+      final isAuthRoute = state.matchedLocation == '/login' ||
+          state.matchedLocation == '/register';
+      final isDashboardRoute = state.matchedLocation == '/mandal-dashboard' ||
+          state.matchedLocation == '/donor-dashboard';
 
       if (!session.isAuthenticated && !isAuthRoute) {
         return '/register';
       }
 
       if (session.isAuthenticated) {
-        final targetRoute = (session.activeRole == LoginRole.donor) ? '/donor-dashboard' : '/mandal-dashboard';
+        final targetRoute = (session.activeRole == LoginRole.donor)
+            ? '/donor-dashboard'
+            : '/mandal-dashboard';
 
         if (isAuthRoute || state.matchedLocation == '/') {
           return targetRoute;
@@ -185,7 +188,8 @@ final appRouterProvider = Provider.family<GoRouter, String>((ref, environment) {
                 pageBuilder: (context, state) => _buildSmoothPage(
                   context: context,
                   state: state,
-                  child: PaymentDetailScreen(paymentId: state.pathParameters['id']!),
+                  child: PaymentDetailScreen(
+                      paymentId: state.pathParameters['id']!),
                 ),
               ),
             ],
@@ -201,7 +205,8 @@ final appRouterProvider = Provider.family<GoRouter, String>((ref, environment) {
                 pageBuilder: (context, state) => _buildSmoothPage(
                   context: context,
                   state: state,
-                  child: ReceiptDetailScreen(receiptId: state.pathParameters['id']!),
+                  child: ReceiptDetailScreen(
+                      receiptId: state.pathParameters['id']!),
                 ),
               ),
             ],
@@ -251,7 +256,8 @@ final appRouterProvider = Provider.family<GoRouter, String>((ref, environment) {
                 pageBuilder: (context, state) => _buildSmoothPage(
                   context: context,
                   state: state,
-                  child: ContributionDetailScreen(contributionId: state.pathParameters['id']!),
+                  child: ContributionDetailScreen(
+                      contributionId: state.pathParameters['id']!),
                 ),
               ),
             ],
@@ -267,7 +273,8 @@ final appRouterProvider = Provider.family<GoRouter, String>((ref, environment) {
                 pageBuilder: (context, state) => _buildSmoothPage(
                   context: context,
                   state: state,
-                  child: ContributionReceiptDetailScreen(receiptId: state.pathParameters['id']!),
+                  child: ContributionReceiptDetailScreen(
+                      receiptId: state.pathParameters['id']!),
                 ),
               ),
             ],
@@ -306,22 +313,26 @@ final appRouterProvider = Provider.family<GoRouter, String>((ref, environment) {
           onOpenExport: () => ExportBudgetSheet.show(context),
           onOpenTable: () => context.pushNamed('budget-table'),
           onCreateRevision: () => context.pushNamed('budget-revision'),
-          onOpenCategory: (category) => context.pushNamed('budget-details', extra: category),
+          onOpenCategory: (category) =>
+              context.pushNamed('budget-details', extra: category),
           onOpenRevision: (_) => context.pushNamed('budget-approval'),
         ),
         routes: [
           GoRoute(
             path: 'table',
             name: 'budget-table',
-            builder: (context, state) => const BudgetTableScreen(categories: _mockBudgetCategories),
+            builder: (context, state) =>
+                const BudgetTableScreen(categories: _mockBudgetCategories),
           ),
           GoRoute(
             path: 'details',
             name: 'budget-details',
             builder: (context, state) => BudgetDetailsScreen(
-              category: (state.extra as BudgetCategoryData?) ?? _mockBudgetCategories.first,
+              category: (state.extra as BudgetCategoryData?) ??
+                  _mockBudgetCategories.first,
               linkedExpenses: _mockLinkedExpenses,
-              approvalHistoryNote: 'Revision v3 approved · allocation raised to ₹4,00,000',
+              approvalHistoryNote:
+                  'Revision v3 approved · allocation raised to ₹4,00,000',
             ),
           ),
           GoRoute(
@@ -344,7 +355,8 @@ final appRouterProvider = Provider.family<GoRouter, String>((ref, environment) {
               adjustments: _mockRevisionAdjustments,
               netChangeBalances: true,
               onSaveDraft: () => Navigator.of(context).pop(),
-              onSubmitForApproval: () => context.pushReplacementNamed('budget-approval'),
+              onSubmitForApproval: () =>
+                  context.pushReplacementNamed('budget-approval'),
             ),
           ),
         ],
@@ -359,7 +371,8 @@ final appRouterProvider = Provider.family<GoRouter, String>((ref, environment) {
           events: _mockAuditEvents,
           criticalAlertTitle: '5 failed login attempts',
           criticalAlertSubtitle: 'IP 103.22.x.x · unrecognized device',
-          onOpenEvent: (event) => context.pushNamed('audit-detail', extra: event),
+          onOpenEvent: (event) =>
+              context.pushNamed('audit-detail', extra: event),
           onOpenSearch: () => context.pushNamed('audit-search'),
           onOpenFilters: () => AuditFiltersSheet.show(context),
         ),
@@ -369,7 +382,8 @@ final appRouterProvider = Provider.family<GoRouter, String>((ref, environment) {
             name: 'audit-timeline',
             builder: (context, state) => AuditTimelineScreen(
               events: _mockAuditEvents,
-              onOpenEvent: (event) => context.pushNamed('audit-detail', extra: event),
+              onOpenEvent: (event) =>
+                  context.pushNamed('audit-detail', extra: event),
             ),
           ),
           GoRoute(
@@ -384,9 +398,16 @@ final appRouterProvider = Provider.family<GoRouter, String>((ref, environment) {
             path: 'search',
             name: 'audit-search',
             builder: (context, state) => AuditSearchScreen(
-              recentSearches: const ['AUD-88213', 'Rahul S.', 'EXP-2291', 'Role changed'],
+              recentSearches: const [
+                'AUD-88213',
+                'Rahul S.',
+                'EXP-2291',
+                'Role changed'
+              ],
               onSearch: (query) async => _mockSearchResults
-                  .where((r) => (r.beforeMatch + r.matchText + r.afterMatch).toLowerCase().contains(query.toLowerCase()))
+                  .where((r) => (r.beforeMatch + r.matchText + r.afterMatch)
+                      .toLowerCase()
+                      .contains(query.toLowerCase()))
                   .toList(),
             ),
           ),
@@ -402,7 +423,8 @@ final appRouterProvider = Provider.family<GoRouter, String>((ref, environment) {
           items: _mockNotificationItems,
           priorityAlertTitle: 'Budget revision awaiting your approval',
           priorityAlertSubtitle: 'Submitted by Priya Deshmukh · 2h ago',
-          onOpenItem: (item) => context.pushNamed('notification-detail', extra: item),
+          onOpenItem: (item) =>
+              context.pushNamed('notification-detail', extra: item),
           onOpenFilters: () => NotificationFiltersSheet.show(context),
           onOpenSettings: () => context.pushNamed('notification-settings'),
           onPrimaryAction: (id) {},
@@ -461,7 +483,8 @@ final appRouterProvider = Provider.family<GoRouter, String>((ref, environment) {
           GoRoute(
             path: ':id',
             name: 'donors-detail',
-            builder: (context, state) => DonorDetailScreen(donorId: state.pathParameters['id']!),
+            builder: (context, state) =>
+                DonorDetailScreen(donorId: state.pathParameters['id']!),
           ),
         ],
       ),
@@ -478,7 +501,8 @@ final appRouterProvider = Provider.family<GoRouter, String>((ref, environment) {
           GoRoute(
             path: ':id',
             name: 'vendors-detail',
-            builder: (context, state) => VendorDetailScreen(vendorId: state.pathParameters['id']!),
+            builder: (context, state) =>
+                VendorDetailScreen(vendorId: state.pathParameters['id']!),
           ),
         ],
       ),
@@ -495,7 +519,8 @@ final appRouterProvider = Provider.family<GoRouter, String>((ref, environment) {
           GoRoute(
             path: ':id',
             name: 'volunteers-detail',
-            builder: (context, state) => VolunteerDetailScreen(volunteerId: state.pathParameters['id']!),
+            builder: (context, state) =>
+                VolunteerDetailScreen(volunteerId: state.pathParameters['id']!),
           ),
         ],
       ),
@@ -512,7 +537,8 @@ final appRouterProvider = Provider.family<GoRouter, String>((ref, environment) {
           GoRoute(
             path: ':id',
             name: 'sponsorships-detail',
-            builder: (context, state) => SponsorshipDetailScreen(sponsorshipId: state.pathParameters['id']!),
+            builder: (context, state) => SponsorshipDetailScreen(
+                sponsorshipId: state.pathParameters['id']!),
           ),
         ],
       ),
@@ -529,7 +555,8 @@ final appRouterProvider = Provider.family<GoRouter, String>((ref, environment) {
           GoRoute(
             path: ':id',
             name: 'advertisements-detail',
-            builder: (context, state) => AdvertisementDetailScreen(advertisementId: state.pathParameters['id']!),
+            builder: (context, state) => AdvertisementDetailScreen(
+                advertisementId: state.pathParameters['id']!),
           ),
         ],
       ),
@@ -637,20 +664,39 @@ const _mockRevisions = <RevisionEntry>[
 ];
 
 const _mockLinkedExpenses = <LinkedExpense>[
-  LinkedExpense(dateLabel: '24 Jul', vendorName: 'Sai Decorators', amountLabel: '₹2,10,000', statusLabel: 'Pending', isPaid: false),
-  LinkedExpense(dateLabel: '22 Jul', vendorName: 'Mandap Wale Bros.', amountLabel: '₹1,45,200', statusLabel: 'Paid', isPaid: true),
+  LinkedExpense(
+      dateLabel: '24 Jul',
+      vendorName: 'Sai Decorators',
+      amountLabel: '₹2,10,000',
+      statusLabel: 'Pending',
+      isPaid: false),
+  LinkedExpense(
+      dateLabel: '22 Jul',
+      vendorName: 'Mandap Wale Bros.',
+      amountLabel: '₹1,45,200',
+      statusLabel: 'Paid',
+      isPaid: true),
 ];
 
 const _mockApprovalRequest = BudgetApprovalRequest(
   revisionVersion: 'v4',
   submittedBy: 'Priya Deshmukh',
   changes: [
-    BudgetFieldChange(fieldLabel: 'Lighting', oldValueLabel: '₹1,80,000', newValueLabel: '₹1,95,000'),
+    BudgetFieldChange(
+        fieldLabel: 'Lighting',
+        oldValueLabel: '₹1,80,000',
+        newValueLabel: '₹1,95,000'),
   ],
   reason: 'Extra LED units needed for stage backdrop.',
   comments: [
-    CommentEntry(authorName: 'Anil Joshi', authorRole: 'President', body: "Confirm this doesn't push Lighting over budget too."),
-    CommentEntry(authorName: 'Priya Deshmukh', authorRole: 'Treasurer', body: 'Confirmed — still at 90%, within threshold.'),
+    CommentEntry(
+        authorName: 'Anil Joshi',
+        authorRole: 'President',
+        body: "Confirm this doesn't push Lighting over budget too."),
+    CommentEntry(
+        authorName: 'Priya Deshmukh',
+        authorRole: 'Treasurer',
+        body: 'Confirmed — still at 90%, within threshold.'),
   ],
 );
 
@@ -662,9 +708,18 @@ const _mockApprovalSteps = [
 ];
 
 const _mockRevisionAdjustments = [
-  RevisionAdjustment(categoryName: 'Decoration', currentAllocationLabel: '₹4,00,000', proposedAllocationLabel: '₹4,00,000'),
-  RevisionAdjustment(categoryName: 'Lighting', currentAllocationLabel: '₹1,80,000', proposedAllocationLabel: '₹1,95,000'),
-  RevisionAdjustment(categoryName: 'Advertising', currentAllocationLabel: '₹1,20,000', proposedAllocationLabel: '₹1,05,000'),
+  RevisionAdjustment(
+      categoryName: 'Decoration',
+      currentAllocationLabel: '₹4,00,000',
+      proposedAllocationLabel: '₹4,00,000'),
+  RevisionAdjustment(
+      categoryName: 'Lighting',
+      currentAllocationLabel: '₹1,80,000',
+      proposedAllocationLabel: '₹1,95,000'),
+  RevisionAdjustment(
+      categoryName: 'Advertising',
+      currentAllocationLabel: '₹1,20,000',
+      proposedAllocationLabel: '₹1,05,000'),
 ];
 
 const _mockAuditSummary = AuditSummaryData(
@@ -728,8 +783,14 @@ const _mockAuditDetail = AuditEventDetail(
   ),
   reason: 'Vendor quote increase',
   relatedEvents: [
-    RelatedEvent(title: 'Budget revision v3 approved', timeAgoLabel: '2d ago', icon: Icons.check_circle_outline),
-    RelatedEvent(title: 'Vendor Sai Decorators quote updated', timeAgoLabel: '2d ago', icon: Icons.storefront_outlined),
+    RelatedEvent(
+        title: 'Budget revision v3 approved',
+        timeAgoLabel: '2d ago',
+        icon: Icons.check_circle_outline),
+    RelatedEvent(
+        title: 'Vendor Sai Decorators quote updated',
+        timeAgoLabel: '2d ago',
+        icon: Icons.storefront_outlined),
   ],
   metadata: AuditMetadata(
     ipAddress: '10.4.22.118',
@@ -815,7 +876,10 @@ const _mockNotificationDetail = NotificationDetailData(
   contextSubtitle: 'Sai Decorators',
   linkedBudgetName: 'Decoration',
   linkedBudgetStatus: 'Over by ₹18,200',
-  activityLog: ['Reminder sent · today, 8:00 AM', 'Invoice attached · 3 days ago'],
+  activityLog: [
+    'Reminder sent · today, 8:00 AM',
+    'Invoice attached · 3 days ago'
+  ],
   attachmentName: 'invoice_sai_decorators.pdf',
   primaryActionLabel: 'Pay Now',
 );

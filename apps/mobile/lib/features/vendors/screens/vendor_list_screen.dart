@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/core.dart';
+import '../../../core/localization/locale_controller.dart';
 import '../../../shared/shared.dart';
 import '../../../shared/widgets/formatters.dart';
 import '../providers/vendor_providers.dart';
@@ -14,7 +15,9 @@ class VendorListScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    ref.watch(localeControllerProvider);
     final vendorsAsync = ref.watch(vendorListProvider);
+
     final totalOutstanding = vendorsAsync.when(
       data: (vendors) => vendors.fold<int>(
           0, (sum, vendor) => sum + vendor.outstandingAmountPaise),
@@ -23,16 +26,16 @@ class VendorListScreen extends ConsumerWidget {
     );
 
     return AppScaffold(
-      title: 'Vendors',
+      title: context.vendors,
       body: Padding(
-        padding: const EdgeInsets.all(AppSpacing.lg),
+        padding: const EdgeInsets.all(AppSpacing.space24),
         child: Column(
           children: [
             Row(
               children: [
                 Expanded(
                   child: AppSummaryStatCard(
-                    label: 'Total Vendors',
+                    label: context.totalVendorsLabel,
                     value: vendorsAsync.when(
                       data: (vendors) => vendors.length.toString(),
                       loading: () => '—',
@@ -40,24 +43,24 @@ class VendorListScreen extends ConsumerWidget {
                     ),
                   ),
                 ),
-                const SizedBox(width: AppSpacing.sm),
+                const SizedBox(width: AppSpacing.space8),
                 Expanded(
                   child: AppSummaryStatCard(
-                    label: 'Outstanding',
+                    label: context.outstandingLabel,
                     value: formatPaiseAsRupees(totalOutstanding),
                     valueColor: AppColors.lightError,
                   ),
                 ),
               ],
             ),
-            const SizedBox(height: AppSpacing.md),
+            const SizedBox(height: AppSpacing.space16),
             AppSearchBar(
-              hint: 'Search vendors',
+              hint: context.searchVendorsHint,
               onChanged: (value) => ref
                   .read(vendorListControllerProvider.notifier)
                   .updateSearch(value),
             ),
-            const SizedBox(height: AppSpacing.md),
+            const SizedBox(height: AppSpacing.space16),
             Expanded(
               child: vendorsAsync.when(
                 data: (vendors) {
@@ -69,15 +72,16 @@ class VendorListScreen extends ConsumerWidget {
                   return ListView.separated(
                     itemCount: vendors.length,
                     separatorBuilder: (_, __) =>
-                        const SizedBox(height: AppSpacing.sm),
+                        const SizedBox(height: AppSpacing.space8),
                     itemBuilder: (context, index) {
                       final vendor = vendors[index];
                       return VendorListItem(
                         vendor: vendor,
                         onTap: () => Navigator.of(context).push(
                           MaterialPageRoute(
-                              builder: (_) =>
-                                  VendorDetailScreen(vendorId: vendor.id)),
+                            builder: (_) =>
+                                VendorDetailScreen(vendorId: vendor.id),
+                          ),
                         ),
                       );
                     },
@@ -99,10 +103,8 @@ class VendorListScreen extends ConsumerWidget {
           UserRole.treasurer,
         ],
         child: AppFab(
-          label: '+ Bill',
+          label: context.addBillBtn,
           onPressed: () {
-            // TODO: this is intentionally scoped to vendor create/edit UI until the
-            // future expenses/bills module exists in the backend contract.
             Navigator.of(context).push(
                 MaterialPageRoute(builder: (_) => const VendorFormScreen()));
           },

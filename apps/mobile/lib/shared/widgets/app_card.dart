@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../core/theme/app_colors.dart';
+import '../../core/theme/app_spacing.dart';
 import '../../core/theme/app_typography.dart';
 
 class AppCard extends StatelessWidget {
@@ -30,7 +31,11 @@ class AppCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final hasHeader = title != null || subtitle != null || leading != null || trailing != null;
+    final textTheme = Theme.of(context).textTheme;
+    final hasHeader = title != null ||
+        subtitle != null ||
+        leading != null ||
+        trailing != null;
 
     final content = Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -41,14 +46,14 @@ class AppCard extends StatelessWidget {
             children: [
               if (leading != null) ...[
                 leading!,
-                const SizedBox(width: 12),
+                const SizedBox(width: AppSpacing.space12),
               ],
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     if (title != null)
-                      Text(title!, style: AppTypography.titleMedium(context)),
+                      Text(title!, style: textTheme.titleMedium),
                     if (subtitle != null)
                       Padding(
                         padding: const EdgeInsets.only(top: 4),

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/core.dart';
+import '../../../core/localization/locale_controller.dart';
 import '../../../shared/shared.dart';
 import '../providers/advertisement_providers.dart';
 import '../widgets/advertisement_list_item.dart';
@@ -13,6 +14,7 @@ class AdvertisementListScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    ref.watch(localeControllerProvider);
     final adsAsync = ref.watch(advertisementListProvider);
     final role = ref.watch(roleProvider);
 
@@ -21,33 +23,30 @@ class AdvertisementListScreen extends ConsumerWidget {
         role == UserRole.treasurer;
 
     return AppScaffold(
-      title: 'Advertisements',
+      title: context.advertisements,
       body: adsAsync.when(
         data: (ads) {
           return RefreshIndicator(
             onRefresh: () async => ref.invalidate(advertisementListProvider),
             child: ListView(
-              padding: const EdgeInsets.all(AppSpacing.lg),
+              padding: const EdgeInsets.all(AppSpacing.space24),
               children: [
-                // ── Search bar ────────────────────────────────────────────
                 AppSearchBar(
-                  hint: 'Search advertisements',
+                  hint: context.searchAdsHint,
                   onChanged: (value) => ref
                       .read(advertisementListControllerProvider.notifier)
                       .updateSearch(value),
                 ),
-                const SizedBox(height: AppSpacing.md),
-                // ── Add button (management roles only) ───────────────────
+                const SizedBox(height: AppSpacing.space16),
                 if (canManage)
                   AppButton(
-                    label: 'Book Advertisement',
+                    label: context.bookAdBtn,
                     onPressed: () => Navigator.of(context).push(
                       MaterialPageRoute(
                           builder: (_) => const AdvertisementFormScreen()),
                     ),
                   ),
-                if (canManage) const SizedBox(height: AppSpacing.md),
-                // ── List ──────────────────────────────────────────────────
+                if (canManage) const SizedBox(height: AppSpacing.space16),
                 if (ads.isEmpty)
                   const AppEmptyState(
                     title: 'No advertisements booked',
@@ -56,7 +55,7 @@ class AdvertisementListScreen extends ConsumerWidget {
                 else
                   ...ads.map(
                     (ad) => Padding(
-                      padding: const EdgeInsets.only(bottom: AppSpacing.sm),
+                      padding: const EdgeInsets.only(bottom: AppSpacing.space8),
                       child: AdvertisementListItem(
                         advertisement: ad,
                         onTap: () => Navigator.of(context).push(

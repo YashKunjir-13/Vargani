@@ -64,7 +64,7 @@ class _VendorFormScreenState extends ConsumerState<VendorFormScreen> {
     return AppScaffold(
       title: isEditing ? 'Edit Vendor' : 'Add Vendor',
       body: Padding(
-        padding: const EdgeInsets.all(AppSpacing.lg),
+        padding: const EdgeInsets.all(AppSpacing.space24),
         child: Form(
           key: _formKey,
           child: ListView(
@@ -75,35 +75,35 @@ class _VendorFormScreenState extends ConsumerState<VendorFormScreen> {
                 controller: _nameController,
                 prefixIcon: Icons.business_outlined,
               ),
-              const SizedBox(height: AppSpacing.md),
+              const SizedBox(height: AppSpacing.space16),
               AppTextField(
                 label: 'Category',
                 hint: 'Decoration / DJ / Security',
                 controller: _categoryController,
                 prefixIcon: Icons.category_outlined,
               ),
-              const SizedBox(height: AppSpacing.md),
+              const SizedBox(height: AppSpacing.space16),
               AppTextField(
                 label: 'Contact Person',
                 hint: 'Enter contact person',
                 controller: _contactPersonController,
                 prefixIcon: Icons.person_outline,
               ),
-              const SizedBox(height: AppSpacing.md),
+              const SizedBox(height: AppSpacing.space16),
               AppTextField(
                 label: 'Mobile',
                 hint: '9876543210',
                 controller: _mobileController,
                 prefixIcon: Icons.phone_outlined,
               ),
-              const SizedBox(height: AppSpacing.md),
+              const SizedBox(height: AppSpacing.space16),
               AppTextField(
                 label: 'Email',
                 hint: 'vendor@example.com',
                 controller: _emailController,
                 prefixIcon: Icons.email_outlined,
               ),
-              const SizedBox(height: AppSpacing.md),
+              const SizedBox(height: AppSpacing.space16),
               AppTextField(
                 label: 'Address',
                 hint: 'Enter address',
@@ -111,12 +111,12 @@ class _VendorFormScreenState extends ConsumerState<VendorFormScreen> {
                 prefixIcon: Icons.location_on_outlined,
               ),
               if (_errorText != null) ...[
-                const SizedBox(height: AppSpacing.md),
+                const SizedBox(height: AppSpacing.space16),
                 Text(_errorText!,
                     style:
                         TextStyle(color: Theme.of(context).colorScheme.error)),
               ],
-              const SizedBox(height: AppSpacing.lg),
+              const SizedBox(height: AppSpacing.space24),
               AppButton(
                 label: 'Save Vendor',
                 isLoading: _isSubmitting,

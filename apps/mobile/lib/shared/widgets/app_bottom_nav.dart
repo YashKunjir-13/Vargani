@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../features/authentication/presentation/widgets/auth_design_tokens.dart';
 
 class AppBottomNavItem {
   const AppBottomNavItem({
@@ -28,18 +29,47 @@ class AppBottomNav extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return NavigationBar(
-      selectedIndex: currentIndex,
-      onDestinationSelected: onTap ?? (_) {},
-      destinations: items
-          .map(
-            (item) => NavigationDestination(
-              icon: Icon(item.icon),
-              selectedIcon: item.selectedIcon != null ? Icon(item.selectedIcon) : null,
-              label: item.label,
-            ),
-          )
-          .toList(),
+    final colors = context.authColors;
+    final safeIndex = (currentIndex >= 0 && currentIndex < items.length) ? currentIndex : 0;
+
+    return NavigationBarTheme(
+      data: NavigationBarThemeData(
+        backgroundColor: colors.card,
+        indicatorColor: colors.brandOrange,
+        iconTheme: WidgetStateProperty.resolveWith((states) {
+          if (states.contains(WidgetState.selected)) {
+            return const IconThemeData(color: Colors.white);
+          }
+          return IconThemeData(color: colors.secondaryText);
+        }),
+        labelTextStyle: WidgetStateProperty.resolveWith((states) {
+          if (states.contains(WidgetState.selected)) {
+            return TextStyle(
+              color: colors.brandOrange,
+              fontSize: 12,
+              fontWeight: FontWeight.bold,
+            );
+          }
+          return TextStyle(
+            color: colors.secondaryText,
+            fontSize: 12,
+            fontWeight: FontWeight.normal,
+          );
+        }),
+      ),
+      child: NavigationBar(
+        selectedIndex: safeIndex,
+        onDestinationSelected: onTap ?? (_) {},
+        destinations: items
+            .map(
+              (item) => NavigationDestination(
+                icon: Icon(item.icon),
+                selectedIcon: item.selectedIcon != null ? Icon(item.selectedIcon) : null,
+                label: item.label,
+              ),
+            )
+            .toList(),
+      ),
     );
   }
 }

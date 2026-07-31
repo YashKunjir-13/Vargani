@@ -20,11 +20,18 @@ class AppStatusBadge extends StatelessWidget {
       AppStatus.neutral => AppColors.lightNeutral,
     };
 
-    final textColor = Theme.of(context).brightness == Brightness.dark ? Theme.of(context).colorScheme.onSurface : color;
-    final backgroundColor = Theme.of(context).brightness == Brightness.dark ? color.withValues(alpha: 0.2) : color.withValues(alpha: 0.12);
+    final textColor = Theme.of(context).brightness == Brightness.dark
+        ? Theme.of(context).colorScheme.onSurface
+        : color;
+    final backgroundColor = Theme.of(context).brightness == Brightness.dark
+        ? color.withValues(alpha: 0.2)
+        : color.withValues(alpha: 0.12);
 
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: AppSpacing.md, vertical: AppSpacing.xs),
+      padding: const EdgeInsets.symmetric(
+        horizontal: AppSpacing.space16,
+        vertical: AppSpacing.space4,
+      ),
       decoration: BoxDecoration(
         color: backgroundColor,
         borderRadius: BorderRadius.circular(999),
@@ -32,7 +39,10 @@ class AppStatusBadge extends StatelessWidget {
       ),
       child: Text(
         label,
-        style: AppTypography.label(context, color: textColor).copyWith(fontSize: 11),
+        style: Theme.of(context).textTheme.labelLarge?.copyWith(
+              color: textColor,
+              fontSize: 11,
+            ),
       ),
     );
   }
