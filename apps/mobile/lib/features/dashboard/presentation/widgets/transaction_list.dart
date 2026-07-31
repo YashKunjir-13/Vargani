@@ -79,12 +79,14 @@ class TransactionListItem extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        item.donorName,
+                        item.mandalName ?? item.donorName,
                         style: TextStyle(
                           color: colors.text,
                           fontSize: 15,
                           fontWeight: FontWeight.w800,
                         ),
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
                       ),
                       const SizedBox(height: 4),
                       Row(
@@ -102,15 +104,19 @@ class TransactionListItem extends StatelessWidget {
                                 fontSize: 11,
                                 fontWeight: FontWeight.w800,
                               ),
+                              overflow: TextOverflow.ellipsis,
                             ),
                           ),
                           const SizedBox(width: 8),
-                          Text(
-                            item.paymentMethod,
-                            style: TextStyle(
-                              color: colors.secondaryText,
-                              fontSize: 12,
-                              fontWeight: FontWeight.w500,
+                          Flexible(
+                            child: Text(
+                              item.paymentMethod,
+                              style: TextStyle(
+                                color: colors.secondaryText,
+                                fontSize: 12,
+                                fontWeight: FontWeight.w500,
+                              ),
+                              overflow: TextOverflow.ellipsis,
                             ),
                           ),
                         ],

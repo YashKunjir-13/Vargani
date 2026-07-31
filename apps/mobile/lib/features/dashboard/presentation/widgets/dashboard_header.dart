@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:pauti_pustak_mobile/core/localization/localization_extensions.dart';
 import 'package:pauti_pustak_mobile/features/authentication/presentation/widgets/auth_design_tokens.dart';
-import 'package:pauti_pustak_mobile/features/authentication/presentation/widgets/language_selector.dart';
 
 class DashboardHeader extends ConsumerWidget implements PreferredSizeWidget {
   const DashboardHeader({
@@ -12,6 +11,7 @@ class DashboardHeader extends ConsumerWidget implements PreferredSizeWidget {
     this.badgeText = 'पप',
     this.onProfileTap,
     this.onNotificationTap,
+    this.onSearchTap,
     this.unreadNotificationsCount = 3,
   });
 
@@ -20,6 +20,7 @@ class DashboardHeader extends ConsumerWidget implements PreferredSizeWidget {
   final String badgeText;
   final VoidCallback? onProfileTap;
   final VoidCallback? onNotificationTap;
+  final VoidCallback? onSearchTap;
   final int unreadNotificationsCount;
 
   @override
@@ -102,8 +103,24 @@ class DashboardHeader extends ConsumerWidget implements PreferredSizeWidget {
 
 
 
-            // Compact Language Selector
-            const AuthLanguageSelector(),
+            // Search Icon instead of Language Selector
+            if (onSearchTap != null)
+              IconButton(
+                onPressed: onSearchTap,
+                style: IconButton.styleFrom(
+                  backgroundColor: colors.surfaceMuted,
+                  padding: const EdgeInsets.all(8),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                ),
+                icon: Icon(
+                  Icons.search,
+                  color: colors.text,
+                  size: 22,
+                ),
+                tooltip: 'Search Mandal',
+              ),
 
             const SizedBox(width: 6),
 

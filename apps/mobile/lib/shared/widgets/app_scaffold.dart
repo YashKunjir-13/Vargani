@@ -1,9 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../../core/localization/localization_extensions.dart';
 import '../../features/authentication/presentation/widgets/auth_design_tokens.dart';
-import '../../features/authentication/presentation/widgets/language_selector.dart';
 import '../../features/dashboard/presentation/providers/dashboard_providers.dart';
 import 'app_bottom_nav.dart';
 import '../../core/core.dart';
@@ -34,8 +32,6 @@ class AppScaffold extends ConsumerWidget {
     final colors = context.authColors;
     final l10n = context.l10n;
     final activeTabIndex = ref.watch(dashboardTabProvider);
-    final isDark = ref.watch(appThemeModeProvider) == ThemeMode.dark;
-    final language = ref.watch(localeProvider);
 
     final effectiveBottomNav = bottomNavigationBar ??
         Container(
@@ -107,23 +103,6 @@ class AppScaffold extends ConsumerWidget {
         ),
         actions: [
           ...?actions,
-          const AuthLanguageSelector(),
-          const SizedBox(width: 8),
-          // Theme toggle — use a styled icon button so it's visible in both modes
-          IconButton(
-            tooltip: isDark ? 'Switch to light mode' : 'Switch to dark mode',
-            icon: Icon(
-              isDark ? Icons.light_mode_outlined : Icons.dark_mode_outlined,
-              color: Theme.of(context).colorScheme.onSurface,
-            ),
-            onPressed: () => ref.read(appThemeModeProvider.notifier).toggleTheme(),
-          ),
-          TextButton(
-            onPressed: () => ref.read(localeProvider.notifier).setLanguage(
-                AppLanguage.values[(AppLanguage.values.indexOf(language) + 1) %
-                    AppLanguage.values.length]),
-            child: Text(language.name.toUpperCase()),
-          ),
           IconButton(
             icon: const Icon(Icons.notifications_outlined),
             onPressed: () {},

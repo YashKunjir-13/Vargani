@@ -285,7 +285,7 @@ class _MandalDashboardScreenState extends ConsumerState<MandalDashboardScreen> {
               if (action.id == 'records') {
                 Navigator.of(context).push(MaterialPageRoute(builder: (_) => const AllRecordsScreen()));
               } else if (action.id == 'collect' || action.id == 'receipt') {
-                DashboardActionSheets.showCollectDonationSheet(context);
+                DashboardActionSheets.showCollectDonationSheet(context, ref: ref, mandalName: data.mandalName);
               } else if (action.id == 'expense' || action.id == 'bill') {
                 DashboardActionSheets.showAddExpenseSheet(context);
               } else if (action.id == 'volunteer') {

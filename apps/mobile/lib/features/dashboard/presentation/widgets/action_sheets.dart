@@ -2,11 +2,20 @@ import 'package:flutter/material.dart';
 import 'package:pauti_pustak_mobile/features/authentication/presentation/widgets/auth_buttons.dart';
 import 'package:pauti_pustak_mobile/features/authentication/presentation/widgets/auth_design_tokens.dart';
 import 'package:pauti_pustak_mobile/features/authentication/presentation/widgets/auth_text_fields.dart';
-
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:pauti_pustak_mobile/features/dashboard/presentation/providers/dashboard_providers.dart';
+import 'package:pauti_pustak_mobile/core/session/session_controller.dart';
 class DashboardActionSheets {
-  static void showCollectDonationSheet(BuildContext context) {
+  static void showCollectDonationSheet(BuildContext context, {WidgetRef? ref, String? mandalName}) {
     final colors = context.authColors;
-    final nameController = TextEditingController();
+    
+    String? currentUserName;
+    if (ref != null) {
+      final user = ref.read(sessionControllerProvider).user;
+      currentUserName = user?.donorProfile?.fullName ?? user?.displayName;
+    }
+    
+    final nameController = TextEditingController(text: currentUserName ?? '');
     final amountController = TextEditingController();
     String selectedMethod = 'UPI (GPay/PhonePe)';
 
@@ -89,14 +98,35 @@ class DashboardActionSheets {
                   ),
                   const SizedBox(height: 24),
                   AuthPrimaryButton(
-                    label: 'Issue Receipt & Record',
+                    label: 'Proceed to Payment',
                     icon: Icons.receipt_long,
                     onPressed: () {
                       Navigator.pop(ctx);
+                      
+                      final amountText = amountController.text.isEmpty ? '5001' : amountController.text;
+                      final amountPaise = (int.tryParse(amountText) ?? 5001) * 100;
+                      
+                      // TODO: Implement Razorpay integration here.
+                      // Currently proceeding with mock dashboard updates.
+                      
+                      if (ref != null) {
+                        ref.read(donorDashboardProvider.notifier).addDonation(
+                          amountPaise: amountPaise,
+                          paymentMethod: selectedMethod,
+                          mandalName: mandalName ?? 'Shree Siddhivinayak Ganpati Mandal',
+                        );
+                        
+                        ref.read(mandalDashboardProvider.notifier).addDonation(
+                          amountPaise: amountPaise,
+                          paymentMethod: selectedMethod,
+                          donorName: nameController.text.isEmpty ? 'Unknown Donor' : nameController.text,
+                        );
+                      }
+
                       ScaffoldMessenger.of(context).showSnackBar(
                         SnackBar(
                           content: Text(
-                            'Donation of ₹${amountController.text.isEmpty ? '5001' : amountController.text} collected successfully!',
+                            'Donation of ₹$amountText collected successfully!',
                           ),
                           backgroundColor: Colors.green,
                         ),
