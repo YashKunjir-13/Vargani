@@ -11,15 +11,12 @@ class MockVendorRepository implements VendorRepository {
   late List<Vendor> _vendors;
 
   @override
-  Future<List<Vendor>> getVendors(
-      {String search = '', VendorStatus? status}) async {
+  Future<List<Vendor>> getVendors({String search = '', VendorStatus? status}) async {
     final query = search.trim().toLowerCase();
     return _vendors.where((vendor) {
       final matchesStatus = status == null || vendor.status == status;
-      final haystack = [vendor.name, vendor.category, vendor.contactPerson]
-          .whereType<String>()
-          .join(' ')
-          .toLowerCase();
+      final haystack =
+          '${vendor.name} ${vendor.contactPerson ?? ''} ${vendor.category ?? ''}'.toLowerCase();
       final matchesQuery = query.isEmpty || haystack.contains(query);
       return matchesStatus && matchesQuery;
     }).toList();
@@ -37,6 +34,10 @@ class MockVendorRepository implements VendorRepository {
     String? mobile,
     String? email,
     String? address,
+    String? gstin,
+    String? pan,
+    String? bankAccount,
+    String? bankIfsc,
     VendorStatus status = VendorStatus.active,
     String? category,
     int contractAmountPaise = 0,
@@ -49,13 +50,18 @@ class MockVendorRepository implements VendorRepository {
       mobile: mobile,
       email: email,
       address: address,
+      gstin: gstin,
+      pan: pan,
+      bankAccount: bankAccount,
+      bankIfsc: bankIfsc,
       status: status,
       createdAt: DateTime.now(),
       contractAmountPaise: contractAmountPaise,
       paidAmountPaise: paidAmountPaise,
-      outstandingAmountPaise: contractAmountPaise - paidAmountPaise,
-      contractStatus:
-          _deriveContractStatus(contractAmountPaise, paidAmountPaise),
+      outstandingAmountPaise: (contractAmountPaise - paidAmountPaise).clamp(0, double.maxFinite.toInt()),
+      contractStatus: (contractAmountPaise > 0 && contractAmountPaise <= paidAmountPaise)
+          ? VendorContractStatus.complete
+          : VendorContractStatus.active,
       category: category,
     );
     _vendors.add(vendor);
@@ -70,31 +76,65 @@ class MockVendorRepository implements VendorRepository {
     String? mobile,
     String? email,
     String? address,
+    String? gstin,
+    String? pan,
+    String? bankAccount,
+    String? bankIfsc,
     VendorStatus? status,
     String? category,
     int? contractAmountPaise,
     int? paidAmountPaise,
   }) async {
-    final index = _vendors.indexWhere((vendor) => vendor.id == id);
-    if (index == -1) {
-      return null;
-    }
-
+    final index = _vendors.indexWhere((v) => v.id == id);
+    if (index == -1) return null;
     final existing = _vendors[index];
-    final nextContract = contractAmountPaise ?? existing.contractAmountPaise;
-    final nextPaid = paidAmountPaise ?? existing.paidAmountPaise;
+
+    final newContractPaise = contractAmountPaise ?? existing.contractAmountPaise;
+    final newPaidPaise = paidAmountPaise ?? existing.paidAmountPaise;
+    final newOutstanding = (newContractPaise - newPaidPaise).clamp(0, double.maxFinite.toInt());
+
     final updated = existing.copyWith(
       name: name,
       contactPerson: contactPerson,
       mobile: mobile,
       email: email,
       address: address,
+      gstin: gstin,
+      pan: pan,
+      bankAccount: bankAccount,
+      bankIfsc: bankIfsc,
       status: status,
       category: category,
-      contractAmountPaise: nextContract,
-      paidAmountPaise: nextPaid,
-      outstandingAmountPaise: nextContract - nextPaid,
-      contractStatus: _deriveContractStatus(nextContract, nextPaid),
+      contractAmountPaise: newContractPaise,
+      paidAmountPaise: newPaidPaise,
+      outstandingAmountPaise: newOutstanding,
+      contractStatus: (newContractPaise > 0 && newContractPaise <= newPaidPaise)
+          ? VendorContractStatus.complete
+          : VendorContractStatus.active,
+    );
+    _vendors[index] = updated;
+    return updated;
+  }
+
+  @override
+  Future<Vendor?> deactivateVendor({required String id}) async {
+    final index = _vendors.indexWhere((v) => v.id == id);
+    if (index == -1) return null;
+    final updated = _vendors[index].copyWith(
+      status: VendorStatus.inactive,
+      deactivatedAt: DateTime.now(),
+    );
+    _vendors[index] = updated;
+    return updated;
+  }
+
+  @override
+  Future<Vendor?> reactivateVendor({required String id}) async {
+    final index = _vendors.indexWhere((v) => v.id == id);
+    if (index == -1) return null;
+    final updated = _vendors[index].copyWith(
+      status: VendorStatus.active,
+      deactivatedAt: null,
     );
     _vendors[index] = updated;
     return updated;
@@ -104,166 +144,63 @@ class MockVendorRepository implements VendorRepository {
     return [
       Vendor(
         id: 'vendor-1',
-        name: 'Rajat Decor',
-        contactPerson: 'Rajat Sharma',
+        name: 'Mahalaxmi Mandap Decorators',
+        contactPerson: 'Suresh Patil',
         mobile: '9876543210',
-        email: 'rajat@decor.in',
-        address: 'Pune',
+        email: 'info@mahalaxmimandap.com',
+        address: 'Plot 45, MIDC Area, Thane West, Mumbai',
+        gstin: '27AAAAA0000A1Z5',
+        pan: 'ABCDE1234F',
+        bankAccount: '987654321012',
+        bankIfsc: 'SBIN0001234',
         status: VendorStatus.active,
-        createdAt: DateTime(2024, 7, 2),
-        contractAmountPaise: 18000000,
-        paidAmountPaise: 9000000,
-        outstandingAmountPaise: 9000000,
+        createdAt: DateTime(2025, 1, 15),
+        contractAmountPaise: 45000000,
+        paidAmountPaise: 30000000,
+        outstandingAmountPaise: 15000000,
         contractStatus: VendorContractStatus.active,
-        category: 'Decoration',
+        category: 'Mandap & Decoration',
       ),
       Vendor(
         id: 'vendor-2',
-        name: 'Sonic Wave',
-        contactPerson: 'Asha Mehta',
+        name: 'Shree Sound Systems & Lighting',
+        contactPerson: 'Ramesh Sawant',
         mobile: '9123456780',
-        email: 'asha@sonicwave.in',
-        address: 'Mumbai',
+        email: 'shreesound@gmail.com',
+        address: 'Shop 12, Station Road, Dadar, Mumbai',
+        gstin: '27BBBBB1111B2Z6',
+        pan: 'BCDEF2345G',
+        bankAccount: '112233445566',
+        bankIfsc: 'HDFC0005678',
         status: VendorStatus.active,
-        createdAt: DateTime(2024, 6, 15),
-        contractAmountPaise: 25000000,
-        paidAmountPaise: 25000000,
+        createdAt: DateTime(2025, 2, 1),
+        contractAmountPaise: 18000000,
+        paidAmountPaise: 18000000,
         outstandingAmountPaise: 0,
         contractStatus: VendorContractStatus.complete,
-        category: 'DJ/Sound',
+        category: 'Sound & Lighting',
       ),
       Vendor(
         id: 'vendor-3',
-        name: 'Maharaj Catering',
-        contactPerson: 'Vikas Rao',
+        name: 'Annapurna Catering Services',
+        contactPerson: 'Sunita Joshi',
         mobile: '9988776655',
-        email: 'vikas@maharaj.in',
-        address: 'Nashik',
-        status: VendorStatus.active,
-        createdAt: DateTime(2024, 8, 1),
-        contractAmountPaise: 32000000,
-        paidAmountPaise: 15000000,
-        outstandingAmountPaise: 17000000,
-        contractStatus: VendorContractStatus.pending,
-        category: 'Food',
-      ),
-      Vendor(
-        id: 'vendor-4',
-        name: 'Shield Security',
-        contactPerson: 'Nilesh Patil',
-        mobile: '9090909090',
-        email: 'nilesh@shield.in',
-        address: 'Nagpur',
-        status: VendorStatus.active,
-        createdAt: DateTime(2024, 5, 22),
-        contractAmountPaise: 14000000,
-        paidAmountPaise: 14000000,
-        outstandingAmountPaise: 0,
-        contractStatus: VendorContractStatus.complete,
-        category: 'Security',
-      ),
-      Vendor(
-        id: 'vendor-5',
-        name: 'Bright Lights',
-        contactPerson: 'Kavita Joshi',
-        mobile: '9871234567',
-        email: 'kavita@brightlights.in',
-        address: 'Pune',
-        status: VendorStatus.active,
-        createdAt: DateTime(2024, 9, 11),
-        contractAmountPaise: 9000000,
-        paidAmountPaise: 3000000,
-        outstandingAmountPaise: 6000000,
-        contractStatus: VendorContractStatus.active,
-        category: 'Lighting',
-      ),
-      Vendor(
-        id: 'vendor-6',
-        name: 'Green Valley Flowers',
-        contactPerson: 'Pooja Deshmukh',
-        mobile: '9011223344',
-        email: 'pooja@gvflowers.in',
-        address: 'Kolhapur',
-        status: VendorStatus.active,
-        createdAt: DateTime(2024, 10, 3),
-        contractAmountPaise: 6000000,
-        paidAmountPaise: 4000000,
-        outstandingAmountPaise: 2000000,
-        contractStatus: VendorContractStatus.pending,
-        category: 'Floral',
-      ),
-      Vendor(
-        id: 'vendor-7',
-        name: 'Metro Transit',
-        contactPerson: 'Anand Kulkarni',
-        mobile: '9812345678',
-        email: 'anand@metrotransit.in',
-        address: 'Pune',
+        email: 'annapurnacaterers@outlook.com',
+        address: 'B-7 Gokhale Road, Girgaon, Mumbai',
+        gstin: '27CCCCC2222C3Z7',
+        pan: 'CDEFG3456H',
+        bankAccount: '556677889900',
+        bankIfsc: 'ICIC0009012',
         status: VendorStatus.inactive,
-        createdAt: DateTime(2024, 4, 17),
-        contractAmountPaise: 5000000,
-        paidAmountPaise: 5000000,
-        outstandingAmountPaise: 0,
-        contractStatus: VendorContractStatus.complete,
-        category: 'Transport',
-      ),
-      Vendor(
-        id: 'vendor-8',
-        name: 'Elite Stage Setup',
-        contactPerson: 'Sameer Bhosale',
-        mobile: '7777777777',
-        email: 'sameer@elitestage.in',
-        address: 'Aurangabad',
-        status: VendorStatus.active,
-        createdAt: DateTime(2024, 3, 9),
-        contractAmountPaise: 22000000,
-        paidAmountPaise: 5500000,
-        outstandingAmountPaise: 16500000,
+        deactivatedAt: DateTime(2025, 3, 10),
+        createdAt: DateTime(2025, 1, 20),
+        contractAmountPaise: 25000000,
+        paidAmountPaise: 15000000,
+        outstandingAmountPaise: 10000000,
         contractStatus: VendorContractStatus.active,
-        category: 'Stage Setup',
-      ),
-      Vendor(
-        id: 'vendor-9',
-        name: 'Prakash Electricals',
-        contactPerson: 'Rina Shah',
-        mobile: '8888888888',
-        email: 'rina@prakashelectricals.in',
-        address: 'Mumbai',
-        status: VendorStatus.active,
-        createdAt: DateTime(2024, 2, 20),
-        contractAmountPaise: 11000000,
-        paidAmountPaise: 6000000,
-        outstandingAmountPaise: 5000000,
-        contractStatus: VendorContractStatus.pending,
-        category: 'Electrical',
-      ),
-      Vendor(
-        id: 'vendor-10',
-        name: 'Royal Printworks',
-        contactPerson: 'Rohit Kale',
-        mobile: '9555666777',
-        email: 'rohit@royalprint.in',
-        address: 'Pune',
-        status: VendorStatus.active,
-        createdAt: DateTime(2024, 1, 12),
-        contractAmountPaise: 7000000,
-        paidAmountPaise: 7000000,
-        outstandingAmountPaise: 0,
-        contractStatus: VendorContractStatus.complete,
-        category: 'Print',
+        category: 'Prasad & Catering',
       ),
     ];
-  }
-
-  VendorContractStatus _deriveContractStatus(
-      int contractAmountPaise, int paidAmountPaise) {
-    if (paidAmountPaise >= contractAmountPaise) {
-      return VendorContractStatus.complete;
-    }
-    if (paidAmountPaise <= 0) {
-      return VendorContractStatus.pending;
-    }
-    return VendorContractStatus.active;
   }
 }
 

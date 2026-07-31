@@ -292,6 +292,17 @@ extension LocalizationBuildContext on BuildContext {
     }
   }
 
+  String get addDonorBtn {
+    switch (languageCode) {
+      case 'hi':
+        return 'दाता जोड़ें';
+      case 'mr':
+        return 'देणगीदार जोडा';
+      default:
+        return 'Add Donor';
+    }
+  }
+
   String get bookAdBtn {
     switch (languageCode) {
       case 'hi':
