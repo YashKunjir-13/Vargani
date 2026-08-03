@@ -17,6 +17,11 @@ class VendorListScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     ref.watch(localeControllerProvider);
     final vendorsAsync = ref.watch(vendorListProvider);
+    final role = ref.watch(roleProvider);
+
+    final canManageVendors = role == UserRole.trustPresident ||
+        role == UserRole.vicePresident ||
+        role == UserRole.treasurer;
 
     final totalOutstanding = vendorsAsync.when(
       data: (vendors) => vendors.fold<int>(
@@ -60,14 +65,26 @@ class VendorListScreen extends ConsumerWidget {
                   .read(vendorListControllerProvider.notifier)
                   .updateSearch(value),
             ),
+            if (canManageVendors) ...[
+              const SizedBox(height: AppSpacing.space12),
+              AppButton(
+                label: 'Add Vendor',
+                onPressed: () {
+                  Navigator.of(context).push(
+                    MaterialPageRoute(builder: (_) => const VendorFormScreen()),
+                  );
+                },
+              ),
+            ],
             const SizedBox(height: AppSpacing.space16),
             Expanded(
               child: vendorsAsync.when(
                 data: (vendors) {
                   if (vendors.isEmpty) {
                     return const AppEmptyState(
-                        title: 'No vendors found',
-                        message: 'Try a different search.');
+                      title: 'No vendors found',
+                      message: 'Try a different search.',
+                    );
                   }
                   return ListView.separated(
                     itemCount: vendors.length,
@@ -94,20 +111,6 @@ class VendorListScreen extends ConsumerWidget {
               ),
             ),
           ],
-        ),
-      ),
-      floatingActionButton: RoleGate(
-        allowedRoles: const [
-          UserRole.trustPresident,
-          UserRole.vicePresident,
-          UserRole.treasurer,
-        ],
-        child: AppFab(
-          label: context.addBillBtn,
-          onPressed: () {
-            Navigator.of(context).push(
-                MaterialPageRoute(builder: (_) => const VendorFormScreen()));
-          },
         ),
       ),
     );

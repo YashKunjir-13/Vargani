@@ -12,10 +12,14 @@ class DonorListState {
   final String search;
   final DonorProfileStatus? status;
 
-  DonorListState copyWith({String? search, DonorProfileStatus? status}) {
+  DonorListState copyWith({
+    String? search,
+    DonorProfileStatus? status,
+    bool clearStatus = false,
+  }) {
     return DonorListState(
       search: search ?? this.search,
-      status: status ?? this.status,
+      status: clearStatus ? null : (status ?? this.status),
     );
   }
 }
@@ -29,7 +33,11 @@ class DonorListNotifier extends Notifier<DonorListState> {
   }
 
   void updateStatus(DonorProfileStatus? status) {
-    state = state.copyWith(status: status);
+    if (status == null) {
+      state = state.copyWith(clearStatus: true);
+    } else {
+      state = state.copyWith(status: status);
+    }
   }
 }
 

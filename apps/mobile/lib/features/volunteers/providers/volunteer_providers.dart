@@ -14,11 +14,17 @@ class VolunteerListState {
   final VolunteerStatus? status;
   final VolunteerType? type;
 
-  VolunteerListState copyWith({String? search, VolunteerStatus? status, VolunteerType? type}) {
+  VolunteerListState copyWith({
+    String? search,
+    VolunteerStatus? status,
+    bool clearStatus = false,
+    VolunteerType? type,
+    bool clearType = false,
+  }) {
     return VolunteerListState(
       search: search ?? this.search,
-      status: status ?? this.status,
-      type: type ?? this.type,
+      status: clearStatus ? null : (status ?? this.status),
+      type: clearType ? null : (type ?? this.type),
     );
   }
 }
@@ -32,11 +38,19 @@ class VolunteerListNotifier extends Notifier<VolunteerListState> {
   }
 
   void updateStatus(VolunteerStatus? status) {
-    state = state.copyWith(status: status);
+    if (status == null) {
+      state = state.copyWith(clearStatus: true);
+    } else {
+      state = state.copyWith(status: status);
+    }
   }
 
   void updateType(VolunteerType? type) {
-    state = state.copyWith(type: type);
+    if (type == null) {
+      state = state.copyWith(clearType: true);
+    } else {
+      state = state.copyWith(type: type);
+    }
   }
 }
 

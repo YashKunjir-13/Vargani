@@ -23,12 +23,6 @@ class MockDonorRepository implements DonorRepository {
       {'fullName': 'Kiran Joshi', 'mobile': '9432109876', 'email': 'kiran@example.com', 'status': DonorProfileStatus.unclaimed, 'claimedAt': null, 'createdAt': now.subtract(const Duration(days: 22)), 'count': 6, 'amount': 720000},
       {'fullName': 'Pooja Bhatia', 'mobile': '9321098765', 'email': 'pooja@example.com', 'status': DonorProfileStatus.active, 'claimedAt': now.subtract(const Duration(days: 6)), 'createdAt': now.subtract(const Duration(days: 9)), 'count': 8, 'amount': 990000},
       {'fullName': 'Aniket Sharma', 'mobile': '9210987654', 'email': 'aniket@example.com', 'status': DonorProfileStatus.active, 'claimedAt': now.subtract(const Duration(days: 10)), 'createdAt': now.subtract(const Duration(days: 25)), 'count': 10, 'amount': 1120000},
-      {'fullName': 'Deepa Verma', 'mobile': '9109876543', 'email': 'deepa@example.com', 'status': DonorProfileStatus.deactivated, 'claimedAt': null, 'createdAt': now.subtract(const Duration(days: 35)), 'count': 3, 'amount': 300000},
-      {'fullName': 'Rahul Gupta', 'mobile': '9098765432', 'email': 'rahul@example.com', 'status': DonorProfileStatus.active, 'claimedAt': now.subtract(const Duration(days: 2)), 'createdAt': now.subtract(const Duration(days: 14)), 'count': 7, 'amount': 640000},
-      {'fullName': 'Ishita Nair', 'mobile': '9987654321', 'email': 'ishita@example.com', 'status': DonorProfileStatus.unclaimed, 'claimedAt': null, 'createdAt': now.subtract(const Duration(days: 28)), 'count': 5, 'amount': 580000},
-      {'fullName': 'Harshad Kulkarni', 'mobile': '9876541230', 'email': 'harshad@example.com', 'status': DonorProfileStatus.active, 'claimedAt': now.subtract(const Duration(days: 7)), 'createdAt': now.subtract(const Duration(days: 17)), 'count': 11, 'amount': 1210000},
-      {'fullName': 'Tara Iyer', 'mobile': '9765432100', 'email': 'tara@example.com', 'status': DonorProfileStatus.active, 'claimedAt': now.subtract(const Duration(days: 4)), 'createdAt': now.subtract(const Duration(days: 11)), 'count': 13, 'amount': 1330000},
-      {'fullName': 'Mukesh Jain', 'mobile': '9654321009', 'email': 'mukesh@example.com', 'status': DonorProfileStatus.deactivated, 'claimedAt': null, 'createdAt': now.subtract(const Duration(days: 45)), 'count': 2, 'amount': 180000},
     ];
 
     for (final item in seedData) {
@@ -65,17 +59,7 @@ class MockDonorRepository implements DonorRepository {
 
   @override
   Future<Donor?> getDonorById(String id) async {
-    return _donors.firstWhere(
-      (donor) => donor.id == id,
-      orElse: () => Donor(
-        id: '',
-        fullName: '',
-        status: DonorProfileStatus.unclaimed,
-        createdAt: DateTime.now(),
-        totalContributionsCount: 0,
-        totalConfirmedAmountPaise: 0,
-      ),
-    );
+    return _donors.where((donor) => donor.id == id).firstOrNull;
   }
 
   @override
@@ -109,10 +93,7 @@ class MockDonorRepository implements DonorRepository {
     DateTime? claimedAt,
   }) async {
     final index = _donors.indexWhere((donor) => donor.id == id);
-    if (index == -1) {
-      return null;
-    }
-
+    if (index == -1) return null;
     final existing = _donors[index];
     final updated = existing.copyWith(
       fullName: fullName,
@@ -124,4 +105,42 @@ class MockDonorRepository implements DonorRepository {
     _donors[index] = updated;
     return updated;
   }
+
+  @override
+  Future<Donor?> claimDonor({required String id}) async {
+    return updateDonor(
+      id: id,
+      status: DonorProfileStatus.active,
+      claimedAt: DateTime.now(),
+    );
+  }
+
+  @override
+  Future<bool> mergeDonor({
+    required String survivingDonorId,
+    required String mergedDonorId,
+    required String reason,
+  }) async {
+    final sIndex = _donors.indexWhere((d) => d.id == survivingDonorId);
+    final mIndex = _donors.indexWhere((d) => d.id == mergedDonorId);
+    if (sIndex == -1 || mIndex == -1) return false;
+
+    final surviving = _donors[sIndex];
+    final merged = _donors[mIndex];
+
+    // Combine stats without altering historical donation values
+    final updatedSurviving = surviving.copyWith(
+      totalContributionsCount: surviving.totalContributionsCount + merged.totalContributionsCount,
+      totalConfirmedAmountPaise: surviving.totalConfirmedAmountPaise + merged.totalConfirmedAmountPaise,
+    );
+    _donors[sIndex] = updatedSurviving;
+
+    // Set merged donor status to MERGED
+    _donors[mIndex] = merged.copyWith(status: DonorProfileStatus.merged);
+    return true;
+  }
+}
+
+extension<T> on Iterable<T> {
+  T? get firstOrNull => isEmpty ? null : first;
 }

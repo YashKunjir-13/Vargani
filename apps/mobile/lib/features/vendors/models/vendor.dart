@@ -2,6 +2,15 @@ import 'package:flutter/foundation.dart';
 
 enum VendorStatus { active, inactive }
 
+extension VendorStatusExtension on VendorStatus {
+  String get label {
+    return switch (this) {
+      VendorStatus.active => 'Active',
+      VendorStatus.inactive => 'Inactive',
+    };
+  }
+}
+
 enum VendorContractStatus { active, complete, pending }
 
 @immutable
@@ -13,7 +22,13 @@ class Vendor {
     this.mobile,
     this.email,
     this.address,
+    this.gstin,
+    this.pan,
+    this.bankAccount,
+    this.bankIfsc,
     required this.status,
+    this.deactivatedAt,
+    this.deactivatedByUserId,
     required this.createdAt,
     required this.contractAmountPaise,
     required this.paidAmountPaise,
@@ -28,15 +43,42 @@ class Vendor {
   final String? mobile;
   final String? email;
   final String? address;
+  final String? gstin;
+  final String? pan;
+  final String? bankAccount;
+  final String? bankIfsc;
   final VendorStatus status;
+  final DateTime? deactivatedAt;
+  final String? deactivatedByUserId;
   final DateTime createdAt;
-  // These are UI-facing aggregates derived from the mock repository and are
-  // intentionally kept on the model for the frontend-only experience.
+
+  // UI-facing aggregates for financial tracking
   final int contractAmountPaise;
   final int paidAmountPaise;
   final int outstandingAmountPaise;
   final VendorContractStatus contractStatus;
   final String? category;
+
+  String get maskedGstin {
+    if (gstin == null || gstin!.length < 10) return gstin ?? '—';
+    return '${gstin!.substring(0, 5)}****${gstin!.substring(gstin!.length - 3)}';
+  }
+
+  String get maskedPan {
+    if (pan == null || pan!.length < 8) return pan ?? '—';
+    return '${pan!.substring(0, 5)}****${pan!.substring(pan!.length - 1)}';
+  }
+
+  String get maskedBankAccount {
+    if (bankAccount == null || bankAccount!.length < 4) return bankAccount ?? '—';
+    final last4 = bankAccount!.substring(bankAccount!.length - 4);
+    return 'XXXX XXXX $last4';
+  }
+
+  String get maskedBankIfsc {
+    if (bankIfsc == null || bankIfsc!.length < 6) return bankIfsc ?? '—';
+    return '${bankIfsc!.substring(0, 4)}****${bankIfsc!.substring(bankIfsc!.length - 2)}';
+  }
 
   Vendor copyWith({
     String? id,
@@ -45,7 +87,13 @@ class Vendor {
     String? mobile,
     String? email,
     String? address,
+    String? gstin,
+    String? pan,
+    String? bankAccount,
+    String? bankIfsc,
     VendorStatus? status,
+    DateTime? deactivatedAt,
+    String? deactivatedByUserId,
     DateTime? createdAt,
     int? contractAmountPaise,
     int? paidAmountPaise,
@@ -60,12 +108,17 @@ class Vendor {
       mobile: mobile ?? this.mobile,
       email: email ?? this.email,
       address: address ?? this.address,
+      gstin: gstin ?? this.gstin,
+      pan: pan ?? this.pan,
+      bankAccount: bankAccount ?? this.bankAccount,
+      bankIfsc: bankIfsc ?? this.bankIfsc,
       status: status ?? this.status,
+      deactivatedAt: deactivatedAt ?? this.deactivatedAt,
+      deactivatedByUserId: deactivatedByUserId ?? this.deactivatedByUserId,
       createdAt: createdAt ?? this.createdAt,
       contractAmountPaise: contractAmountPaise ?? this.contractAmountPaise,
       paidAmountPaise: paidAmountPaise ?? this.paidAmountPaise,
-      outstandingAmountPaise:
-          outstandingAmountPaise ?? this.outstandingAmountPaise,
+      outstandingAmountPaise: outstandingAmountPaise ?? this.outstandingAmountPaise,
       contractStatus: contractStatus ?? this.contractStatus,
       category: category ?? this.category,
     );
