@@ -13,7 +13,11 @@ class MockVolunteerRepository implements VolunteerRepository {
   final Map<String, List<VolunteerAssignment>> _assignments = {};
 
   @override
-  Future<List<Volunteer>> getVolunteers({String search = '', VolunteerStatus? status, VolunteerType? type}) async {
+  Future<List<Volunteer>> getVolunteers({
+    String search = '',
+    VolunteerStatus? status,
+    VolunteerType? type,
+  }) async {
     final query = search.trim().toLowerCase();
     return _volunteers.where((volunteer) {
       final matchesStatus = status == null || volunteer.status == status;
@@ -36,6 +40,8 @@ class MockVolunteerRepository implements VolunteerRepository {
     String? customTypeLabel,
     required String mobile,
     String? email,
+    String? address,
+    String? emergencyContact,
     String preferredLanguage = 'mr',
     DateTime? joinedOn,
   }) async {
@@ -48,7 +54,9 @@ class MockVolunteerRepository implements VolunteerRepository {
       fullName: fullName,
       mobile: mobile,
       email: email,
-      joinedOn: joinedOn,
+      address: address,
+      emergencyContact: emergencyContact,
+      joinedOn: joinedOn ?? DateTime.now(),
       preferredLanguage: preferredLanguage,
       activeAssignmentCount: 0,
       currentAssignmentSummary: null,
@@ -66,14 +74,14 @@ class MockVolunteerRepository implements VolunteerRepository {
     String? customTypeLabel,
     String? mobile,
     String? email,
+    String? address,
+    String? emergencyContact,
     String? preferredLanguage,
     DateTime? joinedOn,
     VolunteerStatus? status,
   }) async {
-    final index = _volunteers.indexWhere((volunteer) => volunteer.id == id);
-    if (index == -1) {
-      return null;
-    }
+    final index = _volunteers.indexWhere((v) => v.id == id);
+    if (index == -1) return null;
     final existing = _volunteers[index];
     final updated = existing.copyWith(
       fullName: fullName,
@@ -81,10 +89,69 @@ class MockVolunteerRepository implements VolunteerRepository {
       customTypeLabel: customTypeLabel,
       mobile: mobile,
       email: email,
+      address: address,
+      emergencyContact: emergencyContact,
       preferredLanguage: preferredLanguage,
       joinedOn: joinedOn,
       status: status,
+      version: existing.version + 1,
     );
+    _volunteers[index] = updated;
+    return updated;
+  }
+
+  @override
+  Future<Volunteer?> activateVolunteer({
+    required String id,
+    String? auditReason,
+  }) async {
+    return updateVolunteer(
+      id: id,
+      status: VolunteerStatus.active,
+    );
+  }
+
+  @override
+  Future<Volunteer?> suspendVolunteer({
+    required String id,
+    required String reason,
+  }) async {
+    return updateVolunteer(
+      id: id,
+      status: VolunteerStatus.suspended,
+    );
+  }
+
+  @override
+  Future<Volunteer?> deactivateVolunteer({
+    required String id,
+    required String reason,
+  }) async {
+    return updateVolunteer(
+      id: id,
+      status: VolunteerStatus.inactive,
+    );
+  }
+
+  @override
+  Future<Volunteer?> linkUserIdentity({
+    required String id,
+    required String userId,
+  }) async {
+    final index = _volunteers.indexWhere((v) => v.id == id);
+    if (index == -1) return null;
+    final updated = _volunteers[index].copyWith(linkedUserId: userId);
+    _volunteers[index] = updated;
+    return updated;
+  }
+
+  @override
+  Future<Volunteer?> unlinkUserIdentity({
+    required String id,
+  }) async {
+    final index = _volunteers.indexWhere((v) => v.id == id);
+    if (index == -1) return null;
+    final updated = _volunteers[index].copyWith(linkedUserId: null);
     _volunteers[index] = updated;
     return updated;
   }
@@ -98,40 +165,56 @@ class MockVolunteerRepository implements VolunteerRepository {
   Future<VolunteerAssignment> addAssignment({
     required String volunteerId,
     required String roleCode,
-    required String scopeType,
+    required AssignmentScopeType scopeType,
+    String? scopeReferenceId,
     required String scopeLabel,
     required DateTime startsAt,
     DateTime? endsAt,
-    String assignmentStatus = 'active',
+    VolunteerAssignmentStatus status = VolunteerAssignmentStatus.active,
   }) async {
     final assignment = VolunteerAssignment(
       id: const Uuid().v4(),
       volunteerId: volunteerId,
       roleCode: roleCode,
       scopeType: scopeType,
+      scopeReferenceId: scopeReferenceId,
       scopeLabel: scopeLabel,
       startsAt: startsAt,
       endsAt: endsAt,
-      assignmentStatus: assignmentStatus,
+      status: status,
     );
     _assignments.putIfAbsent(volunteerId, () => []).add(assignment);
+
+    // Update active assignment summary on volunteer
+    final index = _volunteers.indexWhere((v) => v.id == volunteerId);
+    if (index != -1) {
+      final existing = _volunteers[index];
+      final newCount = existing.activeAssignmentCount + (status == VolunteerAssignmentStatus.active ? 1 : 0);
+      _volunteers[index] = existing.copyWith(
+        activeAssignmentCount: newCount,
+        currentAssignmentSummary: '$roleCode — ${scopeType.label}: $scopeLabel',
+      );
+    }
     return assignment;
   }
 
   List<Volunteer> _seedVolunteers() {
-    final volunteers = [
+    final list = [
       Volunteer(
         id: 'volunteer-1',
         volunteerCode: 'VOL-0001',
+        linkedUserId: 'user-auth-101',
         type: VolunteerType.donationCollector,
         status: VolunteerStatus.active,
         fullName: 'Sanjay Patil',
         mobile: '9876543210',
         email: 'sanjay@example.com',
+        address: 'Flat 302, Sai Residency, Ward B, Mumbai',
+        emergencyContact: '9822334455 (Brother)',
         joinedOn: DateTime(2024, 4, 10),
         preferredLanguage: 'mr',
         activeAssignmentCount: 1,
-        currentAssignmentSummary: 'Collector — Area 3, Ward B',
+        currentAssignmentSummary: 'Collector — Area: Area 3, Ward B',
       ),
       Volunteer(
         id: 'volunteer-2',
@@ -141,6 +224,8 @@ class MockVolunteerRepository implements VolunteerRepository {
         fullName: 'Meera Deshmukh',
         mobile: '9098765432',
         email: 'meera@example.com',
+        address: 'B-12 Anand Nagar, Pune',
+        emergencyContact: '9000112233',
         joinedOn: DateTime(2024, 5, 22),
         preferredLanguage: 'en',
         activeAssignmentCount: 0,
@@ -149,15 +234,18 @@ class MockVolunteerRepository implements VolunteerRepository {
       Volunteer(
         id: 'volunteer-3',
         volunteerCode: 'VOL-0003',
+        linkedUserId: 'user-auth-103',
         type: VolunteerType.financeVolunteer,
         status: VolunteerStatus.active,
         fullName: 'Anil Shinde',
         mobile: '9988776655',
         email: 'anil@example.com',
+        address: 'Line 4, Shivaji Chowk, Thane',
+        emergencyContact: '9988001122',
         joinedOn: DateTime(2024, 6, 14),
         preferredLanguage: 'hi',
         activeAssignmentCount: 2,
-        currentAssignmentSummary: 'Finance Desk — Receipt Book 2',
+        currentAssignmentSummary: 'Finance Desk — Receipt Book: Book 2',
       ),
       Volunteer(
         id: 'volunteer-4',
@@ -170,7 +258,7 @@ class MockVolunteerRepository implements VolunteerRepository {
         joinedOn: DateTime(2024, 7, 1),
         preferredLanguage: 'mr',
         activeAssignmentCount: 1,
-        currentAssignmentSummary: 'Decor — Main Hall',
+        currentAssignmentSummary: 'Decor — Event: Main Hall Stage',
       ),
       Volunteer(
         id: 'volunteer-5',
@@ -183,77 +271,11 @@ class MockVolunteerRepository implements VolunteerRepository {
         joinedOn: DateTime(2024, 8, 9),
         preferredLanguage: 'mr',
         activeAssignmentCount: 1,
-        currentAssignmentSummary: 'Kitchen Team — Ward C',
-      ),
-      Volunteer(
-        id: 'volunteer-6',
-        volunteerCode: 'VOL-0006',
-        type: VolunteerType.crowdManagement,
-        status: VolunteerStatus.inactive,
-        fullName: 'Nisha Pawar',
-        mobile: '8887654321',
-        email: 'nisha@example.com',
-        joinedOn: DateTime(2024, 9, 19),
-        preferredLanguage: 'en',
-        activeAssignmentCount: 0,
-        currentAssignmentSummary: null,
-      ),
-      Volunteer(
-        id: 'volunteer-7',
-        volunteerCode: 'VOL-0007',
-        type: VolunteerType.general,
-        status: VolunteerStatus.active,
-        fullName: 'Vikram More',
-        mobile: '9011223344',
-        email: 'vikram@example.com',
-        joinedOn: DateTime(2024, 10, 7),
-        preferredLanguage: 'hi',
-        activeAssignmentCount: 1,
-        currentAssignmentSummary: 'General Support — Gate 2',
-      ),
-      Volunteer(
-        id: 'volunteer-8',
-        volunteerCode: 'VOL-0008',
-        type: VolunteerType.custom,
-        customTypeLabel: 'Transport Lead',
-        status: VolunteerStatus.active,
-        fullName: 'Aruna Bhosale',
-        mobile: '8889991122',
-        email: 'aruna@example.com',
-        joinedOn: DateTime(2024, 11, 3),
-        preferredLanguage: 'mr',
-        activeAssignmentCount: 0,
-        currentAssignmentSummary: null,
-      ),
-      Volunteer(
-        id: 'volunteer-9',
-        volunteerCode: 'VOL-0009',
-        type: VolunteerType.donationCollector,
-        status: VolunteerStatus.draft,
-        fullName: 'Ravi Gaikwad',
-        mobile: '7000112233',
-        email: 'ravi@example.com',
-        joinedOn: DateTime(2024, 12, 2),
-        preferredLanguage: 'en',
-        activeAssignmentCount: 0,
-        currentAssignmentSummary: null,
-      ),
-      Volunteer(
-        id: 'volunteer-10',
-        volunteerCode: 'VOL-0010',
-        type: VolunteerType.eventCoordinator,
-        status: VolunteerStatus.active,
-        fullName: 'Kavita Kale',
-        mobile: '7666554433',
-        email: 'kavita@example.com',
-        joinedOn: DateTime(2025, 1, 12),
-        preferredLanguage: 'hi',
-        activeAssignmentCount: 2,
-        currentAssignmentSummary: 'Coordinator — Main Stage',
+        currentAssignmentSummary: 'Kitchen Team — Ward: Ward C',
       ),
     ];
 
-    for (final volunteer in volunteers) {
+    for (final volunteer in list) {
       _assignments[volunteer.id] = [];
       if (volunteer.id == 'volunteer-1') {
         _assignments[volunteer.id] = [
@@ -261,10 +283,10 @@ class MockVolunteerRepository implements VolunteerRepository {
             id: 'assignment-1',
             volunteerId: volunteer.id,
             roleCode: 'Donation Collector',
-            scopeType: 'area',
+            scopeType: AssignmentScopeType.area,
             scopeLabel: 'Area 3, Ward B',
             startsAt: DateTime(2025, 1, 2),
-            assignmentStatus: 'active',
+            status: VolunteerAssignmentStatus.active,
           ),
         ];
       }
@@ -274,16 +296,16 @@ class MockVolunteerRepository implements VolunteerRepository {
             id: 'assignment-2',
             volunteerId: volunteer.id,
             roleCode: 'Finance Volunteer',
-            scopeType: 'receiptBook',
+            scopeType: AssignmentScopeType.receiptBook,
             scopeLabel: 'Receipt Book 2',
             startsAt: DateTime(2024, 12, 20),
-            assignmentStatus: 'planned',
+            status: VolunteerAssignmentStatus.planned,
           ),
         ];
       }
     }
 
-    return volunteers;
+    return list;
   }
 
   String _nextVolunteerCode() {

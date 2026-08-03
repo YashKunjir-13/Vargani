@@ -28,22 +28,20 @@ class VolunteerListScreen extends ConsumerWidget {
 
     return AppScaffold(
       title: context.volunteers,
-      actions: [
-        if (canManageVolunteers)
-          IconButton(
-            onPressed: () => Navigator.of(context).push(
-              MaterialPageRoute(builder: (_) => const VolunteerFormScreen()),
-            ),
-            icon: const Icon(Icons.add),
-          ),
-      ],
       body: Column(
         children: [
           Padding(
-            padding: const EdgeInsets.fromLTRB(AppSpacing.space24, AppSpacing.space16, AppSpacing.space24, AppSpacing.space8),
+            padding: const EdgeInsets.fromLTRB(
+              AppSpacing.space24,
+              AppSpacing.space16,
+              AppSpacing.space24,
+              AppSpacing.space8,
+            ),
             child: AppSearchBar(
               hint: context.searchVolunteersHint,
-              onChanged: (value) => ref.read(volunteerListControllerProvider.notifier).updateSearch(value),
+              onChanged: (value) => ref
+                  .read(volunteerListControllerProvider.notifier)
+                  .updateSearch(value),
             ),
           ),
           Padding(
@@ -57,9 +55,14 @@ class VolunteerListScreen extends ConsumerWidget {
                     items: [
                       DropdownMenuItem(value: null, child: Text(context.allLabel)),
                       for (final status in VolunteerStatus.values)
-                        DropdownMenuItem(value: status, child: Text(_statusLabel(status, context.languageCode))),
+                        DropdownMenuItem(
+                          value: status,
+                          child: Text(_statusLabel(status, context.languageCode)),
+                        ),
                     ],
-                    onChanged: (value) => ref.read(volunteerListControllerProvider.notifier).updateStatus(value),
+                    onChanged: (value) => ref
+                        .read(volunteerListControllerProvider.notifier)
+                        .updateStatus(value),
                   ),
                 ),
                 const SizedBox(width: AppSpacing.space16),
@@ -72,12 +75,30 @@ class VolunteerListScreen extends ConsumerWidget {
                       for (final type in VolunteerType.values)
                         DropdownMenuItem(value: type, child: Text(type.label)),
                     ],
-                    onChanged: (value) => ref.read(volunteerListControllerProvider.notifier).updateType(value),
+                    onChanged: (value) => ref
+                        .read(volunteerListControllerProvider.notifier)
+                        .updateType(value),
                   ),
                 ),
               ],
             ),
           ),
+          if (canManageVolunteers)
+            Padding(
+              padding: const EdgeInsets.fromLTRB(
+                AppSpacing.space24,
+                AppSpacing.space16,
+                AppSpacing.space24,
+                0,
+              ),
+              child: AppButton(
+                label: context.l10n.addVolunteer,
+                onPressed: () => Navigator.of(context).push(
+                  MaterialPageRoute(builder: (_) => const VolunteerFormScreen()),
+                ),
+              ),
+            ),
+          const SizedBox(height: AppSpacing.space8),
           Expanded(
             child: volunteersAsync.when(
               data: (volunteers) {
@@ -89,7 +110,8 @@ class VolunteerListScreen extends ConsumerWidget {
                   child: ListView.separated(
                     padding: const EdgeInsets.all(AppSpacing.space24),
                     itemCount: volunteers.length,
-                    separatorBuilder: (_, __) => const SizedBox(height: AppSpacing.space16),
+                    separatorBuilder: (_, __) =>
+                        const SizedBox(height: AppSpacing.space16),
                     itemBuilder: (context, index) {
                       final volunteer = volunteers[index];
                       final canViewSensitive = role == UserRole.trustPresident ||
@@ -100,7 +122,12 @@ class VolunteerListScreen extends ConsumerWidget {
                           contentPadding: EdgeInsets.zero,
                           title: Row(
                             children: [
-                              Expanded(child: Text(volunteer.fullName, style: textTheme.titleMedium)),
+                              Expanded(
+                                child: Text(
+                                  volunteer.fullName,
+                                  style: textTheme.titleMedium,
+                                ),
+                              ),
                               VolunteerStatusBadge(status: volunteer.status),
                             ],
                           ),
@@ -110,7 +137,10 @@ class VolunteerListScreen extends ConsumerWidget {
                               const SizedBox(height: AppSpacing.space8),
                               Row(
                                 children: [
-                                  VolunteerTypeBadge(type: volunteer.type, customTypeLabel: volunteer.customTypeLabel),
+                                  VolunteerTypeBadge(
+                                    type: volunteer.type,
+                                    customTypeLabel: volunteer.customTypeLabel,
+                                  ),
                                   const SizedBox(width: AppSpacing.space8),
                                   if (volunteer.currentAssignmentSummary != null)
                                     Expanded(
@@ -124,12 +154,19 @@ class VolunteerListScreen extends ConsumerWidget {
                               ),
                               const SizedBox(height: AppSpacing.space8),
                               Text('Code: ${volunteer.volunteerCode}'),
-                              Text('Mobile: ${maskMobile(volunteer.mobile, canViewSensitive: canViewSensitive)}'),
-                              Text('Assignments: ${volunteer.activeAssignmentCount} active'),
+                              Text(
+                                'Mobile: ${maskMobile(volunteer.mobile, canViewSensitive: canViewSensitive)}',
+                              ),
+                              Text(
+                                'Assignments: ${volunteer.activeAssignmentCount} active',
+                              ),
                             ],
                           ),
                           onTap: () => Navigator.of(context).push(
-                            MaterialPageRoute(builder: (_) => VolunteerDetailScreen(volunteerId: volunteer.id)),
+                            MaterialPageRoute(
+                              builder: (_) =>
+                                  VolunteerDetailScreen(volunteerId: volunteer.id),
+                            ),
                           ),
                         ),
                       );
@@ -137,8 +174,10 @@ class VolunteerListScreen extends ConsumerWidget {
                   ),
                 );
               },
-              loading: () => const AppLoadingIndicator(label: 'Loading volunteers...'),
-              error: (error, stackTrace) => AppErrorView(message: error.toString()),
+              loading: () =>
+                  const AppLoadingIndicator(label: 'Loading volunteers...'),
+              error: (error, stackTrace) =>
+                  AppErrorView(message: error.toString()),
             ),
           ),
         ],
@@ -148,10 +187,14 @@ class VolunteerListScreen extends ConsumerWidget {
 
   String _statusLabel(VolunteerStatus status, String code) {
     return switch (status) {
-      VolunteerStatus.active => code == 'hi' ? 'सक्रिय' : code == 'mr' ? 'सक्रिय' : 'Active',
-      VolunteerStatus.draft => code == 'hi' ? 'ड्राफ्ट' : code == 'mr' ? 'मसुदा' : 'Draft',
-      VolunteerStatus.suspended => code == 'hi' ? 'निलंबित' : code == 'mr' ? 'निलंबित' : 'Suspended',
-      VolunteerStatus.inactive => code == 'hi' ? 'निष्क्रिय' : code == 'mr' ? 'निष्क्रिय' : 'Inactive',
+      VolunteerStatus.active =>
+        code == 'hi' ? 'सक्रिय' : code == 'mr' ? 'सक्रिय' : 'Active',
+      VolunteerStatus.draft =>
+        code == 'hi' ? 'ड्राफ्ट' : code == 'mr' ? 'मसुदा' : 'Draft',
+      VolunteerStatus.suspended =>
+        code == 'hi' ? 'निलंबित' : code == 'mr' ? 'निलंबित' : 'Suspended',
+      VolunteerStatus.inactive =>
+        code == 'hi' ? 'निष्क्रिय' : code == 'mr' ? 'निष्क्रिय' : 'Inactive',
     };
   }
 }

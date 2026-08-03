@@ -18,6 +18,12 @@ class DonorListScreen extends ConsumerWidget {
     ref.watch(localeControllerProvider);
     final state = ref.watch(donorListControllerProvider);
     final donorsAsync = ref.watch(donorListProvider);
+    final role = ref.watch(roleProvider);
+
+    final canManageDonors = role == UserRole.trustPresident ||
+        role == UserRole.vicePresident ||
+        role == UserRole.treasurer ||
+        role == UserRole.volunteer;
 
     return AppScaffold(
       title: context.donors,
@@ -38,14 +44,26 @@ class DonorListScreen extends ConsumerWidget {
                   .read(donorListControllerProvider.notifier)
                   .updateStatus(status),
             ),
+            if (canManageDonors) ...[
+              const SizedBox(height: AppSpacing.space16),
+              AppButton(
+                label: context.addDonorBtn,
+                onPressed: () {
+                  Navigator.of(context).push(
+                    MaterialPageRoute(builder: (_) => const DonorFormScreen()),
+                  );
+                },
+              ),
+            ],
             const SizedBox(height: AppSpacing.space16),
             Expanded(
               child: donorsAsync.when(
                 data: (donors) {
                   if (donors.isEmpty) {
                     return const AppEmptyState(
-                        title: 'No donors found',
-                        message: 'Try a different search or filter.');
+                      title: 'No donors found',
+                      message: 'Try a different search or filter.',
+                    );
                   }
                   return ListView.separated(
                     itemCount: donors.length,
@@ -72,22 +90,6 @@ class DonorListScreen extends ConsumerWidget {
               ),
             ),
           ],
-        ),
-      ),
-      floatingActionButton: RoleGate(
-        allowedRoles: const [
-          UserRole.trustPresident,
-          UserRole.vicePresident,
-          UserRole.treasurer,
-          UserRole.volunteer,
-        ],
-        child: AppFab(
-          label: context.addBtn,
-          onPressed: () {
-            Navigator.of(context).push(
-              MaterialPageRoute(builder: (_) => const DonorFormScreen()),
-            );
-          },
         ),
       ),
     );

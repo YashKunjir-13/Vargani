@@ -2,10 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
-import '../../core/l10n/app_localizations.dart';
 import '../../core/theme/app_colors.dart';
-import '../../core/theme/app_theme.dart';
-
 /// Reusable app bar matching the exact screenshot design with prominent Back Button:
 /// - Prominent Back Button ('<')
 /// - Orange 'पप' logo badge
@@ -31,7 +28,6 @@ class PautiAppBar extends ConsumerWidget implements PreferredSizeWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final currentLang = ref.watch(appLanguageProvider);
     final theme = Theme.of(context);
     final isDark = theme.brightness == Brightness.dark;
 
@@ -133,88 +129,6 @@ class PautiAppBar extends ConsumerWidget implements PreferredSizeWidget {
                     ),
                   ),
                 ],
-              ),
-            ),
-            const SizedBox(width: 6),
-
-            // Segmented Language Selector Pill ('म', 'हि', 'EN')
-            Container(
-              padding: const EdgeInsets.all(2),
-              decoration: BoxDecoration(
-                color: isDark ? AppColors.surfaceVariantDark : const Color(0xFFF3EFE6),
-                borderRadius: BorderRadius.circular(10),
-                border: Border.all(color: theme.colorScheme.outline, width: 1),
-              ),
-              child: Row(
-                mainAxisSize: MainAxisSize.min,
-                children: AppLanguage.values.map((lang) {
-                  final isSelected = lang == currentLang;
-                  final displayLabel = switch (lang) {
-                    AppLanguage.marathi => 'म',
-                    AppLanguage.hindi => 'हि',
-                    AppLanguage.english => 'EN',
-                  };
-
-                  return GestureDetector(
-                    onTap: () {
-                      ref.read(appLanguageProvider.notifier).setLanguage(lang);
-                    },
-                    child: AnimatedContainer(
-                      duration: const Duration(milliseconds: 150),
-                      padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 4),
-                      decoration: BoxDecoration(
-                        color: isSelected ? theme.colorScheme.primary : Colors.transparent,
-                        borderRadius: BorderRadius.circular(7),
-                        boxShadow: isSelected
-                            ? [
-                                BoxShadow(
-                                  color: theme.colorScheme.primary.withValues(alpha: 0.3),
-                                  blurRadius: 4,
-                                  offset: const Offset(0, 1),
-                                ),
-                              ]
-                            : null,
-                      ),
-                      child: Text(
-                        displayLabel,
-                        style: TextStyle(
-                          color: isSelected
-                              ? (isDark ? Colors.black : Colors.white)
-                              : theme.textTheme.bodyMedium?.color,
-                          fontWeight: isSelected ? FontWeight.bold : FontWeight.w600,
-                          fontSize: 11,
-                        ),
-                      ),
-                    ),
-                  );
-                }).toList(),
-              ),
-            ),
-            const SizedBox(width: 6),
-
-            // Smooth Light/Dark Mode Toggle Button
-            InkWell(
-              onTap: () {
-                ref.read(appThemeModeProvider.notifier).toggleTheme();
-              },
-              borderRadius: BorderRadius.circular(10),
-              child: AnimatedContainer(
-                duration: const Duration(milliseconds: 200),
-                width: 34,
-                height: 34,
-                decoration: BoxDecoration(
-                  color: isDark ? AppColors.surfaceVariantDark : const Color(0xFFFFF7ED),
-                  borderRadius: BorderRadius.circular(10),
-                  border: Border.all(
-                    color: isDark ? AppColors.borderDark : const Color(0xFFFFEDD5),
-                    width: 1.2,
-                  ),
-                ),
-                child: Icon(
-                  isDark ? Icons.dark_mode_rounded : Icons.light_mode_rounded,
-                  size: 17,
-                  color: isDark ? AppColors.primaryDark : AppColors.primaryLight,
-                ),
               ),
             ),
             const SizedBox(width: 6),
