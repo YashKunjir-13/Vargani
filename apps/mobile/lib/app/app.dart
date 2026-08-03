@@ -20,7 +20,7 @@ class PautiPustakApp extends ConsumerWidget {
 
     return MaterialApp.router(
       title: 'Pauti Pustak ($environment)',
-      debugShowCheckedModeBanner: environment != 'prod',
+      // debugShowCheckedModeBanner: environment != 'prod',
       theme: AppTheme.light(),
       darkTheme: AppTheme.dark(),
       themeMode: themeMode,
