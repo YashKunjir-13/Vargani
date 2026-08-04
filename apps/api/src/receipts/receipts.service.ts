@@ -24,11 +24,11 @@ export class ReceiptsService implements ReceiptGenerationPort {
   private readonly logger = new Logger(ReceiptsService.name);
 
   constructor(
-    private readonly prisma: PrismaService,
-    private readonly sequenceCounter: SequenceCounterService,
-    private readonly assetStorage: AssetStorageService,
-    private readonly whatsAppDelivery: WhatsAppDeliveryService,
-    private readonly templatesService: TemplatesService,
+    @Inject(PrismaService) private readonly prisma: PrismaService,
+    @Inject(SequenceCounterService) private readonly sequenceCounter: SequenceCounterService,
+    @Inject(AssetStorageService) private readonly assetStorage: AssetStorageService,
+    @Inject(WhatsAppDeliveryService) private readonly whatsAppDelivery: WhatsAppDeliveryService,
+    @Inject(TemplatesService) private readonly templatesService: TemplatesService,
     @Inject(RECEIPT_PDF_RENDERER) private readonly pdfRenderer: ReceiptPdfRenderer,
   ) {}
 

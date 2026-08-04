@@ -1,63 +1,81 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:pauti_pustak_mobile/core/session/session_controller.dart';
 
-import '../../receipts/state/receipts_notifier.dart';
-import '../data/payments_mock_data.dart';
+import '../data/payments_remote_datasource.dart';
 import '../models/payment.dart';
 
-/// Local, in-memory stand-in for PaymentsService (apps/api/src/payments).
-/// No network calls -- this is a UI-focused build, not wired to the API.
-class PaymentsNotifier extends Notifier<List<Payment>> {
-  @override
-  List<Payment> build() => buildMockPayments();
+import '../data/payments_mock_data.dart';
 
-  Payment create({
+final paymentsRemoteDataSourceProvider = Provider<PaymentsRemoteDataSource>((ref) {
+  return PaymentsRemoteDataSource(ref.watch(dioProvider));
+});
+
+class PaymentsNotifier extends Notifier<AsyncValue<List<Payment>>> {
+  @override
+  AsyncValue<List<Payment>> build() {
+    loadPayments();
+    return AsyncValue.data(buildMockPayments());
+  }
+
+  Future<void> loadPayments() async {
+    try {
+      final dataSource = ref.read(paymentsRemoteDataSourceProvider);
+      final list = await dataSource.fetchPayments();
+      if (list.isNotEmpty) {
+        state = AsyncValue.data(list);
+      }
+    } catch (_) {
+      if (state.value == null || state.value!.isEmpty) {
+        state = AsyncValue.data(buildMockPayments());
+      }
+    }
+  }
+
+  Future<Payment?> create({
     required String donorName,
     String? address,
     String? contact,
     required double amount,
     required PaymentChannel channel,
     String? collectedBy,
-  }) {
-    final payment = Payment(
-      id: 'pay-${DateTime.now().microsecondsSinceEpoch}',
-      donorName: donorName,
-      address: address,
-      contact: contact,
-      amount: amount,
-      paymentDateTime: DateTime.now(),
-      channel: channel,
-      status: PaymentStatus.pendingMatch,
-      collectedBy: collectedBy,
-    );
-    state = [payment, ...state];
-    return payment;
+  }) async {
+    try {
+      final dataSource = ref.read(paymentsRemoteDataSourceProvider);
+      final created = await dataSource.createPayment(
+        donorName: donorName,
+        address: address,
+        contact: contact,
+        amount: amount,
+        channel: channel,
+      );
+      await loadPayments();
+      return created;
+    } catch (e) {
+      return null;
+    }
   }
 
-  /// Mirrors PaymentsService.confirmMatch: the ONLY trigger for Receipt
-  /// Generation. Pending Match -> Confirmed -> Receipted happens
-  /// synchronously here, exactly like the real backend's advanceToReceipted.
-  void confirmMatch(String id, {required String matchedBy}) {
-    final payment = state.firstWhere((p) => p.id == id);
-    if (payment.status != PaymentStatus.pendingMatch) return;
-
-    state = [
-      for (final p in state)
-        if (p.id == id) p.copyWith(status: PaymentStatus.receipted, matchedBy: matchedBy) else p,
-    ];
-
-    ref.read(receiptsProvider.notifier).generateForPayment(
-          paymentId: id,
-          donorName: payment.donorName,
-          amount: payment.amount,
-        );
+  Future<bool> confirmMatch(String id, {String? matchedBy}) async {
+    try {
+      final dataSource = ref.read(paymentsRemoteDataSourceProvider);
+      await dataSource.confirmMatch(id);
+      await loadPayments();
+      return true;
+    } catch (e) {
+      return false;
+    }
   }
 
-  void void_(String id, {required String reason}) {
-    state = [
-      for (final p in state)
-        if (p.id == id && p.status != PaymentStatus.voided) p.copyWith(status: PaymentStatus.voided, voidReason: reason) else p,
-    ];
+  Future<bool> void_(String id, {required String reason}) async {
+    try {
+      final dataSource = ref.read(paymentsRemoteDataSourceProvider);
+      await dataSource.voidPayment(id, reason);
+      await loadPayments();
+      return true;
+    } catch (e) {
+      return false;
+    }
   }
 }
 
-final paymentsProvider = NotifierProvider<PaymentsNotifier, List<Payment>>(PaymentsNotifier.new);
+final paymentsProvider = NotifierProvider<PaymentsNotifier, AsyncValue<List<Payment>>>(PaymentsNotifier.new);

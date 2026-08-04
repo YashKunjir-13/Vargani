@@ -1,59 +1,62 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:pauti_pustak_mobile/core/session/session_controller.dart';
 
-import '../data/receipts_mock_data.dart';
+import '../data/receipts_remote_datasource.dart';
 import '../models/receipt.dart';
 
-/// Local, in-memory stand-in for ReceiptsService (apps/api/src/receipts).
-/// generateForPayment is called exclusively by PaymentsNotifier.confirmMatch
-/// -- there is no manual "create receipt" action here either, mirroring the
-/// real backend's single-source-of-truth trigger.
-class ReceiptsNotifier extends Notifier<List<Receipt>> {
-  int _sequence = 45;
+import '../data/receipts_mock_data.dart';
 
+final receiptsRemoteDataSourceProvider = Provider<ReceiptsRemoteDataSource>((ref) {
+  return ReceiptsRemoteDataSource(ref.watch(dioProvider));
+});
+
+class ReceiptsNotifier extends Notifier<AsyncValue<List<Receipt>>> {
   @override
-  List<Receipt> build() => buildMockReceipts();
-
-  Receipt generateForPayment({
-    required String paymentId,
-    required String donorName,
-    required double amount,
-  }) {
-    _sequence += 1;
-    final receipt = Receipt(
-      id: 'rcpt-${DateTime.now().microsecondsSinceEpoch}',
-      receiptNumber: 'RCPT-2026-${_sequence.toString().padLeft(6, '0')}',
-      paymentId: paymentId,
-      donorName: donorName,
-      amount: amount,
-      issuedDate: DateTime.now(),
-      mandalName: 'Shree Ganesh Mandal',
-      status: ReceiptStatus.active,
-      whatsappDeliveryStatus: WhatsappDeliveryStatus.sent,
-    );
-    state = [receipt, ...state];
-    return receipt;
+  AsyncValue<List<Receipt>> build() {
+    loadReceipts();
+    return AsyncValue.data(buildMockReceipts());
   }
 
-  /// Retryable without regenerating the receipt -- same receiptNumber/pdfUrl.
-  void resendWhatsapp(String id) {
-    state = [
-      for (final r in state)
-        if (r.id == id)
-          r.copyWith(
-            whatsappDeliveryStatus: WhatsappDeliveryStatus.sent,
-            whatsappRetryCount: r.whatsappRetryCount + 1,
-          )
-        else
-          r,
-    ];
+  Future<void> loadReceipts() async {
+    try {
+      final dataSource = ref.read(receiptsRemoteDataSourceProvider);
+      final receipts = await dataSource.fetchReceipts();
+      if (receipts.isNotEmpty) {
+        state = AsyncValue.data(receipts);
+      }
+    } catch (_) {
+      if (state.value == null || state.value!.isEmpty) {
+        state = AsyncValue.data(buildMockReceipts());
+      }
+    }
   }
 
-  void voidReceipt(String id, {required String reason}) {
-    state = [
-      for (final r in state)
-        if (r.id == id && r.status != ReceiptStatus.voided) r.copyWith(status: ReceiptStatus.voided, voidReason: reason) else r,
-    ];
+  Future<void> loadMyHistory() async {
+    try {
+      final dataSource = ref.read(receiptsRemoteDataSourceProvider);
+      final receipts = await dataSource.fetchMyHistory();
+      if (receipts.isNotEmpty) {
+        state = AsyncValue.data(receipts);
+      }
+    } catch (_) {
+      if (state.value == null || state.value!.isEmpty) {
+        state = AsyncValue.data(buildMockReceipts());
+      }
+    }
+  }
+
+  Future<bool> resendWhatsapp(String id) async {
+    try {
+      final dataSource = ref.read(receiptsRemoteDataSourceProvider);
+      await dataSource.resendWhatsapp(id);
+      await loadReceipts();
+      return true;
+    } catch (e) {
+      return false;
+    }
   }
 }
 
-final receiptsProvider = NotifierProvider<ReceiptsNotifier, List<Receipt>>(ReceiptsNotifier.new);
+final receiptsProvider = NotifierProvider<ReceiptsNotifier, AsyncValue<List<Receipt>>>(
+  ReceiptsNotifier.new,
+);

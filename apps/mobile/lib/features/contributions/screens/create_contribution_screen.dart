@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../core/l10n/app_localizations.dart';
+import '../../../core/session/session_controller.dart';
 import '../../../shared/widgets/app_button.dart';
 import '../../../shared/widgets/app_card.dart';
 import '../../../shared/widgets/app_image_picker.dart';
@@ -42,6 +43,9 @@ class _CreateContributionScreenState extends ConsumerState<CreateContributionScr
   void _submit() {
     if (!_formKey.currentState!.validate()) return;
 
+    final sessionUser = ref.read(sessionControllerProvider).user;
+    final currentUserId = sessionUser?.id ?? sessionUser?.displayName ?? 'user-volunteer-1';
+
     ref.read(contributionsProvider.notifier).record(
           contributorName: _contributorController.text.trim(),
           contact: _contactController.text.trim().isEmpty ? null : _contactController.text.trim(),
@@ -50,7 +54,7 @@ class _CreateContributionScreenState extends ConsumerState<CreateContributionScr
           weightGrams: double.tryParse(_weightController.text),
           estimatedValue: double.tryParse(_estimatedValueController.text),
           certificatePhotoUrl: _certificatePhotoPath,
-          recordedBy: 'Volunteer User',
+          recordedBy: currentUserId,
         );
 
     ScaffoldMessenger.of(context).showSnackBar(

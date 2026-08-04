@@ -31,6 +31,7 @@ class Receipt {
   final WhatsappDeliveryStatus whatsappDeliveryStatus;
   final int whatsappRetryCount;
   final String? voidReason;
+  final String? pdfUrl;
 
   const Receipt({
     required this.id,
@@ -44,6 +45,7 @@ class Receipt {
     required this.whatsappDeliveryStatus,
     this.whatsappRetryCount = 0,
     this.voidReason,
+    this.pdfUrl,
   });
 
   Receipt copyWith({
@@ -51,6 +53,7 @@ class Receipt {
     WhatsappDeliveryStatus? whatsappDeliveryStatus,
     int? whatsappRetryCount,
     String? voidReason,
+    String? pdfUrl,
   }) {
     return Receipt(
       id: id,
@@ -64,6 +67,49 @@ class Receipt {
       whatsappDeliveryStatus: whatsappDeliveryStatus ?? this.whatsappDeliveryStatus,
       whatsappRetryCount: whatsappRetryCount ?? this.whatsappRetryCount,
       voidReason: voidReason ?? this.voidReason,
+      pdfUrl: pdfUrl ?? this.pdfUrl,
+    );
+  }
+
+  factory Receipt.fromJson(Map<String, dynamic> json) {
+    final rawAmount = json['amountSnapshot'] ?? json['amount'];
+    final parsedAmount = (rawAmount is num)
+        ? rawAmount.toDouble()
+        : (double.tryParse(rawAmount?.toString() ?? '0') ?? 0.0);
+
+    final rawStatus = json['status'] as String? ?? 'ACTIVE';
+    final status = rawStatus == 'VOIDED' ? ReceiptStatus.voided : ReceiptStatus.active;
+
+    final rawWaStatus = json['whatsappDeliveryStatus'] as String? ?? 'PENDING';
+    WhatsappDeliveryStatus whatsappDeliveryStatus;
+    switch (rawWaStatus) {
+      case 'SENT':
+        whatsappDeliveryStatus = WhatsappDeliveryStatus.sent;
+        break;
+      case 'FAILED':
+        whatsappDeliveryStatus = WhatsappDeliveryStatus.failed;
+        break;
+      case 'PENDING':
+      default:
+        whatsappDeliveryStatus = WhatsappDeliveryStatus.pending;
+        break;
+    }
+
+    final rawIssued = json['issuedDate'] as String?;
+
+    return Receipt(
+      id: json['id'] as String? ?? '',
+      receiptNumber: json['receiptNumber'] as String? ?? '',
+      paymentId: json['paymentId'] as String? ?? '',
+      donorName: json['donorNameSnapshot'] as String? ?? json['donorName'] as String? ?? 'Anonymous Donor',
+      amount: parsedAmount,
+      issuedDate: rawIssued != null ? DateTime.parse(rawIssued) : DateTime.now(),
+      mandalName: json['mandalNameSnapshot'] as String? ?? json['mandalName'] as String? ?? 'Shree Ganesh Mandal',
+      status: status,
+      whatsappDeliveryStatus: whatsappDeliveryStatus,
+      whatsappRetryCount: json['whatsappRetryCount'] as int? ?? 0,
+      voidReason: json['voidReason'] as String?,
+      pdfUrl: json['pdfUrl'] as String?,
     );
   }
 }

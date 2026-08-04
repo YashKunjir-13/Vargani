@@ -21,8 +21,10 @@ class HomeScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final payments = ref.watch(paymentsProvider);
-    final receipts = ref.watch(receiptsProvider);
+    final asyncPayments = ref.watch(paymentsProvider);
+    final paymentsList = asyncPayments.value ?? [];
+    final asyncReceipts = ref.watch(receiptsProvider);
+    final receiptsList = asyncReceipts.value ?? [];
     final bills = ref.watch(billsProvider);
     final contributions = ref.watch(contributionsProvider);
     final contributionReceipts = ref.watch(contributionReceiptsProvider);
@@ -31,7 +33,7 @@ class HomeScreen extends ConsumerWidget {
     final theme = Theme.of(context);
 
     final pendingMatchCount =
-        payments.where((p) => p.status == PaymentStatus.pendingMatch).length;
+        paymentsList.where((p) => p.status == PaymentStatus.pendingMatch).length;
     final pendingApprovalCount =
         bills.where((b) => b.status == BillStatus.pendingApproval).length;
 
@@ -155,7 +157,7 @@ class HomeScreen extends ConsumerWidget {
             icon: Icons.qr_code_2,
             color: Colors.teal,
             title: L10n.tr(ref, 'payment_collection'),
-            subtitle: '${payments.length} payments recorded',
+            subtitle: '${paymentsList.length} payments recorded',
             badge: pendingMatchCount > 0
                 ? '$pendingMatchCount pending match'
                 : null,
@@ -168,7 +170,7 @@ class HomeScreen extends ConsumerWidget {
             icon: Icons.receipt_long_outlined,
             color: Colors.green,
             title: L10n.tr(ref, 'receipts'),
-            subtitle: '${receipts.length} receipts issued • PDF re-download',
+            subtitle: '${receiptsList.length} receipts issued • PDF re-download',
             onTap: () => context.push('/receipts'),
           ),
           const SizedBox(height: 12),

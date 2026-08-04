@@ -1,11 +1,12 @@
 import {
+  BadRequestException,
   ConflictException,
   ForbiddenException,
   Injectable,
   UnauthorizedException,
 } from "@nestjs/common";
 import { JwtService } from "@nestjs/jwt";
-import { AuthProvider, PrismaService } from "@pauti-pustak/backend-database";
+import { AuthProvider, OtpPurpose, PrismaService } from "@pauti-pustak/backend-database";
 import {
   HashingService,
   JwtAccessTokenPayload,
@@ -14,13 +15,20 @@ import {
 } from "@pauti-pustak/backend-security";
 import { createHash, randomBytes, randomInt } from "crypto";
 import { LoginDto } from "./dto/login.dto";
+import { OtpRequestDto } from "./dto/otp-request.dto";
+import { OtpVerifyDto } from "./dto/otp-verify.dto";
+import { PasswordForgotDto } from "./dto/password-forgot.dto";
+import { PasswordResetDto } from "./dto/password-reset.dto";
 import { RefreshTokenDto } from "./dto/refresh-token.dto";
 import { RegisterDonorDto } from "./dto/register-donor.dto";
 import { RegisterTrustDto } from "./dto/register-trust.dto";
+import { AuditService } from "../audit/audit.service";
 
 const MAX_FAILED_ATTEMPTS = 5;
 const LOCKOUT_MINUTES = 15;
-const INVALID_CREDENTIALS_MESSAGE = "Invalid phone number or password";
+const OTP_EXPIRATION_MINUTES = 5;
+const MAX_OTP_ATTEMPTS = 5;
+const INVALID_CREDENTIALS_MESSAGE = "Invalid credentials";
 
 export interface IssuedSession {
   accessToken: string;
@@ -35,11 +43,159 @@ export class AuthService {
     private readonly jwtService: JwtService,
     private readonly hashingService: HashingService,
     private readonly panEncryptionService: PanEncryptionService,
+    private readonly auditService: AuditService,
   ) {}
 
+  async requestOtp(dto: OtpRequestDto, requestIp?: string, userAgent?: string) {
+    const normalizedMobile = dto.phoneNumber;
+    const expiresAt = new Date(Date.now() + OTP_EXPIRATION_MINUTES * 60_000);
+
+    // Rate-limiting check: max 5 active challenges per mobile in 15 mins
+    const recentCount = await this.prisma.otpChallenge.count({
+      where: {
+        normalizedMobile,
+        createdAt: { gte: new Date(Date.now() - 15 * 60_000) },
+      },
+    });
+
+    if (recentCount >= 5) {
+      throw new ForbiddenException("Too many OTP requests. Please wait before trying again.");
+    }
+
+    // Generate 6-digit OTP
+    const rawOtp = process.env.NODE_ENV === "test" ? "123456" : randomInt(100000, 999999).toString();
+    const otpHash = await this.hashingService.hashPassword(rawOtp);
+    const requestIpHash = requestIp ? this.hashToken(requestIp) : null;
+
+    const user = await this.prisma.user.findFirst({
+      where: { primaryMobile: normalizedMobile },
+    });
+
+    const challenge = await this.prisma.otpChallenge.create({
+      data: {
+        userId: user?.id,
+        normalizedMobile,
+        purpose: dto.purpose,
+        otpHash,
+        maxAttempts: MAX_OTP_ATTEMPTS,
+        expiresAt,
+        requestIpHash,
+      },
+    });
+
+    await this.auditService.log({
+      action: "OTP_REQUESTED",
+      actorId: user?.id,
+      targetTable: "otp_challenges",
+      targetId: challenge.id,
+      ipAddress: requestIp,
+      userAgent,
+      metadata: { phoneNumber: normalizedMobile, purpose: dto.purpose },
+      outcome: "SUCCESS",
+    });
+
+    return {
+      challengeId: challenge.id,
+      expiresAt: expiresAt.toISOString(),
+      ...(process.env.NODE_ENV === "test" ? { debugOtp: rawOtp } : {}),
+    };
+  }
+
+  async verifyOtp(dto: OtpVerifyDto, requestIp?: string, userAgent?: string) {
+    const challenge = await this.prisma.otpChallenge.findFirst({
+      where: {
+        normalizedMobile: dto.phoneNumber,
+        purpose: dto.purpose,
+        consumedAt: null,
+      },
+      orderBy: { createdAt: "desc" },
+    });
+
+    if (!challenge || challenge.expiresAt < new Date()) {
+      throw new BadRequestException("OTP challenge expired or invalid");
+    }
+
+    if (challenge.attemptCount >= challenge.maxAttempts) {
+      throw new ForbiddenException("Maximum OTP attempts exceeded. Please request a new OTP.");
+    }
+
+    const isValid = await this.hashingService.verifyPassword(dto.otp, challenge.otpHash);
+    if (!isValid) {
+      await this.prisma.otpChallenge.update({
+        where: { id: challenge.id },
+        data: { attemptCount: challenge.attemptCount + 1 },
+      });
+      await this.auditService.log({
+        action: "OTP_VERIFICATION_FAILED",
+        actorId: challenge.userId ?? undefined,
+        targetTable: "otp_challenges",
+        targetId: challenge.id,
+        ipAddress: requestIp,
+        userAgent,
+        outcome: "FAILURE",
+        metadata: { phoneNumber: dto.phoneNumber, purpose: dto.purpose },
+      });
+      throw new UnauthorizedException("Invalid OTP code");
+    }
+
+    // Mark challenge consumed
+    await this.prisma.otpChallenge.update({
+      where: { id: challenge.id },
+      data: { consumedAt: new Date() },
+    });
+
+    // Find or create user for MOBILE_OTP
+    let user = challenge.userId
+      ? await this.prisma.user.findUnique({ where: { id: challenge.userId } })
+      : await this.prisma.user.findFirst({ where: { primaryMobile: dto.phoneNumber } });
+
+    if (!user) {
+      user = await this.prisma.user.create({
+        data: {
+          displayName: `User_${dto.phoneNumber.slice(-4)}`,
+          primaryMobile: dto.phoneNumber,
+          mobileVerifiedAt: new Date(),
+        },
+      });
+
+      await this.prisma.authIdentity.create({
+        data: {
+          userId: user.id,
+          provider: AuthProvider.MOBILE_OTP,
+          normalizedValue: dto.phoneNumber,
+          isVerified: true,
+        },
+      });
+    }
+
+    const { membership, organization } = await this.findActiveMembership(user.id);
+    const session = await this.issueSession({
+      userId: user.id,
+      organizationId: membership?.organizationId,
+      roleId: membership?.roleId,
+      membershipId: membership?.id,
+    });
+
+    await this.auditService.log({
+      action: "OTP_VERIFIED",
+      actorId: user.id,
+      organizationId: membership?.organizationId,
+      targetTable: "otp_challenges",
+      targetId: challenge.id,
+      ipAddress: requestIp,
+      userAgent,
+      outcome: "SUCCESS",
+      metadata: { purpose: dto.purpose },
+    });
+
+    return {
+      user: this.serializeUser(user, { organization: organization ?? undefined }),
+      ...session,
+    };
+  }
+
   async registerTrust(dto: RegisterTrustDto) {
-    try {
-    const existingIdentity = await this.assertRoleNotRegistered(dto.phoneNumber, 'MANDAL');
+    const existingIdentity = await this.assertRoleNotRegistered(dto.phoneNumber, "MANDAL");
     const passwordHash = await this.hashingService.hashPassword(dto.password);
     const organizationCode = await this.generateOrganizationCode(dto.mandalTrustName);
 
@@ -59,16 +215,15 @@ export class AuthService {
         await tx.authIdentity.create({
           data: {
             userId: user.id,
-            provider: AuthProvider.MOBILE_PASSWORD,
+            provider: AuthProvider.EMAIL_PASSWORD,
             normalizedValue: dto.phoneNumber,
             isVerified: true,
             passwordHash,
           },
         });
       } else {
-        // User exists, update password for consistency across their roles
         await tx.authIdentity.updateMany({
-          where: { userId: user.id, provider: AuthProvider.MOBILE_PASSWORD },
+          where: { userId: user.id, provider: AuthProvider.EMAIL_PASSWORD },
           data: { passwordHash },
         });
       }
@@ -110,6 +265,13 @@ export class AuthService {
         },
       });
 
+      await tx.organizationSettings.create({
+        data: {
+          organizationId: organization.id,
+          updatedByUserId: user.id,
+        },
+      });
+
       return { user, organization, membership };
     });
 
@@ -124,14 +286,10 @@ export class AuthService {
       user: this.serializeUser(user, { organization }),
       ...session,
     };
-    } catch (e) {
-      console.error("registerTrust Error:", e);
-      throw e;
-    }
   }
 
   async registerDonor(dto: RegisterDonorDto) {
-    const existingIdentity = await this.assertRoleNotRegistered(dto.phoneNumber, 'DONOR');
+    const existingIdentity = await this.assertRoleNotRegistered(dto.phoneNumber, "DONOR");
     const passwordHash = await this.hashingService.hashPassword(dto.password);
     const panEncrypted = dto.panNumber ? this.panEncryptionService.encrypt(dto.panNumber) : null;
 
@@ -152,16 +310,15 @@ export class AuthService {
         await tx.authIdentity.create({
           data: {
             userId: user.id,
-            provider: AuthProvider.MOBILE_PASSWORD,
+            provider: AuthProvider.EMAIL_PASSWORD,
             normalizedValue: dto.phoneNumber,
             isVerified: true,
             passwordHash,
           },
         });
       } else {
-        // User exists, update password for consistency across their roles
         await tx.authIdentity.updateMany({
-          where: { userId: user.id, provider: AuthProvider.MOBILE_PASSWORD },
+          where: { userId: user.id, provider: AuthProvider.EMAIL_PASSWORD },
           data: { passwordHash },
         });
       }
@@ -192,13 +349,11 @@ export class AuthService {
     };
   }
 
-  async login(dto: LoginDto) {
-    const identity = await this.prisma.authIdentity.findUnique({
+  async login(dto: LoginDto, requestIp?: string, userAgent?: string) {
+    const identity = await this.prisma.authIdentity.findFirst({
       where: {
-        provider_normalizedValue: {
-          provider: AuthProvider.MOBILE_PASSWORD,
-          normalizedValue: dto.phoneNumber,
-        },
+        normalizedValue: dto.phoneNumber,
+        provider: AuthProvider.EMAIL_PASSWORD,
       },
       include: { user: true },
     });
@@ -208,6 +363,16 @@ export class AuthService {
     }
 
     if (identity.lockedUntil && identity.lockedUntil > new Date()) {
+      await this.auditService.log({
+        action: "ACCOUNT_LOCKED",
+        actorId: identity.userId,
+        targetTable: "auth_identities",
+        targetId: identity.id,
+        ipAddress: requestIp,
+        userAgent,
+        outcome: "FAILURE",
+        reason: "Account locked",
+      });
       throw new ForbiddenException(
         "Account temporarily locked due to too many failed login attempts. Please try again later.",
       );
@@ -228,6 +393,31 @@ export class AuthService {
         where: { id: identity.id },
         data: { failedLoginCount, lockedUntil },
       });
+
+      await this.auditService.log({
+        action: "LOGIN_FAILURE",
+        actorId: identity.userId,
+        targetTable: "auth_identities",
+        targetId: identity.id,
+        ipAddress: requestIp,
+        userAgent,
+        outcome: "FAILURE",
+        metadata: { failedLoginCount },
+      });
+
+      if (lockedUntil) {
+        await this.auditService.log({
+          action: "ACCOUNT_LOCKED",
+          actorId: identity.userId,
+          targetTable: "auth_identities",
+          targetId: identity.id,
+          ipAddress: requestIp,
+          userAgent,
+          outcome: "FAILURE",
+          reason: "Max failed login attempts threshold reached",
+        });
+      }
+
       throw new UnauthorizedException(INVALID_CREDENTIALS_MESSAGE);
     }
 
@@ -245,10 +435,10 @@ export class AuthService {
       where: { userId: identity.user.id },
     });
 
-    if (dto.role === 'MANDAL' && !organization) {
+    if (dto.role === "MANDAL" && !organization) {
       throw new ForbiddenException("No Mandal account is registered with this mobile number.");
     }
-    if (dto.role === 'DONOR' && !donorProfile) {
+    if (dto.role === "DONOR" && !donorProfile) {
       throw new ForbiddenException("No Donor account is registered with this mobile number.");
     }
 
@@ -257,6 +447,17 @@ export class AuthService {
       organizationId: membership?.organizationId,
       roleId: membership?.roleId,
       membershipId: membership?.id,
+    });
+
+    await this.auditService.log({
+      action: "LOGIN_SUCCESS",
+      actorId: identity.user.id,
+      organizationId: membership?.organizationId,
+      targetTable: "users",
+      targetId: identity.user.id,
+      ipAddress: requestIp,
+      userAgent,
+      outcome: "SUCCESS",
     });
 
     return {
@@ -268,20 +469,50 @@ export class AuthService {
     };
   }
 
-  async refresh(dto: RefreshTokenDto) {
+  async refresh(dto: RefreshTokenDto, requestIp?: string, userAgent?: string) {
     const tokenHash = this.hashToken(dto.refreshToken);
+
+    // Look for session regardless of status to detect reuse
     const session = await this.prisma.refreshSession.findFirst({
-      where: { tokenHash, status: "ACTIVE" },
+      where: { tokenHash },
       include: { user: true },
     });
 
-    if (!session || session.expiresAt < new Date()) {
+    if (!session) {
+      throw new UnauthorizedException("Invalid refresh token");
+    }
+
+    // Reuse Detection (FR5): If token was already REVOKED or COMPROMISED, revoke entire token family
+    if (session.status !== "ACTIVE") {
+      await this.prisma.refreshSession.updateMany({
+        where: { tokenFamilyId: session.tokenFamilyId },
+        data: { status: "COMPROMISED", revocationReason: "reuse_detected" },
+      });
+
+      await this.auditService.log({
+        action: "REFRESH_TOKEN_REUSE_DETECTION",
+        actorId: session.userId,
+        targetTable: "refresh_sessions",
+        targetId: session.id,
+        ipAddress: requestIp,
+        userAgent,
+        outcome: "FAILURE",
+        reason: "Token family compromised due to reuse",
+        metadata: { tokenFamilyId: session.tokenFamilyId },
+      });
+
+      throw new ForbiddenException("Token family compromised; all sessions revoked.");
+    }
+
+    if (session.expiresAt < new Date()) {
       throw new UnauthorizedException("Session expired, please login again");
     }
+
     if (session.user.status !== "ACTIVE") {
       throw new ForbiddenException("This account is inactive. Please contact support.");
     }
 
+    // Rotate current session
     await this.prisma.refreshSession.update({
       where: { id: session.id },
       data: { status: "REVOKED", rotatedAt: new Date(), revocationReason: "rotated" },
@@ -291,22 +522,196 @@ export class AuthService {
       where: { userId: session.userId, status: "ACTIVE" },
     });
 
-    return this.issueSession({
+    const newSession = await this.issueSession({
       userId: session.userId,
       organizationId: membership?.organizationId,
       roleId: membership?.roleId,
       membershipId: membership?.id,
       tokenFamilyId: session.tokenFamilyId,
     });
+
+    await this.auditService.log({
+      action: "REFRESH_TOKEN_ROTATION",
+      actorId: session.userId,
+      organizationId: membership?.organizationId,
+      targetTable: "refresh_sessions",
+      targetId: session.id,
+      ipAddress: requestIp,
+      userAgent,
+      outcome: "SUCCESS",
+    });
+
+    return newSession;
   }
 
-  async logout(userId: string, refreshToken: string) {
+  async logout(userId: string, refreshToken: string, requestIp?: string, userAgent?: string) {
     const tokenHash = this.hashToken(refreshToken);
     await this.prisma.refreshSession.updateMany({
       where: { userId, tokenHash, status: "ACTIVE" },
       data: { status: "REVOKED", revokedAt: new Date(), revocationReason: "user_logout" },
     });
+
+    await this.auditService.log({
+      action: "LOGOUT",
+      actorId: userId,
+      targetTable: "refresh_sessions",
+      ipAddress: requestIp,
+      userAgent,
+      outcome: "SUCCESS",
+      reason: "User logout",
+    });
+
+    await this.auditService.log({
+      action: "SESSION_REVOKED",
+      actorId: userId,
+      targetTable: "refresh_sessions",
+      ipAddress: requestIp,
+      userAgent,
+      outcome: "SUCCESS",
+      reason: "User logout",
+    });
+
     return { success: true };
+  }
+
+  async logoutAll(userId: string, requestIp?: string, userAgent?: string) {
+    await this.prisma.refreshSession.updateMany({
+      where: { userId, status: "ACTIVE" },
+      data: { status: "REVOKED", revokedAt: new Date(), revocationReason: "logout_all" },
+    });
+
+    await this.auditService.log({
+      action: "LOGOUT_ALL",
+      actorId: userId,
+      targetTable: "refresh_sessions",
+      ipAddress: requestIp,
+      userAgent,
+      outcome: "SUCCESS",
+      reason: "Logout all user sessions",
+    });
+
+    await this.auditService.log({
+      action: "SESSION_REVOKED",
+      actorId: userId,
+      targetTable: "refresh_sessions",
+      ipAddress: requestIp,
+      userAgent,
+      outcome: "SUCCESS",
+      reason: "Logout all sessions",
+    });
+
+    return { success: true };
+  }
+
+  async forgotPassword(dto: PasswordForgotDto, requestIp?: string, userAgent?: string) {
+    const user = await this.prisma.user.findFirst({
+      where: { primaryEmail: dto.email.toLowerCase().trim() },
+    });
+
+    if (!user) {
+      await this.auditService.log({
+        action: "PASSWORD_RESET_REQUESTED",
+        targetTable: "users",
+        ipAddress: requestIp,
+        userAgent,
+        outcome: "SUCCESS",
+        metadata: { email: dto.email },
+      });
+      // Return success to avoid email enumeration
+      return { message: "If an account exists with this email, reset instructions have been sent." };
+    }
+
+    const resetToken = randomBytes(32).toString("hex");
+    const expiresAt = new Date(Date.now() + 15 * 60_000);
+
+    await this.prisma.otpChallenge.create({
+      data: {
+        userId: user.id,
+        normalizedMobile: user.primaryMobile ?? "EMAIL_RESET",
+        purpose: OtpPurpose.PASSWORD_RESET,
+        otpHash: await this.hashingService.hashPassword(resetToken),
+        maxAttempts: 1,
+        expiresAt,
+      },
+    });
+
+    await this.auditService.log({
+      action: "PASSWORD_RESET_REQUESTED",
+      actorId: user.id,
+      targetTable: "users",
+      targetId: user.id,
+      ipAddress: requestIp,
+      userAgent,
+      outcome: "SUCCESS",
+      metadata: { email: dto.email },
+    });
+
+    return {
+      message: "Password reset token generated",
+      ...(process.env.NODE_ENV === "test" ? { resetToken } : {}),
+    };
+  }
+
+  async resetPassword(dto: PasswordResetDto, requestIp?: string, userAgent?: string) {
+    const challenge = await this.prisma.otpChallenge.findFirst({
+      where: {
+        purpose: OtpPurpose.PASSWORD_RESET,
+        consumedAt: null,
+      },
+      orderBy: { createdAt: "desc" },
+    });
+
+    if (!challenge || challenge.expiresAt < new Date()) {
+      throw new BadRequestException("Invalid or expired password reset challenge");
+    }
+
+    const matches = await this.hashingService.verifyPassword(dto.resetToken, challenge.otpHash);
+    if (!matches) {
+      throw new UnauthorizedException("Invalid reset token");
+    }
+
+    if (!challenge.userId) {
+      throw new BadRequestException("No user associated with reset challenge");
+    }
+
+    const passwordHash = await this.hashingService.hashPassword(dto.newPassword);
+
+    await this.prisma.$transaction([
+      this.prisma.otpChallenge.update({
+        where: { id: challenge.id },
+        data: { consumedAt: new Date() },
+      }),
+      this.prisma.authIdentity.updateMany({
+        where: { userId: challenge.userId },
+        data: { passwordHash, failedLoginCount: 0, lockedUntil: null },
+      }),
+      this.prisma.refreshSession.updateMany({
+        where: { userId: challenge.userId, status: "ACTIVE" },
+        data: { status: "REVOKED", revokedAt: new Date(), revocationReason: "password_reset" },
+      }),
+    ]);
+
+    await this.auditService.log({
+      action: "PASSWORD_RESET_COMPLETED",
+      actorId: challenge.userId,
+      targetTable: "users",
+      targetId: challenge.userId,
+      ipAddress: requestIp,
+      userAgent,
+      outcome: "SUCCESS",
+    });
+
+    await this.auditService.log({
+      action: "SESSION_REVOKED",
+      actorId: challenge.userId,
+      targetTable: "refresh_sessions",
+      ipAddress: requestIp,
+      userAgent,
+      outcome: "SUCCESS",
+      reason: "Password reset",
+    });
+
+    return { message: "Password reset successful" };
   }
 
   async getProfile(userId: string) {
@@ -337,13 +742,10 @@ export class AuthService {
     return { membership, organization };
   }
 
-  private async assertRoleNotRegistered(phoneNumber: string, role: 'MANDAL' | 'DONOR') {
-    const existing = await this.prisma.authIdentity.findUnique({
+  private async assertRoleNotRegistered(phoneNumber: string, role: "MANDAL" | "DONOR") {
+    const existing = await this.prisma.authIdentity.findFirst({
       where: {
-        provider_normalizedValue: {
-          provider: AuthProvider.MOBILE_PASSWORD,
-          normalizedValue: phoneNumber,
-        },
+        normalizedValue: phoneNumber,
       },
       include: { user: true },
     });
@@ -352,14 +754,14 @@ export class AuthService {
       return null;
     }
 
-    if (role === 'MANDAL') {
+    if (role === "MANDAL") {
       const membership = await this.prisma.organizationMembership.findFirst({
         where: { userId: existing.user.id, status: "ACTIVE" },
       });
       if (membership) {
         throw new ConflictException("This mobile number is already registered as a Mandal");
       }
-    } else if (role === 'DONOR') {
+    } else if (role === "DONOR") {
       const donorProfile = await this.prisma.donorProfile.findUnique({
         where: { userId: existing.user.id },
       });
@@ -396,7 +798,7 @@ export class AuthService {
   private parseDurationMs(duration: string): number {
     const match = /^(\d+)([smhd])$/.exec(duration.trim());
     if (!match) {
-      return 7 * 24 * 60 * 60 * 1000;
+      return 30 * 24 * 60 * 60 * 1000;
     }
     const value = Number(match[1]);
     const unitMs = { s: 1000, m: 60_000, h: 3_600_000, d: 86_400_000 }[match[2]]!;
@@ -432,7 +834,7 @@ export class AuthService {
     ).toISOString();
 
     const refreshToken = randomBytes(48).toString("hex");
-    const refreshExpiration = process.env.JWT_REFRESH_EXPIRATION ?? "7d";
+    const refreshExpiration = process.env.JWT_REFRESH_EXPIRATION ?? "30d";
     await this.prisma.refreshSession.create({
       data: {
         userId: user.id,

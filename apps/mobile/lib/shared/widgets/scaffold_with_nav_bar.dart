@@ -49,10 +49,13 @@ class ScaffoldWithNavBar extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final selectedIndex = _calculateSelectedIndex(context);
-    final payments = ref.watch(paymentsProvider);
+    final asyncPayments = ref.watch(paymentsProvider);
     final bills = ref.watch(billsProvider);
 
-    final pendingMatchCount = payments.where((p) => p.status == PaymentStatus.pendingMatch).length;
+    final pendingMatchCount = asyncPayments.maybeWhen(
+      data: (list) => list.where((p) => p.status == PaymentStatus.pendingMatch).length,
+      orElse: () => 0,
+    );
     final pendingApprovalCount = bills.where((b) => b.status == BillStatus.pendingApproval).length;
 
     final theme = Theme.of(context);

@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Param, Patch, Post, Query } from "@nestjs/common";
+import { Body, Controller, Get, Inject, Param, Patch, Post, Query } from "@nestjs/common";
 import { ApiOperation, ApiTags } from "@nestjs/swagger";
 import { AuthenticatedUser, CurrentUser, RequirePermission } from "@pauti-pustak/backend-security";
 import { TenantContext } from "../common/tenancy/tenant-context";
@@ -24,8 +24,8 @@ const VIEW_PERMISSIONS = ["bill.create", "bill.approve"];
 @Controller({ path: "bills", version: "1" })
 export class BillsController {
   constructor(
-    private readonly billsService: BillsService,
-    private readonly tenantContext: TenantContext,
+    @Inject(BillsService) private readonly billsService: BillsService,
+    @Inject(TenantContext) private readonly tenantContext: TenantContext,
   ) {}
 
   @Post()

@@ -5,6 +5,7 @@
     "rootDir": "./src"
   },
   "include": ["src/**/*"],
+  "exclude": ["src/**/*.spec.ts", "src/**/test_*.ts"],
   "references": [
     { "path": "../../packages/backend-config" },
     { "path": "../../packages/backend-contracts" },

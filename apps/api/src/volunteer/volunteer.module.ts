@@ -1,7 +1,13 @@
 import { Module } from "@nestjs/common";
-import { VolunteersController } from "./volunteer.controller";
+import { PrismaModule } from "@pauti-pustak/backend-database";
+import { PanEncryptionService } from "@pauti-pustak/backend-security";
+import { VolunteerController } from "./volunteer.controller";
+import { VolunteerService } from "./volunteer.service";
 
 @Module({
-  controllers: [VolunteersController],
+  imports: [PrismaModule],
+  controllers: [VolunteerController],
+  providers: [VolunteerService, PanEncryptionService],
+  exports: [VolunteerService],
 })
 export class VolunteerModule {}

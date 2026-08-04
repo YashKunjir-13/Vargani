@@ -1,3 +1,9 @@
+// eslint-disable-next-line @typescript-eslint/no-var-requires
+const dotenv = require("dotenv");
+dotenv.config({ path: "../../.env" });
+dotenv.config({ path: ".env" });
+dotenv.config({ path: ".env.local" });
+
 import { ValidationPipe, VersioningType } from "@nestjs/common";
 import { NestFactory } from "@nestjs/core";
 import { DocumentBuilder, SwaggerModule } from "@nestjs/swagger";
@@ -6,6 +12,7 @@ import compression from "compression";
 import cookieParser from "cookie-parser";
 import helmet from "helmet";
 import { AppModule } from "./app.module";
+import { AllExceptionsFilter } from "./common/all-exceptions.filter";
 
 async function bootstrap() {
   initializeObservability("pauti-pustak-api");
@@ -37,6 +44,9 @@ async function bootstrap() {
     type: VersioningType.URI,
     defaultVersion: "1",
   });
+
+  // Global Exception Filter
+  app.useGlobalFilters(new AllExceptionsFilter());
 
   // Validation Pipe
   app.useGlobalPipes(
