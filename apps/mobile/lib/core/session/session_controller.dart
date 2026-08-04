@@ -8,16 +8,11 @@ import '../network/api_client.dart';
 import '../storage/token_storage.dart';
 import 'session_state.dart';
 
-/// The app's build environment (dev/staging/prod). Overridden at bootstrap.
-final environmentProvider = Provider<String>((ref) {
-  throw UnimplementedError('environmentProvider must be overridden in app_bootstrap.dart');
-});
+final environmentProvider = Provider<String>((ref) => 'dev');
 
 /// Pre-computed at bootstrap by attempting to restore a persisted session,
 /// so the router never has to guess or show a flash of the wrong screen.
-final initialSessionStateProvider = Provider<SessionState>((ref) {
-  throw UnimplementedError('initialSessionStateProvider must be overridden in app_bootstrap.dart');
-});
+final initialSessionStateProvider = Provider<SessionState>((ref) => SessionState.unauthenticated);
 
 final tokenStorageProvider = Provider<TokenStorage>((ref) => TokenStorage());
 

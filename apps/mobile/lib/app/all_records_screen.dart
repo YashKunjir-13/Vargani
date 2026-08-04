@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../core/core.dart';
+import '../core/localization/locale_controller.dart';
 import '../shared/shared.dart';
 import '../features/donors/screens/donor_list_screen.dart';
 import '../features/vendors/screens/vendor_list_screen.dart';
@@ -8,63 +10,66 @@ import '../features/volunteers/screens/volunteer_list_screen.dart';
 import '../features/sponsorship_advertisement/screens/sponsorship_list_screen.dart';
 import '../features/sponsorship_advertisement/screens/advertisement_list_screen.dart';
 
-class AllRecordsScreen extends StatelessWidget {
+class AllRecordsScreen extends ConsumerWidget {
   const AllRecordsScreen({super.key});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    ref.watch(localeControllerProvider);
+    final textTheme = Theme.of(context).textTheme;
+
     return AppScaffold(
-      title: 'All Records',
+      title: context.allRecords,
       body: ListView(
-        padding: const EdgeInsets.all(AppSpacing.lg),
+        padding: const EdgeInsets.all(AppSpacing.space24),
         children: [
           Text(
-            'Browse by category',
-            style: AppTypography.titleMedium(context).copyWith(
+            context.browseByCategory,
+            style: textTheme.titleMedium?.copyWith(
               color: AppColors.mutedTextFor(context),
             ),
           ),
-          const SizedBox(height: AppSpacing.md),
+          const SizedBox(height: AppSpacing.space16),
           _RecordCategoryCard(
             icon: Icons.handshake_outlined,
-            label: 'Sponsors',
-            description: 'Tiered sponsorship records with pledge & confirmation lifecycle',
+            label: context.sponsors,
+            description: context.sponsorsDesc,
             onTap: () => Navigator.of(context).push(
               MaterialPageRoute(builder: (_) => const SponsorshipListScreen()),
             ),
           ),
-          const SizedBox(height: AppSpacing.md),
+          const SizedBox(height: AppSpacing.space16),
           _RecordCategoryCard(
             icon: Icons.campaign_outlined,
-            label: 'Advertisements',
-            description: 'Placement bookings and space advertisement records',
+            label: context.advertisements,
+            description: context.advertisementsDesc,
             onTap: () => Navigator.of(context).push(
               MaterialPageRoute(builder: (_) => const AdvertisementListScreen()),
             ),
           ),
-          const SizedBox(height: AppSpacing.md),
+          const SizedBox(height: AppSpacing.space16),
           _RecordCategoryCard(
             icon: Icons.people_alt_outlined,
-            label: 'Donors',
-            description: 'Contributor accounts with contribution history',
+            label: context.donors,
+            description: context.donorsDesc,
             onTap: () => Navigator.of(context).push(
               MaterialPageRoute(builder: (_) => const DonorListScreen()),
             ),
           ),
-          const SizedBox(height: AppSpacing.md),
+          const SizedBox(height: AppSpacing.space16),
           _RecordCategoryCard(
             icon: Icons.volunteer_activism_outlined,
-            label: 'Volunteers',
-            description: 'Volunteer assignments and field worker records',
+            label: context.volunteers,
+            description: context.volunteersDesc,
             onTap: () => Navigator.of(context).push(
               MaterialPageRoute(builder: (_) => const VolunteerListScreen()),
             ),
           ),
-          const SizedBox(height: AppSpacing.md),
+          const SizedBox(height: AppSpacing.space16),
           _RecordCategoryCard(
             icon: Icons.store_outlined,
-            label: 'Vendors',
-            description: 'Vendor bills, expense tracking, and contract records',
+            label: context.vendors,
+            description: context.vendorsDesc,
             onTap: () => Navigator.of(context).push(
               MaterialPageRoute(builder: (_) => const VendorListScreen()),
             ),
@@ -97,17 +102,18 @@ class _RecordCategoryCard extends StatelessWidget {
         ? primary.withValues(alpha: 0.12)
         : primary.withValues(alpha: 0.06);
     final borderColor = primary.withValues(alpha: isDark ? 0.3 : 0.18);
+    final textTheme = Theme.of(context).textTheme;
 
     return Material(
       color: Colors.transparent,
       child: InkWell(
         onTap: onTap,
-        borderRadius: BorderRadius.circular(AppSpacing.radiusMd),
+        borderRadius: BorderRadius.circular(AppRadius.medium),
         child: Container(
-          padding: const EdgeInsets.all(AppSpacing.lg),
+          padding: const EdgeInsets.all(AppSpacing.space24),
           decoration: BoxDecoration(
             color: cardBg,
-            borderRadius: BorderRadius.circular(AppSpacing.radiusMd),
+            borderRadius: BorderRadius.circular(AppRadius.medium),
             border: Border.all(
               color: borderColor,
               width: 1,
@@ -128,14 +134,14 @@ class _RecordCategoryCard extends StatelessWidget {
                   size: 22,
                 ),
               ),
-              const SizedBox(width: AppSpacing.md),
+              const SizedBox(width: AppSpacing.space16),
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
                       label,
-                      style: AppTypography.titleMedium(context).copyWith(
+                      style: textTheme.titleMedium?.copyWith(
                         fontWeight: FontWeight.bold,
                         color: primary,
                       ),
@@ -143,8 +149,7 @@ class _RecordCategoryCard extends StatelessWidget {
                     const SizedBox(height: 2),
                     Text(
                       description,
-                      style: AppTypography.caption(
-                        context,
+                      style: textTheme.bodyMedium?.copyWith(
                         color: AppColors.mutedTextFor(context),
                       ),
                     ),

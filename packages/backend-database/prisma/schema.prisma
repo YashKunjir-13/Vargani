@@ -338,6 +338,9 @@ model Organization {
   updatedAt              DateTime           @updatedAt
 
   roles OrganizationRole[]
+  settings OrganizationSettings?
+  invitations OrganizationInvitation[]
+  memberships OrganizationMembership[]
 
   @@index([status, createdAt])
   @@index([ownerUserId])
@@ -375,6 +378,7 @@ model OrganizationMembership {
   createdAt       DateTime                  @default(now())
   updatedAt       DateTime                  @updatedAt
 
+  organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
   role OrganizationRole @relation(fields: [roleId], references: [id], onDelete: Restrict)
 
   // "Enforce one active organization membership per user across the platform"
@@ -385,6 +389,29 @@ model OrganizationMembership {
   @@index([organizationId, status])
   @@index([userId, status])
   @@map("organization_memberships")
+}
+
+model OrganizationInvitation {
+  id               String                   @id @default(uuid()) @db.Uuid
+  organizationId   String                   @db.Uuid
+  invitedByUserId  String                   @db.Uuid
+  targetMobile     String?                  @db.VarChar(20)
+  targetEmail      String?                  @db.VarChar(320)
+  roleId           String                   @db.Uuid
+  deliveryMethod   InvitationDeliveryMethod
+  tokenHash        String?                  @unique
+  status           MembershipStatus         @default(INVITED)
+  expiresAt        DateTime?
+  acceptedByUserId String?                  @db.Uuid
+  acceptedAt       DateTime?
+  createdAt        DateTime                 @default(now())
+
+  organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+
+  @@index([organizationId, status])
+  @@index([targetMobile])
+  @@index([targetEmail])
+  @@map("organization_invitations")
 }
 
 model Permission {
@@ -434,6 +461,132 @@ model RolePermission {
   @@id([roleId, permissionId])
   @@index([permissionId])
   @@map("role_permissions")
+}
+
+// ------------------------------------------------------------
+// Service: tenant-service -- Organization & Platform Settings
+// ------------------------------------------------------------
+
+model OrganizationSettings {
+  id                                 String            @id @default(uuid()) @db.Uuid
+  organizationId                     String            @unique @db.Uuid
+  version                            Int               @default(1)
+  defaultLanguage                    PreferredLanguage @default(EN)
+  enabledLanguages                   PreferredLanguage[]
+  timezone                           String            @default("Asia/Kolkata") @db.VarChar(60)
+  financialYearStartMonth            Int               @default(4)
+  financialYearStartDay              Int               @default(1)
+  invitationAcceptanceRequired       Boolean           @default(false)
+  defaultDonorVisibility             PublicVisibility  @default(NAME_AND_AMOUNT)
+  inKindValueRequired                Boolean           @default(false)
+  includeInKindInContributionTotal   Boolean           @default(true)
+  collectorBoundReceiptBooks         Boolean           @default(false)
+  receiptTemplateCode                String            @default("STANDARD_TRILINGUAL") @db.VarChar(100)
+  authorizedSignatureDocumentId     String?           @db.Uuid
+  whatsappEnabled                    Boolean           @default(true)
+  emailEnabled                       Boolean           @default(true)
+  inAppEnabled                       Boolean           @default(true)
+  updatedByUserId                    String            @db.Uuid
+  createdAt                          DateTime          @default(now())
+  updatedAt                          DateTime          @updatedAt
+
+  organization Organization @relation(fields: [organizationId], references: [id], onDelete: Restrict)
+
+  @@map("organization_settings")
+}
+
+model OrganizationSettingsHistory {
+  id             String   @id @default(uuid()) @db.Uuid
+  organizationId String   @db.Uuid
+  version        Int
+  snapshot       Json
+  changedByUserId String  @db.Uuid
+  changeReason   String?  @db.Text
+  createdAt      DateTime @default(now())
+
+  @@unique([organizationId, version])
+  @@map("organization_settings_history")
+}
+
+model PlatformSettings {
+  id                      String   @id @default(uuid()) @db.Uuid
+  version                 Int      @unique
+  supportedEventTypes     Json
+  maxFileSizeBytes        BigInt   @default(10485760)
+  maxLogoSizeBytes        BigInt   @default(5242880)
+  maxAttachmentsPerEntity Int      @default(5)
+  featureFlags            Json
+  updatedByUserId         String   @db.Uuid
+  createdAt               DateTime @default(now())
+
+  @@map("platform_settings")
+}
+
+enum ConfigurationScope {
+  PLATFORM
+  ORGANIZATION
+  EVENT
+}
+
+enum ConfigurationValueType {
+  STRING
+  NUMBER
+  BOOLEAN
+  JSON
+}
+
+model ConfigurationEntry {
+  id              String                 @id @default(uuid()) @db.Uuid
+  scope           ConfigurationScope
+  scopeId         String?                @db.Uuid
+  key             String                 @db.VarChar(160)
+  valueType       ConfigurationValueType
+  valueJson       Json
+  schemaVersion   Int                    @default(1)
+  version         Int                    @default(1)
+  isSensitive     Boolean                @default(false)
+  effectiveFrom   DateTime               @default(now())
+  effectiveTo     DateTime?
+  changedByUserId String                 @db.Uuid
+  changeReason    String?                @db.Text
+  createdAt       DateTime               @default(now())
+
+  @@unique([scope, scopeId, key, version])
+  @@index([scope, scopeId, key, effectiveFrom])
+  @@map("configuration_entries")
+}
+
+model FeatureFlag {
+  id              String    @id @default(uuid()) @db.Uuid
+  key             String    @unique @db.VarChar(160)
+  description     String    @db.Text
+  enabled         Boolean   @default(false)
+  scopeRules      Json?
+  rolloutPercent  Int       @default(0)
+  ownerTeam       String    @db.VarChar(100)
+  expiresAt       DateTime?
+  changedByUserId String    @db.Uuid
+  changeReason    String?   @db.Text
+  updatedAt       DateTime  @updatedAt
+
+  @@map("feature_flags")
+}
+
+model ReferenceDataValue {
+  id             String    @id @default(uuid()) @db.Uuid
+  organizationId String?   @db.Uuid
+  catalog        String    @db.VarChar(100)
+  code           String    @db.VarChar(80)
+  labels         Json
+  metadata       Json?
+  isActive       Boolean   @default(true)
+  effectiveFrom  DateTime  @default(now())
+  effectiveTo    DateTime?
+  createdAt      DateTime  @default(now())
+
+  @@unique([organizationId, catalog, code, effectiveFrom])
+  @@index([catalog, isActive])
+  @@map("reference_data_values")
 }
 
 // ------------------------------------------------------------
@@ -1672,10 +1825,25 @@ model ReceiptTemplate {
   uploadedByUserId String                  @db.Uuid
   createdAt        DateTime                @default(now())
   updatedAt        DateTime                @updatedAt
+  fields           TemplateFieldMap[]
 
   @@unique([organizationId, templateType, version])
   @@index([organizationId, templateType, isActive])
   @@map("receipt_templates")
+}
+
+model TemplateFieldMap {
+  id                  String          @id @default(uuid()) @db.Uuid
+  templateId          String          @map("template_id") @db.Uuid
+  template            ReceiptTemplate @relation(fields: [templateId], references: [id], onDelete: Cascade)
+  fieldKey            String          @map("field_key") @db.VarChar(100)
+  page                Int             @default(1)
+  x                   Decimal         @db.Decimal(10, 4)
+  y                   Decimal         @db.Decimal(10, 4)
+  fontSize            Int             @default(12) @map("font_size")
+  detectionConfidence Decimal?        @map("detection_confidence") @db.Decimal(5, 4)
+
+  @@map("template_field_map")
 }
 
 // ------------------------------------------------------------
@@ -1895,4 +2063,73 @@ model BillAuditEvent {
   @@index([organizationId, createdAt])
   @@index([billId])
   @@map("bill_audit_events")
+}
+
+// ------------------------------------------------------------
+// Service: contribution-service -- Non-monetary festival contributions
+// (Gold, Silver, Goods, Food, Band, etc.)
+// ------------------------------------------------------------
+
+enum FestivalContributionStatus {
+  RECORDED
+  RECEIPTED
+  CANCELLED
+}
+
+model Contribution {
+  id                      String                     @id @default(uuid()) @db.Uuid
+  organizationId          String                     @map("organization_id") @db.Uuid
+  festivalYear            Int                        @map("festival_year")
+  contributorId           String?                    @map("contributor_id") @db.Uuid
+  contributorNameSnapshot String                     @map("contributor_name_snapshot") @db.VarChar(200)
+  contactSnapshot         String?                    @map("contact_snapshot") @db.VarChar(50)
+  date                    DateTime                   @db.Date
+  donationType            String                     @map("donation_type") @db.VarChar(100)
+  itemDescription         String?                    @map("item_description") @db.Text
+  weight                  Decimal?                   @db.Decimal(10, 3)
+  estimatedValue          Decimal?                   @map("estimated_value") @db.Decimal(12, 2)
+  certificatePhotoUrl     String?                    @map("certificate_photo_url") @db.Text
+  recordedBy              String                     @map("recorded_by") @db.Uuid
+  status                  FestivalContributionStatus @default(RECORDED)
+  createdAt               DateTime                   @default(now()) @map("created_at")
+  updatedAt               DateTime                   @updatedAt @map("updated_at")
+  contributionReceipt     ContributionReceipt?
+
+  @@index([organizationId, festivalYear])
+  @@map("contributions")
+}
+
+enum ContributionReceiptStatus {
+  ACTIVE
+  VOIDED
+}
+
+model ContributionReceipt {
+  id                        String                    @id @default(uuid()) @db.Uuid
+  organizationId            String                    @map("organization_id") @db.Uuid
+  festivalYear              Int                       @map("festival_year")
+  contributionId            String                    @unique @map("contribution_id") @db.Uuid
+  contribution              Contribution              @relation(fields: [contributionId], references: [id])
+  contributorId             String?                   @map("contributor_id") @db.Uuid
+  contributorNameSnapshot   String                    @map("contributor_name_snapshot") @db.VarChar(200)
+  donationTypeSnapshot      String                    @map("donation_type_snapshot") @db.VarChar(100)
+  contributionReceiptNumber String                    @map("contribution_receipt_number") @db.VarChar(40)
+  issuedDate                DateTime                  @default(now()) @map("issued_date")
+  mandalNameSnapshot        String                    @map("mandal_name_snapshot") @db.VarChar(200)
+  stampAssetUrl             String?                   @map("stamp_asset_url") @db.Text
+  signatureAssetUrl         String?                   @map("signature_asset_url") @db.Text
+  templateVersionId         String?                   @map("template_version_id") @db.Uuid
+  pdfUrl                    String                    @map("pdf_url") @db.Text
+  whatsappDeliveryStatus    WhatsAppDeliveryStatus    @default(PENDING) @map("whatsapp_delivery_status")
+  whatsappRetryCount        Int                       @default(0) @map("whatsapp_retry_count")
+  status                    ContributionReceiptStatus @default(ACTIVE)
+  voidedBy                  String?                   @map("voided_by") @db.Uuid
+  voidReason                String?                   @map("void_reason") @db.Text
+  voidedAt                  DateTime?                 @map("voided_at")
+  createdAt                 DateTime                  @default(now()) @map("created_at")
+
+  @@unique([organizationId, festivalYear, contributionReceiptNumber])
+  @@index([organizationId, contributorId])
+  @@index([organizationId, status])
+  @@map("contribution_receipts")
 }

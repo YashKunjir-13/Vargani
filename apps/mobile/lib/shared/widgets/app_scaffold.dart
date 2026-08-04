@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../features/authentication/presentation/widgets/auth_design_tokens.dart';
+import '../../features/dashboard/presentation/providers/dashboard_providers.dart';
+import 'app_bottom_nav.dart';
 import '../../core/core.dart';
-import '../../core/theme/theme_controller.dart';
+
 
 class AppScaffold extends ConsumerWidget {
   const AppScaffold({
@@ -26,35 +29,80 @@ class AppScaffold extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final language = ref.watch(localeProvider);
-    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final colors = context.authColors;
+    final l10n = context.l10n;
+    final activeTabIndex = ref.watch(dashboardTabProvider);
+
+    final effectiveBottomNav = bottomNavigationBar ??
+        Container(
+          decoration: BoxDecoration(
+            color: colors.card,
+            border: Border(top: BorderSide(color: colors.border)),
+          ),
+          child: AppBottomNav(
+            currentIndex: activeTabIndex,
+            onTap: (index) {
+              ref.read(dashboardTabProvider.notifier).setTab(index);
+              Navigator.of(context).popUntil((route) => route.isFirst);
+            },
+            items: [
+              AppBottomNavItem(
+                icon: Icons.dashboard_outlined,
+                selectedIcon: Icons.dashboard,
+                label: l10n.mandalDashboardTitle.split(' ').first,
+                route: '',
+              ),
+              const AppBottomNavItem(
+                icon: Icons.monetization_on_outlined,
+                selectedIcon: Icons.monetization_on,
+                label: 'Contributions',
+                route: '',
+              ),
+              const AppBottomNavItem(
+                icon: Icons.description_outlined,
+                selectedIcon: Icons.description,
+                label: 'Bills',
+                route: '',
+              ),
+              const AppBottomNavItem(
+                icon: Icons.assessment_outlined,
+                selectedIcon: Icons.assessment,
+                label: 'Reports',
+                route: '',
+              ),
+              AppBottomNavItem(
+                icon: Icons.person_outline,
+                selectedIcon: Icons.person,
+                label: l10n.profile,
+                route: '',
+              ),
+            ],
+          ),
+        );
 
     return Scaffold(
+      backgroundColor: colors.background,
       appBar: AppBar(
-        leading: showBackButton
-            ? IconButton(
-                icon: const Icon(Icons.arrow_back_ios_new_rounded),
-                onPressed: () => Navigator.of(context).maybePop(),
-              )
-            : null,
-        title: Text(title),
+        backgroundColor: colors.card,
+        elevation: 0,
+        scrolledUnderElevation: 0,
+        leading: leading ??
+            (showBackButton
+                ? IconButton(
+                    icon: Icon(Icons.arrow_back_ios_new_rounded, color: colors.text),
+                    onPressed: () => Navigator.of(context).maybePop(),
+                  )
+                : null),
+        title: Text(
+          title,
+          style: TextStyle(
+            color: colors.text,
+            fontSize: 18,
+            fontWeight: FontWeight.w900,
+          ),
+        ),
         actions: [
           ...?actions,
-          // Theme toggle — use a styled icon button so it's visible in both modes
-          IconButton(
-            tooltip: isDark ? 'Switch to light mode' : 'Switch to dark mode',
-            icon: Icon(
-              isDark ? Icons.light_mode_outlined : Icons.dark_mode_outlined,
-              color: Theme.of(context).colorScheme.onSurface,
-            ),
-            onPressed: () => ref.read(themeControllerProvider.notifier).toggleTheme(!isDark),
-          ),
-          TextButton(
-            onPressed: () => ref.read(localeProvider.notifier).setLanguage(
-                AppLanguage.values[(AppLanguage.values.indexOf(language) + 1) %
-                    AppLanguage.values.length]),
-            child: Text(language.name.toUpperCase()),
-          ),
           IconButton(
             icon: const Icon(Icons.notifications_outlined),
             onPressed: () {},
@@ -62,7 +110,7 @@ class AppScaffold extends ConsumerWidget {
         ],
       ),
       body: body,
-      bottomNavigationBar: bottomNavigationBar,
+      bottomNavigationBar: effectiveBottomNav,
       floatingActionButton: floatingActionButton,
     );
   }

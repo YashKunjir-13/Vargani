@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../core/l10n/app_localizations.dart';
+import '../../../core/session/session_controller.dart';
 import '../../../shared/widgets/app_button.dart';
 import '../../../shared/widgets/app_card.dart';
 import '../../../shared/widgets/app_image_picker.dart';
@@ -68,13 +69,16 @@ class _CreateBillScreenState extends ConsumerState<CreateBillScreen> {
       return;
     }
 
+    final sessionUser = ref.read(sessionControllerProvider).user;
+    final currentUserId = sessionUser?.id ?? sessionUser?.displayName ?? 'user-treasurer-1';
+
     final bill = ref.read(billsProvider.notifier).create(
           receiverName: _receiverController.text.trim(),
           amount: amount,
           taskOrField: _taskController.text.trim(),
           contact: _contactController.text.trim().isEmpty ? null : _contactController.text.trim(),
           isRegisteredVendor: _isRegisteredVendor,
-          createdBy: 'Volunteer User',
+          createdBy: currentUserId,
         );
 
     ScaffoldMessenger.of(context).showSnackBar(

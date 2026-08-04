@@ -23,25 +23,10 @@ class _PaymentsListScreenState extends ConsumerState<PaymentsListScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final payments = ref.watch(paymentsProvider);
+    final asyncPayments = ref.watch(paymentsProvider);
     final theme = Theme.of(context);
     final currency = NumberFormat.currency(locale: 'en_IN', symbol: '₹', decimalDigits: 0);
     final dateFormat = DateFormat('d MMM yyyy, h:mm a');
-
-    final filtered = payments.where((p) {
-      final matchesFilter = switch (_selectedFilter) {
-        'Pending Match' => p.status == PaymentStatus.pendingMatch,
-        'Confirmed' => p.status == PaymentStatus.confirmed,
-        'Receipted' => p.status == PaymentStatus.receipted,
-        'Voided' => p.status == PaymentStatus.voided,
-        _ => true,
-      };
-
-      final matchesSearch = p.donorName.toLowerCase().contains(_searchQuery.toLowerCase()) ||
-          p.id.toLowerCase().contains(_searchQuery.toLowerCase());
-
-      return matchesFilter && matchesSearch;
-    }).toList();
 
     return Scaffold(
       appBar: PautiAppBar(
@@ -54,7 +39,38 @@ class _PaymentsListScreenState extends ConsumerState<PaymentsListScreen> {
         icon: const Icon(Icons.add),
         label: Text(L10n.tr(ref, 'record_payment')),
       ),
-      body: Column(
+      body: asyncPayments.when(
+        loading: () => const Center(child: CircularProgressIndicator()),
+        error: (err, _) => Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Text('Failed to load payments: $err'),
+              const SizedBox(height: 12),
+              ElevatedButton(
+                onPressed: () => ref.read(paymentsProvider.notifier).loadPayments(),
+                child: const Text('Retry'),
+              ),
+            ],
+          ),
+        ),
+        data: (payments) {
+          final filtered = payments.where((p) {
+            final matchesFilter = switch (_selectedFilter) {
+              'Pending Match' => p.status == PaymentStatus.pendingMatch,
+              'Confirmed' => p.status == PaymentStatus.confirmed,
+              'Receipted' => p.status == PaymentStatus.receipted,
+              'Voided' => p.status == PaymentStatus.voided,
+              _ => true,
+            };
+
+            final matchesSearch = p.donorName.toLowerCase().contains(_searchQuery.toLowerCase()) ||
+                p.id.toLowerCase().contains(_searchQuery.toLowerCase());
+
+            return matchesFilter && matchesSearch;
+          }).toList();
+
+          return Column(
         children: [
           // Filter Chips & Search Bar Header
           Container(
@@ -152,7 +168,9 @@ class _PaymentsListScreenState extends ConsumerState<PaymentsListScreen> {
                   ),
           ),
         ],
-      ),
-    );
-  }
+      );
+    },
+  ),
+);
+}
 }

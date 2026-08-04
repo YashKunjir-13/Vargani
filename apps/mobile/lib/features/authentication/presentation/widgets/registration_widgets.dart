@@ -165,7 +165,7 @@ class RegistrationTypeCard extends StatelessWidget {
           borderRadius: BorderRadius.circular(20),
           child: AnimatedContainer(
             duration: const Duration(milliseconds: 250),
-            padding: const EdgeInsets.all(22),
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
             decoration: BoxDecoration(
               color: isSelected ? colors.typeCardBackground : colors.card,
               borderRadius: BorderRadius.circular(20),
@@ -179,14 +179,14 @@ class RegistrationTypeCard extends StatelessWidget {
             child: Row(children: [
               AnimatedContainer(
                 duration: const Duration(milliseconds: 250),
-                width: 78,
-                height: 78,
+                width: 64,
+                height: 64,
                 decoration: BoxDecoration(
                     color: isSelected ? colors.brandOrange : colors.surfaceMuted,
-                    borderRadius: BorderRadius.circular(16)),
-                child: Icon(icon, color: isSelected ? Colors.white : colors.secondaryText, size: 39),
+                    borderRadius: BorderRadius.circular(14)),
+                child: Icon(icon, color: isSelected ? Colors.white : colors.secondaryText, size: 32),
               ),
-              const SizedBox(width: 22),
+              const SizedBox(width: 14),
               Expanded(
                   child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -194,17 +194,18 @@ class RegistrationTypeCard extends StatelessWidget {
                     Text(title,
                         style: TextStyle(
                             color: colors.text,
-                            fontSize: 22,
+                            fontSize: 18,
                             fontWeight: FontWeight.w900)),
-                    const SizedBox(height: 5),
+                    const SizedBox(height: 4),
                     Text(description,
                         style: TextStyle(
                             color: colors.secondaryText,
-                            fontSize: 16,
+                            fontSize: 14,
                             height: 1.3)),
                   ])),
+              const SizedBox(width: 8),
               Icon(Icons.chevron_right,
-                  color: isSelected ? colors.brandOrange : colors.border, size: 30),
+                  color: isSelected ? colors.brandOrange : colors.border, size: 24),
             ]),
           ),
         ),

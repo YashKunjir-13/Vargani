@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/core.dart';
+import '../../../core/localization/locale_controller.dart';
 import '../../../shared/shared.dart';
 import '../../../shared/widgets/formatters.dart';
 import '../models/sponsorship.dart';
@@ -15,6 +16,7 @@ class SponsorshipListScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    ref.watch(localeControllerProvider);
     final sponsorshipsAsync = ref.watch(sponsorshipListProvider);
     final role = ref.watch(roleProvider);
 
@@ -23,7 +25,7 @@ class SponsorshipListScreen extends ConsumerWidget {
         role == UserRole.treasurer;
 
     return AppScaffold(
-      title: 'Sponsors',
+      title: context.sponsors,
       body: sponsorshipsAsync.when(
         data: (sponsorships) {
           final confirmedTotal = sponsorships
@@ -39,59 +41,55 @@ class SponsorshipListScreen extends ConsumerWidget {
           return RefreshIndicator(
             onRefresh: () async => ref.invalidate(sponsorshipListProvider),
             child: ListView(
-              padding: const EdgeInsets.all(AppSpacing.lg),
+              padding: const EdgeInsets.all(AppSpacing.space24),
               children: [
-                // ── Summary stat row ──────────────────────────────────────
                 Row(
                   children: [
                     Expanded(
                       child: AppSummaryStatCard(
-                        label: 'Confirmed',
+                        label: context.confirmedLabel,
                         value: formatPaiseAsRupees(confirmedTotal),
                         valueColor: Theme.of(context).brightness == Brightness.dark
                             ? AppColors.darkSuccess
                             : AppColors.lightSuccess,
                       ),
                     ),
-                    const SizedBox(width: AppSpacing.sm),
+                    const SizedBox(width: AppSpacing.space8),
                     Expanded(
                       child: AppSummaryStatCard(
-                        label: 'Pledged',
+                        label: context.pledgedLabel,
                         value: formatPaiseAsRupees(pledgedTotal),
                         valueColor: Theme.of(context).brightness == Brightness.dark
                             ? AppColors.darkWarning
                             : AppColors.lightWarning,
                       ),
                     ),
-                    const SizedBox(width: AppSpacing.sm),
+                    const SizedBox(width: AppSpacing.space8),
                     Expanded(
                       child: AppSummaryStatCard(
-                        label: 'Pending',
+                        label: context.pendingLabel,
                         value: formatPaiseAsRupees(pendingTotal),
                       ),
                     ),
                   ],
                 ),
-                const SizedBox(height: AppSpacing.md),
-                // ── Search bar ────────────────────────────────────────────
+                const SizedBox(height: AppSpacing.space16),
                 AppSearchBar(
-                  hint: 'Search sponsors',
+                  hint: context.searchSponsorsHint,
                   onChanged: (value) => ref
                       .read(sponsorshipListControllerProvider.notifier)
                       .updateSearch(value),
                 ),
-                const SizedBox(height: AppSpacing.md),
-                // ── Add button (management roles only) ───────────────────
+                const SizedBox(height: AppSpacing.space16),
                 if (canManage)
                   AppButton(
-                    label: 'Add Sponsor',
+                    label: context.addSponsorBtn,
                     onPressed: () => Navigator.of(context).push(
                       MaterialPageRoute(
                           builder: (_) => const SponsorshipFormScreen()),
                     ),
                   ),
-                if (canManage) const SizedBox(height: AppSpacing.md),
-                // ── List ──────────────────────────────────────────────────
+                if (canManage) const SizedBox(height: AppSpacing.space16),
                 if (sponsorships.isEmpty)
                   const AppEmptyState(
                     title: 'No sponsors found',
@@ -100,7 +98,7 @@ class SponsorshipListScreen extends ConsumerWidget {
                 else
                   ...sponsorships.map(
                     (sponsorship) => Padding(
-                      padding: const EdgeInsets.only(bottom: AppSpacing.sm),
+                      padding: const EdgeInsets.only(bottom: AppSpacing.space8),
                       child: SponsorListItem(
                         sponsorship: sponsorship,
                         onTap: () => Navigator.of(context).push(

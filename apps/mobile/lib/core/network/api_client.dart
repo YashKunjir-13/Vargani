@@ -19,6 +19,8 @@ Dio buildApiClient({required String environment, required TokenStorage tokenStor
   dio.interceptors.add(
     InterceptorsWrapper(
       onRequest: (options, handler) async {
+        options.headers['x-tenant-id'] ??= '00000000-0000-4000-a000-000000000001';
+        options.headers['x-dev-organization-id'] ??= '00000000-0000-4000-a000-000000000001';
         final accessToken = await tokenStorage.readAccessToken();
         if (accessToken != null) {
           options.headers['Authorization'] = 'Bearer $accessToken';

@@ -3,7 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:pauti_pustak_mobile/l10n/app_localizations.dart';
 import 'package:pauti_pustak_mobile/core/localization/localization_extensions.dart';
 import 'package:pauti_pustak_mobile/core/session/session_controller.dart';
-import 'package:pauti_pustak_mobile/core/theme/theme_controller.dart';
+import 'package:pauti_pustak_mobile/core/theme/app_theme.dart';
 import 'package:pauti_pustak_mobile/features/authentication/presentation/widgets/auth_design_tokens.dart';
 import 'package:pauti_pustak_mobile/features/authentication/presentation/widgets/language_selector.dart';
 import 'package:pauti_pustak_mobile/features/dashboard/data/models/dashboard_models.dart';
@@ -13,6 +13,7 @@ import 'package:pauti_pustak_mobile/features/dashboard/presentation/widgets/dash
 import 'package:pauti_pustak_mobile/features/dashboard/presentation/widgets/quick_actions_bar.dart';
 import 'package:pauti_pustak_mobile/features/dashboard/presentation/widgets/summary_card.dart';
 import 'package:pauti_pustak_mobile/features/dashboard/presentation/widgets/transaction_list.dart';
+import 'package:pauti_pustak_mobile/features/dashboard/presentation/pages/search_mandal_screen.dart';
 import 'package:pauti_pustak_mobile/shared/widgets/app_bottom_nav.dart';
 
 class DonorDashboardScreen extends ConsumerStatefulWidget {
@@ -46,6 +47,14 @@ class _DonorDashboardScreenState extends ConsumerState<DonorDashboardScreen> {
         subtitle: donorName,
         badgeText: 'दे',
         onProfileTap: () => setState(() => _currentIndex = 3),
+        onSearchTap: () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => const SearchMandalScreen(),
+            ),
+          );
+        },
       ),
       body: SafeArea(
         child: IndexedStack(
@@ -201,7 +210,7 @@ class _DonorDashboardScreenState extends ConsumerState<DonorDashboardScreen> {
           const SizedBox(height: 12),
           QuickActionsGrid(
             actions: [
-              QuickActionButtonItem(id: 'donate', label: l10n.donateAgain, icon: Icons.volunteer_activism, primary: true),
+              const QuickActionButtonItem(id: 'donate', label: 'New Donation', icon: Icons.volunteer_activism, primary: true),
               QuickActionButtonItem(id: 'view_receipts', label: l10n.viewReceipts, icon: Icons.receipt_long),
               QuickActionButtonItem(id: 'history', label: l10n.contributionHistory, icon: Icons.history),
               QuickActionButtonItem(id: 'campaigns', label: l10n.supportCampaigns, icon: Icons.campaign),
@@ -210,7 +219,12 @@ class _DonorDashboardScreenState extends ConsumerState<DonorDashboardScreen> {
             ],
             onActionTap: (action) {
               if (action.id == 'donate') {
-                DashboardActionSheets.showCollectDonationSheet(context);
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => const SearchMandalScreen(),
+                  ),
+                );
               } else if (action.id == 'view_receipts' || action.id == 'download') {
                 setState(() => _currentIndex = 2);
               } else {
@@ -465,7 +479,7 @@ class _DonorDashboardScreenState extends ConsumerState<DonorDashboardScreen> {
           title: Text(l10n.darkMode, style: TextStyle(color: colors.text, fontWeight: FontWeight.w700)),
           value: isDark,
           onChanged: (val) {
-            ref.read(themeControllerProvider.notifier).toggleTheme(val);
+            ref.read(appThemeModeProvider.notifier).setThemeMode(val ? ThemeMode.dark : ThemeMode.light);
           },
         ),
         const Divider(),

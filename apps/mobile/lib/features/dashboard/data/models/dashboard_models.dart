@@ -124,6 +124,46 @@ class MandalDashboardData {
   final List<TopDonorItem> topDonors;
   final List<PendingPaymentItem> pendingPayments;
   final List<BudgetItem> budgets;
+
+  MandalDashboardData copyWith({
+    String? mandalName,
+    String? festivalYear,
+    int? currentBalancePaise,
+    int? todaysCollectionPaise,
+    int? totalCollectionPaise,
+    int? totalExpensesPaise,
+    int? pendingBillsCount,
+    int? pendingBillsAmountPaise,
+    int? pendingReceiptsCount,
+    int? activeVolunteersCount,
+    int? totalDonorsCount,
+    int? upcomingEventsCount,
+    List<TransactionItem>? transactions,
+    List<MandalModuleItem>? modules,
+    List<TopDonorItem>? topDonors,
+    List<PendingPaymentItem>? pendingPayments,
+    List<BudgetItem>? budgets,
+  }) {
+    return MandalDashboardData(
+      mandalName: mandalName ?? this.mandalName,
+      festivalYear: festivalYear ?? this.festivalYear,
+      currentBalancePaise: currentBalancePaise ?? this.currentBalancePaise,
+      todaysCollectionPaise: todaysCollectionPaise ?? this.todaysCollectionPaise,
+      totalCollectionPaise: totalCollectionPaise ?? this.totalCollectionPaise,
+      totalExpensesPaise: totalExpensesPaise ?? this.totalExpensesPaise,
+      pendingBillsCount: pendingBillsCount ?? this.pendingBillsCount,
+      pendingBillsAmountPaise: pendingBillsAmountPaise ?? this.pendingBillsAmountPaise,
+      pendingReceiptsCount: pendingReceiptsCount ?? this.pendingReceiptsCount,
+      activeVolunteersCount: activeVolunteersCount ?? this.activeVolunteersCount,
+      totalDonorsCount: totalDonorsCount ?? this.totalDonorsCount,
+      upcomingEventsCount: upcomingEventsCount ?? this.upcomingEventsCount,
+      transactions: transactions ?? this.transactions,
+      modules: modules ?? this.modules,
+      topDonors: topDonors ?? this.topDonors,
+      pendingPayments: pendingPayments ?? this.pendingPayments,
+      budgets: budgets ?? this.budgets,
+    );
+  }
 }
 
 class DonorDashboardData {
@@ -152,4 +192,32 @@ class DonorDashboardData {
   final int digitalReceiptsCount;
   final List<TransactionItem> recentDonations;
   final Map<int, int> yearlyBreakdown;
+
+  DonorDashboardData copyWith({
+    String? donorName,
+    String? mobile,
+    String? email,
+    int? totalDonationsPaise,
+    int? thisYearDonationsPaise,
+    int? lastDonationAmountPaise,
+    DateTime? lastDonationDate,
+    String? favoriteMandalName,
+    int? digitalReceiptsCount,
+    List<TransactionItem>? recentDonations,
+    Map<int, int>? yearlyBreakdown,
+  }) {
+    return DonorDashboardData(
+      donorName: donorName ?? this.donorName,
+      mobile: mobile ?? this.mobile,
+      email: email ?? this.email,
+      totalDonationsPaise: totalDonationsPaise ?? this.totalDonationsPaise,
+      thisYearDonationsPaise: thisYearDonationsPaise ?? this.thisYearDonationsPaise,
+      lastDonationAmountPaise: lastDonationAmountPaise ?? this.lastDonationAmountPaise,
+      lastDonationDate: lastDonationDate ?? this.lastDonationDate,
+      favoriteMandalName: favoriteMandalName ?? this.favoriteMandalName,
+      digitalReceiptsCount: digitalReceiptsCount ?? this.digitalReceiptsCount,
+      recentDonations: recentDonations ?? this.recentDonations,
+      yearlyBreakdown: yearlyBreakdown ?? this.yearlyBreakdown,
+    );
+  }
 }

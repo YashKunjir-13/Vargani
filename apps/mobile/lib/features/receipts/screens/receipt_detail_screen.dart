@@ -22,19 +22,10 @@ class ReceiptDetailScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final receipts = ref.watch(receiptsProvider);
+    final asyncReceipts = ref.watch(receiptsProvider);
     final permissions = ref.watch(permissionsProvider);
-
-    final receipt = receipts.where((r) => r.id == receiptId).firstOrNull;
     final currency = NumberFormat.currency(locale: 'en_IN', symbol: '₹', decimalDigits: 0);
     final dateFormat = DateFormat('d MMM yyyy');
-
-    if (receipt == null) {
-      return const Scaffold(
-        appBar: PautiAppBar(title: 'Receipt', subtitle: 'Donor Portal'),
-        body: Center(child: Text('Receipt not found')),
-      );
-    }
 
     return Scaffold(
       appBar: const PautiAppBar(
@@ -42,7 +33,17 @@ class ReceiptDetailScreen extends ConsumerWidget {
         subtitle: 'Donor Portal',
         showBackButton: true,
       ),
-      body: ListView(
+      body: asyncReceipts.when(
+        loading: () => const Center(child: CircularProgressIndicator()),
+        error: (err, _) => Center(child: Text('Failed to load receipt: $err')),
+        data: (receipts) {
+          final receipt = receipts.where((r) => r.id == receiptId).firstOrNull;
+
+          if (receipt == null) {
+            return const Center(child: Text('Receipt not found'));
+          }
+
+          return ListView(
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
         children: [
           // Top Action Buttons Row: [ ↓ PDF ] and [ Share ]
@@ -399,16 +400,23 @@ class ReceiptDetailScreen extends ConsumerWidget {
                 label: 'Void Receipt',
                 variant: AppButtonVariant.danger,
                 icon: Icons.block,
-                onPressed: () {
-                  ref.read(receiptsProvider.notifier).voidReceipt(receipt.id, reason: 'Voided by Admin');
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text('Receipt has been voided.')),
-                  );
+                onPressed: () async {
+                  final ok = await ref.read(receiptsProvider.notifier).resendWhatsapp(receipt.id);
+                  if (context.mounted) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        content: Text(ok ? 'WhatsApp resend initiated' : 'Failed to resend WhatsApp'),
+                        backgroundColor: ok ? Colors.green : Colors.red,
+                      ),
+                    );
+                  }
                 },
               ),
             ),
         ],
-      ),
-    );
-  }
+      );
+    },
+  ),
+);
+}
 }

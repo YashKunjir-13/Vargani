@@ -29,26 +29,26 @@ class DevThemePreviewScreen extends ConsumerWidget {
                   color: AppColors.mutedTextFor(context)),
             ),
             const SizedBox(height: AppSpacing.xl),
-            Wrap(
+            const Wrap(
               spacing: AppSpacing.sm,
               runSpacing: AppSpacing.sm,
               children: [
-                const AppButton(
+                AppButton(
                     label: '+ Add Sponsor', icon: Icons.add_circle_outline),
-                const AppButton(
+                AppButton(
                     label: 'Secondary',
                     variant: AppButtonVariant.secondary,
                     icon: Icons.info_outline),
-                const AppButton(label: 'Text', variant: AppButtonVariant.text),
+                AppButton(label: 'Text', variant: AppButtonVariant.text),
               ],
             ),
             const SizedBox(height: AppSpacing.xl),
-            Row(
+            const Row(
               children: [
                 Expanded(
                     child: AppSummaryStatCard(
                         label: 'Total Vendors', value: '12')),
-                const SizedBox(width: AppSpacing.sm),
+                SizedBox(width: AppSpacing.sm),
                 Expanded(
                     child: AppSummaryStatCard(
                         label: 'Outstanding',
@@ -57,20 +57,16 @@ class DevThemePreviewScreen extends ConsumerWidget {
               ],
             ),
             const SizedBox(height: AppSpacing.xl),
-            Wrap(
+            const Wrap(
               spacing: AppSpacing.sm,
               runSpacing: AppSpacing.sm,
               children: [
-                const AppStatusBadge(
-                    label: 'Active', status: AppStatus.success),
-                const AppStatusBadge(
-                    label: 'Pending', status: AppStatus.pending),
-                const AppStatusBadge(
-                    label: 'Warning', status: AppStatus.warning),
-                const AppStatusBadge(label: 'Error', status: AppStatus.error),
-                const AppStatusBadge(label: 'Info', status: AppStatus.info),
-                const AppStatusBadge(
-                    label: 'Neutral', status: AppStatus.neutral),
+                AppStatusBadge(label: 'Active', status: AppStatus.success),
+                AppStatusBadge(label: 'Pending', status: AppStatus.pending),
+                AppStatusBadge(label: 'Warning', status: AppStatus.warning),
+                AppStatusBadge(label: 'Error', status: AppStatus.error),
+                AppStatusBadge(label: 'Info', status: AppStatus.info),
+                AppStatusBadge(label: 'Neutral', status: AppStatus.neutral),
               ],
             ),
             const SizedBox(height: AppSpacing.xl),
@@ -132,10 +128,10 @@ class DevThemePreviewScreen extends ConsumerWidget {
               ),
             ),
             const SizedBox(height: AppSpacing.xl),
-            AppEmptyState(
+            const AppEmptyState(
               title: 'No advertisements yet',
               message: 'Add a booked placement once the event is ready.',
-              action: const AppButton(
+              action: AppButton(
                   label: '+ Book Advertisement',
                   icon: Icons.add_circle_outline),
             ),

@@ -2,6 +2,7 @@ import {
   CanActivate,
   ExecutionContext,
   ForbiddenException,
+  Inject,
   Injectable,
   UnauthorizedException,
 } from "@nestjs/common";
@@ -26,9 +27,6 @@ function extractClaimedTenantId(request: any): string | undefined {
 
 @Injectable()
 export class TenantGuard implements CanActivate {
-  // Default-constructible so existing `new TenantGuard()` unit tests keep
-  // working; Nest's DI container still injects the real Reflector when this
-  // is registered as a provider (e.g. via APP_GUARD).
   constructor(private readonly reflector: Reflector = new Reflector()) {}
 
   canActivate(context: ExecutionContext): boolean {

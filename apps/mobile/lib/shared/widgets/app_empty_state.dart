@@ -12,25 +12,33 @@ class AppEmptyState extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final textTheme = Theme.of(context).textTheme;
+
     return Center(
       child: Padding(
-        padding: const EdgeInsets.all(AppSpacing.xxl),
+        padding: const EdgeInsets.all(AppSpacing.space48),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(Icons.inbox_outlined,
-                size: 48, color: AppColors.mutedTextFor(context)),
-            const SizedBox(height: AppSpacing.md),
-            Text(title, style: AppTypography.titleMedium(context)),
+            Icon(
+              Icons.inbox_outlined,
+              size: 48,
+              color: AppColors.mutedTextFor(context),
+            ),
+            const SizedBox(height: AppSpacing.space16),
+            Text(title, style: textTheme.titleMedium),
             if (message != null) ...[
-              const SizedBox(height: AppSpacing.sm),
-              Text(message!,
-                  style: AppTypography.caption(context,
-                      color: AppColors.mutedTextFor(context)),
-                  textAlign: TextAlign.center),
+              const SizedBox(height: AppSpacing.space8),
+              Text(
+                message!,
+                style: textTheme.bodyMedium?.copyWith(
+                  color: AppColors.mutedTextFor(context),
+                ),
+                textAlign: TextAlign.center,
+              ),
             ],
             if (action != null) ...[
-              const SizedBox(height: AppSpacing.lg),
+              const SizedBox(height: AppSpacing.space24),
               action!,
             ],
           ],

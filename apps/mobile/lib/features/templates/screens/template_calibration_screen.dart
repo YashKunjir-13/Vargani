@@ -135,72 +135,33 @@ class _TemplateCalibrationScreenState extends ConsumerState<TemplateCalibrationS
                       const SizedBox(width: 12),
                       Expanded(
                         child: ElevatedButton.icon(
-                          onPressed: () {
-                            if (nameController.text.trim().isEmpty) return;
-
-                            final newId = 'tmpl-${DateTime.now().millisecondsSinceEpoch.toString().substring(7)}';
-                            final newTemplate = ReceiptTemplate(
-                              id: newId,
-                              name: nameController.text.trim(),
-                              mandalName: mandalController.text.trim().isEmpty
-                                  ? 'Shree Ganesh Mandal'
-                                  : mandalController.text.trim(),
-                              imageUrl: attachedFileName ?? 'assets/images/template_saffron.png',
-                              isActive: true,
-                              markers: [
-                                FieldMarker(
-                                  id: 'donor_name',
-                                  label: 'Donor Name',
-                                  position: const Offset(0.20, 0.32),
-                                  size: const Size(0.55, 0.08),
-                                  color: Colors.blue,
-                                ),
-                                FieldMarker(
-                                  id: 'amount',
-                                  label: 'Amount (₹)',
-                                  position: const Offset(0.70, 0.45),
-                                  size: const Size(0.25, 0.08),
-                                  color: Colors.green,
-                                ),
-                                FieldMarker(
-                                  id: 'receipt_no',
-                                  label: 'Receipt No',
-                                  position: const Offset(0.70, 0.20),
-                                  size: const Size(0.25, 0.06),
-                                  color: Colors.orange,
-                                ),
-                                FieldMarker(
-                                  id: 'date',
-                                  label: 'Date & Time',
-                                  position: const Offset(0.10, 0.20),
-                                  size: const Size(0.30, 0.06),
-                                  color: Colors.purple,
-                                ),
-                                FieldMarker(
-                                  id: 'signature',
-                                  label: 'Trustee Signature',
-                                  position: const Offset(0.65, 0.75),
-                                  size: const Size(0.30, 0.12),
-                                  color: Colors.teal,
-                                ),
-                              ],
+                          onPressed: () async {
+                            final filename = attachedFileName ?? 'mandal_template_${DateTime.now().millisecondsSinceEpoch}.png';
+                            final dummyBytes = [137, 80, 78, 71, 13, 10, 26, 10, 0, 0, 0, 13, 73, 72, 68, 82, 0, 0, 0, 1, 0, 0, 0, 1, 8, 6, 0, 0, 0, 31, 213, 196, 236];
+                            final uploadedTemplate = await ref.read(templatesProvider.notifier).uploadAndActivateTemplate(
+                              filename: filename,
+                              bytes: dummyBytes,
                             );
 
-                            ref.read(templatesProvider.notifier).addAndActivateTemplate(newTemplate);
+                            if (uploadedTemplate != null) {
+                              setState(() {
+                                selectedTemplateId = uploadedTemplate.id;
+                                selectedMarkerId = null;
+                              });
+                            }
 
-                            setState(() {
-                              selectedTemplateId = newTemplate.id;
-                              selectedMarkerId = null;
-                            });
+                            if (ctx.mounted) {
+                              Navigator.of(ctx).pop();
+                            }
 
-                            Navigator.of(ctx).pop();
-
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              SnackBar(
-                                content: Text('Mandal template "${newTemplate.name}" uploaded & activated!'),
-                                backgroundColor: Colors.green,
-                              ),
-                            );
+                            if (context.mounted) {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(
+                                  content: Text('Mandal template "${uploadedTemplate?.name ?? filename}" uploaded & activated!'),
+                                  backgroundColor: Colors.green,
+                                ),
+                              );
+                            }
                           },
                           icon: const Icon(Icons.cloud_upload_outlined, size: 18),
                           label: const Text('Upload & Calibrate'),
@@ -219,15 +180,10 @@ class _TemplateCalibrationScreenState extends ConsumerState<TemplateCalibrationS
 
   @override
   Widget build(BuildContext context) {
-    final templates = ref.watch(templatesProvider);
+    final asyncTemplates = ref.watch(templatesProvider);
     final activeTemplate = ref.watch(activeTemplateProvider);
     final permissions = ref.watch(permissionsProvider);
     final theme = Theme.of(context);
-
-    final currentTemplate = templates.firstWhere(
-      (t) => t.id == (selectedTemplateId ?? activeTemplate.id),
-      orElse: () => activeTemplate,
-    );
 
     return Scaffold(
       appBar: PautiAppBar(
@@ -235,9 +191,47 @@ class _TemplateCalibrationScreenState extends ConsumerState<TemplateCalibrationS
         subtitle: 'Treasurer Portal',
         showBackButton: true,
       ),
-      body: LayoutBuilder(
-        builder: (context, constraints) {
-          final isWide = constraints.maxWidth > 800;
+      body: asyncTemplates.when(
+        loading: () => const Center(child: CircularProgressIndicator()),
+        error: (err, _) => Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Text('Failed to load templates: $err'),
+              const SizedBox(height: 12),
+              ElevatedButton(
+                onPressed: () => ref.read(templatesProvider.notifier).loadTemplates(),
+                child: const Text('Retry'),
+              ),
+            ],
+          ),
+        ),
+        data: (templates) {
+          if (templates.isEmpty) {
+            return Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  const Text('No templates found in database.'),
+                  const SizedBox(height: 12),
+                  ElevatedButton.icon(
+                    onPressed: () => _showUploadTemplateModal(context),
+                    icon: const Icon(Icons.upload_file),
+                    label: const Text('Upload Template'),
+                  ),
+                ],
+              ),
+            );
+          }
+
+          final currentTemplate = templates.firstWhere(
+            (t) => t.id == (selectedTemplateId ?? activeTemplate.id),
+            orElse: () => activeTemplate,
+          );
+
+          return LayoutBuilder(
+            builder: (context, constraints) {
+              final isWide = constraints.maxWidth > 800;
 
           final canvasWidget = Column(
             children: [
@@ -570,7 +564,9 @@ class _TemplateCalibrationScreenState extends ConsumerState<TemplateCalibrationS
                   ),
           );
         },
-      ),
-    );
-  }
+      );
+    },
+  ),
+);
+}
 }

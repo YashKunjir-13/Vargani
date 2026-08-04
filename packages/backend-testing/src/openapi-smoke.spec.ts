@@ -8,6 +8,7 @@ describe('OpenApiAndConfigSmokeTest', () => {
       S3_ENDPOINT: 'http://localhost:9000',
       S3_ACCESS_KEY: 'key',
       S3_SECRET_KEY: 'secret',
+      PAN_ENCRYPTION_KEY: 'test-key-32-chars-long-000000000',
     });
 
     expect(defaultEnv.PORT).toBe(3000);

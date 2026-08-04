@@ -1,7 +1,12 @@
 import { Module } from "@nestjs/common";
-import { ContributorsController } from "./contributor.controller";
+import { PrismaModule } from "@pauti-pustak/backend-database";
+import { ContributorController } from "./contributor.controller";
+import { ContributorService } from "./contributor.service";
 
 @Module({
-  controllers: [ContributorsController],
+  imports: [PrismaModule],
+  controllers: [ContributorController],
+  providers: [ContributorService],
+  exports: [ContributorService],
 })
 export class ContributorModule {}

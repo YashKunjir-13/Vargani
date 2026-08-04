@@ -20,23 +20,11 @@ class PaymentDetailScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final payments = ref.watch(paymentsProvider);
+    final asyncPayments = ref.watch(paymentsProvider);
     final permissions = ref.watch(permissionsProvider);
     final theme = Theme.of(context);
     final currency = NumberFormat.currency(locale: 'en_IN', symbol: '₹', decimalDigits: 0);
     final dateFormat = DateFormat('d MMMM yyyy, h:mm a');
-
-    final payment = payments.firstWhere(
-      (p) => p.id == paymentId,
-      orElse: () => Payment(
-        id: paymentId,
-        donorName: 'Unknown',
-        amount: 0,
-        paymentDateTime: DateTime.now(),
-        channel: PaymentChannel.qrCode,
-        status: PaymentStatus.voided,
-      ),
-    );
 
     return Scaffold(
       appBar: const PautiAppBar(
@@ -44,7 +32,23 @@ class PaymentDetailScreen extends ConsumerWidget {
         subtitle: 'Treasurer Portal',
         showBackButton: true,
       ),
-      body: ListView(
+      body: asyncPayments.when(
+        loading: () => const Center(child: CircularProgressIndicator()),
+        error: (err, _) => Center(child: Text('Failed to load payment details: $err')),
+        data: (payments) {
+          final payment = payments.firstWhere(
+            (p) => p.id == paymentId,
+            orElse: () => Payment(
+              id: paymentId,
+              donorName: 'Unknown',
+              amount: 0,
+              paymentDateTime: DateTime.now(),
+              channel: PaymentChannel.qrCode,
+              status: PaymentStatus.voided,
+            ),
+          );
+
+          return ListView(
         padding: const EdgeInsets.all(20),
         children: [
           // Header Card
@@ -144,17 +148,19 @@ class PaymentDetailScreen extends ConsumerWidget {
               child: AppButton(
                 label: L10n.tr(ref, 'confirm_match'),
                 icon: Icons.check_circle,
-                onPressed: () {
-                  ref.read(paymentsProvider.notifier).confirmMatch(
+                onPressed: () async {
+                  final ok = await ref.read(paymentsProvider.notifier).confirmMatch(
                         payment.id,
                         matchedBy: 'Active User (${permissions.role.label})',
                       );
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(
-                      content: Text('Payment match confirmed! Receipt generated automatically.'),
-                      backgroundColor: Colors.green,
-                    ),
-                  );
+                  if (context.mounted) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        content: Text(ok ? 'Payment match confirmed in database! Receipt generated.' : 'Failed to confirm payment match.'),
+                        backgroundColor: ok ? Colors.green : Colors.red,
+                      ),
+                    );
+                  }
                 },
               ),
             ),
@@ -169,14 +175,19 @@ class PaymentDetailScreen extends ConsumerWidget {
                 label: L10n.tr(ref, 'void'),
                 variant: AppButtonVariant.danger,
                 icon: Icons.block,
-                onPressed: () {
-                  ref.read(paymentsProvider.notifier).void_(
+                onPressed: () async {
+                  final ok = await ref.read(paymentsProvider.notifier).void_(
                         payment.id,
                         reason: 'Voided by ${permissions.role.label}',
                       );
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text('Payment has been voided.')),
-                  );
+                  if (context.mounted) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        content: Text(ok ? 'Payment has been voided in database.' : 'Failed to void payment.'),
+                        backgroundColor: ok ? Colors.orange : Colors.red,
+                      ),
+                    );
+                  }
                 },
               ),
             ),
@@ -189,9 +200,11 @@ class PaymentDetailScreen extends ConsumerWidget {
             onPressed: () => context.pop(),
           ),
         ],
-      ),
-    );
-  }
+      );
+    },
+  ),
+);
+}
 }
 
 class _DetailRow extends StatelessWidget {

@@ -13,12 +13,14 @@ class VendorListItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final textTheme = Theme.of(context).textTheme;
+
     return Card(
       child: InkWell(
         onTap: onTap,
-        borderRadius: BorderRadius.circular(AppSpacing.radiusMd),
+        borderRadius: BorderRadius.circular(AppRadius.medium),
         child: Padding(
-          padding: const EdgeInsets.all(AppSpacing.lg),
+          padding: const EdgeInsets.all(AppSpacing.space24),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -28,17 +30,21 @@ class VendorListItem extends StatelessWidget {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text(vendor.name,
-                            style: AppTypography.titleMedium(context)
-                                .copyWith(fontWeight: FontWeight.bold)),
-                        const SizedBox(height: AppSpacing.xs),
+                        Text(
+                          vendor.name,
+                          style: textTheme.titleMedium?.copyWith(
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        const SizedBox(height: AppSpacing.space4),
                         Text(
                           [vendor.category, vendor.contactPerson]
                               .whereType<String>()
                               .where((value) => value.isNotEmpty)
                               .join(' • '),
-                          style: AppTypography.caption(context,
-                              color: AppColors.mutedTextFor(context)),
+                          style: textTheme.bodyMedium?.copyWith(
+                            color: AppColors.mutedTextFor(context),
+                          ),
                         ),
                       ],
                     ),
@@ -46,7 +52,7 @@ class VendorListItem extends StatelessWidget {
                   VendorContractStatusBadge(status: vendor.contractStatus),
                 ],
               ),
-              const SizedBox(height: AppSpacing.md),
+              const SizedBox(height: AppSpacing.space16),
               Row(
                 children: [
                   Expanded(
@@ -90,14 +96,21 @@ class _Metric extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final textTheme = Theme.of(context).textTheme;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(label,
-            style: AppTypography.caption(context,
-                color: AppColors.mutedTextFor(context))),
-        const SizedBox(height: AppSpacing.xs),
-        Text(value, style: AppTypography.body(context, color: color)),
+        Text(
+          label,
+          style: textTheme.bodyMedium?.copyWith(
+            color: AppColors.mutedTextFor(context),
+          ),
+        ),
+        const SizedBox(height: AppSpacing.space4),
+        Text(
+          value,
+          style: textTheme.bodyLarge?.copyWith(color: color),
+        ),
       ],
     );
   }

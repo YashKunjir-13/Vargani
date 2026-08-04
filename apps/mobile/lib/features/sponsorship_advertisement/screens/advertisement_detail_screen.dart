@@ -17,6 +17,7 @@ class AdvertisementDetailScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final adAsync = ref.watch(advertisementDetailProvider(advertisementId));
+    final textTheme = Theme.of(context).textTheme;
 
     return adAsync.when(
       data: (ad) {
@@ -30,7 +31,7 @@ class AdvertisementDetailScreen extends ConsumerWidget {
         return AppScaffold(
           title: ad.advertiserName,
           body: SingleChildScrollView(
-            padding: const EdgeInsets.all(AppSpacing.lg),
+            padding: const EdgeInsets.all(AppSpacing.space24),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -39,21 +40,21 @@ class AdvertisementDetailScreen extends ConsumerWidget {
                     Chip(
                       label: Text(
                         ad.type.label,
-                        style: AppTypography.label(context),
+                        style: textTheme.labelLarge,
                       ),
                       padding: EdgeInsets.zero,
                       materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
                     ),
-                    const SizedBox(width: AppSpacing.sm),
+                    const SizedBox(width: AppSpacing.space8),
                     AdvertisementStatusBadge(status: ad.status),
                   ],
                 ),
-                const SizedBox(height: AppSpacing.md),
+                const SizedBox(height: AppSpacing.space16),
                 Text(
                   ad.advertiserName,
-                  style: AppTypography.display(context),
+                  style: textTheme.headlineMedium,
                 ),
-                const SizedBox(height: AppSpacing.md),
+                const SizedBox(height: AppSpacing.space16),
                 AppCard(
                   title: 'Placement Information',
                   child: Column(
@@ -62,14 +63,14 @@ class AdvertisementDetailScreen extends ConsumerWidget {
                       Row(
                         children: [
                           const Icon(Icons.place_outlined, size: 18),
-                          const SizedBox(width: AppSpacing.sm),
+                          const SizedBox(width: AppSpacing.space8),
                           Expanded(
                             child: Text(
                               ad.placementDetail != null &&
                                       ad.placementDetail!.isNotEmpty
                                   ? ad.placementDetail!
                                   : 'No specific placement details specified.',
-                              style: AppTypography.body(context),
+                              style: textTheme.bodyLarge,
                             ),
                           ),
                         ],
@@ -77,13 +78,13 @@ class AdvertisementDetailScreen extends ConsumerWidget {
                     ],
                   ),
                 ),
-                const SizedBox(height: AppSpacing.lg),
+                const SizedBox(height: AppSpacing.space24),
                 AppSummaryStatCard(
                   label: 'Booking Amount',
                   value: formatPaiseAsRupees(ad.amountPaise),
                   valueColor: Theme.of(context).colorScheme.primary,
                 ),
-                const SizedBox(height: AppSpacing.xl),
+                const SizedBox(height: AppSpacing.space32),
                 if (ad.status != AdvertisementStatus.active)
                   RoleGate(
                     allowedRoles: const [
@@ -92,7 +93,7 @@ class AdvertisementDetailScreen extends ConsumerWidget {
                       UserRole.treasurer,
                     ],
                     child: Padding(
-                      padding: const EdgeInsets.only(bottom: AppSpacing.md),
+                      padding: const EdgeInsets.only(bottom: AppSpacing.space16),
                       child: AppButton(
                         label: 'Mark as Active',
                         icon: Icons.check_circle_outline,
