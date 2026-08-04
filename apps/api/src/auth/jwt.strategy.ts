@@ -35,6 +35,41 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
       throw new UnauthorizedException("Session has been invalidated, please login again");
     }
 
+    let permissions: string[] = [];
+
+    if (payload.platformRole === PlatformRole.SUPER_ADMIN) {
+      permissions = ["*"];
+    } else if (payload.roleId) {
+      const role = await this.prisma.organizationRole.findUnique({
+        where: { id: payload.roleId },
+        include: { permissions: { include: { permission: true } } },
+      });
+      if (role?.isOwnerRole) {
+        permissions = ["*"];
+      } else if (role?.permissions) {
+        permissions = role.permissions
+          .filter((rp) => rp.permission?.isActive)
+          .map((rp) => rp.permission.code);
+      }
+    } else if (payload.organizationId) {
+      const membership = await this.prisma.organizationMembership.findFirst({
+        where: {
+          userId: user.id,
+          organizationId: payload.organizationId,
+          status: "ACTIVE",
+        },
+        include: { role: { include: { permissions: { include: { permission: true } } } } },
+      });
+
+      if (membership?.isOwner || membership?.role?.isOwnerRole) {
+        permissions = ["*"];
+      } else if (membership?.role?.permissions) {
+        permissions = membership.role.permissions
+          .filter((rp) => rp.permission?.isActive)
+          .map((rp) => rp.permission.code);
+      }
+    }
+
     return {
       userId: user.id,
       platformRole: payload.platformRole as PlatformRole,
@@ -42,7 +77,7 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
       organizationId: payload.organizationId,
       roleId: payload.roleId,
       sessionId: payload.sessionId,
-      permissions: [],
+      permissions,
     };
   }
 }

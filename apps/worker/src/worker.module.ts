@@ -4,6 +4,7 @@ import { ConfigModule } from "@nestjs/config";
 import { PrismaModule } from "@pauti-pustak/backend-database";
 import { QueueName } from "@pauti-pustak/backend-shared-kernel";
 import { BillPdfProcessor, ReceiptPdfProcessor } from "./processors/pdf.processor";
+import { NotificationProcessor } from "./processors/notification.processor";
 
 const redisHost = process.env.REDIS_HOST || "localhost";
 const redisPort = Number(process.env.REDIS_PORT) || 6379;
@@ -28,6 +29,6 @@ const redisPort = Number(process.env.REDIS_PORT) || 6379;
     ),
     PrismaModule,
   ],
-  providers: [BillPdfProcessor, ReceiptPdfProcessor],
+  providers: [BillPdfProcessor, ReceiptPdfProcessor, NotificationProcessor],
 })
 export class WorkerModule {}

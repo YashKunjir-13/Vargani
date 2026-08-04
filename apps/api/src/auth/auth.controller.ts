@@ -13,6 +13,11 @@ import { PasswordResetDto } from "./dto/password-reset.dto";
 import { RefreshTokenDto } from "./dto/refresh-token.dto";
 import { RegisterDonorDto } from "./dto/register-donor.dto";
 import { RegisterTrustDto } from "./dto/register-trust.dto";
+import { CreateMpinDto } from "./dto/create-mpin.dto";
+import { LoginMpinDto } from "./dto/login-mpin.dto";
+import { ChangeMpinDto } from "./dto/change-mpin.dto";
+import { ForgotMpinDto } from "./dto/forgot-mpin.dto";
+import { VerifyMpinResetDto } from "./dto/verify-mpin-reset.dto";
 import { JwtAuthGuard } from "./jwt-auth.guard";
 
 @ApiTags("Authentication")
@@ -126,6 +131,62 @@ export class AuthController {
   async resetPassword(@Body() dto: PasswordResetDto, @Req() req: Request) {
     const result = await this.authService.resetPassword(dto, req.ip, req.headers["user-agent"]);
     return createApiResponse(result, HttpStatus.OK, "Password reset successfully");
+  }
+
+  @Post("mpin/create")
+  @HttpCode(HttpStatus.OK)
+  @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth()
+  @ApiOperation({ summary: "Create 6-digit MPIN for authenticated user" })
+  @ApiBody({ type: CreateMpinDto })
+  async createMpin(@CurrentUser() user: AuthenticatedUser, @Body() dto: CreateMpinDto) {
+    const result = await this.authService.createMpin(user.userId, dto);
+    return createApiResponse(result, HttpStatus.OK, "MPIN created successfully");
+  }
+
+  @Post("mpin/login")
+  @Public()
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: "Authenticate with mobile number and MPIN" })
+  @ApiBody({ type: LoginMpinDto })
+  async loginMpin(@Body() dto: LoginMpinDto, @Req() req: Request) {
+    const result = await this.authService.loginMpin(dto, req.ip, req.headers["user-agent"]);
+    return createApiResponse(result, HttpStatus.OK, "MPIN login successful");
+  }
+
+  @Post("mpin/change")
+  @HttpCode(HttpStatus.OK)
+  @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth()
+  @ApiOperation({ summary: "Change MPIN for authenticated user" })
+  @ApiBody({ type: ChangeMpinDto })
+  async changeMpin(
+    @CurrentUser() user: AuthenticatedUser,
+    @Body() dto: ChangeMpinDto,
+    @Req() req: Request,
+  ) {
+    const result = await this.authService.changeMpin(user.userId, dto, req.ip, req.headers["user-agent"]);
+    return createApiResponse(result, HttpStatus.OK, "MPIN changed successfully");
+  }
+
+  @Post("mpin/forgot")
+  @Public()
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: "Initiate OTP challenge for MPIN reset" })
+  @ApiBody({ type: ForgotMpinDto })
+  async forgotMpin(@Body() dto: ForgotMpinDto, @Req() req: Request) {
+    const result = await this.authService.forgotMpin(dto, req.ip, req.headers["user-agent"]);
+    return createApiResponse(result, HttpStatus.OK, "MPIN reset OTP challenge created");
+  }
+
+  @Post("mpin/verify")
+  @Public()
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: "Verify OTP and set new MPIN (Revokes active sessions)" })
+  @ApiBody({ type: VerifyMpinResetDto })
+  async verifyMpinReset(@Body() dto: VerifyMpinResetDto, @Req() req: Request) {
+    const result = await this.authService.verifyMpinReset(dto, req.ip, req.headers["user-agent"]);
+    return createApiResponse(result, HttpStatus.OK, "MPIN reset successfully");
   }
 
   @Get("me")

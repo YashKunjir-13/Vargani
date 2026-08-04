@@ -37,12 +37,7 @@ export class DevAuthBypassMiddleware implements NestMiddleware {
     const permissionsHeader = req.headers["x-dev-permissions"] as string | undefined;
     const platformRoleHeader = req.headers["x-dev-platform-role"] as string | undefined;
 
-    const defaultPermissions = [
-      "bill.create", "bill.approve", "bill.pay", "bill.read", "bill.view", "bill.update", "bill.submit", "bill.reject", "bill.markPaid", "bill.cancel", "bill.delete",
-      "contribution.create", "contribution.read", "contribution.update", "contribution.delete", "contribution.receipt",
-      "receipt.create", "receipt.read", "receipt.viewAll", "receipt.viewOwn", "receipt.void",
-      "payment.create", "payment.read", "payment.confirmMatch", "payment.void"
-    ];
+    const defaultPermissions = ["*"];
 
     (req as any).user = {
       userId: (req.headers["x-dev-user-id"] as string) || "11111111-1111-4111-a111-111111111111",

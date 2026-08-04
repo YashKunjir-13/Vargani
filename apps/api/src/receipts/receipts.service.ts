@@ -306,4 +306,96 @@ export class ReceiptsService implements ReceiptGenerationPort {
       data: { organizationId, receiptId, actionType, performedByUserId, reason },
     });
   }
+
+  async getPdfDocument(organizationId: string, id: string) {
+    const receipt = await this.requireOwnedReceipt(organizationId, id);
+
+    const [stampAssetUrl, signatureAssetUrl] = await Promise.all([
+      this.resolveOrgAssetUrl(organizationId, DocumentPurpose.ORGANIZATION_STAMP),
+      this.resolveOrgAssetUrl(organizationId, DocumentPurpose.AUTHORIZED_SIGNATURE),
+    ]);
+
+    const pdfBytes = await this.pdfRenderer.render({
+      organizationId,
+      receiptNumber: receipt.receiptNumber,
+      donorNameSnapshot: receipt.donorNameSnapshot,
+      amountSnapshot: Number(receipt.amountSnapshot),
+      issuedDate: receipt.issuedDate,
+      mandalNameSnapshot: receipt.mandalNameSnapshot,
+      stampAssetUrl,
+      signatureAssetUrl,
+      templateSourceFileUrl: null,
+    });
+
+    return {
+      pdfBytes,
+      filename: `${receipt.receiptNumber}.pdf`,
+      mimeType: "application/pdf",
+    };
+  }
+
+  async verifyQrCode(receiptId: string) {
+    const receipt = await this.prisma.paymentReceipt.findFirst({
+      where: {
+        OR: [{ id: receiptId }, { receiptNumber: receiptId }],
+      },
+    });
+
+    if (!receipt) {
+      throw new NotFoundException("Receipt not found or invalid QR code");
+    }
+
+    return {
+      valid: receipt.status === PaymentReceiptStatus.ACTIVE,
+      receiptNumber: receipt.receiptNumber,
+      mandalName: receipt.mandalNameSnapshot,
+      donorName: receipt.donorNameSnapshot,
+      amount: Number(receipt.amountSnapshot),
+      status: receipt.status,
+      issuedDate: receipt.issuedDate,
+      integrityHash: receipt.id,
+    };
+  }
+
+  async replaceReceipt(organizationId: string, id: string, actorUserId: string, reason: string) {
+    const receipt = await this.requireOwnedReceipt(organizationId, id);
+
+    if (receipt.status === PaymentReceiptStatus.VOIDED) {
+      throw new ConflictException("Receipt has already been cancelled/voided");
+    }
+
+    await this.prisma.paymentReceipt.update({
+      where: { id },
+      data: {
+        status: PaymentReceiptStatus.VOIDED,
+        voidedAt: new Date(),
+        voidedByUserId: actorUserId,
+        voidReason: reason,
+      },
+    });
+
+    await this.writeAuditEvent(organizationId, id, "REPLACED", actorUserId, reason);
+
+    return {
+      previousReceiptId: id,
+      previousReceiptNumber: receipt.receiptNumber,
+      status: "REPLACED_AND_VOIDED",
+      replacementReason: reason,
+    };
+  }
+
+  async getSharePayload(organizationId: string, id: string) {
+    const receipt = await this.requireOwnedReceipt(organizationId, id);
+    const shareUrl = `http://localhost:3000/api/v1/receipts/${id}/verify-qr`;
+
+    const whatsappMessage =
+      `Namaskar ${receipt.donorNameSnapshot}, thank you for your contribution of ₹${receipt.amountSnapshot} ` +
+      `to ${receipt.mandalNameSnapshot}. Receipt No: ${receipt.receiptNumber}. View receipt: ${shareUrl}`;
+
+    return {
+      receiptNumber: receipt.receiptNumber,
+      shareUrl,
+      whatsappMessage,
+    };
+  }
 }

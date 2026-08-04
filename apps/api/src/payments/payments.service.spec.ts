@@ -257,3 +257,37 @@ describe("PaymentsService - multi-tenant isolation", () => {
     expect(results[0].donorNameSnapshot).toBe("A donor");
   });
 });
+
+describe("PaymentsService - Razorpay Gateway & Reconciliation Engine", () => {
+  it("creates Razorpay order and returns checkout parameters", async () => {
+    const { service } = buildService();
+    const res = await service.createRazorpayOrder(ORG_A, "user-1", { amountPaise: "50000", donorNameSnapshot: "Online Ramesh" });
+    expect(res.razorpayOrderId).toBeDefined();
+    expect(res.amountPaise).toBe("50000");
+  });
+
+  it("verifies payment signature and auto-generates receipt", async () => {
+    const { service } = buildService();
+    const order = await service.createRazorpayOrder(ORG_A, "user-1", { amountPaise: "50000" });
+
+    const verified = await service.verifyPaymentSignature(ORG_A, {
+      razorpayOrderId: order.razorpayOrderId,
+      razorpayPaymentId: "pay_123456",
+      razorpaySignature: "valid_signature_mock",
+    });
+
+    expect(verified.status).toBe(PaymentStatus.RECEIPTED);
+    expect(verified.razorpayPaymentId).toBe("pay_123456");
+  });
+
+  it("calculates payment statistics and settlement reconciliation metrics", async () => {
+    const { service } = buildService();
+    await service.createPayment(ORG_A, "user-1", qrCreateDto({ amount: 500 }));
+
+    const stats = await service.getPaymentStats(ORG_A);
+    expect(stats.totalPaymentsCount).toBe(1);
+
+    const recon = await service.getSettlementReconciliation(ORG_A);
+    expect(recon.reconciliationStatus).toBe("BALANCED");
+  });
+});
