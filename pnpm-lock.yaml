@@ -137,9 +137,6 @@ importers:
       puppeteer:
         specifier: ^24.2.1
         version: 24.43.1(supports-color@8.1.1)(typescript@5.9.3)
-      razorpay:
-        specifier: ^2.9.5
-        version: 2.9.8(debug@4.4.3(supports-color@8.1.1))(supports-color@8.1.1)
       reflect-metadata:
         specifier: ^0.2.2
         version: 0.2.2
@@ -351,6 +348,9 @@ importers:
       pino-http:
         specifier: ^10.4.0
         version: 10.5.0
+      razorpay:
+        specifier: ^2.9.5
+        version: 2.9.8(debug@4.4.3(supports-color@8.1.1))(supports-color@8.1.1)
       reflect-metadata:
         specifier: ^0.2.2
         version: 0.2.2

@@ -5,6 +5,7 @@ import { ReceiptsModule } from "../receipts/receipts.module";
 import { ReceiptsService } from "../receipts/receipts.service";
 import { PaymentsController } from "./payments.controller";
 import { PaymentsService } from "./payments.service";
+import { RAZORPAY_ORDERS_PORT, RazorpayOrdersClient } from "./razorpay-orders.client";
 import { RAZORPAY_SIGNATURE_VERIFIER, HmacRazorpaySignatureVerifier } from "./razorpay-signature.verifier";
 import { RECEIPT_GENERATION_PORT } from "./receipt-generation.port";
 
@@ -18,6 +19,7 @@ import { RECEIPT_GENERATION_PORT } from "./receipt-generation.port";
     // any test/bootstrap context that wants to stand PaymentsModule up alone.
     { provide: RECEIPT_GENERATION_PORT, useExisting: ReceiptsService },
     { provide: RAZORPAY_SIGNATURE_VERIFIER, useClass: HmacRazorpaySignatureVerifier },
+    { provide: RAZORPAY_ORDERS_PORT, useClass: RazorpayOrdersClient },
   ],
   exports: [PaymentsService],
 })

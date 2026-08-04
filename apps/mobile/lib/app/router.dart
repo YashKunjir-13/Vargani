@@ -28,7 +28,7 @@ import '../features/contribution_receipts/screens/contribution_receipts_list_scr
 import '../features/contributions/screens/contribution_detail_screen.dart';
 import '../features/contributions/screens/contributions_list_screen.dart';
 import '../features/contributions/screens/create_contribution_screen.dart';
-import '../features/contributions/screens/gold_silver_entry_screen.dart';
+import '../features/dashboard/presentation/pages/mandal_dashboard_screen.dart';
 import '../features/dashboard/presentation/pages/donor_dashboard_screen.dart';
 import '../features/dashboard/presentation/pages/mandal_dashboard_screen.dart';
 import '../features/donors/screens/donor_detail_screen.dart';
@@ -160,6 +160,8 @@ final appRouterProvider = Provider.family<GoRouter, String>((ref, environment) {
           onLoginRequested: () => context.go('/login'),
         ),
       ),
+
+      // ---------------- Dashboard ----------------
       ShellRoute(
         builder: (context, state, child) => ScaffoldWithNavBar(child: child),
         routes: [
