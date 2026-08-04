@@ -1,4 +1,12 @@
 import { ConflictException, ForbiddenException, Inject, Injectable, Logger, NotFoundException, Optional } from "@nestjs/common";
+import {
+  ForbiddenException,
+  Inject,
+  Injectable,
+  Logger,
+  NotFoundException,
+  ServiceUnavailableException,
+} from "@nestjs/common";
 import { Payment, PaymentChannel, PaymentStatus, PrismaService } from "@pauti-pustak/backend-database";
 import { FestivalYearService } from "../common/festival-year/festival-year.service";
 import { CreatePaymentDto } from "./dto/create-payment.dto";
@@ -9,6 +17,7 @@ import { UpdatePaymentDto } from "./dto/update-payment.dto";
 import { VerifyPaymentSignatureDto } from "./dto/verify-payment-signature.dto";
 import { assertPaymentTransition } from "./payment-state-machine";
 import { PAYMENT_GATEWAY_PORT, PaymentGatewayPort } from "./ports/payment-gateway.port";
+import { RAZORPAY_ORDERS_PORT, RazorpayOrdersPort } from "./razorpay-orders.client";
 import { RECEIPT_GENERATION_PORT, ReceiptGenerationPort } from "./receipt-generation.port";
 
 export interface RazorpayWebhookPayload {
@@ -32,18 +41,25 @@ export class PaymentsService {
     @Inject(FestivalYearService) private readonly festivalYear: FestivalYearService,
     @Inject(RECEIPT_GENERATION_PORT) private readonly receiptGeneration: ReceiptGenerationPort,
     @Optional() @Inject(PAYMENT_GATEWAY_PORT) private readonly gateway?: PaymentGatewayPort,
+    @Inject(RAZORPAY_ORDERS_PORT) private readonly razorpayOrders: RazorpayOrdersPort,
   ) {}
 
   /**
-   * Records either an InApp order stub (awaiting the Razorpay webhook) or a
-   * manual QR-code entry (awaiting bank-statement match). Both start life as
-   * Pending Match -- there is no separate "just created" status in this
-   * domain, so the two channels share one entry point.
+   * Records either an InApp order stub or a manual QR-code entry (awaiting
+   * bank-statement match). Both start life as Pending Match -- there is no
+   * separate "just created" status in this domain, so the two channels
+   * share one entry point.
+   *
+   * For InApp, the Razorpay Order is always created here, server-side, from
+   * the amount we just persisted -- a client never supplies its own
+   * razorpayOrderId or amount. Trusting a client-supplied order id would
+   * let a compromised/buggy client point Checkout at an order for less
+   * than the amount this record shows as pending.
    */
   async createPayment(organizationId: string, createdByUserId: string, dto: CreatePaymentDto): Promise<Payment> {
     const { festivalYear } = await this.festivalYear.getActiveFestivalYear(organizationId);
 
-    return this.prisma.payment.create({
+    const payment = await this.prisma.payment.create({
       data: {
         organizationId,
         festivalYear,
@@ -54,12 +70,39 @@ export class PaymentsService {
         amount: dto.amount,
         paymentDateTime: dto.paymentDateTime ? new Date(dto.paymentDateTime) : new Date(),
         channel: dto.channel,
-        razorpayOrderId: dto.channel === PaymentChannel.IN_APP ? (dto.razorpayOrderId ?? null) : null,
+        razorpayOrderId: null,
         collectedByUserId: dto.collectedByUserId ?? null,
         status: PaymentStatus.PENDING_MATCH,
         createdByUserId,
       },
     });
+
+    if (dto.channel !== PaymentChannel.IN_APP) {
+      return payment;
+    }
+
+    try {
+      const order = await this.razorpayOrders.createOrder({
+        amountRupees: dto.amount,
+        receipt: payment.id,
+        notes: { organizationId, paymentId: payment.id },
+      });
+
+      return await this.prisma.payment.update({
+        where: { id: payment.id },
+        data: { razorpayOrderId: order.id },
+      });
+    } catch (error) {
+      // Don't leave an order-less InApp payment stub behind for the client
+      // to be confused by -- undo the insert and let the client retry
+      // payment creation from scratch.
+      await this.prisma.payment.delete({ where: { id: payment.id } });
+      this.logger.error(
+        `Razorpay order creation failed for payment ${payment.id}: ` +
+          `${error instanceof Error ? error.message : String(error)}`,
+      );
+      throw new ServiceUnavailableException("Unable to start the Razorpay payment. Please try again.");
+    }
   }
 
   async list(organizationId: string, filter: ListPaymentsQueryDto): Promise<Payment[]> {
@@ -193,6 +236,17 @@ export class PaymentsService {
    * it's logged to the audit trail for manual investigation instead.
    */
   async handleRazorpayWebhook(payload: RazorpayWebhookPayload): Promise<void> {
+    // Razorpay fires many event types at a single webhook URL (order.paid,
+    // payment.failed, refund.processed, ...). payment.captured is the one
+    // Razorpay documents as the definitive "money received" signal for an
+    // order-based payment -- anything else, most importantly
+    // payment.failed (which still carries a payment.entity with the same
+    // shape), must never confirm a payment or generate a receipt.
+    if (payload.event !== "payment.captured") {
+      this.logger.debug(`Ignoring Razorpay webhook event: ${payload.event ?? "unknown"}`);
+      return;
+    }
+
     const orderId = payload.payload?.payment?.entity?.order_id;
     const razorpayPaymentId = payload.payload?.payment?.entity?.id;
 

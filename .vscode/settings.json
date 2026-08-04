@@ -39,5 +39,6 @@
     "**/.dart_tool": true,
     "**/packages/backend-database/src/generated": true
   },
-  "prisma.pinToPrisma6": true
+  "prisma.pinToPrisma6": true,
+  "java.configuration.updateBuildConfiguration": "disabled"
 }
