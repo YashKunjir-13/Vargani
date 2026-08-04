@@ -25,7 +25,7 @@ export class WhatsAppDeliveryService {
   private readonly logger = new Logger(WhatsAppDeliveryService.name);
 
   constructor(
-    private readonly prisma: PrismaService,
+    @Inject(PrismaService) private readonly prisma: PrismaService,
     @Inject(WHATSAPP_PROVIDER_CLIENT) private readonly providerClient: WhatsAppProviderClient,
   ) {}
 

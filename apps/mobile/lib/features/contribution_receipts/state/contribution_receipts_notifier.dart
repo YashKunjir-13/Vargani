@@ -1,23 +1,43 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../core/session/session_controller.dart';
 import '../data/contribution_receipts_mock_data.dart';
+import '../data/contribution_receipts_remote_datasource.dart';
 import '../models/contribution_receipt.dart';
 
-/// Local, in-memory stand-in for ContributionReceiptsService
-/// (src/contribution-receipts). Deliberately has its OWN _sequence counter,
-/// entirely separate from ReceiptsNotifier's -- CRCPT-2026-000001 and
-/// RCPT-2026-000045 can and do coexist in the same organizationId+
-/// festivalYear without ever colliding, because they are two independent
-/// atomic counters, not one shared one.
+final contributionReceiptsRemoteDataSourceProvider = Provider<ContributionReceiptsRemoteDataSource?>((ref) {
+  try {
+    final dio = ref.watch(dioProvider);
+    return ContributionReceiptsRemoteDataSource(dio);
+  } catch (_) {
+    return null;
+  }
+});
+
 class ContributionReceiptsNotifier extends Notifier<List<ContributionReceipt>> {
   int _sequence = 3;
 
   @override
   List<ContributionReceipt> build() => buildMockContributionReceipts();
 
-  /// The record action itself produces the receipt -- there is no separate
-  /// manual "generate" step, unlike the monetary Payment -> confirmMatch
-  /// flow. Called exclusively by ContributionsNotifier.record.
+  Future<void> fetchMyHistory() async {
+    final remote = ref.read(contributionReceiptsRemoteDataSourceProvider);
+    if (remote == null) return;
+    try {
+      final history = await remote.fetchMyHistory();
+      state = history;
+    } catch (_) {}
+  }
+
+  Future<void> fetchAll() async {
+    final remote = ref.read(contributionReceiptsRemoteDataSourceProvider);
+    if (remote == null) return;
+    try {
+      final all = await remote.fetchAll();
+      state = all;
+    } catch (_) {}
+  }
+
   ContributionReceipt generateForContribution({
     required String contributionId,
     required String contributorName,
@@ -38,7 +58,21 @@ class ContributionReceiptsNotifier extends Notifier<List<ContributionReceipt>> {
       whatsappDeliveryStatus: ContributionReceiptWhatsappStatus.sent,
     );
     state = [receipt, ...state];
+
+    _generateRemote(contributionId);
+
     return receipt;
+  }
+
+  Future<void> _generateRemote(String contributionId) async {
+    final remote = ref.read(contributionReceiptsRemoteDataSourceProvider);
+    if (remote == null) return;
+    try {
+      final generated = await remote.generateForContribution(contributionId);
+      state = [
+        for (final r in state) if (r.contributionId == contributionId) generated else r,
+      ];
+    } catch (_) {}
   }
 
   void resendWhatsapp(String id) {
@@ -52,6 +86,15 @@ class ContributionReceiptsNotifier extends Notifier<List<ContributionReceipt>> {
         else
           r,
     ];
+    _resendWhatsappRemote(id);
+  }
+
+  Future<void> _resendWhatsappRemote(String id) async {
+    final remote = ref.read(contributionReceiptsRemoteDataSourceProvider);
+    if (remote == null) return;
+    try {
+      await remote.resendWhatsApp(id);
+    } catch (_) {}
   }
 
   void voidReceipt(String id, {required String reason}) {
@@ -62,8 +105,19 @@ class ContributionReceiptsNotifier extends Notifier<List<ContributionReceipt>> {
         else
           r,
     ];
+    _voidReceiptRemote(id, reason);
+  }
+
+  Future<void> _voidReceiptRemote(String id, String reason) async {
+    final remote = ref.read(contributionReceiptsRemoteDataSourceProvider);
+    if (remote == null) return;
+    try {
+      final voided = await remote.voidReceipt(id, reason);
+      state = [for (final r in state) if (r.id == id) voided else r];
+    } catch (_) {}
   }
 }
 
 final contributionReceiptsProvider =
     NotifierProvider<ContributionReceiptsNotifier, List<ContributionReceipt>>(ContributionReceiptsNotifier.new);
+

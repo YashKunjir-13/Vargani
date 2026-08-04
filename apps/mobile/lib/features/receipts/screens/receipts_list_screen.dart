@@ -23,20 +23,10 @@ class _ReceiptsListScreenState extends ConsumerState<ReceiptsListScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final receipts = ref.watch(receiptsProvider);
+    final asyncReceipts = ref.watch(receiptsProvider);
     final theme = Theme.of(context);
     final currency = NumberFormat.currency(locale: 'en_IN', symbol: '₹', decimalDigits: 0);
     final dateFormat = DateFormat('d MMM yyyy');
-
-    final totalDonated = receipts.fold<double>(0, (sum, r) => sum + r.amount);
-    final totalReceiptsCount = receipts.length;
-    final totalMandalsCount = receipts.map((r) => r.mandalName).toSet().length;
-
-    final filtered = receipts.where((r) {
-      return r.donorName.toLowerCase().contains(_searchQuery.toLowerCase()) ||
-          r.receiptNumber.toLowerCase().contains(_searchQuery.toLowerCase()) ||
-          r.mandalName.toLowerCase().contains(_searchQuery.toLowerCase());
-    }).toList();
 
     return Scaffold(
       appBar: const PautiAppBar(
@@ -44,7 +34,33 @@ class _ReceiptsListScreenState extends ConsumerState<ReceiptsListScreen> {
         subtitle: 'Donor Portal',
         showBackButton: true,
       ),
-      body: ListView(
+      body: asyncReceipts.when(
+        loading: () => const Center(child: CircularProgressIndicator()),
+        error: (err, _) => Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Text('Failed to load receipts: $err'),
+              const SizedBox(height: 12),
+              ElevatedButton(
+                onPressed: () => ref.read(receiptsProvider.notifier).loadReceipts(),
+                child: const Text('Retry'),
+              ),
+            ],
+          ),
+        ),
+        data: (receipts) {
+          final totalDonated = receipts.fold<double>(0, (sum, r) => sum + r.amount);
+          final totalReceiptsCount = receipts.length;
+          final totalMandalsCount = receipts.map((r) => r.mandalName).toSet().length;
+
+          final filtered = receipts.where((r) {
+            return r.donorName.toLowerCase().contains(_searchQuery.toLowerCase()) ||
+                r.receiptNumber.toLowerCase().contains(_searchQuery.toLowerCase()) ||
+                r.mandalName.toLowerCase().contains(_searchQuery.toLowerCase());
+          }).toList();
+
+          return ListView(
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
         children: [
           // 1. Metric Summary Cards Row (3 KPI Cards)
@@ -394,8 +410,10 @@ class _ReceiptsListScreenState extends ConsumerState<ReceiptsListScreen> {
           ),
           const SizedBox(height: 80),
         ],
-      ),
-    );
+      );
+    },
+  ),
+);
   }
 }
 

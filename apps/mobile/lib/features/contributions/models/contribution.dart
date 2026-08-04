@@ -54,19 +54,117 @@ class Contribution {
     required this.status,
   });
 
-  Contribution copyWith({ContributionStatus? status}) {
+  factory Contribution.fromJson(Map<String, dynamic> json) {
+    DonationType parseDonationType(String? typeStr) {
+      switch (typeStr?.toLowerCase()) {
+        case 'gold':
+          return DonationType.gold;
+        case 'silver':
+          return DonationType.silver;
+        case 'electronic goods':
+        case 'electronicgoods':
+          return DonationType.electronicGoods;
+        case 'decoration':
+          return DonationType.decoration;
+        case 'food':
+          return DonationType.food;
+        case 'music band':
+        case 'musicband':
+          return DonationType.musicBand;
+        default:
+          return DonationType.other;
+      }
+    }
+
+    ContributionStatus parseStatus(String? statusStr) {
+      switch (statusStr?.toUpperCase()) {
+        case 'RECORDED':
+          return ContributionStatus.recorded;
+        case 'RECEIPTED':
+          return ContributionStatus.receipted;
+        default:
+          return ContributionStatus.recorded;
+      }
+    }
+
+    final rawWeight = json['weight'] ?? json['weightGrams'];
+    final double? weightVal = rawWeight != null ? (rawWeight is num ? rawWeight.toDouble() : double.tryParse(rawWeight.toString())) : null;
+
+    final rawEst = json['estimatedValue'];
+    final double? estVal = rawEst != null ? (rawEst is num ? rawEst.toDouble() : double.tryParse(rawEst.toString())) : null;
+
+    return Contribution(
+      id: json['id'] as String? ?? '',
+      contributorName: json['contributorNameSnapshot'] as String? ?? json['contributorName'] as String? ?? '',
+      contact: json['contactSnapshot'] as String? ?? json['contact'] as String?,
+      date: json['date'] != null ? DateTime.parse(json['date'] as String) : DateTime.now(),
+      donationType: parseDonationType(json['donationType'] as String?),
+      itemDescription: json['itemDescription'] as String?,
+      weightGrams: weightVal,
+      estimatedValue: estVal,
+      certificatePhotoUrl: json['certificatePhotoUrl'] as String?,
+      recordedBy: json['recordedBy'] as String? ?? '',
+      status: parseStatus(json['status'] as String?),
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    String donationTypeToString(DonationType type) {
+      switch (type) {
+        case DonationType.gold:
+          return 'Gold';
+        case DonationType.silver:
+          return 'Silver';
+        case DonationType.electronicGoods:
+          return 'Electronic Goods';
+        case DonationType.decoration:
+          return 'Decoration';
+        case DonationType.food:
+          return 'Food';
+        case DonationType.musicBand:
+          return 'Music Band';
+        case DonationType.other:
+          return 'Other';
+      }
+    }
+
+    return {
+      'id': id,
+      'contributorNameSnapshot': contributorName,
+      'contactSnapshot': contact,
+      'date': date.toIso8601String().split('T')[0],
+      'donationType': donationTypeToString(donationType),
+      'itemDescription': itemDescription,
+      'weight': weightGrams,
+      'estimatedValue': estimatedValue,
+      'certificatePhotoUrl': certificatePhotoUrl,
+      'status': status == ContributionStatus.recorded ? 'RECORDED' : 'RECEIPTED',
+    };
+  }
+
+  Contribution copyWith({
+    ContributionStatus? status,
+    String? contributorName,
+    String? contact,
+    DonationType? donationType,
+    String? itemDescription,
+    double? weightGrams,
+    double? estimatedValue,
+    String? certificatePhotoUrl,
+  }) {
     return Contribution(
       id: id,
-      contributorName: contributorName,
-      contact: contact,
+      contributorName: contributorName ?? this.contributorName,
+      contact: contact ?? this.contact,
       date: date,
-      donationType: donationType,
-      itemDescription: itemDescription,
-      weightGrams: weightGrams,
-      estimatedValue: estimatedValue,
-      certificatePhotoUrl: certificatePhotoUrl,
+      donationType: donationType ?? this.donationType,
+      itemDescription: itemDescription ?? this.itemDescription,
+      weightGrams: weightGrams ?? this.weightGrams,
+      estimatedValue: estimatedValue ?? this.estimatedValue,
+      certificatePhotoUrl: certificatePhotoUrl ?? this.certificatePhotoUrl,
       recordedBy: recordedBy,
       status: status ?? this.status,
     );
   }
 }
+

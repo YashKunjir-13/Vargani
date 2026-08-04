@@ -7,6 +7,7 @@ import 'package:intl/intl.dart';
 import '../../../core/l10n/app_localizations.dart';
 import '../../../core/permissions/permission_guard.dart';
 import '../../../core/permissions/user_role.dart';
+import '../../../core/session/session_controller.dart';
 import '../../../shared/widgets/app_button.dart';
 import '../../../shared/widgets/app_card.dart';
 import '../../../shared/widgets/pauti_app_bar.dart';
@@ -117,6 +118,8 @@ class BillDetailScreen extends ConsumerWidget {
 
   List<Widget> _buildWorkflowActions(BuildContext context, WidgetRef ref, Bill bill, AppPermissions permissions) {
     final notifier = ref.read(billsProvider.notifier);
+    final sessionUser = ref.watch(sessionControllerProvider).user;
+    final currentUserId = sessionUser?.id ?? sessionUser?.displayName ?? 'user-president-2';
     final actions = <Widget>[];
 
     // 1. Submit for Approval (Collector / Auditor / Admin)
@@ -150,7 +153,7 @@ class BillDetailScreen extends ConsumerWidget {
                 icon: Icons.check_circle_outline,
                 onPressed: () {
                   try {
-                    notifier.approve(bill.id, approvedBy: _kTrustPresident);
+                    notifier.approve(bill.id, approvedBy: currentUserId);
                     _snack(context, 'Bill approved successfully');
                   } on SelfApprovalException catch (e) {
                     _snack(context, e.message, isError: true);

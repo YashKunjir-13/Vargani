@@ -37,7 +37,7 @@ class _CreatePaymentScreenState extends ConsumerState<CreatePaymentScreen> {
     super.dispose();
   }
 
-  void _submit() {
+  Future<void> _submit() async {
     if (!_formKey.currentState!.validate()) return;
 
     final amount = double.tryParse(_amountCtrl.text.trim());
@@ -48,23 +48,32 @@ class _CreatePaymentScreenState extends ConsumerState<CreatePaymentScreen> {
       return;
     }
 
-    final payment = ref.read(paymentsProvider.notifier).create(
+    final payment = await ref.read(paymentsProvider.notifier).create(
           donorName: _donorNameCtrl.text.trim(),
           amount: amount,
           address: _addressCtrl.text.trim().isEmpty ? null : _addressCtrl.text.trim(),
           contact: _contactCtrl.text.trim().isEmpty ? null : _contactCtrl.text.trim(),
           channel: _channel,
-          collectedBy: 'Volunteer User',
         );
 
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text('Payment recorded with status: ${payment.status.label}'),
-        backgroundColor: Colors.green,
-      ),
-    );
+    if (!mounted) return;
 
-    context.pop();
+    if (payment != null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Payment recorded in database with status: ${payment.status.label}'),
+          backgroundColor: Colors.green,
+        ),
+      );
+      context.pop();
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Failed to record payment in database.'),
+          backgroundColor: Colors.red,
+        ),
+      );
+    }
   }
 
   @override

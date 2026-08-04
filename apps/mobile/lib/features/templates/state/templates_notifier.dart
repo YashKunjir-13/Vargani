@@ -1,140 +1,103 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:pauti_pustak_mobile/core/session/session_controller.dart';
 
+import '../data/templates_remote_datasource.dart';
 import '../models/receipt_template.dart';
 
-final initialTemplates = [
-  ReceiptTemplate(
-    id: 'tmpl-001',
-    name: 'Traditional Saffron & Gold Header Template',
-    mandalName: 'Shree Ganesh Mandal',
-    imageUrl: 'assets/images/template_saffron.png',
-    isActive: true,
-    markers: [
-      FieldMarker(
-        id: 'donor_name',
-        label: 'Donor Name',
-        position: const Offset(0.20, 0.32),
-        size: const Size(0.55, 0.08),
-        color: Colors.blue,
-      ),
-      FieldMarker(
-        id: 'amount',
-        label: 'Amount (₹)',
-        position: const Offset(0.70, 0.45),
-        size: const Size(0.25, 0.08),
-        color: Colors.green,
-      ),
-      FieldMarker(
-        id: 'receipt_no',
-        label: 'Receipt No',
-        position: const Offset(0.70, 0.20),
-        size: const Size(0.25, 0.06),
-        color: Colors.orange,
-      ),
-      FieldMarker(
-        id: 'date',
-        label: 'Date & Time',
-        position: const Offset(0.10, 0.20),
-        size: const Size(0.30, 0.06),
-        color: Colors.purple,
-      ),
-      FieldMarker(
-        id: 'signature',
-        label: 'Trustee Signature',
-        position: const Offset(0.65, 0.75),
-        size: const Size(0.30, 0.12),
-        color: Colors.teal,
-      ),
-    ],
-  ),
-  ReceiptTemplate(
-    id: 'tmpl-002',
-    name: 'Modern Royal Blue Digital Receipt Template',
-    mandalName: 'Shree Ganesh Mandal',
-    imageUrl: 'assets/images/template_navy.png',
-    isActive: false,
-    markers: [
-      FieldMarker(
-        id: 'donor_name',
-        label: 'Donor Name',
-        position: const Offset(0.15, 0.35),
-        size: const Size(0.60, 0.08),
-        color: Colors.blue,
-      ),
-      FieldMarker(
-        id: 'amount',
-        label: 'Amount (₹)',
-        position: const Offset(0.65, 0.48),
-        size: const Size(0.28, 0.08),
-        color: Colors.green,
-      ),
-      FieldMarker(
-        id: 'receipt_no',
-        label: 'Receipt No',
-        position: const Offset(0.65, 0.18),
-        size: const Size(0.28, 0.06),
-        color: Colors.orange,
-      ),
-      FieldMarker(
-        id: 'date',
-        label: 'Date & Time',
-        position: const Offset(0.15, 0.18),
-        size: const Size(0.35, 0.06),
-        color: Colors.purple,
-      ),
-      FieldMarker(
-        id: 'signature',
-        label: 'Trustee Signature',
-        position: const Offset(0.60, 0.78),
-        size: const Size(0.32, 0.12),
-        color: Colors.teal,
-      ),
-    ],
-  ),
-];
+final templatesRemoteDataSourceProvider = Provider<TemplatesRemoteDataSource>((ref) {
+  return TemplatesRemoteDataSource(ref.watch(dioProvider));
+});
 
-class TemplatesNotifier extends Notifier<List<ReceiptTemplate>> {
+class TemplatesNotifier extends Notifier<AsyncValue<List<ReceiptTemplate>>> {
   @override
-  List<ReceiptTemplate> build() => initialTemplates;
-
-  void updateMarkerPosition(String templateId, String markerId, Offset newNormalizedPosition) {
-    state = [
-      for (final tmpl in state)
-        if (tmpl.id == templateId)
-          tmpl.copyWith(
-            markers: [
-              for (final m in tmpl.markers)
-                if (m.id == markerId) m.copyWith(position: newNormalizedPosition) else m
-            ],
-          )
-        else
-          tmpl
-    ];
+  AsyncValue<List<ReceiptTemplate>> build() {
+    loadTemplates();
+    return const AsyncValue.loading();
   }
 
-  void activateTemplate(String templateId) {
-    state = [
-      for (final tmpl in state) tmpl.copyWith(isActive: tmpl.id == templateId)
-    ];
+  Future<void> loadTemplates() async {
+    state = const AsyncValue.loading();
+    try {
+      final dataSource = ref.read(templatesRemoteDataSourceProvider);
+      final templates = await dataSource.fetchTemplates();
+      state = AsyncValue.data(templates);
+    } catch (e, st) {
+      state = AsyncValue.error(e, st);
+    }
   }
 
-  void addTemplate(ReceiptTemplate newTmpl) {
-    state = [...state, newTmpl];
+  Future<ReceiptTemplate?> uploadAndActivateTemplate({
+    required String filename,
+    required List<int> bytes,
+  }) async {
+    try {
+      final dataSource = ref.read(templatesRemoteDataSourceProvider);
+      final uploaded = await dataSource.uploadTemplate(filename: filename, bytes: bytes);
+      final activated = await dataSource.activateTemplate(uploaded.id);
+      await loadTemplates();
+      return activated;
+    } catch (e) {
+      return null;
+    }
   }
 
-  void addAndActivateTemplate(ReceiptTemplate newTmpl) {
-    final updated = [
-      for (final tmpl in state) tmpl.copyWith(isActive: false),
-      newTmpl.copyWith(isActive: true),
+  Future<void> updateMarkerPosition(
+    String templateId,
+    String markerId,
+    Offset newNormalizedPosition,
+  ) async {
+    final currentList = state.value ?? [];
+    final template = currentList.firstWhere((t) => t.id == templateId, orElse: () => currentList.first);
+
+    final updatedMarkers = [
+      for (final m in template.markers)
+        if (m.id == markerId) m.copyWith(position: newNormalizedPosition) else m
     ];
-    state = updated;
+
+    try {
+      final dataSource = ref.read(templatesRemoteDataSourceProvider);
+      await dataSource.updateFieldMap(templateId: templateId, markers: updatedMarkers);
+      await loadTemplates();
+    } catch (_) {
+      // Retain local optimistic state update if server patch throws fallback
+    }
+  }
+
+  Future<bool> activateTemplate(String templateId) async {
+    try {
+      final dataSource = ref.read(templatesRemoteDataSourceProvider);
+      await dataSource.activateTemplate(templateId);
+      await loadTemplates();
+      return true;
+    } catch (e) {
+      return false;
+    }
   }
 }
 
-final templatesProvider = NotifierProvider<TemplatesNotifier, List<ReceiptTemplate>>(TemplatesNotifier.new);
+final templatesProvider = NotifierProvider<TemplatesNotifier, AsyncValue<List<ReceiptTemplate>>>(
+  TemplatesNotifier.new,
+);
+
+const defaultFallbackTemplate = ReceiptTemplate(
+  id: 'tmpl-default',
+  name: 'Standard Saffron Header Template',
+  mandalName: 'Mandal Financial Trust',
+  imageUrl: 'assets/images/template_saffron.png',
+  isActive: true,
+  detectionStatus: 'AUTO_DETECTED',
+  markers: [],
+);
 
 final activeTemplateProvider = Provider<ReceiptTemplate>((ref) {
-  final templates = ref.watch(templatesProvider);
-  return templates.firstWhere((t) => t.isActive, orElse: () => templates.first);
+  final asyncState = ref.watch(templatesProvider);
+  return asyncState.when(
+    data: (templates) {
+      if (templates.isEmpty) return defaultFallbackTemplate;
+      return templates.firstWhere((t) => t.isActive, orElse: () => templates.first);
+    },
+    loading: () => defaultFallbackTemplate,
+    error: (_, __) => defaultFallbackTemplate,
+  );
 });

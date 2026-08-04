@@ -29,8 +29,8 @@ import { RAZORPAY_SIGNATURE_VERIFIER, RazorpaySignatureVerifier } from "./razorp
 @Controller({ path: "payments", version: "1" })
 export class PaymentsController {
   constructor(
-    private readonly paymentsService: PaymentsService,
-    private readonly tenantContext: TenantContext,
+    @Inject(PaymentsService) private readonly paymentsService: PaymentsService,
+    @Inject(TenantContext) private readonly tenantContext: TenantContext,
     @Inject(RAZORPAY_SIGNATURE_VERIFIER) private readonly signatureVerifier: RazorpaySignatureVerifier,
   ) {}
 

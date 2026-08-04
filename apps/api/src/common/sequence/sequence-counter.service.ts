@@ -1,5 +1,5 @@
 import { randomUUID } from "node:crypto";
-import { Injectable } from "@nestjs/common";
+import { Inject, Injectable } from "@nestjs/common";
 import { Prisma, PrismaService } from "@pauti-pustak/backend-database";
 
 /**
@@ -16,7 +16,7 @@ import { Prisma, PrismaService } from "@pauti-pustak/backend-database";
  */
 @Injectable()
 export class SequenceCounterService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(@Inject(PrismaService) private readonly prisma: PrismaService) {}
 
   async getNextSequence(
     organizationId: string,
@@ -26,7 +26,7 @@ export class SequenceCounterService {
     const rows = await this.prisma.$queryRaw<Array<{ lastSequence: bigint }>>(
       Prisma.sql`
         INSERT INTO "sequence_counters" (id, "organizationId", "festivalYear", "sequenceName", "lastSequence", "updatedAt")
-        VALUES (${randomUUID()}, ${organizationId}, ${festivalYear}, ${sequenceName}, 1, now())
+        VALUES (${randomUUID()}::uuid, ${organizationId}::uuid, ${festivalYear}, ${sequenceName}, 1, now())
         ON CONFLICT ("organizationId", "festivalYear", "sequenceName")
         DO UPDATE SET "lastSequence" = sequence_counters."lastSequence" + 1, "updatedAt" = now()
         RETURNING "lastSequence"

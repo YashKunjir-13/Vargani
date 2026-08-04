@@ -1,4 +1,4 @@
-import { ForbiddenException, Inject, Injectable, NotFoundException } from "@nestjs/common";
+import { ForbiddenException, Inject, Injectable, NotFoundException, Optional } from "@nestjs/common";
 import { Bill, BillStatus, PaymentMode, PrismaService } from "@pauti-pustak/backend-database";
 import { FestivalYearService } from "../common/festival-year/festival-year.service";
 import { SequenceCounterService } from "../common/sequence/sequence-counter.service";
@@ -15,11 +15,11 @@ const BILL_SEQUENCE_NAME = "bill";
 @Injectable()
 export class BillsService {
   constructor(
-    private readonly prisma: PrismaService,
-    private readonly festivalYear: FestivalYearService,
-    private readonly sequenceCounter: SequenceCounterService,
-    @Inject(LEDGER_PORT) private readonly ledger: LedgerPort,
-    @Inject(BILL_OCR_PORT) private readonly ocr: BillOcrPort,
+    @Inject(PrismaService) private readonly prisma: PrismaService,
+    @Inject(FestivalYearService) private readonly festivalYear: FestivalYearService,
+    @Inject(SequenceCounterService) private readonly sequenceCounter: SequenceCounterService,
+    @Optional() @Inject(LEDGER_PORT) private readonly ledger?: LedgerPort,
+    @Optional() @Inject(BILL_OCR_PORT) private readonly ocr?: BillOcrPort,
   ) {}
 
   /**
@@ -28,6 +28,9 @@ export class BillsService {
    * anything -- callers still go through create()/submit() explicitly.
    */
   async previewOcr(billPhotoUrl: string): Promise<ProposedBillFields> {
+    if (!this.ocr) {
+      return {};
+    }
     return this.ocr.proposeFields(billPhotoUrl);
   }
 
@@ -159,7 +162,7 @@ export class BillsService {
     });
     await this.writeAuditEvent(organizationId, paid.id, "paid", paidByUserId);
 
-    await this.ledger.recordBillPayment({
+    await this.ledger?.recordBillPayment({
       organizationId,
       festivalYear: paid.festivalYear,
       billId: paid.id,

@@ -1,4 +1,5 @@
 import { Module } from "@nestjs/common";
+import { PrismaModule } from "@pauti-pustak/backend-database";
 import { SequenceModule } from "../common/sequence/sequence.module";
 import { StorageModule } from "../common/storage/storage.module";
 import { TenancyModule } from "../common/tenancy/tenancy.module";
@@ -7,7 +8,7 @@ import { TemplatesController } from "./templates.controller";
 import { TemplatesService } from "./templates.service";
 
 @Module({
-  imports: [TenancyModule, SequenceModule, StorageModule],
+  imports: [PrismaModule, TenancyModule, SequenceModule, StorageModule],
   controllers: [TemplatesController],
   providers: [
     TemplatesService,

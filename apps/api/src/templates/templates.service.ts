@@ -31,9 +31,9 @@ export class TemplatesService {
   private readonly logger = new Logger(TemplatesService.name);
 
   constructor(
-    private readonly prisma: PrismaService,
-    private readonly assetStorage: AssetStorageService,
-    private readonly sequenceCounter: SequenceCounterService,
+    @Inject(PrismaService) private readonly prisma: PrismaService,
+    @Inject(AssetStorageService) private readonly assetStorage: AssetStorageService,
+    @Inject(SequenceCounterService) private readonly sequenceCounter: SequenceCounterService,
     @Inject(FIELD_DETECTION_ENGINE) private readonly detectionEngine: FieldDetectionEngine,
   ) {}
 
