@@ -18,13 +18,19 @@ export class EventController {
 
   @Get()
   @RequirePermission("event.view")
-  @ApiOperation({ summary: "List events with optional filters" })
+  @ApiOperation({ summary: "List events with optional filters, search, and pagination" })
   @ApiQuery({ name: "status", required: false })
   @ApiQuery({ name: "financialYear", required: false })
+  @ApiQuery({ name: "search", required: false })
+  @ApiQuery({ name: "page", required: false })
+  @ApiQuery({ name: "limit", required: false })
   async listEvents(
     @CurrentUser() user: AuthenticatedUser,
     @Query("status") status?: any,
     @Query("financialYear") financialYear?: string,
+    @Query("search") search?: string,
+    @Query("page") page?: string,
+    @Query("limit") limit?: string,
   ) {
     if (!user.organizationId) {
       throw new Error("No organization context present");
@@ -32,6 +38,9 @@ export class EventController {
     const result = await this.eventService.listEvents(user.organizationId, {
       status,
       financialYear: financialYear ? parseInt(financialYear, 10) : undefined,
+      search,
+      page: page ? parseInt(page, 10) : undefined,
+      limit: limit ? parseInt(limit, 10) : undefined,
     });
     return createApiResponse(result, HttpStatus.OK);
   }

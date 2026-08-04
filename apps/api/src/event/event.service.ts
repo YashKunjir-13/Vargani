@@ -15,17 +15,46 @@ import { UpdateEventDto } from "./dto/update-event.dto";
 export class EventService {
   constructor(private readonly prisma: PrismaService) {}
 
-  async listEvents(organizationId: string, filters?: { status?: EventStatus; financialYear?: number }) {
-    const events = await this.prisma.event.findMany({
-      where: {
-        organizationId,
-        ...(filters?.status ? { status: filters.status } : {}),
-        ...(filters?.financialYear ? { financialYear: filters.financialYear.toString() } : {}),
-      },
-      orderBy: { createdAt: "desc" },
-    });
+  async listEvents(
+    organizationId: string,
+    filters?: {
+      status?: EventStatus;
+      financialYear?: number;
+      search?: string;
+      page?: number;
+      limit?: number;
+    },
+  ) {
+    const page = Math.max(1, filters?.page ?? 1);
+    const limit = Math.min(100, Math.max(1, filters?.limit ?? 20));
+    const skip = (page - 1) * limit;
 
-    return Promise.all(events.map((e) => this.enrichEventWithBalances(e)));
+    const where = {
+      organizationId,
+      ...(filters?.status ? { status: filters.status } : {}),
+      ...(filters?.financialYear ? { financialYear: filters.financialYear.toString() } : {}),
+      ...(filters?.search ? { name: { contains: filters.search, mode: "insensitive" as const } } : {}),
+    };
+
+    const [events, total] = await Promise.all([
+      this.prisma.event.findMany({
+        where,
+        orderBy: { createdAt: "desc" },
+        skip,
+        take: limit,
+      }),
+      this.prisma.event.count({ where }),
+    ]);
+
+    const items = await Promise.all(events.map((e) => this.enrichEventWithBalances(e)));
+
+    return {
+      items,
+      total,
+      page,
+      limit,
+      totalPages: Math.ceil(total / limit),
+    };
   }
 
   async getEvent(organizationId: string, eventId: string) {

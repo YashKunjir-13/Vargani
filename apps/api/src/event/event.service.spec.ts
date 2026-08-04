@@ -15,6 +15,7 @@ describe("EventService (Phase 1 Unit Tests)", () => {
         findUnique: jest.fn(),
         create: jest.fn(),
         update: jest.fn(),
+        count: jest.fn().mockResolvedValue(0),
       },
       organization: {
         findUnique: jest.fn(),
@@ -32,6 +33,33 @@ describe("EventService (Phase 1 Unit Tests)", () => {
     }).compile();
 
     service = module.get<EventService>(EventService);
+  });
+
+  describe("Event Listing, Search & Pagination", () => {
+    it("returns paginated results with total count and calculated pages", async () => {
+      prisma.event.findMany.mockResolvedValue([
+        { id: "evt-1", name: "Ganesh 2026", status: EventStatus.ACTIVE },
+      ]);
+      prisma.event.count.mockResolvedValue(25);
+
+      const res = await service.listEvents("org-1", { page: 2, limit: 10, search: "Ganesh" });
+
+      expect(res.total).toBe(25);
+      expect(res.page).toBe(2);
+      expect(res.limit).toBe(10);
+      expect(res.totalPages).toBe(3);
+      expect(res.items.length).toBe(1);
+      expect(prisma.event.findMany).toHaveBeenCalledWith(
+        expect.objectContaining({
+          skip: 10,
+          take: 10,
+          where: expect.objectContaining({
+            organizationId: "org-1",
+            name: { contains: "Ganesh", mode: "insensitive" },
+          }),
+        }),
+      );
+    });
   });
 
   describe("Event Creation & Balances", () => {
@@ -123,3 +151,4 @@ describe("EventService (Phase 1 Unit Tests)", () => {
     });
   });
 });
+
