@@ -37,4 +37,10 @@ export class UpdateDonorDto {
   @IsString()
   @MaxLength(12)
   postalCode?: string;
+
+  @ApiPropertyOptional({ example: "ABCDE1234F" })
+  @IsOptional()
+  @IsString()
+  @MaxLength(10)
+  panNumber?: string;
 }

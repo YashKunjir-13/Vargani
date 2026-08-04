@@ -4,6 +4,7 @@ import { AuthenticatedUser, CurrentUser, RequirePermission } from "@pauti-pustak
 import { TenantContext } from "../common/tenancy/tenant-context";
 import { ListReceiptsQueryDto } from "./dto/list-receipts-query.dto";
 import { VoidReceiptDto } from "./dto/void-receipt.dto";
+import { ReplaceReceiptDto } from "./dto/replace-receipt.dto";
 import { ReceiptsService } from "./receipts.service";
 
 /**
@@ -62,5 +63,42 @@ export class ReceiptsController {
   @ApiOperation({ summary: "Void a receipt with a mandatory reason, logged to the audit trail" })
   async void(@Param("id") id: string, @Body() dto: VoidReceiptDto, @CurrentUser() user: AuthenticatedUser) {
     return this.receiptsService.void(this.tenantContext.organizationId, id, user.userId, dto.reason);
+  }
+
+  @Get(":id/pdf")
+  @RequirePermission(["receipt.viewAll", "receipt.viewOwn"])
+  @ApiOperation({ summary: "Render and stream receipt PDF document" })
+  async getPdfDocument(@Param("id") id: string) {
+    return this.receiptsService.getPdfDocument(this.tenantContext.organizationId, id);
+  }
+
+  @Get(":id/verify-qr")
+  @RequirePermission(["receipt.viewAll", "receipt.viewOwn"])
+  @ApiOperation({ summary: "Verify receipt QR code and cryptographic integrity payload" })
+  async verifyQrCode(@Param("id") id: string) {
+    return this.receiptsService.verifyQrCode(id);
+  }
+
+  @Post(":id/replace")
+  @RequirePermission("receipt.void")
+  @ApiOperation({ summary: "Void old receipt and issue a replacement receipt with audit trail log" })
+  async replace(
+    @Param("id") id: string,
+    @Body() dto: ReplaceReceiptDto,
+    @CurrentUser() user: AuthenticatedUser,
+  ) {
+    return this.receiptsService.replaceReceipt(
+      this.tenantContext.organizationId,
+      id,
+      user.userId,
+      dto.reason,
+    );
+  }
+
+  @Post(":id/share")
+  @RequirePermission(["receipt.viewAll", "receipt.viewOwn"])
+  @ApiOperation({ summary: "Generate shareable receipt link and WhatsApp text payload" })
+  async share(@Param("id") id: string) {
+    return this.receiptsService.getSharePayload(this.tenantContext.organizationId, id);
   }
 }

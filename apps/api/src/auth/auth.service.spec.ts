@@ -190,4 +190,157 @@ describe("AuthService (Phase 0 Unit Tests)", () => {
       });
     });
   });
+
+  describe("MPIN Authentication & Governance", () => {
+    it("creates 6-digit MPIN and hashes it with Argon2id", async () => {
+      prisma.authIdentity.findFirst.mockResolvedValue({
+        id: "ident-1",
+        userId: "u-1",
+      });
+      prisma.authIdentity.update.mockResolvedValue({ id: "ident-1" });
+
+      const res = await service.createMpin("u-1", { mpin: "123456" });
+      expect(res.hasMpin).toBe(true);
+      expect(prisma.authIdentity.update).toHaveBeenCalledWith(
+        expect.objectContaining({
+          where: { id: "ident-1" },
+          data: expect.objectContaining({
+            failedMpinCount: 0,
+            mpinLockedUntil: null,
+          }),
+        }),
+      );
+    });
+
+    it("authenticates returning user with MPIN and issues session tokens", async () => {
+      const mpinHash = await hashingService.hashPassword("123456");
+      prisma.authIdentity.findFirst.mockResolvedValue({
+        id: "ident-1",
+        userId: "u-1",
+        mpinHash,
+        failedMpinCount: 0,
+        mpinLockedUntil: null,
+        user: {
+          id: "u-1",
+          displayName: "MPIN User",
+          primaryMobile: "9876543210",
+          platformRole: "USER",
+          status: "ACTIVE",
+          tokenVersion: 1,
+        },
+      });
+      prisma.user.findUniqueOrThrow.mockResolvedValue({ id: "u-1", tokenVersion: 1 });
+
+      const res = await service.loginMpin({
+        phoneNumber: "9876543210",
+        mpin: "123456",
+        role: "DONOR",
+      });
+
+      expect(res.accessToken).toBe("jwt.test.token");
+      expect(res.hasMpin).toBe(true);
+      expect(auditService.log).toHaveBeenCalledWith(
+        expect.objectContaining({ action: "LOGIN_SUCCESS", outcome: "SUCCESS" }),
+      );
+    });
+
+    it("rejects invalid MPIN and increments failure counter", async () => {
+      const mpinHash = await hashingService.hashPassword("123456");
+      prisma.authIdentity.findFirst.mockResolvedValue({
+        id: "ident-1",
+        userId: "u-1",
+        mpinHash,
+        failedMpinCount: 2,
+        mpinLockedUntil: null,
+        user: { id: "u-1", status: "ACTIVE" },
+      });
+
+      await expect(
+        service.loginMpin({
+          phoneNumber: "9876543210",
+          mpin: "999999",
+          role: "DONOR",
+        }),
+      ).rejects.toThrow(UnauthorizedException);
+
+      expect(prisma.authIdentity.update).toHaveBeenCalledWith(
+        expect.objectContaining({
+          where: { id: "ident-1" },
+          data: expect.objectContaining({ failedMpinCount: 3 }),
+        }),
+      );
+    });
+
+    it("locks MPIN authentication for 15 mins after 5 consecutive failures", async () => {
+      const mpinHash = await hashingService.hashPassword("123456");
+      prisma.authIdentity.findFirst.mockResolvedValue({
+        id: "ident-1",
+        userId: "u-1",
+        mpinHash,
+        failedMpinCount: 4,
+        mpinLockedUntil: null,
+        user: { id: "u-1", status: "ACTIVE" },
+      });
+
+      await expect(
+        service.loginMpin({
+          phoneNumber: "9876543210",
+          mpin: "000000",
+          role: "DONOR",
+        }),
+      ).rejects.toThrow(ForbiddenException);
+
+      expect(prisma.authIdentity.update).toHaveBeenCalledWith(
+        expect.objectContaining({
+          where: { id: "ident-1" },
+          data: expect.objectContaining({
+            failedMpinCount: 5,
+            mpinLockedUntil: expect.any(Date),
+          }),
+        }),
+      );
+    });
+
+    it("verifies MPIN reset via OTP and revokes active sessions", async () => {
+      const otpHash = await hashingService.hashPassword("123456");
+      prisma.otpChallenge.findFirst.mockResolvedValue({
+        id: "otp-mpin-1",
+        normalizedMobile: "9876543210",
+        purpose: OtpPurpose.MPIN_RESET,
+        otpHash,
+        attemptCount: 0,
+        maxAttempts: 5,
+        expiresAt: new Date(Date.now() + 300000),
+        consumedAt: null,
+      });
+
+      prisma.authIdentity.findFirst.mockResolvedValue({
+        id: "ident-1",
+        userId: "u-1",
+        user: {
+          id: "u-1",
+          displayName: "MPIN Reset User",
+          primaryMobile: "9876543210",
+          platformRole: "USER",
+          status: "ACTIVE",
+          tokenVersion: 1,
+        },
+      });
+      prisma.user.findUniqueOrThrow.mockResolvedValue({ id: "u-1", tokenVersion: 1 });
+
+      const res = await service.verifyMpinReset({
+        phoneNumber: "9876543210",
+        otp: "123456",
+        newMpin: "654321",
+        role: "MANDAL",
+      });
+
+      expect(res.accessToken).toBe("jwt.test.token");
+      expect(prisma.refreshSession.updateMany).toHaveBeenCalledWith({
+        where: { userId: "u-1", status: "ACTIVE" },
+        data: expect.objectContaining({ status: "REVOKED", revocationReason: "MPIN reset via OTP" }),
+      });
+    });
+  });
 });
+

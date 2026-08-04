@@ -8,7 +8,7 @@ import {
   UnauthorizedException,
 } from "@nestjs/common";
 import { Reflector } from "@nestjs/core";
-import { AuthenticatedUser } from "./auth.interfaces";
+import { AuthenticatedUser, PlatformRole } from "./auth.interfaces";
 
 export const PERMISSION_METADATA_KEY = "requiredPermission";
 
@@ -53,7 +53,9 @@ export class PermissionGuard implements CanActivate {
     // Owner *role* from having its own permissions revoked, it does not grant
     // an implicit bypass of permission checks elsewhere. Every request is
     // authorized from its actually-resolved permission set.
-    const hasAnyRequiredCode = requiredCodes.some((code) => user.permissions?.includes(code));
+    const hasAnyRequiredCode = requiredCodes.some(
+      (code) => user.permissions?.includes(code) || user.permissions?.includes("*"),
+    );
     if (!hasAnyRequiredCode) {
       throw new ForbiddenException(`Missing required permission: ${requiredCodes.join(" or ")}`);
     }

@@ -3,6 +3,7 @@ import {
   ConflictException,
   ForbiddenException,
   Injectable,
+  NotFoundException,
   UnauthorizedException,
 } from "@nestjs/common";
 import { JwtService } from "@nestjs/jwt";
@@ -22,6 +23,11 @@ import { PasswordResetDto } from "./dto/password-reset.dto";
 import { RefreshTokenDto } from "./dto/refresh-token.dto";
 import { RegisterDonorDto } from "./dto/register-donor.dto";
 import { RegisterTrustDto } from "./dto/register-trust.dto";
+import { CreateMpinDto } from "./dto/create-mpin.dto";
+import { LoginMpinDto } from "./dto/login-mpin.dto";
+import { ChangeMpinDto } from "./dto/change-mpin.dto";
+import { ForgotMpinDto } from "./dto/forgot-mpin.dto";
+import { VerifyMpinResetDto } from "./dto/verify-mpin-reset.dto";
 import { AuditService } from "../audit/audit.service";
 
 const MAX_FAILED_ATTEMPTS = 5;
@@ -97,7 +103,7 @@ export class AuthService {
     return {
       challengeId: challenge.id,
       expiresAt: expiresAt.toISOString(),
-      ...(process.env.NODE_ENV === "test" ? { debugOtp: rawOtp } : {}),
+      ...(["test", "development"].includes(process.env.NODE_ENV ?? "") ? { debugOtp: rawOtp } : {}),
     };
   }
 
@@ -188,8 +194,13 @@ export class AuthService {
       metadata: { purpose: dto.purpose },
     });
 
+    const identity = await this.prisma.authIdentity.findFirst({
+      where: { userId: user.id },
+    });
+
     return {
       user: this.serializeUser(user, { organization: organization ?? undefined }),
+      hasMpin: !!identity?.mpinHash,
       ...session,
     };
   }
@@ -846,6 +857,271 @@ export class AuthService {
     });
 
     return { accessToken, refreshToken, accessTokenExpiresAt };
+  }
+
+  async createMpin(userId: string, dto: CreateMpinDto) {
+    const identity = await this.prisma.authIdentity.findFirst({
+      where: { userId },
+    });
+
+    if (!identity) {
+      throw new NotFoundException("User identity record not found");
+    }
+
+    const mpinHash = await this.hashingService.hashPassword(dto.mpin);
+
+    await this.prisma.authIdentity.update({
+      where: { id: identity.id },
+      data: {
+        mpinHash,
+        failedMpinCount: 0,
+        mpinLockedUntil: null,
+      },
+    });
+
+    return {
+      message: "MPIN created successfully",
+      hasMpin: true,
+    };
+  }
+
+  async loginMpin(dto: LoginMpinDto, requestIp?: string, userAgent?: string) {
+    const normalizedMobile = dto.phoneNumber.trim();
+    const identity = await this.prisma.authIdentity.findFirst({
+      where: { normalizedValue: normalizedMobile },
+      include: { user: true },
+    });
+
+    if (!identity || !identity.mpinHash) {
+      throw new BadRequestException("MPIN is not configured for this mobile number. Please authenticate via OTP first.");
+    }
+
+    if (identity.mpinLockedUntil && identity.mpinLockedUntil > new Date()) {
+      await this.auditService.log({
+        action: "ACCOUNT_LOCKED",
+        actorId: identity.userId,
+        targetTable: "auth_identities",
+        targetId: identity.id,
+        ipAddress: requestIp,
+        userAgent,
+        outcome: "FAILURE",
+        metadata: { reason: "MPIN locked", phoneNumber: dto.phoneNumber },
+      });
+      throw new ForbiddenException("MPIN authentication is locked due to repeated failures. Please try again after 15 minutes or reset your MPIN.");
+    }
+
+    const isValidMpin = await this.hashingService.verifyPassword(dto.mpin, identity.mpinHash);
+
+    if (!isValidMpin) {
+      const nextFailedCount = identity.failedMpinCount + 1;
+      const isLockoutAttempt = nextFailedCount >= 5;
+      const mpinLockedUntil = isLockoutAttempt ? new Date(Date.now() + 15 * 60_000) : null;
+
+      await this.prisma.authIdentity.update({
+        where: { id: identity.id },
+        data: {
+          failedMpinCount: nextFailedCount,
+          ...(mpinLockedUntil ? { mpinLockedUntil } : {}),
+        },
+      });
+
+      await this.auditService.log({
+        action: isLockoutAttempt ? "ACCOUNT_LOCKED" : "LOGIN_FAILURE",
+        actorId: identity.userId,
+        targetTable: "auth_identities",
+        targetId: identity.id,
+        ipAddress: requestIp,
+        userAgent,
+        outcome: "FAILURE",
+        metadata: { failedMpinCount: nextFailedCount, phoneNumber: dto.phoneNumber },
+      });
+
+      if (isLockoutAttempt) {
+        throw new ForbiddenException("MPIN authentication is locked due to 5 consecutive failed attempts. Try again in 15 minutes.");
+      }
+
+      throw new UnauthorizedException("Invalid MPIN");
+    }
+
+    // Success - reset failure counter
+    await this.prisma.authIdentity.update({
+      where: { id: identity.id },
+      data: {
+        failedMpinCount: 0,
+        mpinLockedUntil: null,
+        lastAuthenticatedAt: new Date(),
+      },
+    });
+
+    const { membership, organization } = await this.findActiveMembership(identity.userId);
+    const session = await this.issueSession({
+      userId: identity.userId,
+      organizationId: membership?.organizationId,
+      roleId: membership?.roleId,
+      membershipId: membership?.id,
+    });
+
+    await this.auditService.log({
+      action: "LOGIN_SUCCESS",
+      actorId: identity.userId,
+      organizationId: membership?.organizationId,
+      targetTable: "auth_identities",
+      targetId: identity.id,
+      ipAddress: requestIp,
+      userAgent,
+      outcome: "SUCCESS",
+      metadata: { method: "MPIN", role: dto.role },
+    });
+
+    return {
+      user: this.serializeUser(identity.user, { organization: organization ?? undefined }),
+      hasMpin: true,
+      ...session,
+    };
+  }
+
+  async changeMpin(userId: string, dto: ChangeMpinDto, requestIp?: string, userAgent?: string) {
+    const identity = await this.prisma.authIdentity.findFirst({
+      where: { userId },
+    });
+
+    if (!identity || !identity.mpinHash) {
+      throw new BadRequestException("MPIN is not set for this account");
+    }
+
+    const isValid = await this.hashingService.verifyPassword(dto.oldMpin, identity.mpinHash);
+    if (!isValid) {
+      throw new UnauthorizedException("Current MPIN is incorrect");
+    }
+
+    const newMpinHash = await this.hashingService.hashPassword(dto.newMpin);
+    await this.prisma.authIdentity.update({
+      where: { id: identity.id },
+      data: {
+        mpinHash: newMpinHash,
+        failedMpinCount: 0,
+        mpinLockedUntil: null,
+      },
+    });
+
+    await this.auditService.log({
+      action: "PASSWORD_RESET_COMPLETED",
+      actorId: userId,
+      targetTable: "auth_identities",
+      targetId: identity.id,
+      ipAddress: requestIp,
+      userAgent,
+      outcome: "SUCCESS",
+      metadata: { action: "CHANGE_MPIN" },
+    });
+
+    return { message: "MPIN changed successfully" };
+  }
+
+  async forgotMpin(dto: ForgotMpinDto, requestIp?: string, userAgent?: string) {
+    const identity = await this.prisma.authIdentity.findFirst({
+      where: { normalizedValue: dto.phoneNumber.trim() },
+    });
+
+    if (!identity) {
+      return { message: "If account exists, an OTP challenge for MPIN reset has been created." };
+    }
+
+    return this.requestOtp(
+      { phoneNumber: dto.phoneNumber, purpose: OtpPurpose.MPIN_RESET },
+      requestIp,
+      userAgent,
+    );
+  }
+
+  async verifyMpinReset(dto: VerifyMpinResetDto, requestIp?: string, userAgent?: string) {
+    const challenge = await this.prisma.otpChallenge.findFirst({
+      where: {
+        normalizedMobile: dto.phoneNumber.trim(),
+        purpose: OtpPurpose.MPIN_RESET,
+        consumedAt: null,
+      },
+      orderBy: { createdAt: "desc" },
+    });
+
+    if (!challenge || challenge.expiresAt < new Date()) {
+      throw new BadRequestException("Invalid or expired OTP challenge");
+    }
+
+    if (challenge.attemptCount >= 5) {
+      throw new ForbiddenException("Maximum verification attempts exceeded for this OTP");
+    }
+
+    const isValidOtp = await this.hashingService.verifyPassword(dto.otp, challenge.otpHash);
+    if (!isValidOtp) {
+      await this.prisma.otpChallenge.update({
+        where: { id: challenge.id },
+        data: { attemptCount: challenge.attemptCount + 1 },
+      });
+      throw new UnauthorizedException("Invalid OTP code");
+    }
+
+    // Mark challenge consumed
+    await this.prisma.otpChallenge.update({
+      where: { id: challenge.id },
+      data: { consumedAt: new Date() },
+    });
+
+    const identity = await this.prisma.authIdentity.findFirst({
+      where: { normalizedValue: dto.phoneNumber.trim() },
+      include: { user: true },
+    });
+
+    if (!identity) {
+      throw new NotFoundException("Account identity not found");
+    }
+
+    const mpinHash = await this.hashingService.hashPassword(dto.newMpin);
+
+    await this.prisma.authIdentity.update({
+      where: { id: identity.id },
+      data: {
+        mpinHash,
+        failedMpinCount: 0,
+        mpinLockedUntil: null,
+      },
+    });
+
+    // Revoke active sessions per security policy
+    await this.prisma.refreshSession.updateMany({
+      where: { userId: identity.userId, status: "ACTIVE" },
+      data: {
+        status: "REVOKED",
+        revokedAt: new Date(),
+        revocationReason: "MPIN reset via OTP",
+      },
+    });
+
+    await this.auditService.log({
+      action: "SESSION_REVOKED",
+      actorId: identity.userId,
+      targetTable: "refresh_sessions",
+      targetId: identity.userId,
+      ipAddress: requestIp,
+      userAgent,
+      outcome: "SUCCESS",
+      metadata: { reason: "MPIN Reset" },
+    });
+
+    const { membership, organization } = await this.findActiveMembership(identity.userId);
+    const session = await this.issueSession({
+      userId: identity.userId,
+      organizationId: membership?.organizationId,
+      roleId: membership?.roleId,
+      membershipId: membership?.id,
+    });
+
+    return {
+      message: "MPIN reset successfully and active sessions revoked",
+      user: this.serializeUser(identity.user, { organization: organization ?? undefined }),
+      hasMpin: true,
+      ...session,
+    };
   }
 
   private serializeUser(

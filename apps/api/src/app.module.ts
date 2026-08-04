@@ -27,6 +27,7 @@ import { AuditModule } from "./audit/audit.module";
 import { TemplatesModule } from "./templates/templates.module";
 import { ContributionReceiptsModule } from "./contribution-receipts/contribution-receipts.module";
 import { PlatformAdminModule } from "./platform/platform-admin.module";
+import { DashboardModule } from "./dashboard/dashboard.module";
 
 @Module({
   imports: [
@@ -64,6 +65,7 @@ import { PlatformAdminModule } from "./platform/platform-admin.module";
     AuditModule,
     TemplatesModule,
     PlatformAdminModule,
+    DashboardModule,
   ],
 })
 export class AppModule implements NestModule {

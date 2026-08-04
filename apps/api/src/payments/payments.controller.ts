@@ -20,8 +20,11 @@ import { PaymentChannel } from "@pauti-pustak/backend-database";
 import type { Request } from "express";
 import { TenantContext } from "../common/tenancy/tenant-context";
 import { CreatePaymentDto } from "./dto/create-payment.dto";
+import { CreatePaymentOrderDto } from "./dto/create-payment-order.dto";
 import { ListPaymentsQueryDto } from "./dto/list-payments-query.dto";
+import { RefundPaymentDto } from "./dto/refund-payment.dto";
 import { UpdatePaymentDto } from "./dto/update-payment.dto";
+import { VerifyPaymentSignatureDto } from "./dto/verify-payment-signature.dto";
 import { VoidPaymentDto } from "./dto/void-payment.dto";
 import { PaymentsService } from "./payments.service";
 import { RAZORPAY_SIGNATURE_VERIFIER, RazorpaySignatureVerifier } from "./razorpay-signature.verifier";
@@ -51,6 +54,22 @@ export class PaymentsController {
     return { received: true };
   }
 
+  @Post("orders")
+  @RequirePermission("payment.create")
+  @HttpCode(HttpStatus.CREATED)
+  @ApiOperation({ summary: "Create Razorpay payment order for donor checkout" })
+  async createRazorpayOrder(@Body() dto: CreatePaymentOrderDto, @CurrentUser() user: AuthenticatedUser) {
+    return this.paymentsService.createRazorpayOrder(this.tenantContext.organizationId, user.userId, dto);
+  }
+
+  @Post("verify-signature")
+  @RequirePermission("payment.create")
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: "Verify Razorpay HMAC signature and auto-trigger receipt generation" })
+  async verifyPaymentSignature(@Body() dto: VerifyPaymentSignatureDto) {
+    return this.paymentsService.verifyPaymentSignature(this.tenantContext.organizationId, dto);
+  }
+
   @Post()
   @RequirePermission("payment.create")
   @HttpCode(HttpStatus.CREATED)
@@ -71,6 +90,20 @@ export class PaymentsController {
     // key_id is Razorpay's publishable identifier -- safe to return to the
     // client, unlike key_secret, which never leaves the server.
     return { ...payment, razorpayKeyId: process.env.RAZORPAY_KEY_ID };
+  }
+
+  @Get("stats")
+  @RequirePermission("report.view")
+  @ApiOperation({ summary: "Get payment volume, success rate, and status statistics" })
+  async getPaymentStats() {
+    return this.paymentsService.getPaymentStats(this.tenantContext.organizationId);
+  }
+
+  @Get("settlements")
+  @RequirePermission("report.view")
+  @ApiOperation({ summary: "Get gateway settlement breakdown and reconciliation report" })
+  async getSettlementReconciliation() {
+    return this.paymentsService.getSettlementReconciliation(this.tenantContext.organizationId);
   }
 
   @Get()
@@ -106,5 +139,16 @@ export class PaymentsController {
   @ApiOperation({ summary: "Void a payment with a mandatory reason, logged to the audit trail" })
   async void(@Param("id") id: string, @Body() dto: VoidPaymentDto, @CurrentUser() user: AuthenticatedUser) {
     return this.paymentsService.void(this.tenantContext.organizationId, id, user.userId, dto.reason);
+  }
+
+  @Post("orders/:id/refund")
+  @RequirePermission("payment.confirmMatch")
+  @ApiOperation({ summary: "Refund a payment order via gateway and record audit log" })
+  async refundPayment(
+    @Param("id") id: string,
+    @Body() dto: RefundPaymentDto,
+    @CurrentUser() user: AuthenticatedUser,
+  ) {
+    return this.paymentsService.refundPayment(this.tenantContext.organizationId, id, user.userId, dto);
   }
 }
