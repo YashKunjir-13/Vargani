@@ -9,7 +9,6 @@ import '../../../shared/widgets/app_button.dart';
 import '../../../shared/widgets/app_card.dart';
 import '../../../shared/widgets/app_image_picker.dart';
 import '../../../shared/widgets/pauti_app_bar.dart';
-import '../models/receipt_template.dart';
 import '../state/templates_notifier.dart';
 
 class TemplateCalibrationScreen extends ConsumerStatefulWidget {

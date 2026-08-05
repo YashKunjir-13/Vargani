@@ -34,6 +34,7 @@ dependencies:
   path_provider: ^2.1.2
   flutter_secure_storage: ^10.3.1
   connectivity_plus: ^7.3.1
+  shared_preferences: ^2.2.3
 
   # Firebase Services
   firebase_core: ^4.12.1

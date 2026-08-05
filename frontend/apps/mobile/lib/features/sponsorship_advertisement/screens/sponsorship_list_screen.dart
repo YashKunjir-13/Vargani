@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/core.dart';
-import '../../../core/localization/locale_controller.dart';
 import '../../../shared/shared.dart';
 import '../../../shared/widgets/formatters.dart';
 import '../models/sponsorship.dart';
