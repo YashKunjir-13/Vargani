@@ -15,6 +15,8 @@ import '../../../shared/widgets/status_chip.dart';
 import '../models/bill.dart';
 import '../state/bills_notifier.dart';
 
+const _kTrustPresident = 'Trust President: Dilip Kale';
+
 class BillDetailScreen extends ConsumerWidget {
   final String billId;
 

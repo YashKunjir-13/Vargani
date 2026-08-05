@@ -2,6 +2,7 @@ import 'package:dio/dio.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/session/session_controller.dart';
+import '../data/bills_mock_data.dart';
 import '../data/bills_remote_datasource.dart';
 import '../models/bill.dart';
 
@@ -27,6 +28,7 @@ class BillsNotifier extends Notifier<List<Bill>> {
 
   Future<void> fetchRemote() async {
     final remote = ref.read(billsRemoteDataSourceProvider);
+    if (remote == null) return;
     try {
       final fetched = await remote.fetchBills();
       state = fetched;
@@ -96,6 +98,7 @@ class BillsNotifier extends Notifier<List<Bill>> {
 
   Future<void> _updateRemote(String id, {double? amount, String? receiverName, String? taskOrField}) async {
     final remote = ref.read(billsRemoteDataSourceProvider);
+    if (remote == null) return;
     try {
       await remote.updateBill(id, amount: amount, receiverName: receiverName, taskOrField: taskOrField);
     } catch (_) {}
@@ -111,6 +114,7 @@ class BillsNotifier extends Notifier<List<Bill>> {
 
   Future<void> _submitRemote(String id) async {
     final remote = ref.read(billsRemoteDataSourceProvider);
+    if (remote == null) return;
     try {
       final updated = await remote.submitBill(id);
       state = [for (final b in state) if (b.id == id) updated else b];
@@ -133,6 +137,7 @@ class BillsNotifier extends Notifier<List<Bill>> {
 
   Future<void> _approveRemote(String id, {required String approvedBy}) async {
     final remote = ref.read(billsRemoteDataSourceProvider);
+    if (remote == null) return;
     try {
       final updated = await remote.approveBill(id);
       state = [for (final b in state) if (b.id == id) updated else b];
@@ -156,6 +161,7 @@ class BillsNotifier extends Notifier<List<Bill>> {
 
   Future<void> _rejectRemote(String id, {required String reason}) async {
     final remote = ref.read(billsRemoteDataSourceProvider);
+    if (remote == null) return;
     try {
       final updated = await remote.rejectBill(id, reason: reason);
       state = [for (final b in state) if (b.id == id) updated else b];
@@ -172,6 +178,7 @@ class BillsNotifier extends Notifier<List<Bill>> {
 
   Future<void> _markPaidRemote(String id, {required BillPaymentMode paymentMode}) async {
     final remote = ref.read(billsRemoteDataSourceProvider);
+    if (remote == null) return;
     try {
       final updated = await remote.markPaidBill(id, paymentMode: paymentMode);
       state = [for (final b in state) if (b.id == id) updated else b];
@@ -188,6 +195,7 @@ class BillsNotifier extends Notifier<List<Bill>> {
 
   Future<void> _cancelRemote(String id, {required String reason}) async {
     final remote = ref.read(billsRemoteDataSourceProvider);
+    if (remote == null) return;
     try {
       final updated = await remote.cancelBill(id, reason: reason);
       state = [for (final b in state) if (b.id == id) updated else b];

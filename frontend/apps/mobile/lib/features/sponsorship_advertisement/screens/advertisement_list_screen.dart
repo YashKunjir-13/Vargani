@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/core.dart';
+import '../../../core/localization/locale_controller.dart';
 import '../../../shared/shared.dart';
 import '../providers/advertisement_providers.dart';
 import '../widgets/advertisement_list_item.dart';

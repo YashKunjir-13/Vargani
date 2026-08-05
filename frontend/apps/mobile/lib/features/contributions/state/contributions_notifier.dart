@@ -2,6 +2,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/session/session_controller.dart';
 import '../../contribution_receipts/state/contribution_receipts_notifier.dart';
+import '../data/contributions_mock_data.dart';
 import '../data/contributions_remote_datasource.dart';
 import '../models/contribution.dart';
 
@@ -19,6 +20,7 @@ class ContributionsNotifier extends Notifier<List<Contribution>> {
 
   Future<void> fetchRemote() async {
     final remote = ref.read(contributionsRemoteDataSourceProvider);
+    if (remote == null) return;
     try {
       final fetched = await remote.fetchContributions();
       state = fetched;
@@ -148,6 +150,7 @@ class ContributionsNotifier extends Notifier<List<Contribution>> {
     String? certificatePhotoUrl,
   }) async {
     final remote = ref.read(contributionsRemoteDataSourceProvider);
+    if (remote == null) return;
     try {
       final updated = await remote.updateContribution(
         id,
@@ -170,6 +173,7 @@ class ContributionsNotifier extends Notifier<List<Contribution>> {
 
   Future<void> _deleteRemote(String id) async {
     final remote = ref.read(contributionsRemoteDataSourceProvider);
+    if (remote == null) return;
     try {
       await remote.deleteContribution(id);
     } catch (_) {}

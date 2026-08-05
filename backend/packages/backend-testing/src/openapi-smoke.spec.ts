@@ -9,9 +9,6 @@ describe('OpenApiAndConfigSmokeTest', () => {
       S3_ACCESS_KEY: 'key',
       S3_SECRET_KEY: 'secret',
       PAN_ENCRYPTION_KEY: 'test-key-32-chars-long-000000000',
-      RAZORPAY_KEY_ID: 'rzp_test_key_id',
-      RAZORPAY_KEY_SECRET: 'rzp_test_key_secret',
-      RAZORPAY_WEBHOOK_SECRET: 'rzp_test_webhook_secret',
     });
 
     expect(defaultEnv.PORT).toBe(3000);
