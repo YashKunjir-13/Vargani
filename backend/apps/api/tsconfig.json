@@ -1,0 +1,18 @@
+{
+  "extends": "../../../tsconfig.base.json",
+  "compilerOptions": {
+    "outDir": "./dist",
+    "rootDir": "./src"
+  },
+  "include": ["src/**/*"],
+  "exclude": ["src/**/*.spec.ts", "src/**/test_*.ts"],
+  "references": [
+    { "path": "../../packages/backend-config" },
+    { "path": "../../packages/backend-contracts" },
+    { "path": "../../packages/backend-database" },
+    { "path": "../../packages/backend-observability" },
+    { "path": "../../packages/backend-security" },
+    { "path": "../../packages/backend-shared-kernel" }
+  ]
+}
+

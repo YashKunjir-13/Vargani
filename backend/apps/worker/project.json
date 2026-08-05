@@ -1,0 +1,31 @@
+{
+  "name": "worker",
+  "$schema": "../../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "backend/apps/worker/src",
+  "projectType": "application",
+  "targets": {
+    "build": {
+      "executor": "@nx/js:tsc",
+      "outputs": ["{options.outputPath}"],
+      "options": {
+        "outputPath": "dist/backend/apps/worker",
+        "main": "backend/apps/worker/src/main.ts",
+        "tsConfig": "backend/apps/worker/tsconfig.json",
+        "assets": []
+      }
+    },
+    "serve": {
+      "executor": "@nx/js:node",
+      "options": {
+        "buildTarget": "worker:build"
+      }
+    },
+    "lint": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "eslint backend/apps/worker/**/*.ts"
+      }
+    }
+  }
+}
+
