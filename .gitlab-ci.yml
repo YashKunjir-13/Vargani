@@ -58,7 +58,7 @@ flutter_analyze:
   stage: lint
   image: ghcr.io/cirrusci/flutter:3.19.0
   script:
-    - cd frontend/apps/mobile
+    - cd frontend/apps/mobile-app
     - flutter pub get
     - dart format --output=none --set-exit-if-changed .
     - flutter analyze
@@ -77,7 +77,7 @@ flutter_tests:
   stage: test
   image: ghcr.io/cirrusci/flutter:3.19.0
   script:
-    - cd frontend/apps/mobile
+    - cd frontend/apps/mobile-app
     - flutter pub get
     - flutter test
 
@@ -122,12 +122,12 @@ flutter_web_build:
   stage: build
   image: ghcr.io/cirrusci/flutter:3.19.0
   script:
-    - cd frontend/apps/mobile
+    - cd frontend/apps/mobile-app
     - flutter pub get
     - flutter build web -t lib/main_dev.dart
   artifacts:
     paths:
-      - frontend/apps/mobile/build/web/
+      - frontend/apps/mobile-app/build/web/
 
 docker_build_validation:
   stage: build

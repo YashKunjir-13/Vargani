@@ -31,14 +31,14 @@
     "docker:logs": "docker compose logs -f",
     "docker:observability": "docker compose --profile core --profile messaging --profile observability up -d",
     "validate": "pnpm run format:check && pnpm run lint && pnpm run typecheck && pnpm run test && pnpm run build",
-    "mobile": "cd frontend/apps/mobile && flutter run -t lib/main_dev.dart",
-    "mobile:chrome": "cd frontend/apps/mobile && flutter run -d chrome -t lib/main_dev.dart",
-    "mobile:android": "cd frontend/apps/mobile && flutter run -d android -t lib/main_dev.dart",
-    "mobile:windows": "cd frontend/apps/mobile && flutter run -d windows -t lib/main_dev.dart",
-    "mobile:doctor": "cd frontend/apps/mobile && flutter doctor -v",
-    "mobile:pub-get": "cd frontend/apps/mobile && flutter pub get",
-    "mobile:test": "cd frontend/apps/mobile && flutter test",
-    "mobile:analyze": "cd frontend/apps/mobile && flutter analyze"
+    "mobile": "cd frontend/apps/mobile-app && flutter run -t lib/main_dev.dart",
+    "mobile:chrome": "cd frontend/apps/mobile-app && flutter run -d chrome -t lib/main_dev.dart",
+    "mobile:android": "cd frontend/apps/mobile-app && flutter run -d android -t lib/main_dev.dart",
+    "mobile:windows": "cd frontend/apps/mobile-app && flutter run -d windows -t lib/main_dev.dart",
+    "mobile:doctor": "cd frontend/apps/mobile-app && flutter doctor -v",
+    "mobile:pub-get": "cd frontend/apps/mobile-app && flutter pub get",
+    "mobile:test": "cd frontend/apps/mobile-app && flutter test",
+    "mobile:analyze": "cd frontend/apps/mobile-app && flutter analyze"
   },
   "devDependencies": {
     "@commitlint/cli": "^19.7.1",

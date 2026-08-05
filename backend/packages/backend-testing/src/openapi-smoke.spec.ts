@@ -8,6 +8,9 @@ describe('OpenApiAndConfigSmokeTest', () => {
       S3_ENDPOINT: 'http://localhost:9000',
       S3_ACCESS_KEY: 'key',
       S3_SECRET_KEY: 'secret',
+      RAZORPAY_KEY_ID: 'rzp_test_123',
+      RAZORPAY_KEY_SECRET: 'secret',
+      RAZORPAY_WEBHOOK_SECRET: 'webhook_secret',
       PAN_ENCRYPTION_KEY: 'test-key-32-chars-long-000000000',
     });
 

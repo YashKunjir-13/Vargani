@@ -5,7 +5,7 @@ export default tseslint.config(
   eslint.configs.recommended,
   ...tseslint.configs.recommended,
   {
-    ignores: ['dist/**', 'node_modules/**', '**/generated/**', 'frontend/apps/mobile/**', 'jest.config.js'],
+    ignores: ['dist/**', 'node_modules/**', '**/generated/**', 'frontend/apps/mobile-app/**', 'jest.config.js'],
   },
   {
     rules: {
