@@ -1,4 +1,4 @@
-import { Body, Controller, Get, HttpCode, HttpStatus, Post, Req, UseGuards } from "@nestjs/common";
+import { Body, Controller, Get, HttpCode, HttpStatus, Inject, Post, Req, UseGuards } from "@nestjs/common";
 import { ApiBearerAuth, ApiBody, ApiOperation, ApiTags } from "@nestjs/swagger";
 import { createApiResponse } from "@pauti-pustak/backend-contracts";
 import { AuthenticatedUser, Public } from "@pauti-pustak/backend-security";
@@ -23,7 +23,7 @@ import { JwtAuthGuard } from "./jwt-auth.guard";
 @ApiTags("Authentication")
 @Controller("auth")
 export class AuthController {
-  constructor(private readonly authService: AuthService) {}
+  constructor(@Inject(AuthService) private readonly authService: AuthService) {}
 
   @Post("otp/request")
   @Public()

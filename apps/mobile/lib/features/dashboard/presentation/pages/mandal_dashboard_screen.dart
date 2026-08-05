@@ -23,6 +23,8 @@ import 'package:pauti_pustak_mobile/features/sponsorship_advertisement/screens/s
 import 'package:pauti_pustak_mobile/features/sponsorship_advertisement/screens/sponsorship_form_screen.dart';
 import 'package:pauti_pustak_mobile/features/sponsorship_advertisement/screens/advertisement_list_screen.dart';
 import 'package:pauti_pustak_mobile/app/all_records_screen.dart';
+import 'package:pauti_pustak_mobile/features/rbac/presentation/providers/mock_rbac_provider.dart';
+import 'package:pauti_pustak_mobile/features/rbac/presentation/pages/user_management_screen.dart';
 import 'package:pauti_pustak_mobile/shared/widgets/app_bottom_nav.dart';
 
 class MandalDashboardScreen extends ConsumerStatefulWidget {
@@ -162,6 +164,7 @@ class _MandalDashboardScreenState extends ConsumerState<MandalDashboardScreen> {
     AuthColors colors,
     AppLocalizations l10n,
   ) {
+    final rbacState = ref.watch(mockRbacProvider);
     return SingleChildScrollView(
       padding: const EdgeInsets.all(16),
       child: Column(
@@ -319,7 +322,46 @@ class _MandalDashboardScreenState extends ConsumerState<MandalDashboardScreen> {
           ),
           const SizedBox(height: 12),
           MandalModuleGrid(
-            modules: data.modules.map((m) {
+            modules: data.modules.where((m) {
+              switch (m.id) {
+                case 'contributions':
+                  return rbacState.hasPermission('contribution.view');
+                case 'collection':
+                  return rbacState.hasPermission('donation_collection.view');
+                case 'receipts':
+                  return rbacState.hasPermission('receipt.view');
+                case 'budget':
+                  return rbacState.hasPermission('budget.view');
+                case 'bills':
+                  return rbacState.hasPermission('bill.view');
+                case 'vendor_payments':
+                  return rbacState.hasPermission('vendor_payment.view');
+                case 'kunda':
+                  return rbacState.hasPermission('donation_box.view');
+                case 'sponsors':
+                  return rbacState.hasPermission('sponsor.view');
+                case 'advertisements':
+                  return rbacState.hasPermission('advertisement.view');
+                case 'volunteers':
+                  return rbacState.hasPermission('volunteer.view');
+                case 'members':
+                  return rbacState.hasPermission('member.view');
+                case 'reports':
+                  return rbacState.hasPermission('reports.view');
+                case 'audit':
+                  return rbacState.hasPermission('audit_logs.view');
+                case 'analytics':
+                  return rbacState.hasPermission('analytics.view');
+                case 'milestones':
+                  return rbacState.hasPermission('milestones.view');
+                case 'user_management':
+                  return rbacState.hasPermission('user.manage');
+                case 'all_records':
+                  return rbacState.hasPermission('records.view');
+                default:
+                  return false;
+              }
+            }).map((m) {
               if (m.id == 'all_records') {
                 return MandalModuleItem(
                   id: 'all_records',
@@ -336,7 +378,7 @@ class _MandalDashboardScreenState extends ConsumerState<MandalDashboardScreen> {
                   context.push('/contributions');
                   break;
                 case 'collection':
-                  context.push('/payments/new');
+                  context.push('/payments');
                   break;
                 case 'receipts':
                   context.push('/receipts');
@@ -348,7 +390,7 @@ class _MandalDashboardScreenState extends ConsumerState<MandalDashboardScreen> {
                   context.push('/bills');
                   break;
                 case 'vendor_payments':
-                  context.push('/payments');
+                  context.push('/vendors');
                   break;
                 case 'sponsors':
                   Navigator.of(context).push(MaterialPageRoute(builder: (_) => const SponsorshipListScreen()));
@@ -360,7 +402,7 @@ class _MandalDashboardScreenState extends ConsumerState<MandalDashboardScreen> {
                   Navigator.of(context).push(MaterialPageRoute(builder: (_) => const VolunteerListScreen()));
                   break;
                 case 'members':
-                  Navigator.of(context).push(MaterialPageRoute(builder: (_) => const DonorListScreen()));
+                  context.push('/user-management');
                   break;
                 case 'kunda':
                   context.push('/vault');
@@ -372,7 +414,7 @@ class _MandalDashboardScreenState extends ConsumerState<MandalDashboardScreen> {
                   context.push('/audit');
                   break;
                 case 'analytics':
-                  context.push('/reports-hub');
+                  context.push('/analytics');
                   break;
                 case 'all_records':
                   Navigator.of(context).push(MaterialPageRoute(builder: (_) => const AllRecordsScreen()));
@@ -587,6 +629,93 @@ class _MandalDashboardScreenState extends ConsumerState<MandalDashboardScreen> {
           onTap: () {
             ref.read(sessionControllerProvider.notifier).logout();
           },
+        ),
+        const SizedBox(height: 32),
+        // Mock RBAC Persona Switcher for Development / QA Testing
+        Container(
+          padding: const EdgeInsets.all(16),
+          decoration: BoxDecoration(
+            color: colors.surfaceMuted,
+            borderRadius: BorderRadius.circular(12),
+            border: Border.all(color: colors.brandOrange.withValues(alpha: 0.5)),
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(
+                    'Development Mode: Persona Switcher',
+                    style: TextStyle(
+                      color: colors.text,
+                      fontWeight: FontWeight.w800,
+                      fontSize: 14,
+                    ),
+                  ),
+                  if (ref.watch(mockRbacProvider).isSuperAdmin)
+                    Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                      decoration: BoxDecoration(
+                        color: colors.brandOrange.withValues(alpha: 0.2),
+                        borderRadius: BorderRadius.circular(6),
+                      ),
+                      child: Text(
+                        'SUPER ADMIN',
+                        style: TextStyle(
+                          color: colors.brandOrange,
+                          fontSize: 10,
+                          fontWeight: FontWeight.w900,
+                        ),
+                      ),
+                    ),
+                ],
+              ),
+              const SizedBox(height: 8),
+              Text(
+                'Active Persona: ${ref.watch(mockRbacProvider).testingUserName ?? ref.watch(mockRbacProvider).activeRole.displayName}',
+                style: TextStyle(color: colors.secondaryText, fontSize: 12),
+              ),
+              const SizedBox(height: 12),
+              Consumer(
+                builder: (context, ref, child) {
+                  final users = ref.watch(mockUserListProvider);
+                  final currentUserId = ref.watch(mockRbacProvider).testingUserId ?? 'USR-001';
+
+                  return DropdownButton<String>(
+                    isExpanded: true,
+                    value: users.any((u) => u.id == currentUserId) ? currentUserId : users.first.id,
+                    dropdownColor: colors.card,
+                    items: users.map((u) {
+                      final label = u.isSuperAdmin
+                          ? '${u.name} (Trust President • Super Admin)'
+                          : '${u.name} (${u.role.displayName})';
+                      return DropdownMenuItem<String>(
+                        value: u.id,
+                        child: Text(
+                          label,
+                          style: TextStyle(color: colors.text, fontSize: 13),
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      );
+                    }).toList(),
+                    onChanged: (userId) {
+                      if (userId != null) {
+                        final selectedUser = users.firstWhere((u) => u.id == userId);
+                        ref.read(mockRbacProvider.notifier).simulateUserAccess(selectedUser);
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            content: Text('Switched persona to: ${selectedUser.name}'),
+                            duration: const Duration(seconds: 2),
+                          ),
+                        );
+                      }
+                    },
+                  );
+                },
+              ),
+            ],
+          ),
         ),
       ],
     );

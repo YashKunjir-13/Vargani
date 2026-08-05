@@ -25,9 +25,12 @@ class _CreateContributionScreenState extends ConsumerState<CreateContributionScr
   final _contactController = TextEditingController();
   final _itemDescriptionController = TextEditingController();
   final _weightController = TextEditingController();
+  final _quantityController = TextEditingController();
+  final _unitController = TextEditingController();
   final _estimatedValueController = TextEditingController();
+  final _notesController = TextEditingController();
 
-  DonationType _donationType = DonationType.gold;
+  DonationType _donationType = DonationType.food;
   String? _certificatePhotoPath;
 
   @override
@@ -36,7 +39,10 @@ class _CreateContributionScreenState extends ConsumerState<CreateContributionScr
     _contactController.dispose();
     _itemDescriptionController.dispose();
     _weightController.dispose();
+    _quantityController.dispose();
+    _unitController.dispose();
     _estimatedValueController.dispose();
+    _notesController.dispose();
     super.dispose();
   }
 
@@ -52,7 +58,10 @@ class _CreateContributionScreenState extends ConsumerState<CreateContributionScr
           donationType: _donationType,
           itemDescription: _itemDescriptionController.text.trim().isEmpty ? null : _itemDescriptionController.text.trim(),
           weightGrams: double.tryParse(_weightController.text),
+          quantity: double.tryParse(_quantityController.text),
+          unit: _unitController.text.trim().isEmpty ? null : _unitController.text.trim(),
           estimatedValue: double.tryParse(_estimatedValueController.text),
+          notes: _notesController.text.trim().isEmpty ? null : _notesController.text.trim(),
           certificatePhotoUrl: _certificatePhotoPath,
           recordedBy: currentUserId,
         );
@@ -206,13 +215,73 @@ class _CreateContributionScreenState extends ConsumerState<CreateContributionScr
                 ),
                 const SizedBox(height: 20),
               ] else ...[
-                // General Item Description for Non-Gold/Silver types
                 AppTextField(
-                  label: 'Item Description',
-                  isOptional: true,
+                  label: 'Item Description / Details *',
                   controller: _itemDescriptionController,
                   prefixIcon: Icons.inventory_2_outlined,
-                  hintText: 'e.g. 50kg Rice bag, Sound Speakers, Flowers decoration',
+                  hintText: 'e.g. 50kg Rice, Dhol Pathak + DJ, Flower Decor',
+                  validator: (v) => (v == null || v.trim().isEmpty) ? 'Item description is required' : null,
+                ),
+                const SizedBox(height: 16),
+
+                Row(
+                  children: [
+                    Expanded(
+                      flex: 2,
+                      child: AppTextField(
+                        label: 'Quantity',
+                        isOptional: true,
+                        controller: _quantityController,
+                        keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                        prefixIcon: Icons.numbers_outlined,
+                        hintText: 'e.g. 50',
+                        validator: (v) {
+                          if (v != null && v.trim().isNotEmpty) {
+                            final val = double.tryParse(v);
+                            if (val == null || val < 0) return 'Enter valid quantity';
+                          }
+                          return null;
+                        },
+                      ),
+                    ),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      flex: 2,
+                      child: AppTextField(
+                        label: 'Unit',
+                        isOptional: true,
+                        controller: _unitController,
+                        prefixIcon: Icons.straighten_outlined,
+                        hintText: 'e.g. kg, pcs, set',
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 16),
+
+                AppTextField(
+                  label: 'Estimated Value (₹)',
+                  isOptional: true,
+                  controller: _estimatedValueController,
+                  keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                  prefixIcon: Icons.currency_rupee,
+                  hintText: 'e.g. 3500',
+                  validator: (v) {
+                    if (v != null && v.trim().isNotEmpty) {
+                      final val = double.tryParse(v);
+                      if (val == null || val < 0) return 'Enter valid amount';
+                    }
+                    return null;
+                  },
+                ),
+                const SizedBox(height: 16),
+
+                AppTextField(
+                  label: 'Additional Notes',
+                  isOptional: true,
+                  controller: _notesController,
+                  prefixIcon: Icons.notes_outlined,
+                  hintText: 'e.g. Delivered to Mandal kitchen',
                 ),
                 const SizedBox(height: 20),
               ],

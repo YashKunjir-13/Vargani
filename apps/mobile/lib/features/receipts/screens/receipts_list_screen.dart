@@ -6,6 +6,7 @@ import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 import 'package:printing/printing.dart';
 
+import '../../../core/l10n/app_localizations.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../shared/utils/pdf_generator.dart';
 import '../../../shared/widgets/pauti_app_bar.dart';
@@ -29,9 +30,9 @@ class _ReceiptsListScreenState extends ConsumerState<ReceiptsListScreen> {
     final dateFormat = DateFormat('d MMM yyyy');
 
     return Scaffold(
-      appBar: const PautiAppBar(
-        title: 'My Receipts',
-        subtitle: 'Donor Portal',
+      appBar: PautiAppBar(
+        title: L10n.tr(ref, 'receipt_generation'),
+        subtitle: 'Mandal Management',
         showBackButton: true,
       ),
       body: asyncReceipts.when(
@@ -52,7 +53,7 @@ class _ReceiptsListScreenState extends ConsumerState<ReceiptsListScreen> {
         data: (receipts) {
           final totalDonated = receipts.fold<double>(0, (sum, r) => sum + r.amount);
           final totalReceiptsCount = receipts.length;
-          final totalMandalsCount = receipts.map((r) => r.mandalName).toSet().length;
+          final pendingCount = receipts.where((r) => r.receiptNumber.startsWith('PENDING')).length;
 
           final filtered = receipts.where((r) {
             return r.donorName.toLowerCase().contains(_searchQuery.toLowerCase()) ||
@@ -66,10 +67,10 @@ class _ReceiptsListScreenState extends ConsumerState<ReceiptsListScreen> {
           // 1. Metric Summary Cards Row (3 KPI Cards)
           Row(
             children: [
-              // Total Donated Stat Card
+              // Total Amount Stat Card
               Expanded(
                 child: _KpiStatCard(
-                  title: 'Total Donated',
+                  title: 'Total Issued',
                   value: currency.format(totalDonated),
                   valueColor: AppColors.primaryLight,
                 ),
@@ -79,19 +80,19 @@ class _ReceiptsListScreenState extends ConsumerState<ReceiptsListScreen> {
               // Receipts Count Stat Card
               Expanded(
                 child: _KpiStatCard(
-                  title: 'Receipts',
+                  title: 'Issued',
                   value: '$totalReceiptsCount',
                   valueColor: AppColors.textPrimaryLight,
                 ),
               ),
               const SizedBox(width: 10),
 
-              // Mandals Count Stat Card
+              // Pending Generation Stat Card
               Expanded(
                 child: _KpiStatCard(
-                  title: 'Mandals',
-                  value: '$totalMandalsCount',
-                  valueColor: AppColors.textPrimaryLight,
+                  title: 'Pending',
+                  value: '$pendingCount',
+                  valueColor: AppColors.statusPending,
                 ),
               ),
             ],

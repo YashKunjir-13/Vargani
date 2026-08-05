@@ -3,6 +3,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../core/session/session_controller.dart';
+import '../shared/screens/access_restricted_screen.dart';
+import '../features/analytics/presentation/pages/analytical_dashboard_screen.dart' as pauti_analytics;
 import '../features/audit_logs/advanced_filters_sheet.dart';
 import '../features/audit_logs/audit_detail_screen.dart';
 import '../features/audit_logs/audit_overview_screen.dart';
@@ -22,7 +24,6 @@ import '../features/budget/budget_overview_screen.dart';
 import '../features/budget/budget_revision_screen.dart';
 import '../features/budget/budget_table_screen.dart';
 import '../features/budget/export_budget_sheet.dart';
-import '../features/budget/models/budget_models.dart';
 import '../features/contribution_receipts/screens/contribution_receipt_detail_screen.dart';
 import '../features/contribution_receipts/screens/contribution_receipts_list_screen.dart';
 import '../features/contributions/screens/contribution_detail_screen.dart';
@@ -30,7 +31,9 @@ import '../features/contributions/screens/contributions_list_screen.dart';
 import '../features/contributions/screens/create_contribution_screen.dart';
 import '../features/dashboard/presentation/pages/mandal_dashboard_screen.dart';
 import '../features/dashboard/presentation/pages/donor_dashboard_screen.dart';
-import '../features/dashboard/presentation/pages/mandal_dashboard_screen.dart';
+import '../features/milestones/presentation/pages/milestones_screen.dart';
+import '../features/rbac/presentation/pages/user_management_screen.dart';
+import '../features/rbac/presentation/providers/mock_rbac_provider.dart';
 import '../features/donors/screens/donor_detail_screen.dart';
 import '../features/donors/screens/donor_form_screen.dart';
 import '../features/donors/screens/donor_list_screen.dart';
@@ -60,8 +63,6 @@ import '../features/vendors/screens/vendor_list_screen.dart';
 import '../features/volunteers/screens/volunteer_detail_screen.dart';
 import '../features/volunteers/screens/volunteer_form_screen.dart';
 import '../features/volunteers/screens/volunteer_list_screen.dart';
-import '../shared/ui_kit/chips/severity_badge.dart';
-import '../shared/ui_kit/navigation/approval_stepper.dart';
 import '../shared/widgets/scaffold_with_nav_bar.dart';
 import 'all_records_screen.dart';
 import 'coming_soon_screen.dart';
@@ -307,74 +308,93 @@ final appRouterProvider = Provider.family<GoRouter, String>((ref, environment) {
       GoRoute(
         path: '/budget',
         name: 'budget',
+        redirect: (context, state) {
+          final container = ProviderScope.containerOf(context, listen: false);
+          final rbac = container.read(mockRbacProvider);
+          if (!rbac.hasPermission('budget.view')) {
+            return '/access-restricted?title=Budget%20Management';
+          }
+          return null;
+        },
         builder: (context, state) => BudgetOverviewScreen(
-          overview: _mockBudgetOverview,
-          categories: _mockBudgetCategories,
-          revisions: _mockRevisions,
           onOpenFilters: () => BudgetFiltersSheet.show(context),
           onOpenExport: () => ExportBudgetSheet.show(context),
           onOpenTable: () => context.pushNamed('budget-table'),
           onCreateRevision: () => context.pushNamed('budget-revision'),
           onOpenCategory: (category) =>
-              context.pushNamed('budget-details', extra: category),
-          onOpenRevision: (_) => context.pushNamed('budget-approval'),
+              context.pushNamed('budget-details', extra: category.id),
+          onOpenRevision: (revision) => context.pushNamed('budget-approval', extra: revision.id),
         ),
         routes: [
           GoRoute(
             path: 'table',
             name: 'budget-table',
-            builder: (context, state) =>
-                const BudgetTableScreen(categories: _mockBudgetCategories),
+            builder: (context, state) => const BudgetTableScreen(),
           ),
           GoRoute(
             path: 'details',
             name: 'budget-details',
             builder: (context, state) => BudgetDetailsScreen(
-              category: (state.extra as BudgetCategoryData?) ??
-                  _mockBudgetCategories.first,
-              linkedExpenses: _mockLinkedExpenses,
-              approvalHistoryNote:
-                  'Revision v3 approved · allocation raised to ₹4,00,000',
+              categoryId: (state.extra as String?) ?? '',
             ),
           ),
           GoRoute(
             path: 'approval',
             name: 'budget-approval',
             builder: (context, state) => BudgetApprovalScreen(
-              request: _mockApprovalRequest,
-              steps: _mockApprovalSteps,
-              onApprove: () => Navigator.of(context).pop(),
-              onReject: () => Navigator.of(context).pop(),
-              onReturn: () => Navigator.of(context).pop(),
+              revisionId: (state.extra as String?) ?? '',
             ),
           ),
           GoRoute(
             path: 'revision',
             name: 'budget-revision',
-            builder: (context, state) => BudgetRevisionScreen(
-              nextVersionLabel: 'v5',
-              initialReason: '',
-              adjustments: _mockRevisionAdjustments,
-              netChangeBalances: true,
-              onSaveDraft: () => Navigator.of(context).pop(),
-              onSubmitForApproval: () =>
-                  context.pushReplacementNamed('budget-approval'),
-            ),
+            builder: (context, state) => const BudgetRevisionScreen(),
           ),
         ],
+      ),
+
+      GoRoute(
+        path: '/milestones',
+        name: 'milestones',
+        redirect: (context, state) {
+          final container = ProviderScope.containerOf(context, listen: false);
+          final rbac = container.read(mockRbacProvider);
+          if (!rbac.hasPermission('milestones.view')) {
+            return '/access-restricted?title=Milestones%20%26%20Work';
+          }
+          return null;
+        },
+        builder: (context, state) => const MilestonesScreen(),
+      ),
+      GoRoute(
+        path: '/user-management',
+        name: 'user-management',
+        redirect: (context, state) {
+          final container = ProviderScope.containerOf(context, listen: false);
+          final rbac = container.read(mockRbacProvider);
+          if (!rbac.hasPermission('user.manage')) {
+            return '/access-restricted?title=User%20Management';
+          }
+          return null;
+        },
+        builder: (context, state) => const UserManagementScreen(),
       ),
 
       // ---------------- Audit Log ----------------
       GoRoute(
         path: '/audit',
         name: 'audit',
+        redirect: (context, state) {
+          final container = ProviderScope.containerOf(context, listen: false);
+          final rbac = container.read(mockRbacProvider);
+          if (!rbac.hasPermission('audit_logs.view')) {
+            return '/access-restricted?title=Audit%20Log';
+          }
+          return null;
+        },
         builder: (context, state) => AuditOverviewScreen(
-          summary: _mockAuditSummary,
-          events: _mockAuditEvents,
-          criticalAlertTitle: '5 failed login attempts',
-          criticalAlertSubtitle: 'IP 103.22.x.x · unrecognized device',
           onOpenEvent: (event) =>
-              context.pushNamed('audit-detail', extra: event),
+              context.pushNamed('audit-detail', pathParameters: {'id': event.id}),
           onOpenSearch: () => context.pushNamed('audit-search'),
           onOpenFilters: () => AuditFiltersSheet.show(context),
         ),
@@ -383,16 +403,15 @@ final appRouterProvider = Provider.family<GoRouter, String>((ref, environment) {
             path: 'timeline',
             name: 'audit-timeline',
             builder: (context, state) => AuditTimelineScreen(
-              events: _mockAuditEvents,
               onOpenEvent: (event) =>
-                  context.pushNamed('audit-detail', extra: event),
+                  context.pushNamed('audit-detail', pathParameters: {'id': event.id}),
             ),
           ),
           GoRoute(
-            path: 'detail',
+            path: 'detail/:id',
             name: 'audit-detail',
             builder: (context, state) => AuditDetailScreen(
-              detail: _mockAuditDetail,
+              eventId: state.pathParameters['id']!,
               onOpenLinkedRecord: () => context.pushNamed('budget'),
             ),
           ),
@@ -573,236 +592,46 @@ final appRouterProvider = Provider.family<GoRouter, String>((ref, environment) {
         builder: (context, state) => const LedgerScreen(),
       ),
       GoRoute(
+        path: '/analytics',
+        name: 'analytics',
+        redirect: (context, state) {
+          final container = ProviderScope.containerOf(context, listen: false);
+          final rbac = container.read(mockRbacProvider);
+          if (!rbac.hasPermission('analytics.view')) {
+            return '/access-restricted?title=Analytics';
+          }
+          return null;
+        },
+        builder: (context, state) => const pauti_analytics.AnalyticalDashboardScreen(),
+      ),
+      GoRoute(
         path: '/reports-hub',
         name: 'reports-hub',
+        redirect: (context, state) {
+          final container = ProviderScope.containerOf(context, listen: false);
+          final rbac = container.read(mockRbacProvider);
+          if (!rbac.hasPermission('reports.view')) {
+            return '/access-restricted?title=Reports';
+          }
+          return null;
+        },
         builder: (context, state) => const ReportsHubScreen(),
       ),
       GoRoute(
-        path: '/gold-silver-entry',
-        name: 'gold-silver-entry',
-        builder: (context, state) => const GoldSilverEntryScreen(),
+        path: '/access-restricted',
+        name: 'access-restricted',
+        builder: (context, state) => AccessRestrictedScreen(
+          moduleTitle: state.uri.queryParameters['title'],
+        ),
       ),
+      // GoRoute(
+      //   path: '/gold-silver-entry',
+      //   name: 'gold-silver-entry',
+      //   builder: (context, state) => const GoldSilverEntryScreen(),
+      // ),
     ],
   );
 });
-
-// ============================================================
-// Temporary mock data -- superseded by the repository layer in Step 10.
-// ============================================================
-
-const _mockBudgetOverview = BudgetOverviewData(
-  totalBudgetLabel: '₹25.0L',
-  allocatedLabel: '₹23.1L',
-  utilizedLabel: '₹16.4L',
-  remainingLabel: '₹6.68L',
-  utilizationProgress: 0.71,
-  healthLabel: 'Warning · 2 over',
-  isHealthWarning: true,
-  ownerName: 'Priya Deshmukh',
-  version: 'v4',
-  daysRemainingCaption: '5 days left',
-);
-
-const _mockBudgetCategories = <BudgetCategoryData>[
-  BudgetCategoryData(
-    id: 'decoration',
-    name: 'Decoration',
-    icon: Icons.style_outlined,
-    allocatedLabel: '₹4,00,000',
-    spentLabel: '₹4,18,200',
-    progress: 1.04,
-    percentLabel: '104%',
-    ownerName: 'Priya Deshmukh',
-  ),
-  BudgetCategoryData(
-    id: 'security',
-    name: 'Security',
-    icon: Icons.shield_outlined,
-    allocatedLabel: '₹2,50,000',
-    spentLabel: '₹1,95,000',
-    progress: 0.78,
-    percentLabel: '78%',
-    ownerName: 'Amit Kulkarni',
-  ),
-  BudgetCategoryData(
-    id: 'annadan',
-    name: 'Annadan',
-    icon: Icons.restaurant_outlined,
-    allocatedLabel: '₹5,50,000',
-    spentLabel: '₹4,10,000',
-    progress: 0.75,
-    percentLabel: '75%',
-    ownerName: 'Priya Deshmukh',
-  ),
-  BudgetCategoryData(
-    id: 'advertising',
-    name: 'Advertising',
-    icon: Icons.campaign_outlined,
-    allocatedLabel: '₹1,20,000',
-    spentLabel: '₹54,000',
-    progress: 0.45,
-    percentLabel: '45%',
-    ownerName: 'Amit Kulkarni',
-    footnote: 'under-used',
-  ),
-];
-
-const _mockRevisions = <RevisionEntry>[
-  RevisionEntry(
-    version: 'v4',
-    dateLabel: 'Today',
-    title: 'Increased Lighting by ₹15,000',
-    subtitle: 'Priya Deshmukh · awaiting President',
-    isPending: true,
-    isApproved: false,
-  ),
-  RevisionEntry(
-    version: 'v3',
-    dateLabel: '2 days ago',
-    title: 'Reallocated ₹40,000: Advertising → Decoration',
-    isPending: false,
-    isApproved: true,
-  ),
-];
-
-const _mockLinkedExpenses = <LinkedExpense>[
-  LinkedExpense(
-      dateLabel: '24 Jul',
-      vendorName: 'Sai Decorators',
-      amountLabel: '₹2,10,000',
-      statusLabel: 'Pending',
-      isPaid: false),
-  LinkedExpense(
-      dateLabel: '22 Jul',
-      vendorName: 'Mandap Wale Bros.',
-      amountLabel: '₹1,45,200',
-      statusLabel: 'Paid',
-      isPaid: true),
-];
-
-const _mockApprovalRequest = BudgetApprovalRequest(
-  revisionVersion: 'v4',
-  submittedBy: 'Priya Deshmukh',
-  changes: [
-    BudgetFieldChange(
-        fieldLabel: 'Lighting',
-        oldValueLabel: '₹1,80,000',
-        newValueLabel: '₹1,95,000'),
-  ],
-  reason: 'Extra LED units needed for stage backdrop.',
-  comments: [
-    CommentEntry(
-        authorName: 'Anil Joshi',
-        authorRole: 'President',
-        body: "Confirm this doesn't push Lighting over budget too."),
-    CommentEntry(
-        authorName: 'Priya Deshmukh',
-        authorRole: 'Treasurer',
-        body: 'Confirmed — still at 90%, within threshold.'),
-  ],
-);
-
-const _mockApprovalSteps = [
-  ApprovalStep(label: 'Submitted', state: StepState.done),
-  ApprovalStep(label: 'Treasurer', state: StepState.done),
-  ApprovalStep(label: 'President', state: StepState.current),
-  ApprovalStep(label: 'Active', state: StepState.pending),
-];
-
-const _mockRevisionAdjustments = [
-  RevisionAdjustment(
-      categoryName: 'Decoration',
-      currentAllocationLabel: '₹4,00,000',
-      proposedAllocationLabel: '₹4,00,000'),
-  RevisionAdjustment(
-      categoryName: 'Lighting',
-      currentAllocationLabel: '₹1,80,000',
-      proposedAllocationLabel: '₹1,95,000'),
-  RevisionAdjustment(
-      categoryName: 'Advertising',
-      currentAllocationLabel: '₹1,20,000',
-      proposedAllocationLabel: '₹1,05,000'),
-];
-
-const _mockAuditSummary = AuditSummaryData(
-  todayEventsCount: 128,
-  criticalCount: 3,
-  financialCount: 46,
-  securityCount: 1,
-);
-
-const _mockAuditEvents = <AuditEventData>[
-  AuditEventData(
-    id: 'AUD-88213',
-    timeLabel: '11:42 AM',
-    title: 'Budget (Decoration) updated',
-    actorName: 'Priya Deshmukh',
-    moduleLabel: 'Financial',
-    severity: Severity.medium,
-    groupLabel: 'Today',
-  ),
-  AuditEventData(
-    id: 'AUD-88210',
-    timeLabel: '10:15 AM',
-    title: 'Expense #EXP-2291 approved',
-    actorName: 'Amit Kulkarni',
-    moduleLabel: 'Financial',
-    severity: Severity.low,
-    groupLabel: 'Today',
-  ),
-  AuditEventData(
-    id: 'AUD-88205',
-    timeLabel: '9:58 AM',
-    title: 'Role changed: Volunteer → Treasurer',
-    actorName: 'Rahul S.',
-    moduleLabel: 'Security',
-    severity: Severity.critical,
-    groupLabel: 'Today',
-  ),
-  AuditEventData(
-    id: 'AUD-88190',
-    timeLabel: '6:20 PM',
-    title: 'Vendor payment marked overdue',
-    actorName: 'System',
-    moduleLabel: 'Financial',
-    severity: Severity.high,
-    groupLabel: 'Yesterday',
-  ),
-];
-
-const _mockAuditDetail = AuditEventDetail(
-  id: 'AUD-88213',
-  moduleLabel: 'Budget',
-  action: 'Category updated',
-  performedBy: 'Priya Deshmukh (Treasurer)',
-  timeLabel: '26 Jul, 11:42 AM',
-  severity: Severity.medium,
-  approvalStatusLabel: 'Not required',
-  fieldChange: AuditFieldChange(
-    fieldLabel: 'Decoration',
-    oldValueLabel: '₹3,60,000',
-    newValueLabel: '₹4,00,000',
-  ),
-  reason: 'Vendor quote increase',
-  relatedEvents: [
-    RelatedEvent(
-        title: 'Budget revision v3 approved',
-        timeAgoLabel: '2d ago',
-        icon: Icons.check_circle_outline),
-    RelatedEvent(
-        title: 'Vendor Sai Decorators quote updated',
-        timeAgoLabel: '2d ago',
-        icon: Icons.storefront_outlined),
-  ],
-  metadata: AuditMetadata(
-    ipAddress: '10.4.22.118',
-    device: 'Android · Pixel 7',
-    browser: 'Chrome 126',
-    sessionId: 'sess_9f21…',
-    requestId: 'req_2c88…',
-    executionTimeLabel: '142ms',
-  ),
-);
 
 const _mockSearchResults = <AuditSearchResult>[
   AuditSearchResult(

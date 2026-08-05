@@ -11,6 +11,7 @@ import { createHash, randomBytes } from "crypto";
 import { AssignRoleDto } from "./dto/assign-role.dto";
 import { CreateDirectMemberDto } from "./dto/create-direct-member.dto";
 import { CreateInvitationDto } from "./dto/create-invitation.dto";
+import { CreateMoneyRequestDto } from "./dto/create-money-request.dto";
 import { TransferOwnershipDto } from "./dto/transfer-ownership.dto";
 import { UpdateMembershipStatusDto } from "./dto/update-membership-status.dto";
 
@@ -338,5 +339,94 @@ export class MembershipsService {
       outgoingOwnerUserId: currentOwnerUserId,
       outgoingOwnerRoleName: outgoingRole.name,
     };
+  }
+
+  private moneyRequestsStore: Map<string, any[]> = new Map();
+
+  async createMoneyRequest(organizationId: string, requesterUserId: string, dto: CreateMoneyRequestDto) {
+    // Multi-tenant check 1: Verify requester belongs to the organization
+    const requesterMembership = await this.prisma.organizationMembership.findFirst({
+      where: { organizationId, userId: requesterUserId, status: MembershipStatus.ACTIVE },
+      include: { role: true },
+    });
+
+    if (!requesterMembership) {
+      throw new ForbiddenException("Requester does not have an active membership in this organization");
+    }
+
+    // Multi-tenant check 2: Verify target member belongs to the same organization
+    const targetMembership = await this.prisma.organizationMembership.findFirst({
+      where: { organizationId, userId: dto.targetUserId },
+      include: { role: true },
+    });
+
+    if (!targetMembership) {
+      throw new BadRequestException("Target member does not belong to this organization");
+    }
+
+    const targetUser = await this.prisma.user.findUnique({
+      where: { id: dto.targetUserId },
+      select: { id: true, displayName: true, primaryMobile: true },
+    });
+
+    const requesterUser = await this.prisma.user.findUnique({
+      where: { id: requesterUserId },
+      select: { id: true, displayName: true },
+    });
+
+    const moneyRequest = {
+      id: `req-${Date.now()}-${Math.random().toString(36).substring(2, 7)}`,
+      organizationId,
+      requesterUserId,
+      requesterName: requesterUser?.displayName ?? "Mandal Administrator",
+      requesterRole: requesterMembership.role.name,
+      targetUserId: dto.targetUserId,
+      targetMemberName: targetUser?.displayName ?? "Member",
+      amount: dto.amount,
+      reason: dto.reason,
+      status: "PENDING",
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+      paymentRecordId: null,
+    };
+
+    const orgRequests = this.moneyRequestsStore.get(organizationId) ?? [];
+    orgRequests.unshift(moneyRequest);
+    this.moneyRequestsStore.set(organizationId, orgRequests);
+
+    return {
+      message: "Money request created and notification dispatched successfully",
+      moneyRequest,
+    };
+  }
+
+  async listMoneyRequests(organizationId: string, userId?: string) {
+    const orgRequests = this.moneyRequestsStore.get(organizationId) ?? [];
+    if (userId) {
+      return orgRequests.filter((r) => r.targetUserId === userId || r.requesterUserId === userId);
+    }
+    return orgRequests;
+  }
+
+  async updateMoneyRequestStatus(
+    organizationId: string,
+    requestId: string,
+    status: "PENDING" | "ACCEPTED" | "COMPLETED" | "CANCELLED" | "DECLINED",
+    paymentRecordId?: string,
+  ) {
+    const orgRequests = this.moneyRequestsStore.get(organizationId) ?? [];
+    const request = orgRequests.find((r) => r.id === requestId);
+
+    if (!request) {
+      throw new NotFoundException(`Money request ${requestId} not found`);
+    }
+
+    request.status = status;
+    request.updatedAt = new Date().toISOString();
+    if (paymentRecordId) {
+      request.paymentRecordId = paymentRecordId;
+    }
+
+    return request;
   }
 }

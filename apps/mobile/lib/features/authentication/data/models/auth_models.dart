@@ -1,5 +1,27 @@
 enum LoginRole { mandal, donor }
 
+// ignore_for_file: constant_identifier_names
+
+enum OtpPurpose { LOGIN, VERIFY_MOBILE, PASSWORD_RESET, INVITATION_ACCEPTANCE, MPIN_RESET }
+
+class OtpRequestResult {
+  const OtpRequestResult({
+    required this.challengeId,
+    required this.expiresAt,
+    this.debugOtp,
+  });
+
+  factory OtpRequestResult.fromJson(Map<String, dynamic> json) => OtpRequestResult(
+        challengeId: json['challengeId'] as String,
+        expiresAt: DateTime.parse(json['expiresAt'] as String),
+        debugOtp: json['debugOtp'] as String?,
+      );
+
+  final String challengeId;
+  final DateTime expiresAt;
+  final String? debugOtp;
+}
+
 class AuthOrganization {
   const AuthOrganization({
     required this.id,
@@ -84,6 +106,7 @@ class AuthSession {
     required this.accessToken,
     required this.refreshToken,
     required this.accessTokenExpiresAt,
+    this.hasMpin,
   });
 
   factory AuthSession.fromJson(Map<String, dynamic> json) => AuthSession(
@@ -91,10 +114,12 @@ class AuthSession {
         accessToken: json['accessToken'] as String,
         refreshToken: json['refreshToken'] as String,
         accessTokenExpiresAt: DateTime.parse(json['accessTokenExpiresAt'] as String),
+        hasMpin: json['hasMpin'] as bool?,
       );
 
   final AuthUser user;
   final String accessToken;
   final String refreshToken;
   final DateTime accessTokenExpiresAt;
+  final bool? hasMpin;
 }

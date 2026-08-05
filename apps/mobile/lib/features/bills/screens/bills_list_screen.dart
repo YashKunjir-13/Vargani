@@ -48,7 +48,7 @@ class _BillsListScreenState extends ConsumerState<BillsListScreen> {
     return Scaffold(
       appBar: PautiAppBar(
         title: L10n.tr(ref, 'bill_generation'),
-        subtitle: 'Treasurer Portal',
+        subtitle: 'Mandal Management',
         showBackButton: true,
       ),
       floatingActionButton: FloatingActionButton.extended(

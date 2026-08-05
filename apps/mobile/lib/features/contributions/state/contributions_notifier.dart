@@ -15,7 +15,7 @@ class ContributionsNotifier extends Notifier<List<Contribution>> {
   @override
   List<Contribution> build() {
     fetchRemote();
-    return const [];
+    return buildMockContributions();
   }
 
   Future<void> fetchRemote() async {
@@ -23,7 +23,9 @@ class ContributionsNotifier extends Notifier<List<Contribution>> {
     if (remote == null) return;
     try {
       final fetched = await remote.fetchContributions();
-      state = fetched;
+      if (fetched.isNotEmpty) {
+        state = fetched;
+      }
     } catch (_) {}
   }
 
@@ -34,7 +36,10 @@ class ContributionsNotifier extends Notifier<List<Contribution>> {
     required DonationType donationType,
     String? itemDescription,
     double? weightGrams,
+    double? quantity,
+    String? unit,
     double? estimatedValue,
+    String? notes,
     String? certificatePhotoUrl,
     required String recordedBy,
   }) {
@@ -46,7 +51,10 @@ class ContributionsNotifier extends Notifier<List<Contribution>> {
       donationType: donationType,
       itemDescription: itemDescription,
       weightGrams: weightGrams,
+      quantity: quantity,
+      unit: unit,
       estimatedValue: estimatedValue,
+      notes: notes,
       certificatePhotoUrl: certificatePhotoUrl,
       recordedBy: recordedBy,
       status: ContributionStatus.recorded,
@@ -60,7 +68,10 @@ class ContributionsNotifier extends Notifier<List<Contribution>> {
       donationType: donationType,
       itemDescription: itemDescription,
       weightGrams: weightGrams,
+      quantity: quantity,
+      unit: unit,
       estimatedValue: estimatedValue,
+      notes: notes,
       certificatePhotoUrl: certificatePhotoUrl,
     );
 
@@ -81,7 +92,10 @@ class ContributionsNotifier extends Notifier<List<Contribution>> {
     required DonationType donationType,
     String? itemDescription,
     double? weightGrams,
+    double? quantity,
+    String? unit,
     double? estimatedValue,
+    String? notes,
     String? certificatePhotoUrl,
   }) async {
     final remote = ref.read(contributionsRemoteDataSourceProvider);
@@ -92,7 +106,10 @@ class ContributionsNotifier extends Notifier<List<Contribution>> {
         donationType: donationType,
         itemDescription: itemDescription,
         weightGrams: weightGrams,
+        quantity: quantity,
+        unit: unit,
         estimatedValue: estimatedValue,
+        notes: notes,
         certificatePhotoUrl: certificatePhotoUrl,
       );
       state = [

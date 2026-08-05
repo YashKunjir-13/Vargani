@@ -33,7 +33,7 @@ class ContributionDetailScreen extends ConsumerWidget {
     return Scaffold(
       appBar: const PautiAppBar(
         title: 'Contribution Detail',
-        subtitle: 'Treasurer Portal',
+        subtitle: 'In-Kind Record Overview',
         showBackButton: true,
       ),
       body: ListView(
@@ -42,8 +42,10 @@ class ContributionDetailScreen extends ConsumerWidget {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text(contribution.donationType.label,
-                  style: Theme.of(context).textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.bold)),
+              Text(
+                contribution.donationType.label,
+                style: Theme.of(context).textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.bold),
+              ),
               StatusChip(label: contribution.status.label),
             ],
           ),
@@ -51,16 +53,25 @@ class ContributionDetailScreen extends ConsumerWidget {
           _Row(label: 'Contributor', value: contribution.contributorName),
           if (contribution.contact != null) _Row(label: 'Contact', value: contribution.contact!),
           _Row(label: 'Date', value: dateFormat.format(contribution.date)),
-          if (contribution.itemDescription != null) _Row(label: 'Item', value: contribution.itemDescription!),
+          if (contribution.itemDescription != null) _Row(label: 'Description', value: contribution.itemDescription!),
+          if (contribution.quantity != null)
+            _Row(
+              label: 'Quantity',
+              value: '${contribution.quantity?.toStringAsFixed(0)} ${contribution.unit ?? ''}',
+            ),
           if (contribution.weightGrams != null) _Row(label: 'Weight', value: '${contribution.weightGrams} g'),
           if (contribution.estimatedValue != null)
-            _Row(label: 'Estimated Value', value: '₹${contribution.estimatedValue!.toStringAsFixed(0)}'),
+            _Row(
+              label: 'Estimated Value',
+              value: '₹${NumberFormat('#,##,###').format(contribution.estimatedValue)}',
+            ),
+          if (contribution.notes != null) _Row(label: 'Notes', value: contribution.notes!),
           if (contribution.certificatePhotoUrl != null)
-            const _Row(label: 'Certificate', value: 'Photo attached'),
+            const _Row(label: 'Certificate', value: 'Purity Certificate Attached'),
           _Row(label: 'Recorded By', value: contribution.recordedBy),
           const SizedBox(height: 12),
           Text(
-            'Locked -- editable only until a Contribution Receipt is generated; this one already has one.',
+            'Non-monetary contribution records are tracked under festival organization inventory.',
             style: Theme.of(context).textTheme.bodySmall?.copyWith(color: Colors.grey.shade600),
           ),
           const SizedBox(height: 28),

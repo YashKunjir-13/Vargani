@@ -34,7 +34,7 @@ class BillDetailScreen extends ConsumerWidget {
 
     if (bill == null) {
       return const Scaffold(
-        appBar: PautiAppBar(title: 'Bill Details', subtitle: 'Treasurer Portal', showBackButton: true),
+        appBar: PautiAppBar(title: 'Bill Details', subtitle: 'Mandal Management', showBackButton: true),
         body: Center(child: Text('Bill not found')),
       );
     }
@@ -42,7 +42,7 @@ class BillDetailScreen extends ConsumerWidget {
     return Scaffold(
       appBar: PautiAppBar(
         title: bill.billNumber,
-        subtitle: 'Treasurer Portal',
+        subtitle: 'Mandal Management',
         showBackButton: true,
       ),
       body: ListView(

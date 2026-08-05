@@ -3,7 +3,7 @@ import { IsEnum, IsNotEmpty, IsPhoneNumber, IsString } from "class-validator";
 import { OtpPurpose } from "@pauti-pustak/backend-database";
 
 export class OtpRequestDto {
-  @ApiProperty({ example: "+919876543210", description: "Target mobile number in E.164 format" })
+  @ApiProperty({ type: String, example: "+919876543210", description: "Target mobile number in E.164 format" })
   @IsNotEmpty()
   @IsString()
   @IsPhoneNumber("IN")

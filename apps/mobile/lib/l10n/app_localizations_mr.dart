@@ -48,14 +48,34 @@ class AppLocalizationsMr extends AppLocalizations {
   String get sendOtp => 'ओटीपी पाठवा';
 
   @override
-  String get backToRegistration => 'नोंदणीकडे परत जा';
+  String get verifyOtp => 'ओटीपी सत्यापित करा';
 
   @override
-  String get otpNotAvailable => 'ओटीपी वितरण भविष्यातील टप्प्यात जोडले जाईल.';
+  String get enterOtp => '6-अंकी ओटीपी प्रविष्ट करा';
 
   @override
-  String get registrationNotAvailable =>
-      'नोंदणी सबमिशन भविष्यातील टप्प्यात जोडले जाईल.';
+  String get resendOtp => 'पुन्हा ओटीपी पाठवा';
+
+  @override
+  String get otpSent => 'ओटीपी यशस्वीरित्या पाठवला';
+
+  @override
+  String get otpExpired => 'ओटीपी कालबाह्य झाला';
+
+  @override
+  String get invalidOtp => 'अवैध ओटीपी कोड';
+
+  @override
+  String get mobileVerified => 'मोबाइल सत्यापित';
+
+  @override
+  String get loginWithPassword => 'पासवर्डने लॉगिन करा';
+
+  @override
+  String get loginWithOtp => 'ओटीपीने लॉगिन करा';
+
+  @override
+  String get backToRegistration => 'नोंदणीवर परत जा';
 
   @override
   String get mandalDetails => 'मंडळ तपशील';
@@ -357,4 +377,44 @@ class AppLocalizationsMr extends AppLocalizations {
 
   @override
   String get privacy => 'गोपनीयता आणि सुरक्षा';
+
+  @override
+  String get enterMpin => '६-अंकी MPIN टाका';
+
+  @override
+  String get createMpin => '६-अंकी MPIN तयार करा';
+
+  @override
+  String get confirmMpin => '६-अंकी MPIN ची पुष्टी करा';
+
+  @override
+  String get createMpinDescription =>
+      'दैनंदिन जलद लॉगिनसाठी सुरक्षित ६-अंकी MPIN सेट करा';
+
+  @override
+  String get errorMpinTooShort => 'MPIN नेमका ६ अंकी असणे आवश्यक आहे.';
+
+  @override
+  String get errorMpinMismatch => 'MPIN जुळत नाहीत.';
+
+  @override
+  String get loginWithMpin => 'MPIN ने लॉगिन करा';
+
+  @override
+  String get forgotMpin => 'MPIN विसरलात?';
+
+  @override
+  String get resetMpin => 'MPIN रिसेट करा';
+
+  @override
+  String get resendCodeIn => 'पुन्हा कोड पाठवा';
+
+  @override
+  String get seconds => 'सेकंदांमध्ये';
+
+  @override
+  String get createMpinButton => 'MPIN तयार करा आणि पूर्ण करा';
+
+  @override
+  String get saveNewMpin => 'नवीन MPIN जतन करा';
 }

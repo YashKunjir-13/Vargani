@@ -2,6 +2,7 @@ import {
   BadRequestException,
   ConflictException,
   ForbiddenException,
+  Inject,
   Injectable,
   NotFoundException,
   UnauthorizedException,
@@ -45,11 +46,11 @@ export interface IssuedSession {
 @Injectable()
 export class AuthService {
   constructor(
-    private readonly prisma: PrismaService,
-    private readonly jwtService: JwtService,
-    private readonly hashingService: HashingService,
-    private readonly panEncryptionService: PanEncryptionService,
-    private readonly auditService: AuditService,
+    @Inject(PrismaService) private readonly prisma: PrismaService,
+    @Inject(JwtService) private readonly jwtService: JwtService,
+    @Inject(HashingService) private readonly hashingService: HashingService,
+    @Inject(PanEncryptionService) private readonly panEncryptionService: PanEncryptionService,
+    @Inject(AuditService) private readonly auditService: AuditService,
   ) {}
 
   async requestOtp(dto: OtpRequestDto, requestIp?: string, userAgent?: string) {
@@ -207,7 +208,7 @@ export class AuthService {
 
   async registerTrust(dto: RegisterTrustDto) {
     const existingIdentity = await this.assertRoleNotRegistered(dto.phoneNumber, "MANDAL");
-    const passwordHash = await this.hashingService.hashPassword(dto.password);
+    const passwordHash = dto.password ? await this.hashingService.hashPassword(dto.password) : null;
     const organizationCode = await this.generateOrganizationCode(dto.mandalTrustName);
 
     const { user, organization, membership } = await this.prisma.$transaction(async (tx) => {
@@ -226,17 +227,40 @@ export class AuthService {
         await tx.authIdentity.create({
           data: {
             userId: user.id,
-            provider: AuthProvider.EMAIL_PASSWORD,
+            provider: passwordHash ? AuthProvider.EMAIL_PASSWORD : AuthProvider.MOBILE_OTP,
             normalizedValue: dto.phoneNumber,
             isVerified: true,
             passwordHash,
           },
         });
       } else {
-        await tx.authIdentity.updateMany({
-          where: { userId: user.id, provider: AuthProvider.EMAIL_PASSWORD },
-          data: { passwordHash },
+        user = await tx.user.update({
+          where: { id: user.id },
+          data: {
+            displayName: dto.mandalTrustName,
+            preferredLanguage: dto.preferredLanguage,
+            mobileVerifiedAt: user.mobileVerifiedAt ?? new Date(),
+          },
         });
+
+        if (passwordHash) {
+          await tx.authIdentity.upsert({
+            where: {
+              provider_normalizedValue: {
+                provider: AuthProvider.EMAIL_PASSWORD,
+                normalizedValue: dto.phoneNumber,
+              },
+            },
+            create: {
+              userId: user.id,
+              provider: AuthProvider.EMAIL_PASSWORD,
+              normalizedValue: dto.phoneNumber,
+              isVerified: true,
+              passwordHash,
+            },
+            update: { passwordHash },
+          });
+        }
       }
 
       const organization = await tx.organization.create({
@@ -301,7 +325,7 @@ export class AuthService {
 
   async registerDonor(dto: RegisterDonorDto) {
     const existingIdentity = await this.assertRoleNotRegistered(dto.phoneNumber, "DONOR");
-    const passwordHash = await this.hashingService.hashPassword(dto.password);
+    const passwordHash = dto.password ? await this.hashingService.hashPassword(dto.password) : null;
     const panEncrypted = dto.panNumber ? this.panEncryptionService.encrypt(dto.panNumber) : null;
 
     const { user, donorProfile } = await this.prisma.$transaction(async (tx) => {
@@ -321,17 +345,41 @@ export class AuthService {
         await tx.authIdentity.create({
           data: {
             userId: user.id,
-            provider: AuthProvider.EMAIL_PASSWORD,
+            provider: passwordHash ? AuthProvider.EMAIL_PASSWORD : AuthProvider.MOBILE_OTP,
             normalizedValue: dto.phoneNumber,
             isVerified: true,
             passwordHash,
           },
         });
       } else {
-        await tx.authIdentity.updateMany({
-          where: { userId: user.id, provider: AuthProvider.EMAIL_PASSWORD },
-          data: { passwordHash },
+        user = await tx.user.update({
+          where: { id: user.id },
+          data: {
+            displayName: dto.fullName,
+            preferredLanguage: dto.preferredLanguage,
+            primaryEmail: dto.email ?? user.primaryEmail,
+            mobileVerifiedAt: user.mobileVerifiedAt ?? new Date(),
+          },
         });
+
+        if (passwordHash) {
+          await tx.authIdentity.upsert({
+            where: {
+              provider_normalizedValue: {
+                provider: AuthProvider.EMAIL_PASSWORD,
+                normalizedValue: dto.phoneNumber,
+              },
+            },
+            create: {
+              userId: user.id,
+              provider: AuthProvider.EMAIL_PASSWORD,
+              normalizedValue: dto.phoneNumber,
+              isVerified: true,
+              passwordHash,
+            },
+            update: { passwordHash },
+          });
+        }
       }
 
       const donorProfile = await tx.donorProfile.create({

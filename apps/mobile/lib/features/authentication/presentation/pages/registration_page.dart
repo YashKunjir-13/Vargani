@@ -11,6 +11,8 @@ import '../widgets/auth_error_presenter.dart';
 import '../widgets/auth_text_fields.dart';
 import '../widgets/auth_validators.dart';
 import '../widgets/language_selector.dart';
+import '../widgets/mpin_input_widget.dart';
+import '../widgets/otp_verification_widget.dart';
 import '../widgets/registration_widgets.dart';
 import '../../data/models/auth_models.dart';
 
@@ -205,6 +207,8 @@ class _TrustRegistrationForm extends ConsumerStatefulWidget {
   ConsumerState<_TrustRegistrationForm> createState() => _TrustRegistrationFormState();
 }
 
+enum _RegistrationStep { mobile, otp, details, mpin }
+
 class _TrustRegistrationFormState extends ConsumerState<_TrustRegistrationForm> {
   final _formKey = GlobalKey<FormState>();
   final _mandalName = TextEditingController();
@@ -218,9 +222,13 @@ class _TrustRegistrationFormState extends ConsumerState<_TrustRegistrationForm> 
   final _password = TextEditingController();
   final _confirmPassword = TextEditingController();
   int? _year;
+
+  _RegistrationStep _step = _RegistrationStep.mobile;
   bool _canContinue = false;
   bool _isSubmitting = false;
   String? _errorMessage;
+  String? _debugOtp;
+  AuthUser? _registeredUser;
 
   @override
   void dispose() {
@@ -239,6 +247,11 @@ class _TrustRegistrationFormState extends ConsumerState<_TrustRegistrationForm> 
 
   void _revalidate() {
     final l10n = context.l10n;
+    if (_step == _RegistrationStep.mobile) {
+      final isValid = AuthValidators.phone(l10n)(_phone.text) == null;
+      if (isValid != _canContinue) setState(() => _canContinue = isValid);
+      return;
+    }
     final isValid = AuthValidators.allValid([
       AuthValidators.required(l10n)(_mandalName.text),
       AuthValidators.required(l10n)(_presidentName.text),
@@ -246,20 +259,213 @@ class _TrustRegistrationFormState extends ConsumerState<_TrustRegistrationForm> 
       AuthValidators.required(l10n)(_city.text),
       AuthValidators.required(l10n)(_state.text),
       AuthValidators.pinCodeRequired(l10n)(_pinCode.text),
-      AuthValidators.password(l10n)(_password.text),
-      AuthValidators.confirmPassword(l10n, _password)(_confirmPassword.text),
     ]);
     if (isValid != _canContinue) {
       setState(() => _canContinue = isValid);
     }
   }
 
+  Future<void> _handleRequestOtp() async {
+    final l10n = context.l10n;
+    if (AuthValidators.phone(l10n)(_phone.text) != null) return;
+    setState(() {
+      _isSubmitting = true;
+      _errorMessage = null;
+    });
+    try {
+      final result = await ref.read(authRepositoryProvider).requestOtp(
+            phoneNumber: _phone.text.trim(),
+            purpose: OtpPurpose.VERIFY_MOBILE,
+          );
+      if (!mounted) return;
+      setState(() {
+        _debugOtp = result.debugOtp;
+        _step = _RegistrationStep.otp;
+      });
+    } on ApiException catch (error) {
+      if (!mounted) return;
+      setState(() => _errorMessage = describeApiException(context, error));
+    } finally {
+      if (mounted) setState(() => _isSubmitting = false);
+    }
+  }
+
+  Future<void> _handleVerifyOtp(String otp) async {
+    setState(() {
+      _isSubmitting = true;
+      _errorMessage = null;
+    });
+    try {
+      await ref.read(authRepositoryProvider).verifyOtp(
+            phoneNumber: _phone.text.trim(),
+            otp: otp,
+            purpose: OtpPurpose.VERIFY_MOBILE,
+            role: LoginRole.mandal,
+          );
+      if (!mounted) return;
+      setState(() {
+        _step = _RegistrationStep.details;
+        _revalidate();
+      });
+    } on ApiException catch (error) {
+      if (!mounted) return;
+      setState(() => _errorMessage = describeApiException(context, error));
+    } finally {
+      if (mounted) setState(() => _isSubmitting = false);
+    }
+  }
+
+  Future<void> _handleSubmitDetails() async {
+    if (!(_formKey.currentState?.validate() ?? false)) return;
+    if (_year == null) {
+      setState(() => _errorMessage = 'Please select Festival Year.');
+      return;
+    }
+    setState(() {
+      _isSubmitting = true;
+      _errorMessage = null;
+    });
+    try {
+      final locale = context.l10n.localeName.toUpperCase();
+      final user = await ref.read(authRepositoryProvider).registerTrust(
+            mandalTrustName: _mandalName.text.trim(),
+            registrationNumber: _registrationNumber.text.trim(),
+            presidentHeadName: _presidentName.text.trim(),
+            addressLine1: _address.text.trim(),
+            city: _city.text.trim(),
+            state: _state.text.trim(),
+            postalCode: _pinCode.text.trim(),
+            festivalYear: _year!,
+            phoneNumber: _phone.text.trim(),
+            password: _password.text.isNotEmpty ? _password.text : null,
+            preferredLanguage: locale,
+          );
+      if (!mounted) return;
+      setState(() {
+        _registeredUser = user;
+        _step = _RegistrationStep.mpin;
+      });
+    } on ApiException catch (error) {
+      if (!mounted) return;
+      setState(() => _errorMessage = describeApiException(context, error));
+    } finally {
+      if (mounted) setState(() => _isSubmitting = false);
+    }
+  }
+
+  Future<void> _handleCreateMpin(String mpin) async {
+    setState(() {
+      _isSubmitting = true;
+      _errorMessage = null;
+    });
+    try {
+      await ref.read(authRepositoryProvider).createMpin(mpin: mpin);
+      if (!mounted) return;
+      if (_registeredUser != null) {
+        ref.read(sessionControllerProvider.notifier).setAuthenticated(_registeredUser!, LoginRole.mandal);
+      }
+    } on ApiException catch (error) {
+      if (!mounted) return;
+      setState(() => _errorMessage = describeApiException(context, error));
+    } finally {
+      if (mounted) setState(() => _isSubmitting = false);
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final l10n = context.l10n;
+
+    if (_step == _RegistrationStep.otp) {
+      return _RegistrationFormScaffold(
+        title: l10n.verifyOtp,
+        onBack: () => setState(() => _step = _RegistrationStep.mobile),
+        formKey: GlobalKey<FormState>(),
+        intro: RegistrationIntroCard(
+          title: l10n.verifyOtp,
+          description: '${l10n.enterOtp} sent to ${_phone.text}',
+          icon: Icons.mark_email_read_outlined,
+        ),
+        children: [
+          OtpVerificationWidget(
+            phoneNumber: _phone.text.trim(),
+            debugOtp: _debugOtp,
+            onVerify: _handleVerifyOtp,
+            onResend: _handleRequestOtp,
+            isSubmitting: _isSubmitting,
+            errorMessage: _errorMessage,
+          ),
+        ],
+      );
+    }
+
+    if (_step == _RegistrationStep.mpin) {
+      return _RegistrationFormScaffold(
+        title: l10n.createMpin,
+        onBack: () => setState(() => _step = _RegistrationStep.details),
+        formKey: GlobalKey<FormState>(),
+        intro: RegistrationIntroCard(
+          title: l10n.createMpin,
+          description: l10n.createMpinDescription,
+          icon: Icons.lock_outline,
+        ),
+        children: [
+          MpinInputWidget(
+            title: l10n.createMpin,
+            description: l10n.createMpinDescription,
+            submitLabel: l10n.createMpinButton,
+            onSubmit: _handleCreateMpin,
+            requireConfirm: true,
+            isSubmitting: _isSubmitting,
+            errorMessage: _errorMessage,
+          ),
+        ],
+      );
+    }
+
+    if (_step == _RegistrationStep.mobile) {
+      return _RegistrationFormScaffold(
+        title: l10n.trustRegistration,
+        onBack: widget.onBack,
+        formKey: _formKey,
+        intro: RegistrationIntroCard(
+          title: l10n.trustRegistration,
+          description: l10n.trustRegistrationDescription,
+          icon: Icons.account_balance_outlined,
+        ),
+        children: [
+          FormSectionCard(
+            title: l10n.trustRegistration,
+            child: Column(
+              children: [
+                AuthPhoneField(
+                  hint: l10n.phoneHint,
+                  controller: _phone,
+                  onChanged: (_) => _revalidate(),
+                  validator: AuthValidators.phone(l10n),
+                ),
+                const SizedBox(height: AuthSpacing.section),
+                if (_errorMessage != null)
+                  AuthErrorBanner(message: _errorMessage!, onRetry: _handleRequestOtp),
+                AuthPrimaryButton(
+                  label: l10n.sendOtp,
+                  icon: Icons.arrow_forward,
+                  onPressed: (_canContinue && !_isSubmitting) ? _handleRequestOtp : null,
+                ),
+                if (_isSubmitting) ...[
+                  const SizedBox(height: 16),
+                  const Center(child: CircularProgressIndicator()),
+                ],
+              ],
+            ),
+          ),
+        ],
+      );
+    }
+
     return _RegistrationFormScaffold(
       title: l10n.trustRegistration,
-      onBack: widget.onBack,
+      onBack: () => setState(() => _step = _RegistrationStep.mobile),
       formKey: _formKey,
       intro: RegistrationIntroCard(
         title: l10n.trustRegistration,
@@ -293,13 +499,6 @@ class _TrustRegistrationFormState extends ConsumerState<_TrustRegistrationForm> 
                 onChanged: (_) => _revalidate(),
                 validator: AuthValidators.required(l10n),
               ),
-              const SizedBox(height: AuthSpacing.field),
-              AuthPhoneNumberField(
-                controller: _phone,
-                hint: l10n.phoneHint,
-                onChanged: (_) => _revalidate(),
-                validator: AuthValidators.phone(l10n),
-              ),
             ],
           ),
         ),
@@ -327,35 +526,12 @@ class _TrustRegistrationFormState extends ConsumerState<_TrustRegistrationForm> 
           ),
         ),
         const SizedBox(height: AuthSpacing.section),
-        FormSectionCard(
-          title: l10n.password,
-          child: Column(
-            children: [
-              AuthPasswordField(
-                label: l10n.password,
-                hint: l10n.passwordHint,
-                controller: _password,
-                onChanged: (_) => _revalidate(),
-                validator: AuthValidators.password(l10n),
-              ),
-              const SizedBox(height: AuthSpacing.field),
-              AuthPasswordField(
-                label: l10n.confirmPassword,
-                hint: l10n.confirmPasswordHint,
-                controller: _confirmPassword,
-                onChanged: (_) => _revalidate(),
-                validator: AuthValidators.confirmPassword(l10n, _password),
-              ),
-            ],
-          ),
-        ),
-        const SizedBox(height: AuthSpacing.section),
         if (_errorMessage != null)
-          AuthErrorBanner(message: _errorMessage!, onRetry: _handleSubmit),
+          AuthErrorBanner(message: _errorMessage!, onRetry: _handleSubmitDetails),
         AuthPrimaryButton(
           label: l10n.continueToVerification,
           icon: Icons.arrow_forward,
-          onPressed: (_canContinue && !_isSubmitting) ? _handleSubmit : null,
+          onPressed: (_canContinue && !_isSubmitting) ? _handleSubmitDetails : null,
         ),
         if (_isSubmitting) ...[
           const SizedBox(height: 16),
@@ -363,46 +539,6 @@ class _TrustRegistrationFormState extends ConsumerState<_TrustRegistrationForm> 
         ],
       ],
     );
-  }
-
-  Future<void> _handleSubmit() async {
-    if (!(_formKey.currentState?.validate() ?? false)) return;
-
-    if (_year == null) {
-      setState(() {
-        _errorMessage = 'Please select Festival Year.';
-      });
-      return;
-    }
-
-    setState(() {
-      _isSubmitting = true;
-      _errorMessage = null;
-    });
-
-    try {
-      final locale = context.l10n.localeName.toUpperCase();
-      final user = await ref.read(authRepositoryProvider).registerTrust(
-            mandalTrustName: _mandalName.text.trim(),
-            registrationNumber: _registrationNumber.text.trim(),
-            presidentHeadName: _presidentName.text.trim(),
-            addressLine1: _address.text.trim(),
-            city: _city.text.trim(),
-            state: _state.text.trim(),
-            postalCode: _pinCode.text.trim(),
-            festivalYear: _year!,
-            phoneNumber: _phone.text.trim(),
-            password: _password.text,
-            preferredLanguage: locale,
-          );
-      if (!mounted) return;
-      ref.read(sessionControllerProvider.notifier).setAuthenticated(user, LoginRole.mandal);
-    } on ApiException catch (error) {
-      if (!mounted) return;
-      setState(() => _errorMessage = describeApiException(context, error));
-    } finally {
-      if (mounted) setState(() => _isSubmitting = false);
-    }
   }
 }
 
@@ -420,25 +556,29 @@ class _DonorRegistrationFormState extends ConsumerState<_DonorRegistrationForm> 
   final _fullName = TextEditingController();
   final _email = TextEditingController();
   final _pan = TextEditingController();
-  final _phone = TextEditingController();
   final _address = TextEditingController();
   final _city = TextEditingController();
   final _pinCode = TextEditingController();
+  final _phone = TextEditingController();
   final _password = TextEditingController();
   final _confirmPassword = TextEditingController();
+
+  _RegistrationStep _step = _RegistrationStep.mobile;
   bool _canContinue = false;
   bool _isSubmitting = false;
   String? _errorMessage;
+  String? _debugOtp;
+  AuthUser? _registeredUser;
 
   @override
   void dispose() {
     _fullName.dispose();
     _email.dispose();
     _pan.dispose();
-    _phone.dispose();
     _address.dispose();
     _city.dispose();
     _pinCode.dispose();
+    _phone.dispose();
     _password.dispose();
     _confirmPassword.dispose();
     super.dispose();
@@ -446,27 +586,216 @@ class _DonorRegistrationFormState extends ConsumerState<_DonorRegistrationForm> 
 
   void _revalidate() {
     final l10n = context.l10n;
+    if (_step == _RegistrationStep.mobile) {
+      final isValid = AuthValidators.phone(l10n)(_phone.text) == null;
+      if (isValid != _canContinue) setState(() => _canContinue = isValid);
+      return;
+    }
     final isValid = AuthValidators.allValid([
       AuthValidators.required(l10n)(_fullName.text),
       AuthValidators.phone(l10n)(_phone.text),
       AuthValidators.required(l10n)(_city.text),
-      AuthValidators.email(l10n)(_email.text),
-      AuthValidators.pan(l10n)(_pan.text),
-      AuthValidators.pinCode(l10n)(_pinCode.text),
-      AuthValidators.password(l10n)(_password.text),
-      AuthValidators.confirmPassword(l10n, _password)(_confirmPassword.text),
     ]);
     if (isValid != _canContinue) {
       setState(() => _canContinue = isValid);
     }
   }
 
+  Future<void> _handleRequestOtp() async {
+    final l10n = context.l10n;
+    if (AuthValidators.phone(l10n)(_phone.text) != null) return;
+    setState(() {
+      _isSubmitting = true;
+      _errorMessage = null;
+    });
+    try {
+      final result = await ref.read(authRepositoryProvider).requestOtp(
+            phoneNumber: _phone.text.trim(),
+            purpose: OtpPurpose.VERIFY_MOBILE,
+          );
+      if (!mounted) return;
+      setState(() {
+        _debugOtp = result.debugOtp;
+        _step = _RegistrationStep.otp;
+      });
+    } on ApiException catch (error) {
+      if (!mounted) return;
+      setState(() => _errorMessage = describeApiException(context, error));
+    } finally {
+      if (mounted) setState(() => _isSubmitting = false);
+    }
+  }
+
+  Future<void> _handleVerifyOtp(String otp) async {
+    setState(() {
+      _isSubmitting = true;
+      _errorMessage = null;
+    });
+    try {
+      await ref.read(authRepositoryProvider).verifyOtp(
+            phoneNumber: _phone.text.trim(),
+            otp: otp,
+            purpose: OtpPurpose.VERIFY_MOBILE,
+            role: LoginRole.donor,
+          );
+      if (!mounted) return;
+      setState(() {
+        _step = _RegistrationStep.details;
+        _revalidate();
+      });
+    } on ApiException catch (error) {
+      if (!mounted) return;
+      setState(() => _errorMessage = describeApiException(context, error));
+    } finally {
+      if (mounted) setState(() => _isSubmitting = false);
+    }
+  }
+
+  Future<void> _handleSubmitDetails() async {
+    if (!(_formKey.currentState?.validate() ?? false)) return;
+    setState(() {
+      _isSubmitting = true;
+      _errorMessage = null;
+    });
+    try {
+      final locale = context.l10n.localeName.toUpperCase();
+      final user = await ref.read(authRepositoryProvider).registerDonor(
+            fullName: _fullName.text.trim(),
+            email: _email.text.trim(),
+            panNumber: _pan.text.trim(),
+            addressLine1: _address.text.trim(),
+            city: _city.text.trim(),
+            postalCode: _pinCode.text.trim(),
+            phoneNumber: _phone.text.trim(),
+            password: _password.text.isNotEmpty ? _password.text : null,
+            preferredLanguage: locale,
+          );
+      if (!mounted) return;
+      setState(() {
+        _registeredUser = user;
+        _step = _RegistrationStep.mpin;
+      });
+    } on ApiException catch (error) {
+      if (!mounted) return;
+      setState(() => _errorMessage = describeApiException(context, error));
+    } finally {
+      if (mounted) setState(() => _isSubmitting = false);
+    }
+  }
+
+  Future<void> _handleCreateMpin(String mpin) async {
+    setState(() {
+      _isSubmitting = true;
+      _errorMessage = null;
+    });
+    try {
+      await ref.read(authRepositoryProvider).createMpin(mpin: mpin);
+      if (!mounted) return;
+      if (_registeredUser != null) {
+        ref.read(sessionControllerProvider.notifier).setAuthenticated(_registeredUser!, LoginRole.donor);
+      }
+    } on ApiException catch (error) {
+      if (!mounted) return;
+      setState(() => _errorMessage = describeApiException(context, error));
+    } finally {
+      if (mounted) setState(() => _isSubmitting = false);
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final l10n = context.l10n;
+
+    if (_step == _RegistrationStep.otp) {
+      return _RegistrationFormScaffold(
+        title: l10n.verifyOtp,
+        onBack: () => setState(() => _step = _RegistrationStep.mobile),
+        formKey: GlobalKey<FormState>(),
+        intro: RegistrationIntroCard(
+          title: l10n.verifyOtp,
+          description: '${l10n.enterOtp} sent to ${_phone.text}',
+          icon: Icons.mark_email_read_outlined,
+        ),
+        children: [
+          OtpVerificationWidget(
+            phoneNumber: _phone.text.trim(),
+            debugOtp: _debugOtp,
+            onVerify: _handleVerifyOtp,
+            onResend: _handleRequestOtp,
+            isSubmitting: _isSubmitting,
+            errorMessage: _errorMessage,
+          ),
+        ],
+      );
+    }
+
+    if (_step == _RegistrationStep.mpin) {
+      return _RegistrationFormScaffold(
+        title: l10n.createMpin,
+        onBack: () => setState(() => _step = _RegistrationStep.details),
+        formKey: GlobalKey<FormState>(),
+        intro: RegistrationIntroCard(
+          title: l10n.createMpin,
+          description: l10n.createMpinDescription,
+          icon: Icons.lock_outline,
+        ),
+        children: [
+          MpinInputWidget(
+            title: l10n.createMpin,
+            description: l10n.createMpinDescription,
+            submitLabel: l10n.createMpinButton,
+            onSubmit: _handleCreateMpin,
+            requireConfirm: true,
+            isSubmitting: _isSubmitting,
+            errorMessage: _errorMessage,
+          ),
+        ],
+      );
+    }
+
+    if (_step == _RegistrationStep.mobile) {
+      return _RegistrationFormScaffold(
+        title: l10n.donorRegistration,
+        onBack: widget.onBack,
+        formKey: _formKey,
+        intro: RegistrationIntroCard(
+          title: l10n.donorRegistration,
+          description: l10n.donorRegistrationDescription,
+          icon: Icons.favorite_border,
+        ),
+        children: [
+          FormSectionCard(
+            title: l10n.donorRegistration,
+            child: Column(
+              children: [
+                AuthPhoneField(
+                  hint: l10n.phoneHint,
+                  controller: _phone,
+                  onChanged: (_) => _revalidate(),
+                  validator: AuthValidators.phone(l10n),
+                ),
+                const SizedBox(height: AuthSpacing.section),
+                if (_errorMessage != null)
+                  AuthErrorBanner(message: _errorMessage!, onRetry: _handleRequestOtp),
+                AuthPrimaryButton(
+                  label: l10n.sendOtp,
+                  icon: Icons.arrow_forward,
+                  onPressed: (_canContinue && !_isSubmitting) ? _handleRequestOtp : null,
+                ),
+                if (_isSubmitting) ...[
+                  const SizedBox(height: 16),
+                  const Center(child: CircularProgressIndicator()),
+                ],
+              ],
+            ),
+          ),
+        ],
+      );
+    }
+
     return _RegistrationFormScaffold(
       title: l10n.donorRegistration,
-      onBack: widget.onBack,
+      onBack: () => setState(() => _step = _RegistrationStep.mobile),
       formKey: _formKey,
       intro: RegistrationIntroCard(
         title: l10n.donorRegistration,
@@ -492,8 +821,7 @@ class _DonorRegistrationFormState extends ConsumerState<_DonorRegistrationForm> 
                 controller: _email,
                 optional: true,
                 keyboardType: TextInputType.emailAddress,
-                onChanged: (_) => _revalidate(),
-                validator: AuthValidators.email(l10n),
+                validator: AuthValidators.optionalEmail(l10n),
               ),
               const SizedBox(height: AuthSpacing.field),
               AuthTextField(
@@ -501,16 +829,7 @@ class _DonorRegistrationFormState extends ConsumerState<_DonorRegistrationForm> 
                 hint: l10n.panNumberHint,
                 controller: _pan,
                 optional: true,
-                textInputAction: TextInputAction.next,
-                onChanged: (_) => _revalidate(),
-                validator: AuthValidators.pan(l10n),
-              ),
-              const SizedBox(height: AuthSpacing.field),
-              AuthPhoneNumberField(
-                controller: _phone,
-                hint: l10n.phoneHint,
-                onChanged: (_) => _revalidate(),
-                validator: AuthValidators.phone(l10n),
+                validator: AuthValidators.optionalPan(l10n),
               ),
             ],
           ),
@@ -523,35 +842,12 @@ class _DonorRegistrationFormState extends ConsumerState<_DonorRegistrationForm> 
           onChanged: (_) => _revalidate(),
         ),
         const SizedBox(height: AuthSpacing.section),
-        FormSectionCard(
-          title: l10n.password,
-          child: Column(
-            children: [
-              AuthPasswordField(
-                label: l10n.password,
-                hint: l10n.passwordHint,
-                controller: _password,
-                onChanged: (_) => _revalidate(),
-                validator: AuthValidators.password(l10n),
-              ),
-              const SizedBox(height: AuthSpacing.field),
-              AuthPasswordField(
-                label: l10n.confirmPassword,
-                hint: l10n.confirmPasswordHint,
-                controller: _confirmPassword,
-                onChanged: (_) => _revalidate(),
-                validator: AuthValidators.confirmPassword(l10n, _password),
-              ),
-            ],
-          ),
-        ),
-        const SizedBox(height: AuthSpacing.section),
         if (_errorMessage != null)
-          AuthErrorBanner(message: _errorMessage!, onRetry: _handleSubmit),
+          AuthErrorBanner(message: _errorMessage!, onRetry: _handleSubmitDetails),
         AuthPrimaryButton(
           label: l10n.continueToVerification,
           icon: Icons.arrow_forward,
-          onPressed: (_canContinue && !_isSubmitting) ? _handleSubmit : null,
+          onPressed: (_canContinue && !_isSubmitting) ? _handleSubmitDetails : null,
         ),
         if (_isSubmitting) ...[
           const SizedBox(height: 16),
@@ -559,37 +855,6 @@ class _DonorRegistrationFormState extends ConsumerState<_DonorRegistrationForm> 
         ],
       ],
     );
-  }
-
-  Future<void> _handleSubmit() async {
-    if (!(_formKey.currentState?.validate() ?? false)) return;
-
-    setState(() {
-      _isSubmitting = true;
-      _errorMessage = null;
-    });
-
-    try {
-      final locale = context.l10n.localeName.toUpperCase();
-      final user = await ref.read(authRepositoryProvider).registerDonor(
-            fullName: _fullName.text.trim(),
-            email: _email.text.trim(),
-            panNumber: _pan.text.trim(),
-            addressLine1: _address.text.trim(),
-            city: _city.text.trim(),
-            postalCode: _pinCode.text.trim(),
-            phoneNumber: _phone.text.trim(),
-            password: _password.text,
-            preferredLanguage: locale,
-          );
-      if (!mounted) return;
-      ref.read(sessionControllerProvider.notifier).setAuthenticated(user, LoginRole.donor);
-    } on ApiException catch (error) {
-      if (!mounted) return;
-      setState(() => _errorMessage = describeApiException(context, error));
-    } finally {
-      if (mounted) setState(() => _isSubmitting = false);
-    }
   }
 }
 
