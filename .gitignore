@@ -18,12 +18,12 @@ out/
 # TS packages compile to dist/ via project references (tsc -b); a stray tsc
 # invocation without -b has previously leaked compiled output next to source
 # in apps/*/src and packages/*/src -- keep source directories JS/declaration-free.
-apps/*/src/**/*.js
-apps/*/src/**/*.js.map
-apps/*/src/**/*.d.ts
-packages/*/src/**/*.js
-packages/*/src/**/*.js.map
-packages/*/src/**/*.d.ts
+apps/**/src/**/*.js
+apps/**/src/**/*.js.map
+apps/**/src/**/*.d.ts
+packages/**/src/**/*.js
+packages/**/src/**/*.js.map
+packages/**/src/**/*.d.ts
 
 # Prisma
 /packages/backend-database/src/generated/
