@@ -21,8 +21,10 @@ class TemplatesNotifier extends Notifier<AsyncValue<List<ReceiptTemplate>>> {
     try {
       final dataSource = ref.read(templatesRemoteDataSourceProvider);
       final templates = await dataSource.fetchTemplates();
+      if (!ref.mounted) return;
       state = AsyncValue.data(templates);
     } catch (e, st) {
+      if (!ref.mounted) return;
       state = AsyncValue.error(e, st);
     }
   }

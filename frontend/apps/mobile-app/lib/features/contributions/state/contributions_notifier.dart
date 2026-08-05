@@ -47,7 +47,7 @@ class ContributionsNotifier extends Notifier<List<Contribution>> {
       estimatedValue: estimatedValue,
       certificatePhotoUrl: certificatePhotoUrl,
       recordedBy: recordedBy,
-      status: ContributionStatus.recorded,
+      status: ContributionStatus.receipted,
     );
     state = [contribution, ...state];
 

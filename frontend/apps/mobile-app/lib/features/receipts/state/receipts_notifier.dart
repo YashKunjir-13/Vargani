@@ -21,10 +21,12 @@ class ReceiptsNotifier extends Notifier<AsyncValue<List<Receipt>>> {
     try {
       final dataSource = ref.read(receiptsRemoteDataSourceProvider);
       final receipts = await dataSource.fetchReceipts();
+      if (!ref.mounted) return;
       if (receipts.isNotEmpty) {
         state = AsyncValue.data(receipts);
       }
     } catch (_) {
+      if (!ref.mounted) return;
       if (state.value == null || state.value!.isEmpty) {
         state = AsyncValue.data(buildMockReceipts());
       }
@@ -35,10 +37,12 @@ class ReceiptsNotifier extends Notifier<AsyncValue<List<Receipt>>> {
     try {
       final dataSource = ref.read(receiptsRemoteDataSourceProvider);
       final receipts = await dataSource.fetchMyHistory();
+      if (!ref.mounted) return;
       if (receipts.isNotEmpty) {
         state = AsyncValue.data(receipts);
       }
     } catch (_) {
+      if (!ref.mounted) return;
       if (state.value == null || state.value!.isEmpty) {
         state = AsyncValue.data(buildMockReceipts());
       }
