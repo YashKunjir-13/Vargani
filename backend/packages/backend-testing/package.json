@@ -1,0 +1,22 @@
+{
+  "name": "@pauti-pustak/backend-testing",
+  "version": "1.0.0",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "private": true,
+  "scripts": {
+    "build": "tsc -b"
+  },
+  "dependencies": {
+    "@pauti-pustak/backend-config": "workspace:*",
+    "@pauti-pustak/backend-contracts": "workspace:*",
+    "@pauti-pustak/backend-security": "workspace:*",
+    "@testcontainers/postgresql": "^10.18.0",
+    "@testcontainers/redis": "^10.18.0",
+    "testcontainers": "^10.18.0"
+  },
+  "devDependencies": {
+    "@types/node": "^22.13.4",
+    "typescript": "^5.7.3"
+  }
+}

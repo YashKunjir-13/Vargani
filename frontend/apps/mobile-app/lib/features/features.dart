@@ -1,0 +1,22 @@
+// Feature modules placeholder
+const featureModules = [
+  'authentication',
+  'dashboard',
+  'organizations',
+  'events',
+  'volunteers',
+  'contributors',
+  'contribution_bills',
+  'receipt_books',
+  'collections',
+  'contributions',
+  'receipts',
+  'vendors',
+  'expense_approval_policy',
+  'expenses',
+  'financial_accounts',
+  'reports',
+  'notifications',
+  'audit_logs',
+  'settings',
+];

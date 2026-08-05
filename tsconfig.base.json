@@ -18,13 +18,13 @@
     "noFallthroughCasesInSwitch": false,
     "baseUrl": ".",
     "paths": {
-      "@pauti-pustak/backend-config": ["packages/backend-config/src/index.ts", "packages/backend-config/dist/index.d.ts"],
-      "@pauti-pustak/backend-contracts": ["packages/backend-contracts/src/index.ts", "packages/backend-contracts/dist/index.d.ts"],
-      "@pauti-pustak/backend-database": ["packages/backend-database/src/index.ts", "packages/backend-database/dist/index.d.ts"],
-      "@pauti-pustak/backend-observability": ["packages/backend-observability/src/index.ts", "packages/backend-observability/dist/index.d.ts"],
-      "@pauti-pustak/backend-security": ["packages/backend-security/src/index.ts", "packages/backend-security/dist/index.d.ts"],
-      "@pauti-pustak/backend-testing": ["packages/backend-testing/src/index.ts", "packages/backend-testing/dist/index.d.ts"],
-      "@pauti-pustak/backend-shared-kernel": ["packages/backend-shared-kernel/src/index.ts", "packages/backend-shared-kernel/dist/index.d.ts"]
+      "@pauti-pustak/backend-config": ["backend/packages/backend-config/src/index.ts", "backend/packages/backend-config/dist/index.d.ts"],
+      "@pauti-pustak/backend-contracts": ["backend/packages/backend-contracts/src/index.ts", "backend/packages/backend-contracts/dist/index.d.ts"],
+      "@pauti-pustak/backend-database": ["backend/packages/backend-database/src/index.ts", "backend/packages/backend-database/dist/index.d.ts"],
+      "@pauti-pustak/backend-observability": ["backend/packages/backend-observability/src/index.ts", "backend/packages/backend-observability/dist/index.d.ts"],
+      "@pauti-pustak/backend-security": ["backend/packages/backend-security/src/index.ts", "backend/packages/backend-security/dist/index.d.ts"],
+      "@pauti-pustak/backend-testing": ["backend/packages/backend-testing/src/index.ts", "backend/packages/backend-testing/dist/index.d.ts"],
+      "@pauti-pustak/backend-shared-kernel": ["backend/packages/backend-shared-kernel/src/index.ts", "backend/packages/backend-shared-kernel/dist/index.d.ts"]
     }
   },
   "exclude": ["node_modules", "dist"]

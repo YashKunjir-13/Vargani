@@ -271,7 +271,7 @@ importers:
         specifier: ^8.24.0
         version: 8.65.0(eslint@9.39.5(jiti@2.7.0)(supports-color@8.1.1))(supports-color@8.1.1)(typescript@5.9.3)
 
-  apps/api:
+  backend/apps/api:
     dependencies:
       '@nestjs/common':
         specifier: ^11.0.10
@@ -380,7 +380,7 @@ importers:
         specifier: ^5.7.3
         version: 5.9.3
 
-  apps/scheduler:
+  backend/apps/scheduler:
     dependencies:
       '@nestjs/common':
         specifier: ^11.0.10
@@ -423,7 +423,7 @@ importers:
         specifier: ^5.7.3
         version: 5.9.3
 
-  apps/worker:
+  backend/apps/worker:
     dependencies:
       '@nestjs/bullmq':
         specifier: ^11.0.2
@@ -484,7 +484,7 @@ importers:
         specifier: ^5.7.3
         version: 5.9.3
 
-  packages/backend-config:
+  backend/packages/backend-config:
     dependencies:
       zod:
         specifier: ^3.24.2
@@ -494,7 +494,7 @@ importers:
         specifier: ^5.7.3
         version: 5.9.3
 
-  packages/backend-contracts:
+  backend/packages/backend-contracts:
     dependencies:
       class-validator:
         specifier: ^0.14.1
@@ -504,7 +504,7 @@ importers:
         specifier: ^5.7.3
         version: 5.9.3
 
-  packages/backend-database:
+  backend/packages/backend-database:
     dependencies:
       '@nestjs/common':
         specifier: ^11.0.10
@@ -520,7 +520,7 @@ importers:
         specifier: ^5.7.3
         version: 5.9.3
 
-  packages/backend-observability:
+  backend/packages/backend-observability:
     dependencies:
       '@nestjs/common':
         specifier: ^11.0.10
@@ -557,7 +557,7 @@ importers:
         specifier: ^5.7.3
         version: 5.9.3
 
-  packages/backend-security:
+  backend/packages/backend-security:
     dependencies:
       '@nestjs/common':
         specifier: ^11.0.10
@@ -594,7 +594,7 @@ importers:
         specifier: ^5.7.3
         version: 5.9.3
 
-  packages/backend-shared-kernel:
+  backend/packages/backend-shared-kernel:
     dependencies:
       '@aws-sdk/client-s3':
         specifier: ^3.744.0
@@ -619,7 +619,7 @@ importers:
         specifier: ^5.7.3
         version: 5.9.3
 
-  packages/backend-testing:
+  backend/packages/backend-testing:
     dependencies:
       '@pauti-pustak/backend-config':
         specifier: workspace:*
@@ -3700,6 +3700,7 @@ packages:
   cron-parser@4.9.0:
     resolution: {integrity: sha512-p0SaNjrHOnQeR8/VnfGbmg9te2kfyYSQ7Sc/j/6DtPL3JQvKxmjO9TSjNFpujqV3vEYYBvNNvXSxzyksBWAx1Q==}
     engines: {node: '>=12.0.0'}
+    deprecated: v4 is no longer maintained, upgrade to v5
 
   cron@3.5.0:
     resolution: {integrity: sha512-0eYZqCnapmxYcV06uktql93wNWdlTmmBFP2iYz+JPVcQqlyFYcn1lFuIk4R54pkOmE7mcldTAPZv6X5XA4Q46A==}

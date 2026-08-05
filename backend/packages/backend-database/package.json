@@ -1,0 +1,21 @@
+{
+  "name": "@pauti-pustak/backend-database",
+  "version": "1.0.0",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "private": true,
+  "scripts": {
+    "build": "tsc -b && node -e \"require('fs').cpSync('src/generated', 'dist/generated', {recursive: true})\"",
+    "prisma:generate": "prisma generate",
+    "prisma:format": "prisma format",
+    "prisma:validate": "prisma validate"
+  },
+  "dependencies": {
+    "@nestjs/common": "^11.0.10",
+    "@prisma/client": "^6.3.1"
+  },
+  "devDependencies": {
+    "prisma": "^6.3.1",
+    "typescript": "^5.7.3"
+  }
+}

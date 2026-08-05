@@ -1,0 +1,73 @@
+name: pauti_pustak_mobile
+description: Enterprise Multi-tenant Event Financial-Management Platform Flutter Client
+publish_to: "none"
+version: 1.0.0+1
+
+environment:
+  sdk: ">=3.3.0 <4.0.0"
+  flutter: ">=3.19.0"
+
+dependencies:
+  flutter:
+    sdk: flutter
+  flutter_localizations:
+    sdk: flutter
+
+  # State Management & Routing
+  flutter_riverpod: ^3.1.0
+  riverpod_annotation: ^4.0.0
+  go_router: ^17.3.0
+
+  # Networking & Data
+  dio: ^5.4.1
+  freezed_annotation: ^3.1.0
+  json_annotation: ^4.8.1
+  intl: ^0.20.2
+  collection: ^1.18.0
+  equatable: ^2.0.5
+  uuid: ^4.3.3
+
+  # Local Storage & Database
+  drift: ^2.16.0
+  sqlite3_flutter_libs: ^0.6.0+eol
+  path: ^1.9.0
+  path_provider: ^2.1.2
+  flutter_secure_storage: ^10.3.1
+  connectivity_plus: ^7.3.1
+  shared_preferences: ^2.2.3
+
+  # Firebase Services
+  firebase_core: ^4.12.1
+  firebase_messaging: ^16.4.3
+  firebase_crashlytics: ^5.2.6
+
+  # PDF Printing & Utility
+  share_plus: ^13.3.0
+  printing: ^5.15.0
+  pdf: ^3.10.8
+  cross_file: ^0.3.4+1
+  mime: ^2.0.0
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  integration_test:
+    sdk: flutter
+
+  build_runner: ^2.4.8
+  riverpod_generator: ^4.0.0+1
+  riverpod_lint: ^3.1.0
+  custom_lint: ^0.8.1
+  freezed: ^3.2.3
+  json_serializable: ^6.7.1
+  drift_dev: ^2.16.0
+  mocktail: ^1.0.3
+  golden_toolkit: ^0.15.0
+  flutter_lints: ^6.0.0
+
+flutter:
+  generate: true
+  uses-material-design: true
+  assets:
+    - assets/images/
+    - assets/icons/
