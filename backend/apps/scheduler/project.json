@@ -1,0 +1,31 @@
+{
+  "name": "scheduler",
+  "$schema": "../../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "backend/apps/scheduler/src",
+  "projectType": "application",
+  "targets": {
+    "build": {
+      "executor": "@nx/js:tsc",
+      "outputs": ["{options.outputPath}"],
+      "options": {
+        "outputPath": "dist/backend/apps/scheduler",
+        "main": "backend/apps/scheduler/src/main.ts",
+        "tsConfig": "backend/apps/scheduler/tsconfig.json",
+        "assets": []
+      }
+    },
+    "serve": {
+      "executor": "@nx/js:node",
+      "options": {
+        "buildTarget": "scheduler:build"
+      }
+    },
+    "lint": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "eslint backend/apps/scheduler/**/*.ts"
+      }
+    }
+  }
+}
+
