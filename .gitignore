@@ -8,39 +8,50 @@ pnpm-debug.log*
 lerna-debug.log*
 .nx/
 
-# Build outputs
+# Build outputs & Monorepo Caches
 dist/
 build/
 out/
 .next/
 *.tsbuildinfo
+.turbo-prune-local/
+storage/
 
 # TS packages compile to dist/ via project references (tsc -b); a stray tsc
-# invocation without -b has previously leaked compiled output next to source
-# in apps/*/src and packages/*/src -- keep source directories JS/declaration-free.
-apps/**/src/**/*.js
-apps/**/src/**/*.js.map
-apps/**/src/**/*.d.ts
-packages/**/src/**/*.js
-packages/**/src/**/*.js.map
-packages/**/src/**/*.d.ts
+# invocation without -b leaks compiled output next to source
+# in backend/apps/*/src and backend/packages/*/src -- keep source directories JS/declaration-free.
+backend/apps/**/src/**/*.js
+backend/apps/**/src/**/*.js.map
+backend/apps/**/src/**/*.d.ts
+backend/packages/**/src/**/*.js
+backend/packages/**/src/**/*.js.map
+backend/packages/**/src/**/*.d.ts
 
 # Prisma
-/packages/backend-database/src/generated/
+backend/packages/backend-database/src/generated/
 
-# Flutter / Dart
+# Flutter / Dart / Platform Ephemeral
 .dart_tool/
 .fvm/
 .pub-cache/
 .pub/
-build/
-ios/Pods/
-ios/.symlinks/
-ios/profile/
-android/.gradle/
-android/app/debug/
-android/app/profile/
-android/app/release/
+**/build/
+**/ios/Pods/
+**/ios/.symlinks/
+**/ios/profile/
+**/android/.gradle/
+**/android/local.properties
+**/android/app/debug/
+**/android/app/profile/
+**/android/app/release/
+**/macos/Flutter/ephemeral/
+**/macos/Flutter/GeneratedPluginRegistrant.swift
+**/windows/flutter/ephemeral/
+**/windows/flutter/generated_plugin_registrant.cc
+**/windows/flutter/generated_plugin_registrant.h
+**/windows/flutter/generated_plugins.cmake
+**/GeneratedPluginRegistrant.java
+**/GeneratedPluginRegistrant.swift
 *.flutter-plugins
 *.flutter-plugins-dependencies
 
@@ -75,8 +86,10 @@ coverage/
 .nyc_output/
 playwright-report/
 test-results/
+test-auth*.js
 
 # Temporary
 tmp/
 temp/
 scratch/
+
