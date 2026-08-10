@@ -17,7 +17,8 @@
     "serve": {
       "executor": "@nx/js:node",
       "options": {
-        "buildTarget": "scheduler:build"
+        "buildTarget": "scheduler:build",
+        "inspect": false
       }
     },
     "lint": {
