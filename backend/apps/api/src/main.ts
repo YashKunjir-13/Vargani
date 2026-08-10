@@ -59,17 +59,21 @@ async function bootstrap() {
   // Swagger Documentation (Development & Staging only)
   const nodeEnv = process.env.NODE_ENV || "development";
   if (["development", "staging"].includes(nodeEnv)) {
-    const swaggerConfig = new DocumentBuilder()
-      .setTitle("Pauti Pustak API")
-      .setDescription("Enterprise Multi-tenant Event Financial-Management Platform API")
-      .setVersion("1.0.0")
-      .addBearerAuth()
-      .addApiKey({ type: "apiKey", name: "x-tenant-id", in: "header" }, "x-tenant-id")
-      .build();
+    try {
+      const swaggerConfig = new DocumentBuilder()
+        .setTitle("Pauti Pustak API")
+        .setDescription("Enterprise Multi-tenant Event Financial-Management Platform API")
+        .setVersion("1.0.0")
+        .addBearerAuth()
+        .addApiKey({ type: "apiKey", name: "x-tenant-id", in: "header" }, "x-tenant-id")
+        .build();
 
-    const document = SwaggerModule.createDocument(app, swaggerConfig);
-    SwaggerModule.setup("api/v1/docs", app, document);
-    logger.log(`Swagger UI initialized at /api/v1/docs`, "Bootstrap");
+      const document = SwaggerModule.createDocument(app, swaggerConfig);
+      SwaggerModule.setup("api/v1/docs", app, document);
+      logger.log(`Swagger UI initialized at /api/v1/docs`, "Bootstrap");
+    } catch (err) {
+      logger.warn(`Swagger UI initialization skipped due to metadata reflection: ${err}`, "Bootstrap");
+    }
   }
 
   const port = process.env.PORT || 3000;

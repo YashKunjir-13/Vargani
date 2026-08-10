@@ -32,6 +32,8 @@ abstract final class AuthValidators {
     };
   }
 
+  static FieldValidator optionalEmail(AppLocalizations l10n) => email(l10n);
+
   static FieldValidator pinCode(AppLocalizations l10n) {
     return (value) {
       final trimmed = value?.trim() ?? '';
@@ -71,6 +73,8 @@ abstract final class AuthValidators {
       return _pan.hasMatch(trimmed) ? null : l10n.errorInvalidPanNumber;
     };
   }
+
+  static FieldValidator optionalPan(AppLocalizations l10n) => pan(l10n);
 
   /// Runs a list of validators drawn from this class against their
   /// controllers and reports whether every one currently passes, without

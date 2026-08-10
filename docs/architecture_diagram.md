@@ -27,7 +27,7 @@ graph TD
         OrderSvc -->|Outbox Event| EventBus[Redis / BullMQ Event Bus]
         PaymentSvc -->|Outbox Event| EventBus
         BillSvc -->|Outbox Event| EventBus
-        
+
         EventBus --> NotifWorker[Notification Worker]
         EventBus --> PDFWorker[Receipt PDF Worker]
         EventBus --> ReportWorker[Report Generation Worker]

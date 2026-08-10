@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'app_colors.dart';
 import 'app_typography.dart';
+import 'semantic_colors.dart';
 
 /// Centralized ThemeData for Pauti Pustak design system matching the Figma / screenshot specification.
 class AppTheme {
@@ -35,6 +36,7 @@ class AppTheme {
         error: Color(0xFFDC2626),
         onError: Colors.white,
       ),
+      extensions: const [SemanticColors.light],
       textTheme: textTheme,
       appBarTheme: AppBarTheme(
         elevation: 0,
@@ -207,6 +209,7 @@ class AppTheme {
         error: Color(0xFFEF4444),
         onError: Colors.black,
       ),
+      extensions: const [SemanticColors.dark],
       textTheme: textTheme,
       appBarTheme: AppBarTheme(
         elevation: 0,

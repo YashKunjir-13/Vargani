@@ -48,15 +48,34 @@ class AppLocalizationsEn extends AppLocalizations {
   String get sendOtp => 'Send OTP';
 
   @override
+  String get verifyOtp => 'Verify OTP';
+
+  @override
+  String get enterOtp => 'Enter 6-digit OTP';
+
+  @override
+  String get resendOtp => 'Resend OTP';
+
+  @override
+  String get otpSent => 'OTP sent successfully';
+
+  @override
+  String get otpExpired => 'OTP challenge expired';
+
+  @override
+  String get invalidOtp => 'Invalid OTP code';
+
+  @override
+  String get mobileVerified => 'Mobile Verified';
+
+  @override
+  String get loginWithPassword => 'Password Login';
+
+  @override
+  String get loginWithOtp => 'OTP Login';
+
+  @override
   String get backToRegistration => 'Back to Registration';
-
-  @override
-  String get otpNotAvailable =>
-      'OTP delivery will be connected in a future phase.';
-
-  @override
-  String get registrationNotAvailable =>
-      'Registration submission will be connected in a future phase.';
 
   @override
   String get mandalDetails => 'Mandal Details';
@@ -359,4 +378,44 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get privacy => 'Privacy & Security';
+
+  @override
+  String get enterMpin => 'Enter 6-Digit MPIN';
+
+  @override
+  String get createMpin => 'Create 6-Digit MPIN';
+
+  @override
+  String get confirmMpin => 'Confirm 6-Digit MPIN';
+
+  @override
+  String get createMpinDescription =>
+      'Set a secure 6-digit MPIN for quick daily login';
+
+  @override
+  String get errorMpinTooShort => 'MPIN must be exactly 6 numeric digits.';
+
+  @override
+  String get errorMpinMismatch => 'MPINs do not match.';
+
+  @override
+  String get loginWithMpin => 'Login with MPIN';
+
+  @override
+  String get forgotMpin => 'Forgot MPIN?';
+
+  @override
+  String get resetMpin => 'Reset MPIN';
+
+  @override
+  String get resendCodeIn => 'Resend code in';
+
+  @override
+  String get seconds => 'seconds';
+
+  @override
+  String get createMpinButton => 'Create MPIN & Finish';
+
+  @override
+  String get saveNewMpin => 'Save New MPIN';
 }

@@ -5,19 +5,24 @@ import { HashingService, PanEncryptionService } from "@pauti-pustak/backend-secu
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from "fs";
 import { generateKeyPairSync } from "crypto";
 import { resolve } from "path";
+import { PrismaModule } from "@pauti-pustak/backend-database";
 import { AuthController } from "./auth.controller";
 import { AuthService } from "./auth.service";
 import { JwtStrategy } from "./jwt.strategy";
 import { AuditModule } from "../audit/audit.module";
 
-function readKeyFile(envVar: string, fallback: string, isPrivate: boolean): string {
+export function readKeyFile(envVar: string, fallback: string, isPrivate: boolean): string {
   const keyPath = process.env[envVar] ?? fallback;
-  const fullPath = resolve(process.cwd(), keyPath);
+  // Resolve from monorepo root or process.cwd()
+  let fullPath = resolve(process.cwd(), keyPath);
+  if (!existsSync(fullPath)) {
+    fullPath = resolve(__dirname, "../../../..", keyPath);
+  }
   if (existsSync(fullPath)) {
     return readFileSync(fullPath, "utf8");
   }
 
-  const dir = resolve(fullPath, "..");
+  const dir = resolve(process.cwd(), keyPath, "..");
   if (!existsSync(dir)) {
     mkdirSync(dir, { recursive: true });
   }
@@ -41,6 +46,7 @@ function readKeyFile(envVar: string, fallback: string, isPrivate: boolean): stri
 
 @Module({
   imports: [
+    PrismaModule,
     PassportModule,
     AuditModule,
     JwtModule.register({

@@ -1,4 +1,4 @@
-import { Injectable, UnauthorizedException } from "@nestjs/common";
+import { Inject, Injectable, UnauthorizedException } from "@nestjs/common";
 import { PassportStrategy } from "@nestjs/passport";
 import { PrismaService } from "@pauti-pustak/backend-database";
 import { AuthenticatedUser, JwtAccessTokenPayload, PlatformRole } from "@pauti-pustak/backend-security";
@@ -6,14 +6,15 @@ import { readFileSync } from "fs";
 import { resolve } from "path";
 import { ExtractJwt, Strategy } from "passport-jwt";
 
+import { readKeyFile } from "./auth.module";
+
 function loadPublicKey(): string {
-  const keyPath = process.env.JWT_PUBLIC_KEY_PATH ?? "./config/certs/jwt_public.key";
-  return readFileSync(resolve(process.cwd(), keyPath), "utf8");
+  return readKeyFile("JWT_PUBLIC_KEY_PATH", "./config/certs/jwt_public.key", false);
 }
 
 @Injectable()
 export class JwtStrategy extends PassportStrategy(Strategy) {
-  constructor(private readonly prisma: PrismaService) {
+  constructor(@Inject(PrismaService) private readonly prisma: PrismaService) {
     super({
       jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
       ignoreExpiration: false,

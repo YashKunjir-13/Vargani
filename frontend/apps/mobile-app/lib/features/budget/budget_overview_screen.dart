@@ -1,30 +1,29 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../shared/ui_kit/cards/allocation_card.dart';
 import '../../shared/ui_kit/cards/kpi_card.dart';
 import '../../shared/ui_kit/chips/status_chip.dart';
 import '../../shared/ui_kit/layout/section_header.dart';
+import 'presentation/providers/budget_providers.dart';
 import 'models/budget_models.dart';
 
-/// The Budget module's hub screen: health status leads, KPIs next, category
-/// allocation and revision timeline last -- the enterprise table lives on
-/// its own dedicated [BudgetTableScreen], not crammed into this scroll.
-class BudgetOverviewScreen extends StatelessWidget {
-  final BudgetOverviewData overview;
-  final List<BudgetCategoryData> categories;
-  final List<RevisionEntry> revisions;
+String _formatCurrency(int paise) {
+  final rupees = (paise / 100).round();
+  // Simple formatting for mock
+  return '₹$rupees';
+}
+
+class BudgetOverviewScreen extends ConsumerWidget {
   final VoidCallback? onOpenFilters;
   final VoidCallback? onOpenExport;
   final VoidCallback? onOpenTable;
   final VoidCallback? onCreateRevision;
-  final ValueChanged<BudgetCategoryData>? onOpenCategory;
-  final ValueChanged<RevisionEntry>? onOpenRevision;
+  final ValueChanged<MockBudgetCategory>? onOpenCategory;
+  final ValueChanged<MockBudgetRevision>? onOpenRevision;
 
   const BudgetOverviewScreen({
     super.key,
-    required this.overview,
-    required this.categories,
-    required this.revisions,
     this.onOpenFilters,
     this.onOpenExport,
     this.onOpenTable,
@@ -34,9 +33,26 @@ class BudgetOverviewScreen extends StatelessWidget {
   });
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final colorScheme = Theme.of(context).colorScheme;
     final textTheme = Theme.of(context).textTheme;
+
+    final budget = ref.watch(budgetProvider);
+    if (budget == null) {
+      return const Scaffold(
+        body: Center(child: Text('Unauthorized or budget not found.')),
+      );
+    }
+
+    final revisions = ref.watch(budgetRevisionsProvider(budget.id));
+
+    final totalAllocated = budget.totalAllocatedPaise;
+    final totalUtilized = budget.totalUtilizedPaise;
+    final remaining = budget.remainingPaise;
+
+
+    final isHealthWarning = remaining < 0;
+    final healthLabel = isHealthWarning ? 'Over Budget' : 'On Track';
 
     return Scaffold(
       appBar: AppBar(
@@ -44,9 +60,9 @@ class BudgetOverviewScreen extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           mainAxisSize: MainAxisSize.min,
           children: [
-            const Text('Budget'),
+            Text(budget.title),
             Text(
-              'Ganeshotsav 2026 · ${overview.version}',
+              '${budget.eventId} · ${budget.version}',
               style: textTheme.labelMedium?.copyWith(color: colorScheme.onSurfaceVariant),
             ),
           ],
@@ -63,12 +79,12 @@ class BudgetOverviewScreen extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               StatusChip(
-                label: overview.healthLabel,
-                type: overview.isHealthWarning ? StatusChipType.warning : StatusChipType.success,
-                icon: overview.isHealthWarning ? Icons.warning_amber_rounded : Icons.check_circle_outline,
+                label: healthLabel,
+                type: isHealthWarning ? StatusChipType.warning : StatusChipType.success,
+                icon: isHealthWarning ? Icons.warning_amber_rounded : Icons.check_circle_outline,
               ),
               Text(
-                'Owner: ${overview.ownerName}',
+                'Owner: ${budget.ownerUserName}',
                 style: textTheme.labelMedium?.copyWith(color: colorScheme.onSurfaceVariant),
               ),
             ],
@@ -82,17 +98,17 @@ class BudgetOverviewScreen extends StatelessWidget {
             crossAxisSpacing: 10,
             childAspectRatio: 1.5,
             children: [
-              KpiCard(label: 'TOTAL BUDGET', value: overview.totalBudgetLabel, caption: 'FY 2025-26'),
-              KpiCard(label: 'ALLOCATED', value: overview.allocatedLabel),
+              KpiCard(label: 'TOTAL BUDGET', value: _formatCurrency(budget.totalBudgetPaise), caption: 'FY 2025-26'),
+              KpiCard(label: 'ALLOCATED', value: _formatCurrency(totalAllocated)),
               KpiCard(
                 label: 'UTILIZED',
-                value: overview.utilizedLabel,
+                value: _formatCurrency(totalUtilized),
                 statusBadge: StatusChip(
-                  label: overview.isHealthWarning ? 'Warn' : 'OK',
-                  type: overview.isHealthWarning ? StatusChipType.warning : StatusChipType.success,
+                  label: isHealthWarning ? 'Warn' : 'OK',
+                  type: isHealthWarning ? StatusChipType.warning : StatusChipType.success,
                 ),
               ),
-              KpiCard(label: 'REMAINING', value: overview.remainingLabel, caption: overview.daysRemainingCaption),
+              KpiCard(label: 'REMAINING', value: _formatCurrency(remaining), caption: 'Until Event'),
             ],
           ),
           const SizedBox(height: 24),
@@ -107,24 +123,24 @@ class BudgetOverviewScreen extends StatelessWidget {
               padding: const EdgeInsets.symmetric(horizontal: 12),
               child: Column(
                 children: [
-                  for (final category in categories) ...[
+                  for (final category in budget.categories) ...[
                     Padding(
                       padding: const EdgeInsets.symmetric(vertical: 10),
                       child: AllocationCard(
-                        icon: category.icon,
+                        icon: _getIconData(category.iconName),
                         name: category.name,
-                        progress: category.progress,
-                        spentLabel: category.spentLabel,
-                        allocatedLabel: category.allocatedLabel,
+                        progress: category.allocatedPaise > 0 ? (category.utilizedPaise / category.allocatedPaise) : 0,
+                        spentLabel: _formatCurrency(category.utilizedPaise),
+                        allocatedLabel: _formatCurrency(category.allocatedPaise),
                         footnote: category.footnote,
                         trailing: StatusChip(
-                          label: category.percentLabel,
-                          type: AllocationCard.statusForProgress(category.progress),
+                          label: '${category.allocatedPaise > 0 ? ((category.utilizedPaise / category.allocatedPaise) * 100).toStringAsFixed(0) : 0}%',
+                          type: AllocationCard.statusForProgress(category.allocatedPaise > 0 ? (category.utilizedPaise / category.allocatedPaise) : 0),
                         ),
                         onTap: onOpenCategory == null ? null : () => onOpenCategory!(category),
                       ),
                     ),
-                    if (category != categories.last) const Divider(height: 1),
+                    if (category != budget.categories.last) const Divider(height: 1),
                   ],
                 ],
               ),
@@ -143,19 +159,32 @@ class BudgetOverviewScreen extends StatelessWidget {
               title: Text(revision.title, style: textTheme.bodyLarge?.copyWith(fontWeight: FontWeight.w700)),
               subtitle: Text(
                 [
-                  '${revision.version} · ${revision.dateLabel}',
-                  if (revision.subtitle != null) revision.subtitle!,
+                  '${revision.version} · ${_formatDate(revision.requestedAt)}',
+                  if (revision.reason != null) revision.reason!,
                 ].join('\n'),
               ),
               trailing: StatusChip(
-                label: revision.isPending ? 'Pending' : (revision.isApproved ? 'Approved' : 'Draft'),
-                type: revision.isPending
+                label: revision.status,
+                type: revision.status == 'Pending'
                     ? StatusChipType.warning
-                    : (revision.isApproved ? StatusChipType.success : StatusChipType.neutral),
+                    : (revision.status == 'Approved' ? StatusChipType.success : StatusChipType.neutral),
               ),
             ),
         ],
       ),
     );
+  }
+
+  IconData _getIconData(String name) {
+    switch(name) {
+      case 'home_repair_service': return Icons.home_repair_service;
+      case 'restaurant': return Icons.restaurant;
+      case 'speaker': return Icons.speaker;
+      default: return Icons.category;
+    }
+  }
+
+  String _formatDate(DateTime dt) {
+    return '${dt.day}/${dt.month}/${dt.year}';
   }
 }

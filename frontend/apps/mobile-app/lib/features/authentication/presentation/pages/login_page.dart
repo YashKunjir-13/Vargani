@@ -11,6 +11,8 @@ import '../widgets/auth_error_presenter.dart';
 import '../widgets/auth_text_fields.dart';
 import '../widgets/auth_validators.dart';
 import '../widgets/logo_section.dart';
+import '../widgets/mpin_input_widget.dart';
+import '../widgets/otp_verification_widget.dart';
 import '../widgets/registration_widgets.dart';
 import '../../data/models/auth_models.dart';
 
@@ -26,8 +28,10 @@ class LoginPage extends ConsumerStatefulWidget {
 class _LoginPageState extends ConsumerState<LoginPage> {
   final _formKey = GlobalKey<FormState>();
   final _mobileController = TextEditingController();
+  final _mpinController = TextEditingController();
   final _passwordController = TextEditingController();
   LoginRole _selectedRole = LoginRole.mandal;
+  bool _usePasswordLogin = false;
   bool _canSubmit = false;
   bool _isSubmitting = false;
   String? _errorMessage;
@@ -35,16 +39,19 @@ class _LoginPageState extends ConsumerState<LoginPage> {
   @override
   void dispose() {
     _mobileController.dispose();
+    _mpinController.dispose();
     _passwordController.dispose();
     super.dispose();
   }
 
   void _revalidate() {
     final l10n = context.l10n;
-    final isValid = AuthValidators.allValid([
-      AuthValidators.phone(l10n)(_mobileController.text),
-      AuthValidators.required(l10n)(_passwordController.text),
-    ]);
+    final phoneValid = AuthValidators.phone(l10n)(_mobileController.text) == null;
+    final credValid = _usePasswordLogin
+        ? AuthValidators.required(l10n)(_passwordController.text) == null
+        : RegExp(r'^\d{6}$').hasMatch(_mpinController.text.trim());
+
+    final isValid = phoneValid && credValid;
     if (isValid != _canSubmit) {
       setState(() => _canSubmit = isValid);
     }
@@ -90,14 +97,42 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                               validator: AuthValidators.phone(l10n),
                             ),
                             const SizedBox(height: 20),
-                            AuthPasswordField(
-                              label: l10n.password,
-                              hint: l10n.passwordHint,
-                              controller: _passwordController,
-                              onChanged: (_) => _revalidate(),
-                              validator: AuthValidators.required(l10n),
-                            ),
-                            const SizedBox(height: 24),
+                            if (_usePasswordLogin) ...[
+                              AuthPasswordField(
+                                label: l10n.password,
+                                hint: l10n.passwordHint,
+                                controller: _passwordController,
+                                onChanged: (_) => _revalidate(),
+                                validator: AuthValidators.required(l10n),
+                              ),
+                            ] else ...[
+                              TextField(
+                                controller: _mpinController,
+                                keyboardType: TextInputType.number,
+                                obscureText: true,
+                                maxLength: 6,
+                                style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600, color: context.authColors.text),
+                                decoration: InputDecoration(
+                                  labelText: l10n.enterMpin,
+                                  hintText: '••••••',
+                                  counterText: '',
+                                  contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+                                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                                ),
+                                onChanged: (_) => _revalidate(),
+                              ),
+                              Align(
+                                alignment: Alignment.centerRight,
+                                child: TextButton(
+                                  onPressed: _showForgotMpinSheet,
+                                  child: Text(
+                                    l10n.forgotMpin,
+                                    style: TextStyle(color: context.authColors.brandOrange, fontWeight: FontWeight.bold),
+                                  ),
+                                ),
+                              ),
+                            ],
+                            const SizedBox(height: 16),
                             if (_errorMessage != null)
                               AuthErrorBanner(message: _errorMessage!, onRetry: _handleLogin),
                             AuthPrimaryButton(
@@ -108,6 +143,22 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                             if (_isSubmitting) ...[
                               const SizedBox(height: 16),
                               const CircularProgressIndicator(),
+                            ],
+                            if (_usePasswordLogin) ...[
+                              const SizedBox(height: 16),
+                              TextButton(
+                                onPressed: () {
+                                  setState(() {
+                                    _usePasswordLogin = false;
+                                    _errorMessage = null;
+                                    _revalidate();
+                                  });
+                                },
+                                child: Text(
+                                  l10n.loginWithMpin,
+                                  style: TextStyle(color: context.authColors.brandOrange, fontWeight: FontWeight.w600),
+                                ),
+                              ),
                             ],
                             const SizedBox(height: 26),
                             AuthTextButton(
@@ -132,7 +183,7 @@ class _LoginPageState extends ConsumerState<LoginPage> {
   Widget _buildRoleToggle(BuildContext context) {
     final colors = context.authColors;
     final l10n = context.l10n;
-    
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
@@ -208,11 +259,21 @@ class _LoginPageState extends ConsumerState<LoginPage> {
     });
 
     try {
-      final user = await ref.read(authRepositoryProvider).login(
-            phoneNumber: _mobileController.text.trim(),
-            password: _passwordController.text,
-            role: _selectedRole,
-          );
+      final phone = _mobileController.text.trim();
+      final AuthUser user;
+      if (_usePasswordLogin) {
+        user = await ref.read(authRepositoryProvider).login(
+              phoneNumber: phone,
+              password: _passwordController.text,
+              role: _selectedRole,
+            );
+      } else {
+        user = await ref.read(authRepositoryProvider).loginMpin(
+              phoneNumber: phone,
+              mpin: _mpinController.text.trim(),
+              role: _selectedRole,
+            );
+      }
       if (!mounted) return;
       ref.read(sessionControllerProvider.notifier).setAuthenticated(user, _selectedRole);
     } on ApiException catch (error) {
@@ -221,5 +282,146 @@ class _LoginPageState extends ConsumerState<LoginPage> {
     } finally {
       if (mounted) setState(() => _isSubmitting = false);
     }
+  }
+
+  void _showForgotMpinSheet() {
+    final phone = _mobileController.text.trim();
+    final l10n = context.l10n;
+    if (phone.isEmpty || AuthValidators.phone(l10n)(phone) != null) {
+      setState(() => _errorMessage = l10n.errorInvalidPhoneNumber);
+      return;
+    }
+
+    showModalBottomSheet<void>(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (context) => _ForgotMpinSheet(
+        phoneNumber: phone,
+        role: _selectedRole,
+      ),
+    );
+  }
+}
+
+class _ForgotMpinSheet extends ConsumerStatefulWidget {
+  const _ForgotMpinSheet({required this.phoneNumber, required this.role});
+
+  final String phoneNumber;
+  final LoginRole role;
+
+  @override
+  ConsumerState<_ForgotMpinSheet> createState() => _ForgotMpinSheetState();
+}
+
+class _ForgotMpinSheetState extends ConsumerState<_ForgotMpinSheet> {
+  int _step = 1; // 1: Request OTP, 2: OTP + New MPIN
+  bool _isSubmitting = false;
+  String? _errorMessage;
+  String? _debugOtp;
+  String _otpCode = '';
+
+  @override
+  void initState() {
+    super.initState();
+    _requestOtp();
+  }
+
+  Future<void> _requestOtp() async {
+    setState(() {
+      _isSubmitting = true;
+      _errorMessage = null;
+    });
+    try {
+      final result = await ref.read(authRepositoryProvider).forgotMpin(phoneNumber: widget.phoneNumber);
+      if (!mounted) return;
+      setState(() {
+        _debugOtp = result.debugOtp;
+        _step = 2;
+      });
+    } on ApiException catch (error) {
+      if (!mounted) return;
+      setState(() => _errorMessage = describeApiException(context, error));
+    } finally {
+      if (mounted) setState(() => _isSubmitting = false);
+    }
+  }
+
+  Future<void> _handleVerifyMpinReset(String newMpin) async {
+    setState(() {
+      _isSubmitting = true;
+      _errorMessage = null;
+    });
+    try {
+      final user = await ref.read(authRepositoryProvider).verifyMpinReset(
+            phoneNumber: widget.phoneNumber,
+            otp: _otpCode,
+            newMpin: newMpin,
+            role: widget.role,
+          );
+      if (!mounted) return;
+      Navigator.pop(context);
+      ref.read(sessionControllerProvider.notifier).setAuthenticated(user, widget.role);
+    } on ApiException catch (error) {
+      if (!mounted) return;
+      setState(() => _errorMessage = describeApiException(context, error));
+    } finally {
+      if (mounted) setState(() => _isSubmitting = false);
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = context.l10n;
+    final colors = context.authColors;
+
+    return Container(
+      padding: EdgeInsets.only(
+        left: 20,
+        right: 20,
+        top: 20,
+        bottom: MediaQuery.of(context).viewInsets.bottom + 20,
+      ),
+      decoration: BoxDecoration(
+        color: colors.card,
+        borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
+      ),
+      child: SingleChildScrollView(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text(
+              l10n.resetMpin,
+              style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: colors.text),
+            ),
+            const SizedBox(height: 16),
+            if (_step == 1) ...[
+              const Center(child: CircularProgressIndicator()),
+            ] else if (_otpCode.isEmpty) ...[
+              OtpVerificationWidget(
+                phoneNumber: widget.phoneNumber,
+                debugOtp: _debugOtp,
+                onVerify: (otp) async {
+                  setState(() => _otpCode = otp);
+                },
+                onResend: _requestOtp,
+                isSubmitting: _isSubmitting,
+                errorMessage: _errorMessage,
+              ),
+            ] else ...[
+              MpinInputWidget(
+                title: l10n.resetMpin,
+                description: l10n.createMpinDescription,
+                submitLabel: l10n.saveNewMpin,
+                onSubmit: _handleVerifyMpinReset,
+                requireConfirm: true,
+                isSubmitting: _isSubmitting,
+                errorMessage: _errorMessage,
+              ),
+            ],
+          ],
+        ),
+      ),
+    );
   }
 }

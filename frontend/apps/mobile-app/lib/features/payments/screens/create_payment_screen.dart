@@ -84,7 +84,7 @@ class _CreatePaymentScreenState extends ConsumerState<CreatePaymentScreen> {
     return Scaffold(
       appBar: PautiAppBar(
         title: L10n.tr(ref, 'record_payment'),
-        subtitle: 'Treasurer Portal',
+        subtitle: 'Donation Collection',
         showBackButton: true,
       ),
       body: SingleChildScrollView(

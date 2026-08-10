@@ -1,8 +1,111 @@
 import 'package:flutter/material.dart';
-
 import '../../../shared/ui_kit/chips/severity_badge.dart';
 
-/// Executive summary payload for the Audit Overview screen.
+// --- Domain Models ---
+
+class AuditFilterParameters {
+  final String? mandalId;
+  final String? module;
+  final Severity? severity;
+  final String? actorId;
+  final String? resourceType;
+  final DateTime? startDate;
+  final DateTime? endDate;
+  final String? searchQuery;
+  final int page;
+  final int pageSize;
+
+  const AuditFilterParameters({
+    this.mandalId,
+    this.module,
+    this.severity,
+    this.actorId,
+    this.resourceType,
+    this.startDate,
+    this.endDate,
+    this.searchQuery,
+    this.page = 1,
+    this.pageSize = 50,
+  });
+
+  AuditFilterParameters copyWith({
+    String? mandalId,
+    String? module,
+    Severity? severity,
+    String? actorId,
+    String? resourceType,
+    DateTime? startDate,
+    DateTime? endDate,
+    String? searchQuery,
+    int? page,
+    int? pageSize,
+  }) {
+    return AuditFilterParameters(
+      mandalId: mandalId ?? this.mandalId,
+      module: module ?? this.module,
+      severity: severity ?? this.severity,
+      actorId: actorId ?? this.actorId,
+      resourceType: resourceType ?? this.resourceType,
+      startDate: startDate ?? this.startDate,
+      endDate: endDate ?? this.endDate,
+      searchQuery: searchQuery ?? this.searchQuery,
+      page: page ?? this.page,
+      pageSize: pageSize ?? this.pageSize,
+    );
+  }
+}
+
+class MockAuditEvent {
+  final String id;
+  final String? mandalId;
+  final String moduleLabel;
+  final String action;
+  final String actorUserId;
+  final String actorUserName;
+  final String? actorRole;
+  final String? resourceType;
+  final String? resourceId;
+  final int? amountPaise;
+  final DateTime timestamp;
+  final Severity severity;
+  final String? ipAddress;
+  final String? device;
+  final String? browser;
+  final String? sessionId;
+  final String? requestId;
+  final String? reason;
+  final String? approvalStatus;
+
+  final List<AuditFieldChange> changes;
+  final List<RelatedEvent> relatedEvents;
+
+  const MockAuditEvent({
+    required this.id,
+    this.mandalId,
+    required this.moduleLabel,
+    required this.action,
+    required this.actorUserId,
+    required this.actorUserName,
+    this.actorRole,
+    this.resourceType,
+    this.resourceId,
+    this.amountPaise,
+    required this.timestamp,
+    required this.severity,
+    this.ipAddress,
+    this.device,
+    this.browser,
+    this.sessionId,
+    this.requestId,
+    this.reason,
+    this.approvalStatus,
+    this.changes = const [],
+    this.relatedEvents = const [],
+  });
+}
+
+// --- UI Models (Kept for compatibility with existing views) ---
+
 class AuditSummaryData {
   final int todayEventsCount;
   final int criticalCount;
@@ -17,8 +120,6 @@ class AuditSummaryData {
   });
 }
 
-/// One row shown in both the Timeline and Table views -- the two are
-/// different presentations of the identical filtered result set.
 class AuditEventData {
   final String id;
   final String timeLabel;
@@ -26,9 +127,6 @@ class AuditEventData {
   final String actorName;
   final String moduleLabel;
   final Severity severity;
-
-  /// "Today" / "Yesterday" / "Earlier this month" -- drives timeline
-  /// grouping; ignored by the table view.
   final String groupLabel;
 
   const AuditEventData({
@@ -42,9 +140,6 @@ class AuditEventData {
   });
 }
 
-/// A single changed field, rendered with the shared `DiffRow` -- the exact
-/// component Budget's revisions use, since a budget revision is
-/// structurally an audited change.
 class AuditFieldChange {
   final String fieldLabel;
   final String oldValueLabel;
@@ -57,8 +152,6 @@ class AuditFieldChange {
   });
 }
 
-/// One entry in an audit event's "Related events" chain (e.g. Budget
-/// revision approved -> Vendor quote updated -> Notification sent).
 class RelatedEvent {
   final String title;
   final String timeAgoLabel;
@@ -67,7 +160,6 @@ class RelatedEvent {
   const RelatedEvent({required this.title, required this.timeAgoLabel, required this.icon});
 }
 
-/// System metadata grouped for the Audit Detail screen.
 class AuditMetadata {
   final String ipAddress;
   final String device;
@@ -86,7 +178,6 @@ class AuditMetadata {
   });
 }
 
-/// Full payload for the Audit Detail screen.
 class AuditEventDetail {
   final String id;
   final String moduleLabel;
@@ -115,9 +206,6 @@ class AuditEventDetail {
   });
 }
 
-/// One search result row, pre-split around the matched substring so the
-/// widget layer never needs its own fuzzy-matching logic -- the match
-/// span is expected to come from the server (see the API blueprint).
 class AuditSearchResult {
   final IconData icon;
   final String beforeMatch;

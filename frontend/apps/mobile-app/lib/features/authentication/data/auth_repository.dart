@@ -22,46 +22,25 @@ class AuthRepository {
     required String postalCode,
     required int festivalYear,
     required String phoneNumber,
-    required String password,
+    String? password,
     required String preferredLanguage,
   }) async {
-    try {
-      final session = await _remote.registerTrust(
-        mandalTrustName: mandalTrustName,
-        registrationNumber: registrationNumber,
-        presidentHeadName: presidentHeadName,
-        addressLine1: addressLine1,
-        city: city,
-        state: state,
-        postalCode: postalCode,
-        festivalYear: festivalYear,
-        phoneNumber: phoneNumber,
-        password: password,
-        preferredLanguage: preferredLanguage,
-      );
-      await _persist(session);
-      await _tokenStorage.saveRole(LoginRole.mandal.name);
-      return session.user;
-    } catch (_) {
-      final mockUser = AuthUser(
-        id: 'usr_trust_mock',
-        displayName: presidentHeadName.isNotEmpty ? presidentHeadName : 'Trust Administrator',
-        primaryMobile: phoneNumber,
-        primaryEmail: 'trust@mandal.org',
-        preferredLanguage: preferredLanguage,
-        platformRole: 'TRUST_ADMIN',
-        status: 'ACTIVE',
-        organization: AuthOrganization(
-          id: 'org_mock',
-          name: mandalTrustName.isNotEmpty ? mandalTrustName : 'Shree Siddhivinayak Ganpati Mandal',
-          code: 'MNDL-001',
-          status: 'ACTIVE',
-        ),
-        donorProfile: null,
-      );
-      await _tokenStorage.saveRole(LoginRole.mandal.name);
-      return mockUser;
-    }
+    final session = await _remote.registerTrust(
+      mandalTrustName: mandalTrustName,
+      registrationNumber: registrationNumber,
+      presidentHeadName: presidentHeadName,
+      addressLine1: addressLine1,
+      city: city,
+      state: state,
+      postalCode: postalCode,
+      festivalYear: festivalYear,
+      phoneNumber: phoneNumber,
+      password: password,
+      preferredLanguage: preferredLanguage,
+    );
+    await _persist(session);
+    await _tokenStorage.saveRole(LoginRole.mandal.name);
+    return session.user;
   }
 
   Future<AuthUser> registerDonor({
@@ -72,80 +51,41 @@ class AuthRepository {
     required String city,
     String? postalCode,
     required String phoneNumber,
-    required String password,
+    String? password,
     required String preferredLanguage,
   }) async {
-    try {
-      final session = await _remote.registerDonor(
-        fullName: fullName,
-        email: email,
-        panNumber: panNumber,
-        addressLine1: addressLine1,
-        city: city,
-        postalCode: postalCode,
-        phoneNumber: phoneNumber,
-        password: password,
-        preferredLanguage: preferredLanguage,
-      );
-      await _persist(session);
-      await _tokenStorage.saveRole(LoginRole.donor.name);
-      return session.user;
-    } catch (_) {
-      final mockUser = AuthUser(
-        id: 'usr_donor_mock',
-        displayName: fullName.isNotEmpty ? fullName : 'Ramesh Patil',
-        primaryMobile: phoneNumber,
-        primaryEmail: email ?? 'donor@example.com',
-        preferredLanguage: preferredLanguage,
-        platformRole: 'DONOR',
-        status: 'ACTIVE',
-        organization: null,
-        donorProfile: AuthDonorProfile(
-          id: 'dnr_mock',
-          fullName: fullName.isNotEmpty ? fullName : 'Ramesh Patil',
-          status: 'ACTIVE',
-        ),
-      );
-      await _tokenStorage.saveRole(LoginRole.donor.name);
-      return mockUser;
-    }
+    final session = await _remote.registerDonor(
+      fullName: fullName,
+      email: email,
+      panNumber: panNumber,
+      addressLine1: addressLine1,
+      city: city,
+      postalCode: postalCode,
+      phoneNumber: phoneNumber,
+      password: password,
+      preferredLanguage: preferredLanguage,
+    );
+    await _persist(session);
+    await _tokenStorage.saveRole(LoginRole.donor.name);
+    return session.user;
   }
 
   Future<AuthUser> login({required String phoneNumber, required String password, required LoginRole role}) async {
-    try {
-      final session = await _remote.login(phoneNumber: phoneNumber, password: password, role: role);
-      await _persist(session);
-      await _tokenStorage.saveRole(role.name);
-      return session.user;
-    } catch (_) {
-      final isTrust = role == LoginRole.mandal;
-      final mockUser = AuthUser(
-        id: isTrust ? 'usr_trust_mock' : 'usr_donor_mock',
-        displayName: isTrust ? 'Trust Administrator' : 'Ramesh Patil',
-        primaryMobile: phoneNumber,
-        primaryEmail: isTrust ? 'trust@mandal.org' : 'donor@example.com',
-        preferredLanguage: 'EN',
-        platformRole: isTrust ? 'TRUST_ADMIN' : 'DONOR',
-        status: 'ACTIVE',
-        organization: isTrust
-            ? const AuthOrganization(
-                id: 'org_mock',
-                name: 'Shree Siddhivinayak Ganpati Mandal',
-                code: 'MNDL-001',
-                status: 'ACTIVE',
-              )
-            : null,
-        donorProfile: isTrust
-            ? null
-            : const AuthDonorProfile(
-                id: 'dnr_mock',
-                fullName: 'Ramesh Patil',
-                status: 'ACTIVE',
-              ),
-      );
-      await _tokenStorage.saveRole(role.name);
-      return mockUser;
-    }
+    final session = await _remote.login(phoneNumber: phoneNumber, password: password, role: role);
+    await _persist(session);
+    await _tokenStorage.saveRole(role.name);
+    return session.user;
+  }
+
+  Future<OtpRequestResult> requestOtp({required String phoneNumber, required OtpPurpose purpose}) {
+    return _remote.requestOtp(phoneNumber: phoneNumber, purpose: purpose);
+  }
+
+  Future<AuthUser> verifyOtp({required String phoneNumber, required String otp, required OtpPurpose purpose, required LoginRole role}) async {
+    final session = await _remote.verifyOtp(phoneNumber: phoneNumber, otp: otp, purpose: purpose);
+    await _persist(session);
+    await _tokenStorage.saveRole(role.name);
+    return session.user;
   }
 
   /// Attempts to restore a session from a previously persisted refresh
@@ -185,4 +125,40 @@ class AuthRepository {
         accessToken: session.accessToken,
         refreshToken: session.refreshToken,
       );
+
+  Future<void> createMpin({required String mpin}) {
+    return _remote.createMpin(mpin: mpin);
+  }
+
+  Future<AuthUser> loginMpin({
+    required String phoneNumber,
+    required String mpin,
+    required LoginRole role,
+  }) async {
+    final session = await _remote.loginMpin(phoneNumber: phoneNumber, mpin: mpin, role: role);
+    await _persist(session);
+    await _tokenStorage.saveRole(role.name);
+    return session.user;
+  }
+
+  Future<OtpRequestResult> forgotMpin({required String phoneNumber}) {
+    return _remote.forgotMpin(phoneNumber: phoneNumber);
+  }
+
+  Future<AuthUser> verifyMpinReset({
+    required String phoneNumber,
+    required String otp,
+    required String newMpin,
+    required LoginRole role,
+  }) async {
+    final session = await _remote.verifyMpinReset(
+      phoneNumber: phoneNumber,
+      otp: otp,
+      newMpin: newMpin,
+      role: role,
+    );
+    await _persist(session);
+    await _tokenStorage.saveRole(role.name);
+    return session.user;
+  }
 }

@@ -31,7 +31,7 @@ class _PaymentsListScreenState extends ConsumerState<PaymentsListScreen> {
     return Scaffold(
       appBar: PautiAppBar(
         title: L10n.tr(ref, 'payment_collection'),
-        subtitle: 'Treasurer Portal',
+        subtitle: 'Donation Collection',
         showBackButton: true,
       ),
       floatingActionButton: FloatingActionButton.extended(

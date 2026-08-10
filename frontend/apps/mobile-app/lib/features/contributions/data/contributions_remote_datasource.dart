@@ -24,7 +24,10 @@ class ContributionsRemoteDataSource {
     required DonationType donationType,
     String? itemDescription,
     double? weightGrams,
+    double? quantity,
+    String? unit,
     double? estimatedValue,
+    String? notes,
     String? certificatePhotoUrl,
   }) async {
     String donationTypeStr;
@@ -47,6 +50,12 @@ class ContributionsRemoteDataSource {
       case DonationType.musicBand:
         donationTypeStr = 'Music Band';
         break;
+      case DonationType.dholPathak:
+        donationTypeStr = 'Dhol Pathak';
+        break;
+      case DonationType.dj:
+        donationTypeStr = 'DJ';
+        break;
       case DonationType.other:
         donationTypeStr = 'Other';
         break;
@@ -59,7 +68,10 @@ class ContributionsRemoteDataSource {
       'donationType': donationTypeStr,
       if (itemDescription != null) 'itemDescription': itemDescription,
       if (weightGrams != null) 'weight': weightGrams,
+      if (quantity != null) 'quantity': quantity,
+      if (unit != null) 'unit': unit,
       if (estimatedValue != null) 'estimatedValue': estimatedValue,
+      if (notes != null) 'notes': notes,
       if (certificatePhotoUrl != null) 'certificatePhotoUrl': certificatePhotoUrl,
     });
 
@@ -73,7 +85,10 @@ class ContributionsRemoteDataSource {
     DonationType? donationType,
     String? itemDescription,
     double? weightGrams,
+    double? quantity,
+    String? unit,
     double? estimatedValue,
+    String? notes,
     String? certificatePhotoUrl,
   }) async {
     final response = await dio.patch('/contributions/$id', data: {
@@ -81,7 +96,10 @@ class ContributionsRemoteDataSource {
       if (contact != null) 'contactSnapshot': contact,
       if (itemDescription != null) 'itemDescription': itemDescription,
       if (weightGrams != null) 'weight': weightGrams,
+      if (quantity != null) 'quantity': quantity,
+      if (unit != null) 'unit': unit,
       if (estimatedValue != null) 'estimatedValue': estimatedValue,
+      if (notes != null) 'notes': notes,
       if (certificatePhotoUrl != null) 'certificatePhotoUrl': certificatePhotoUrl,
     });
     return Contribution.fromJson(response.data as Map<String, dynamic>);

@@ -1,8 +1,8 @@
 import { ConflictException, ForbiddenException, Inject, Injectable, Logger, NotFoundException, Optional, ServiceUnavailableException } from "@nestjs/common";
 import { Payment, PaymentChannel, PaymentStatus, PrismaService } from "@pauti-pustak/backend-database";
 import { FestivalYearService } from "../common/festival-year/festival-year.service";
-import { CreatePaymentDto } from "./dto/create-payment.dto";
 import { CreatePaymentOrderDto } from "./dto/create-payment-order.dto";
+import { CreatePaymentDto } from "./dto/create-payment.dto";
 import { ListPaymentsQueryDto } from "./dto/list-payments-query.dto";
 import { RefundPaymentDto } from "./dto/refund-payment.dto";
 import { UpdatePaymentDto } from "./dto/update-payment.dto";
@@ -32,7 +32,7 @@ export class PaymentsService {
     @Inject(PrismaService) private readonly prisma: PrismaService,
     @Inject(FestivalYearService) private readonly festivalYear: FestivalYearService,
     @Inject(RECEIPT_GENERATION_PORT) private readonly receiptGeneration: ReceiptGenerationPort,
-    @Inject(RAZORPAY_ORDERS_PORT) private readonly razorpayOrders: RazorpayOrdersPort,
+    @Optional() @Inject(RAZORPAY_ORDERS_PORT) private readonly razorpayOrders?: RazorpayOrdersPort,
     @Optional() @Inject(PAYMENT_GATEWAY_PORT) private readonly gateway?: PaymentGatewayPort,
   ) {}
 
@@ -74,6 +74,9 @@ export class PaymentsService {
     }
 
     try {
+      if (!this.razorpayOrders) {
+        throw new ServiceUnavailableException("Razorpay gateway integration is disabled");
+      }
       const order = await this.razorpayOrders.createOrder({
         amountRupees: dto.amount,
         receipt: payment.id,

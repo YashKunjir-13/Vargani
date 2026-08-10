@@ -1,6 +1,6 @@
 /// Mirrors backend DonationType (src/contributions) -- default categories
 /// plus an org-configurable custom category with an Other fallback.
-enum DonationType { gold, silver, electronicGoods, decoration, food, musicBand, other }
+enum DonationType { gold, silver, electronicGoods, decoration, food, musicBand, dholPathak, dj, other }
 
 /// Mirrors backend ContributionStatus.
 enum ContributionStatus { recorded, receipted }
@@ -13,6 +13,8 @@ extension DonationTypeLabel on DonationType {
         DonationType.decoration => 'Decoration',
         DonationType.food => 'Food',
         DonationType.musicBand => 'Music Band',
+        DonationType.dholPathak => 'Dhol Pathak',
+        DonationType.dj => 'DJ',
         DonationType.other => 'Other',
       };
 
@@ -35,7 +37,10 @@ class Contribution {
   final DonationType donationType;
   final String? itemDescription;
   final double? weightGrams;
+  final double? quantity;
+  final String? unit;
   final double? estimatedValue;
+  final String? notes;
   final String? certificatePhotoUrl;
   final String recordedBy;
   final ContributionStatus status;
@@ -48,7 +53,10 @@ class Contribution {
     required this.donationType,
     this.itemDescription,
     this.weightGrams,
+    this.quantity,
+    this.unit,
     this.estimatedValue,
+    this.notes,
     this.certificatePhotoUrl,
     required this.recordedBy,
     required this.status,
@@ -71,6 +79,11 @@ class Contribution {
         case 'music band':
         case 'musicband':
           return DonationType.musicBand;
+        case 'dhol pathak':
+        case 'dholpathak':
+          return DonationType.dholPathak;
+        case 'dj':
+          return DonationType.dj;
         default:
           return DonationType.other;
       }
@@ -90,6 +103,9 @@ class Contribution {
     final rawWeight = json['weight'] ?? json['weightGrams'];
     final double? weightVal = rawWeight != null ? (rawWeight is num ? rawWeight.toDouble() : double.tryParse(rawWeight.toString())) : null;
 
+    final rawQty = json['quantity'];
+    final double? qtyVal = rawQty != null ? (rawQty is num ? rawQty.toDouble() : double.tryParse(rawQty.toString())) : null;
+
     final rawEst = json['estimatedValue'];
     final double? estVal = rawEst != null ? (rawEst is num ? rawEst.toDouble() : double.tryParse(rawEst.toString())) : null;
 
@@ -101,7 +117,10 @@ class Contribution {
       donationType: parseDonationType(json['donationType'] as String?),
       itemDescription: json['itemDescription'] as String?,
       weightGrams: weightVal,
+      quantity: qtyVal,
+      unit: json['unit'] as String?,
       estimatedValue: estVal,
+      notes: json['notes'] as String?,
       certificatePhotoUrl: json['certificatePhotoUrl'] as String?,
       recordedBy: json['recordedBy'] as String? ?? '',
       status: parseStatus(json['status'] as String?),
@@ -123,6 +142,10 @@ class Contribution {
           return 'Food';
         case DonationType.musicBand:
           return 'Music Band';
+        case DonationType.dholPathak:
+          return 'Dhol Pathak';
+        case DonationType.dj:
+          return 'DJ';
         case DonationType.other:
           return 'Other';
       }
@@ -136,7 +159,10 @@ class Contribution {
       'donationType': donationTypeToString(donationType),
       'itemDescription': itemDescription,
       'weight': weightGrams,
+      'quantity': quantity,
+      'unit': unit,
       'estimatedValue': estimatedValue,
+      'notes': notes,
       'certificatePhotoUrl': certificatePhotoUrl,
       'status': status == ContributionStatus.recorded ? 'RECORDED' : 'RECEIPTED',
     };
@@ -149,7 +175,10 @@ class Contribution {
     DonationType? donationType,
     String? itemDescription,
     double? weightGrams,
+    double? quantity,
+    String? unit,
     double? estimatedValue,
+    String? notes,
     String? certificatePhotoUrl,
   }) {
     return Contribution(
@@ -160,7 +189,10 @@ class Contribution {
       donationType: donationType ?? this.donationType,
       itemDescription: itemDescription ?? this.itemDescription,
       weightGrams: weightGrams ?? this.weightGrams,
+      quantity: quantity ?? this.quantity,
+      unit: unit ?? this.unit,
       estimatedValue: estimatedValue ?? this.estimatedValue,
+      notes: notes ?? this.notes,
       certificatePhotoUrl: certificatePhotoUrl ?? this.certificatePhotoUrl,
       recordedBy: recordedBy,
       status: status ?? this.status,

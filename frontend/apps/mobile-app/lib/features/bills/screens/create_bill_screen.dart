@@ -96,7 +96,7 @@ class _CreateBillScreenState extends ConsumerState<CreateBillScreen> {
     return Scaffold(
       appBar: PautiAppBar(
         title: L10n.tr(ref, 'bill_generation'),
-        subtitle: 'Treasurer Portal',
+        subtitle: 'Mandal Management',
         showBackButton: true,
       ),
       body: SingleChildScrollView(

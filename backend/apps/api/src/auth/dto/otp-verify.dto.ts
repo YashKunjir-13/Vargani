@@ -3,13 +3,13 @@ import { IsEnum, IsNotEmpty, IsPhoneNumber, IsString, Length } from "class-valid
 import { OtpPurpose } from "@pauti-pustak/backend-database";
 
 export class OtpVerifyDto {
-  @ApiProperty({ example: "+919876543210" })
+  @ApiProperty({ type: String, example: "+919876543210" })
   @IsNotEmpty()
   @IsString()
   @IsPhoneNumber("IN")
   phoneNumber!: string;
 
-  @ApiProperty({ example: "123456" })
+  @ApiProperty({ type: String, example: "123456" })
   @IsNotEmpty()
   @IsString()
   @Length(6, 6)
