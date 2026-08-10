@@ -412,7 +412,7 @@ export class AuthService {
     const identity = await this.prisma.authIdentity.findFirst({
       where: {
         normalizedValue: dto.phoneNumber,
-        provider: AuthProvider.EMAIL_PASSWORD,
+        passwordHash: { not: null },
       },
       include: { user: true },
     });
