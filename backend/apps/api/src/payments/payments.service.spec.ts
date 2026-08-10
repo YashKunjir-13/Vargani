@@ -7,17 +7,124 @@
 import { ConflictException, ForbiddenException, NotFoundException } from "@nestjs/common";
 import { PaymentChannel, PaymentStatus } from "@pauti-pustak/backend-database";
 import {
-  createMockPrisma,
-  createMockPaymentDto,
   createMockFestivalYearService,
-  createMockReceiptGeneration,
+  createMockPaymentDto,
+  createMockPrisma,
   createMockRazorpayOrders,
+  createMockReceiptGeneration,
   createMockWebhookPayload,
   TEST_ORG_A,
   TEST_ORG_B,
   TEST_USER_TREASURER,
 } from "@pauti-pustak/backend-testing";
 import { PaymentsService } from "./payments.service";
+
+const ORG_A = "org-a";
+const ORG_B = "org-b";
+
+function buildPrismaMock() {
+  const payments = new Map<string, any>();
+  const auditEvents: any[] = [];
+  let idCounter = 0;
+
+  const payment = {
+    create: jest.fn(({ data }: any) => {
+      idCounter += 1;
+      const row = {
+        id: `payment-${idCounter}`,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+        razorpayPaymentId: null,
+        matchedByUserId: null,
+        matchedAt: null,
+        voidReason: null,
+        ...data,
+      };
+      payments.set(row.id, row);
+      return Promise.resolve({ ...row });
+    }),
+    findUnique: jest.fn(({ where }: any) => {
+      if (where.id) return Promise.resolve(payments.get(where.id) ?? null);
+      if (where.razorpayOrderId) {
+        return Promise.resolve(
+          [...payments.values()].find((p) => p.razorpayOrderId === where.razorpayOrderId) ?? null,
+        );
+      }
+      return Promise.resolve(null);
+    }),
+    findMany: jest.fn(({ where }: any) =>
+      Promise.resolve(
+        [...payments.values()].filter((p) => {
+          if (p.organizationId !== where.organizationId) return false;
+          if (where.status && p.status !== where.status) return false;
+          if (where.channel && p.channel !== where.channel) return false;
+          if (where.donorId && p.donorId !== where.donorId) return false;
+          return true;
+        }),
+      ),
+    ),
+    update: jest.fn(({ where, data }: any) => {
+      const row = { ...payments.get(where.id), ...data };
+      payments.set(where.id, row);
+      return Promise.resolve({ ...row });
+    }),
+    delete: jest.fn(({ where }: any) => {
+      const row = payments.get(where.id) ?? null;
+      payments.delete(where.id);
+      return Promise.resolve(row);
+    }),
+  };
+
+  const paymentAuditEvent = {
+    create: jest.fn(({ data }: any) => {
+      auditEvents.push(data);
+      return Promise.resolve({ id: `audit-${auditEvents.length}`, createdAt: new Date(), ...data });
+    }),
+  };
+
+  const paymentReceipt = {
+    findUnique: jest.fn(({ where }: any) =>
+      Promise.resolve({
+        id: `rcpt-1`,
+        receiptNumber: "RCPT-2026-000001",
+        paymentId: where.paymentId,
+        issuedDate: new Date(),
+        status: "ACTIVE",
+      }),
+    ),
+  };
+
+  return { payment, paymentAuditEvent, paymentReceipt, __payments: payments, __auditEvents: auditEvents };
+}
+
+function buildFestivalYearMock(festivalYear = 2026) {
+  return {
+    getActiveFestivalYear: jest.fn(() =>
+      Promise.resolve({ eventId: "event-1", organizationId: ORG_A, festivalYear, financialYearLabel: "2025-26" }),
+    ),
+  };
+}
+
+function buildReceiptGenerationMock() {
+  return {
+    generateReceipt: jest.fn(() => Promise.resolve()),
+    voidReceiptForPayment: jest.fn(() => Promise.resolve()),
+  };
+}
+
+let razorpayOrderCounter = 0;
+function buildRazorpayOrdersMock() {
+  return {
+    createOrder: jest.fn(({ amountRupees }: { amountRupees: number }) => {
+      razorpayOrderCounter += 1;
+      return Promise.resolve({
+        id: `order_mock_${razorpayOrderCounter}`,
+        amount: Math.round(amountRupees * 100),
+        currency: "INR",
+      });
+    }),
+  };
+}
 
 function buildService(
   overrides: {
@@ -56,6 +163,32 @@ describe("PaymentsService - create", () => {
 
   it("GIVEN the domain model WHEN checking PaymentChannel THEN supports only IN_APP and QR_CODE", () => {
     expect(Object.values(PaymentChannel)).toEqual([PaymentChannel.IN_APP, PaymentChannel.QR_CODE]);
+  });
+
+  it("collects direct donation, persists payment as RECEIPTED, and generates receipt", async () => {
+    const { service, receiptGeneration } = buildService();
+
+    const result = await service.collectDonation(ORG_A, "user-1", {
+      donorNameSnapshot: "Sunita Deshmukh",
+      contactSnapshot: "9876543210",
+      amount: 1008,
+      paymentMethod: "Cash",
+    });
+
+    expect(result.payment.donorNameSnapshot).toBe("Sunita Deshmukh");
+    expect(result.payment.contactSnapshot).toBe("9876543210");
+    expect(result.payment.amount).toBe(1008);
+    expect(result.payment.status).toBe(PaymentStatus.RECEIPTED);
+    expect(receiptGeneration.generateReceipt).toHaveBeenCalledWith({
+      organizationId: ORG_A,
+      festivalYear: 2026,
+      paymentId: result.payment.id,
+      donorId: null,
+      donorNameSnapshot: "Sunita Deshmukh",
+      amount: 1008,
+      contactSnapshot: "9876543210",
+      createdByUserId: "user-1",
+    });
   });
 });
 

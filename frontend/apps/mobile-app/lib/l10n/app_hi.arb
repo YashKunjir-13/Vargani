@@ -136,5 +136,22 @@
   "resendCodeIn": "पुनः कोड भेजें",
   "seconds": "सेकंड में",
   "createMpinButton": "MPIN बनाएं और समाप्त करें",
-  "saveNewMpin": "नया MPIN सहेजें"
+  "saveNewMpin": "नया MPIN सहेजें",
+  "homeTab": "मुख्य",
+  "contributionsTab": "योगदान",
+  "billsTab": "बिल",
+  "reportsTab": "रिपोर्ट",
+  "receiptsTab": "रसीदें",
+  "historyTab": "इतिहास",
+  "paymentsTab": "भुगतान",
+  "allRecordsTab": "सभी रिकॉर्ड",
+  "quickSummarySection": "त्वरित सारांश",
+  "keyHighlightsSection": "मुख्य झलकियाँ",
+  "bankDetailsSection": "बैंक विवरण और VPA",
+  "accountHolderLabel": "खाता धारक",
+  "bankNameLabel": "बैंक का नाम",
+  "accountNumberLabel": "खाता संख्या",
+  "ifscCodeLabel": "आईएफएससी कोड",
+  "branchNameLabel": "शाखा का नाम",
+  "vpaLabel": "VPA / UPI आईडी"
 }

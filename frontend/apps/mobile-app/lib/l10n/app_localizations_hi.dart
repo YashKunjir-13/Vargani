@@ -419,4 +419,55 @@ class AppLocalizationsHi extends AppLocalizations {
 
   @override
   String get saveNewMpin => 'नया MPIN सहेजें';
+
+  @override
+  String get homeTab => 'मुख्य';
+
+  @override
+  String get contributionsTab => 'योगदान';
+
+  @override
+  String get billsTab => 'बिल';
+
+  @override
+  String get reportsTab => 'रिपोर्ट';
+
+  @override
+  String get receiptsTab => 'रसीदें';
+
+  @override
+  String get historyTab => 'इतिहास';
+
+  @override
+  String get paymentsTab => 'भुगतान';
+
+  @override
+  String get allRecordsTab => 'सभी रिकॉर्ड';
+
+  @override
+  String get quickSummarySection => 'त्वरित सारांश';
+
+  @override
+  String get keyHighlightsSection => 'मुख्य झलकियाँ';
+
+  @override
+  String get bankDetailsSection => 'बैंक विवरण और VPA';
+
+  @override
+  String get accountHolderLabel => 'खाता धारक';
+
+  @override
+  String get bankNameLabel => 'बैंक का नाम';
+
+  @override
+  String get accountNumberLabel => 'खाता संख्या';
+
+  @override
+  String get ifscCodeLabel => 'आईएफएससी कोड';
+
+  @override
+  String get branchNameLabel => 'शाखा का नाम';
+
+  @override
+  String get vpaLabel => 'VPA / UPI आईडी';
 }

@@ -53,8 +53,64 @@ class _AuditOverviewScreenState extends ConsumerState<AuditOverviewScreen> {
       body: state.isLoading && events.isEmpty
           ? const Center(child: CircularProgressIndicator())
           : state.error != null
-              ? Center(child: Text('Error: ${state.error}'))
-              : Column(
+              ? Center(
+                  child: Padding(
+                    padding: const EdgeInsets.all(24),
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        const Icon(Icons.error_outline, color: Colors.red, size: 48),
+                        const SizedBox(height: 12),
+                        Text(
+                          'Error loading audit logs',
+                          style: textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
+                        ),
+                        const SizedBox(height: 6),
+                        Text(
+                          state.error!,
+                          textAlign: TextAlign.center,
+                          style: textTheme.bodySmall?.copyWith(color: colorScheme.onSurfaceVariant),
+                        ),
+                        const SizedBox(height: 16),
+                        ElevatedButton.icon(
+                          onPressed: () => ref.read(auditLogsNotifierProvider.notifier).loadAuditLogs(),
+                          icon: const Icon(Icons.refresh),
+                          label: const Text('Retry'),
+                        ),
+                      ],
+                    ),
+                  ),
+                )
+              : events.isEmpty
+                  ? Center(
+                      child: Padding(
+                        padding: const EdgeInsets.all(32),
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Icon(Icons.history_toggle_off, color: colorScheme.onSurfaceVariant, size: 56),
+                            const SizedBox(height: 16),
+                            Text(
+                              'No audit activity yet',
+                              style: textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
+                            ),
+                            const SizedBox(height: 8),
+                            Text(
+                              'Audit events will automatically appear here as financial transactions, role updates, and system activities occur.',
+                              textAlign: TextAlign.center,
+                              style: textTheme.bodyMedium?.copyWith(color: colorScheme.onSurfaceVariant),
+                            ),
+                            const SizedBox(height: 20),
+                            ElevatedButton.icon(
+                              onPressed: () => ref.read(auditLogsNotifierProvider.notifier).loadAuditLogs(),
+                              icon: const Icon(Icons.refresh),
+                              label: const Text('Refresh Logs'),
+                            ),
+                          ],
+                        ),
+                      ),
+                    )
+                  : Column(
                   children: [
                     Padding(
                       padding: const EdgeInsets.fromLTRB(16, 12, 16, 0),

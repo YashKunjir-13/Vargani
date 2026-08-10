@@ -52,4 +52,24 @@ class PaymentsRemoteDataSource {
     );
     return Payment.fromJson(Map<String, dynamic>.from(response.data));
   }
+
+  Future<Map<String, dynamic>> collectDonation({
+    required String donorName,
+    String? contact,
+    String? address,
+    required double amount,
+    required String paymentMethod,
+  }) async {
+    final response = await _dio.post(
+      '/payments/collect',
+      data: {
+        'donorNameSnapshot': donorName,
+        if (contact != null && contact.isNotEmpty) 'contactSnapshot': contact,
+        if (address != null && address.isNotEmpty) 'addressSnapshot': address,
+        'amount': amount,
+        'paymentMethod': paymentMethod,
+      },
+    );
+    return Map<String, dynamic>.from(response.data);
+  }
 }

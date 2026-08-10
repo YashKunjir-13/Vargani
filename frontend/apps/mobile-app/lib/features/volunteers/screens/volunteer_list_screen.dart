@@ -49,14 +49,21 @@ class VolunteerListScreen extends ConsumerWidget {
               children: [
                 Expanded(
                   child: DropdownButtonFormField<VolunteerStatus?>(
+                    isExpanded: true,
                     initialValue: listState.status,
                     decoration: InputDecoration(labelText: context.statusLabel),
                     items: [
-                      DropdownMenuItem(value: null, child: Text(context.allLabel)),
+                      DropdownMenuItem(
+                        value: null,
+                        child: Text(context.allLabel, overflow: TextOverflow.ellipsis),
+                      ),
                       for (final status in VolunteerStatus.values)
                         DropdownMenuItem(
                           value: status,
-                          child: Text(_statusLabel(status, context.languageCode)),
+                          child: Text(
+                            _statusLabel(status, context.languageCode),
+                            overflow: TextOverflow.ellipsis,
+                          ),
                         ),
                     ],
                     onChanged: (value) => ref
@@ -67,12 +74,19 @@ class VolunteerListScreen extends ConsumerWidget {
                 const SizedBox(width: AppSpacing.space16),
                 Expanded(
                   child: DropdownButtonFormField<VolunteerType?>(
+                    isExpanded: true,
                     initialValue: listState.type,
                     decoration: InputDecoration(labelText: context.typeLabel),
                     items: [
-                      DropdownMenuItem(value: null, child: Text(context.allLabel)),
+                      DropdownMenuItem(
+                        value: null,
+                        child: Text(context.allLabel, overflow: TextOverflow.ellipsis),
+                      ),
                       for (final type in VolunteerType.values)
-                        DropdownMenuItem(value: type, child: Text(type.label)),
+                        DropdownMenuItem(
+                          value: type,
+                          child: Text(type.label, overflow: TextOverflow.ellipsis),
+                        ),
                     ],
                     onChanged: (value) => ref
                         .read(volunteerListControllerProvider.notifier)
@@ -125,8 +139,10 @@ class VolunteerListScreen extends ConsumerWidget {
                                 child: Text(
                                   volunteer.fullName,
                                   style: textTheme.titleMedium,
+                                  overflow: TextOverflow.ellipsis,
                                 ),
                               ),
+                              const SizedBox(width: AppSpacing.space8),
                               VolunteerStatusBadge(status: volunteer.status),
                             ],
                           ),
@@ -134,20 +150,20 @@ class VolunteerListScreen extends ConsumerWidget {
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               const SizedBox(height: AppSpacing.space8),
-                              Row(
+                              Wrap(
+                                spacing: AppSpacing.space8,
+                                runSpacing: 4,
+                                crossAxisAlignment: WrapCrossAlignment.center,
                                 children: [
                                   VolunteerTypeBadge(
                                     type: volunteer.type,
                                     customTypeLabel: volunteer.customTypeLabel,
                                   ),
-                                  const SizedBox(width: AppSpacing.space8),
                                   if (volunteer.currentAssignmentSummary != null)
-                                    Expanded(
-                                      child: Text(
-                                        volunteer.currentAssignmentSummary!,
-                                        style: textTheme.bodyMedium,
-                                        overflow: TextOverflow.ellipsis,
-                                      ),
+                                    Text(
+                                      volunteer.currentAssignmentSummary!,
+                                      style: textTheme.bodyMedium,
+                                      overflow: TextOverflow.ellipsis,
                                     ),
                                 ],
                               ),

@@ -19,6 +19,7 @@ import { AuthenticatedUser, CurrentUser, Public, RequirePermission } from "@paut
 import { PaymentChannel } from "@pauti-pustak/backend-database";
 import type { Request } from "express";
 import { TenantContext } from "../common/tenancy/tenant-context";
+import { CollectDonationDto } from "./dto/collect-donation.dto";
 import { CreatePaymentDto } from "./dto/create-payment.dto";
 import { CreatePaymentOrderDto } from "./dto/create-payment-order.dto";
 import { ListPaymentsQueryDto } from "./dto/list-payments-query.dto";
@@ -90,6 +91,17 @@ export class PaymentsController {
     // key_id is Razorpay's publishable identifier -- safe to return to the
     // client, unlike key_secret, which never leaves the server.
     return { ...payment, razorpayKeyId: process.env.RAZORPAY_KEY_ID };
+  }
+
+  @Post("collect")
+  @RequirePermission("payment.create")
+  @HttpCode(HttpStatus.CREATED)
+  @ApiOperation({
+    summary:
+      "Collect direct donation (Cash/UPI/Net Banking/Cheque) and auto-generate official digital receipt",
+  })
+  async collectDonation(@Body() dto: CollectDonationDto, @CurrentUser() user: AuthenticatedUser) {
+    return this.paymentsService.collectDonation(this.tenantContext.organizationId, user.userId, dto);
   }
 
   @Get("stats")

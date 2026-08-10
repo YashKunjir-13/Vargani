@@ -909,6 +909,108 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Save New MPIN'**
   String get saveNewMpin;
+
+  /// No description provided for @homeTab.
+  ///
+  /// In en, this message translates to:
+  /// **'Home'**
+  String get homeTab;
+
+  /// No description provided for @contributionsTab.
+  ///
+  /// In en, this message translates to:
+  /// **'Contributions'**
+  String get contributionsTab;
+
+  /// No description provided for @billsTab.
+  ///
+  /// In en, this message translates to:
+  /// **'Bills'**
+  String get billsTab;
+
+  /// No description provided for @reportsTab.
+  ///
+  /// In en, this message translates to:
+  /// **'Reports'**
+  String get reportsTab;
+
+  /// No description provided for @receiptsTab.
+  ///
+  /// In en, this message translates to:
+  /// **'Receipts'**
+  String get receiptsTab;
+
+  /// No description provided for @historyTab.
+  ///
+  /// In en, this message translates to:
+  /// **'History'**
+  String get historyTab;
+
+  /// No description provided for @paymentsTab.
+  ///
+  /// In en, this message translates to:
+  /// **'Payments'**
+  String get paymentsTab;
+
+  /// No description provided for @allRecordsTab.
+  ///
+  /// In en, this message translates to:
+  /// **'All Records'**
+  String get allRecordsTab;
+
+  /// No description provided for @quickSummarySection.
+  ///
+  /// In en, this message translates to:
+  /// **'QUICK SUMMARY'**
+  String get quickSummarySection;
+
+  /// No description provided for @keyHighlightsSection.
+  ///
+  /// In en, this message translates to:
+  /// **'KEY HIGHLIGHTS'**
+  String get keyHighlightsSection;
+
+  /// No description provided for @bankDetailsSection.
+  ///
+  /// In en, this message translates to:
+  /// **'Bank Details & VPA'**
+  String get bankDetailsSection;
+
+  /// No description provided for @accountHolderLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Account Holder'**
+  String get accountHolderLabel;
+
+  /// No description provided for @bankNameLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Bank Name'**
+  String get bankNameLabel;
+
+  /// No description provided for @accountNumberLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Account Number'**
+  String get accountNumberLabel;
+
+  /// No description provided for @ifscCodeLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'IFSC Code'**
+  String get ifscCodeLabel;
+
+  /// No description provided for @branchNameLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Branch Name'**
+  String get branchNameLabel;
+
+  /// No description provided for @vpaLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'VPA / UPI ID'**
+  String get vpaLabel;
 }
 
 class _AppLocalizationsDelegate

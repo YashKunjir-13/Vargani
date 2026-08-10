@@ -333,6 +333,12 @@ model Organization {
   registrationDocumentId String?            @db.Uuid
   primaryMobile          String?            @db.VarChar(20)
   primaryEmail           String?            @db.VarChar(320)
+  bankAccountName        String?            @db.VarChar(150)
+  bankName               String?            @db.VarChar(150)
+  accountNumber          String?            @db.VarChar(50)
+  ifscCode               String?            @db.VarChar(20)
+  branchName             String?            @db.VarChar(150)
+  vpa                    String?            @db.VarChar(100)
   bankAccountConfigured  Boolean            @default(false)
   upiConfigured          Boolean            @default(false)
   correctionNotes        String?            @db.Text

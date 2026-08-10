@@ -65,12 +65,20 @@ export class OrganizationsService {
       ? this.panEncryptionService.encrypt(dto.panNumber)
       : org.panEncrypted;
 
+    const vpaValue = (dto.vpa || dto.upiId)?.trim();
+
     const updated = await this.prisma.organization.update({
       where: { id: organizationId },
       data: {
         panEncrypted,
-        bankAccountConfigured: Boolean(dto.accountNumber && dto.ifscCode) || org.bankAccountConfigured,
-        upiConfigured: Boolean(dto.upiId) || org.upiConfigured,
+        ...(dto.bankAccountName !== undefined ? { bankAccountName: dto.bankAccountName.trim() } : {}),
+        ...(dto.bankName !== undefined ? { bankName: dto.bankName.trim() } : {}),
+        ...(dto.accountNumber !== undefined ? { accountNumber: dto.accountNumber.trim() } : {}),
+        ...(dto.ifscCode !== undefined ? { ifscCode: dto.ifscCode.trim().toUpperCase() } : {}),
+        ...(dto.branchName !== undefined ? { branchName: dto.branchName.trim() } : {}),
+        ...(vpaValue !== undefined ? { vpa: vpaValue } : {}),
+        bankAccountConfigured: Boolean(dto.accountNumber || dto.ifscCode) || org.bankAccountConfigured,
+        upiConfigured: Boolean(vpaValue) || org.upiConfigured,
       },
     });
 
@@ -132,10 +140,18 @@ export class OrganizationsService {
       }
     }
 
+    let accountNumberMasked: string | null = null;
+    if (org.accountNumber && org.accountNumber.length > 4) {
+      accountNumberMasked = `XXXX XXXX ${org.accountNumber.slice(-4)}`;
+    } else if (org.accountNumber) {
+      accountNumberMasked = org.accountNumber;
+    }
+
     const { panEncrypted, ...safeOrg } = org;
     return {
       ...safeOrg,
       panMasked,
+      accountNumberMasked,
     };
   }
 }

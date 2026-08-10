@@ -16,12 +16,12 @@ import 'package:pauti_pustak_mobile/features/dashboard/presentation/widgets/modu
 import 'package:pauti_pustak_mobile/features/dashboard/presentation/widgets/quick_actions_bar.dart';
 import 'package:pauti_pustak_mobile/features/dashboard/presentation/widgets/summary_card.dart';
 import 'package:pauti_pustak_mobile/features/dashboard/presentation/widgets/transaction_list.dart';
-import 'package:pauti_pustak_mobile/features/donors/screens/donor_list_screen.dart';
 import 'package:pauti_pustak_mobile/features/volunteers/screens/volunteer_list_screen.dart';
 import 'package:pauti_pustak_mobile/features/volunteers/screens/volunteer_form_screen.dart';
 import 'package:pauti_pustak_mobile/features/sponsorship_advertisement/screens/sponsorship_list_screen.dart';
 import 'package:pauti_pustak_mobile/features/sponsorship_advertisement/screens/sponsorship_form_screen.dart';
 import 'package:pauti_pustak_mobile/features/sponsorship_advertisement/screens/advertisement_list_screen.dart';
+import 'package:pauti_pustak_mobile/features/profile/widgets/bank_details_section.dart';
 import 'package:pauti_pustak_mobile/app/all_records_screen.dart';
 import 'package:pauti_pustak_mobile/features/rbac/presentation/providers/mock_rbac_provider.dart';
 import 'package:pauti_pustak_mobile/features/rbac/presentation/pages/user_management_screen.dart';
@@ -125,25 +125,25 @@ class _MandalDashboardScreenState extends ConsumerState<MandalDashboardScreen> {
             AppBottomNavItem(
               icon: Icons.dashboard_outlined,
               selectedIcon: Icons.dashboard,
-              label: l10n.mandalDashboardTitle.split(' ').first,
+              label: l10n.homeTab,
               route: '',
             ),
-            const AppBottomNavItem(
+            AppBottomNavItem(
               icon: Icons.monetization_on_outlined,
               selectedIcon: Icons.monetization_on,
-              label: 'Contributions',
+              label: l10n.contributionsTab,
               route: '',
             ),
-            const AppBottomNavItem(
+            AppBottomNavItem(
               icon: Icons.description_outlined,
               selectedIcon: Icons.description,
-              label: 'Bills',
+              label: l10n.billsTab,
               route: '',
             ),
-            const AppBottomNavItem(
+            AppBottomNavItem(
               icon: Icons.assessment_outlined,
               selectedIcon: Icons.assessment,
-              label: 'Reports',
+              label: l10n.reportsTab,
               route: '',
             ),
             AppBottomNavItem(
@@ -188,7 +188,7 @@ class _MandalDashboardScreenState extends ConsumerState<MandalDashboardScreen> {
 
           // Quick Summary Cards Row
           Text(
-            'QUICK SUMMARY',
+            l10n.quickSummarySection,
             style: TextStyle(
               color: colors.secondaryText,
               fontSize: 12,
@@ -416,6 +416,9 @@ class _MandalDashboardScreenState extends ConsumerState<MandalDashboardScreen> {
                 case 'analytics':
                   context.push('/analytics');
                   break;
+                case 'milestones':
+                  context.push('/milestones');
+                  break;
                 case 'all_records':
                   Navigator.of(context).push(MaterialPageRoute(builder: (_) => const AllRecordsScreen()));
                   break;
@@ -607,7 +610,9 @@ class _MandalDashboardScreenState extends ConsumerState<MandalDashboardScreen> {
             ],
           ),
         ),
-        const SizedBox(height: 32),
+        const SizedBox(height: 24),
+        const BankDetailsSection(),
+        const SizedBox(height: 24),
         ListTile(
           leading: Icon(Icons.language, color: colors.brandOrange),
           title: Text(l10n.selectLanguage, style: TextStyle(color: colors.text, fontWeight: FontWeight.w700)),

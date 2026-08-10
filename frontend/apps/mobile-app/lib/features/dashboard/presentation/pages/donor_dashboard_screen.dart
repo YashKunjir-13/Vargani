@@ -83,22 +83,22 @@ class _DonorDashboardScreenState extends ConsumerState<DonorDashboardScreen> {
           currentIndex: _currentIndex,
           onTap: (index) => setState(() => _currentIndex = index),
           items: [
-            const AppBottomNavItem(
+            AppBottomNavItem(
               icon: Icons.home_outlined,
               selectedIcon: Icons.home,
-              label: 'Home',
+              label: l10n.homeTab,
               route: '',
             ),
-            const AppBottomNavItem(
+            AppBottomNavItem(
               icon: Icons.history_outlined,
               selectedIcon: Icons.history,
-              label: 'History',
+              label: l10n.historyTab,
               route: '',
             ),
-            const AppBottomNavItem(
+            AppBottomNavItem(
               icon: Icons.receipt_outlined,
               selectedIcon: Icons.receipt,
-              label: 'Receipts',
+              label: l10n.receiptsTab,
               route: '',
             ),
             AppBottomNavItem(

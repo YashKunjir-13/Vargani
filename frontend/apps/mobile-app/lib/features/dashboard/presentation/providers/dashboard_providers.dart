@@ -108,40 +108,16 @@ class MandalDashboardNotifier extends Notifier<MandalDashboardData> {
           badgeCount: 5,
         ),
         MandalModuleItem(
-          id: 'vendor_payments',
-          title: 'Vendor Payments',
-          subtitle: 'Approve & record payouts',
-          icon: Icons.payments_outlined,
-        ),
-        MandalModuleItem(
           id: 'kunda',
           title: 'Donation Box (Kunda)',
           subtitle: 'Cash counting & log',
           icon: Icons.inbox_outlined,
         ),
         MandalModuleItem(
-          id: 'sponsors',
-          title: 'Sponsors',
-          subtitle: 'Banners & main sponsors',
-          icon: Icons.card_membership_outlined,
-        ),
-        MandalModuleItem(
           id: 'all_records',
           title: 'All Records',
           subtitle: 'Browse all category records',
           icon: Icons.folder_open_outlined,
-        ),
-        MandalModuleItem(
-          id: 'advertisements',
-          title: 'Advertisements',
-          subtitle: 'Souvenir & ad slots',
-          icon: Icons.campaign_outlined,
-        ),
-        MandalModuleItem(
-          id: 'volunteers',
-          title: 'Volunteers',
-          subtitle: 'Duty roster & assignment',
-          icon: Icons.groups_outlined,
         ),
         MandalModuleItem(
           id: 'members',

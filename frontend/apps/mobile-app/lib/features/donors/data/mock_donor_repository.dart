@@ -139,6 +139,43 @@ class MockDonorRepository implements DonorRepository {
     _donors[mIndex] = merged.copyWith(status: DonorProfileStatus.merged);
     return true;
   }
+
+  @override
+  Future<Donor> recordDonationForDonor({
+    required String fullName,
+    String? mobile,
+    required int amountPaise,
+  }) async {
+    final cleanMobile = mobile?.replaceAll(RegExp(r'\D'), '') ?? '';
+    final existingIndex = _donors.indexWhere((d) {
+      final nameMatches = d.fullName.toLowerCase() == fullName.toLowerCase();
+      final cleanDMobile = d.mobile?.replaceAll(RegExp(r'\D'), '') ?? '';
+      final mobileMatches = cleanMobile.isNotEmpty && cleanDMobile.isNotEmpty && cleanDMobile.endsWith(cleanMobile);
+      return nameMatches || mobileMatches;
+    });
+
+    if (existingIndex != -1) {
+      final existing = _donors[existingIndex];
+      final updated = existing.copyWith(
+        totalContributionsCount: existing.totalContributionsCount + 1,
+        totalConfirmedAmountPaise: existing.totalConfirmedAmountPaise + amountPaise,
+      );
+      _donors[existingIndex] = updated;
+      return updated;
+    }
+
+    final newDonor = Donor(
+      id: _uuid.v4(),
+      fullName: fullName,
+      mobile: mobile,
+      status: DonorProfileStatus.active,
+      createdAt: DateTime.now(),
+      totalContributionsCount: 1,
+      totalConfirmedAmountPaise: amountPaise,
+    );
+    _donors.add(newDonor);
+    return newDonor;
+  }
 }
 
 extension<T> on Iterable<T> {
