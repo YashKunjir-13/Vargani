@@ -1,7 +1,8 @@
 module.exports = {
   moduleFileExtensions: ['js', 'json', 'ts'],
   rootDir: '.',
-  testRegex: '.*\\.spec\\.ts$',
+  testRegex: '.*\\.integration\\.spec\\.ts$',
+  testTimeout: 60000,
   transform: {
     '^.+\\.(t|j)s$': [
       'ts-jest',
@@ -11,9 +12,8 @@ module.exports = {
     ],
   },
   modulePathIgnorePatterns: ['<rootDir>/dist/'],
-  testPathIgnorePatterns: ['<rootDir>/dist/', '.*\\.integration\\.spec\\.ts$'],
   collectCoverageFrom: ['backend/{apps,packages}/**/*.ts', '!**/node_modules/**', '!**/dist/**'],
-  coverageDirectory: './coverage',
+  coverageDirectory: './coverage-integration',
   testEnvironment: 'node',
   moduleNameMapper: {
     '^@pauti-pustak/backend-config$': '<rootDir>/backend/packages/backend-config/src/index.ts',

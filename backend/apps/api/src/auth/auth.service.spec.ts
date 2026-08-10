@@ -1,52 +1,37 @@
+/**
+ * AuthService — Unit Tests
+ *
+ * Structure: GIVEN-WHEN-THEN behavioral contracts.
+ * Mock source: @pauti-pustak/backend-testing (no inline mock construction).
+ */
 import { Test, TestingModule } from "@nestjs/testing";
 import { JwtService } from "@nestjs/jwt";
-import { AuthProvider, OtpPurpose, PrismaService } from "@pauti-pustak/backend-database";
+import { OtpPurpose, PrismaService } from "@pauti-pustak/backend-database";
 import { HashingService, PanEncryptionService } from "@pauti-pustak/backend-security";
-import { BadRequestException, ForbiddenException, UnauthorizedException } from "@nestjs/common";
+import { ForbiddenException, UnauthorizedException } from "@nestjs/common";
+import {
+  createMockPrisma,
+  createMockUser,
+  TEST_USER_TREASURER,
+} from "@pauti-pustak/backend-testing";
 import { AuthService } from "./auth.service";
 import { AuditService } from "../audit/audit.service";
 
-describe("AuthService (Phase 0 Unit Tests)", () => {
+describe("AuthService", () => {
   let service: AuthService;
-  let prisma: any;
+  let prisma: ReturnType<typeof createMockPrisma>;
   let hashingService: HashingService;
   let auditService: AuditService;
 
   beforeEach(async () => {
-    prisma = {
-      user: {
-        findFirst: jest.fn(),
-        findUnique: jest.fn(),
-        findUniqueOrThrow: jest.fn(),
-        create: jest.fn(),
-      },
-      authIdentity: {
-        findFirst: jest.fn(),
-        findUnique: jest.fn(),
-        create: jest.fn(),
-        update: jest.fn(),
-        updateMany: jest.fn(),
-      },
-      otpChallenge: {
-        count: jest.fn().mockResolvedValue(0),
-        create: jest.fn(),
-        findFirst: jest.fn(),
-        update: jest.fn(),
-      },
-      refreshSession: {
-        create: jest.fn().mockResolvedValue({ id: "s-1" }),
-        findFirst: jest.fn(),
-        update: jest.fn(),
-        updateMany: jest.fn(),
-      },
-      organizationMembership: {
-        findFirst: jest.fn().mockResolvedValue(null),
-      },
-      donorProfile: {
-        findUnique: jest.fn().mockResolvedValue(null),
-      },
-      $transaction: jest.fn((callback) => callback(prisma)),
-    };
+    prisma = createMockPrisma([
+      "user",
+      "authIdentity",
+      "otpChallenge",
+      "refreshSession",
+      "organizationMembership",
+      "donorProfile",
+    ]);
 
     const module: TestingModule = await Test.createTestingModule({
       providers: [
@@ -71,7 +56,7 @@ describe("AuthService (Phase 0 Unit Tests)", () => {
   });
 
   describe("OTP Challenges", () => {
-    it("creates a rate-limited OTP challenge and hashes OTP with Argon2id", async () => {
+    it("GIVEN a valid phone number WHEN requestOtp is called THEN creates rate-limited challenge and hashes OTP with Argon2id", async () => {
       prisma.otpChallenge.create.mockResolvedValue({
         id: "otp-123",
         expiresAt: new Date(Date.now() + 300000),
@@ -89,7 +74,7 @@ describe("AuthService (Phase 0 Unit Tests)", () => {
       expect(createData.otpHash).not.toBe("123456");
     });
 
-    it("rejects OTP request if 5 recent requests exist in 15 mins", async () => {
+    it("GIVEN 5 recent OTP requests within 15 minutes WHEN requestOtp is called THEN throws ForbiddenException (rate limit)", async () => {
       prisma.otpChallenge.count.mockResolvedValue(5);
 
       await expect(
@@ -100,7 +85,7 @@ describe("AuthService (Phase 0 Unit Tests)", () => {
       ).rejects.toThrow(ForbiddenException);
     });
 
-    it("verifies OTP and issues access/refresh sessions", async () => {
+    it("GIVEN a valid OTP challenge WHEN verifyOtp is called THEN marks challenge consumed and issues access/refresh sessions", async () => {
       const otpHash = await hashingService.hashPassword("123456");
       prisma.otpChallenge.findFirst.mockResolvedValue({
         id: "otp-1",
@@ -113,19 +98,19 @@ describe("AuthService (Phase 0 Unit Tests)", () => {
         consumedAt: null,
       });
 
-      prisma.user.findFirst.mockResolvedValue({
-        id: "usr-1",
-        displayName: "Test User",
-        primaryMobile: "+919876543210",
-        platformRole: "USER",
-        status: "ACTIVE",
-        tokenVersion: 1,
-      });
-      prisma.user.findUniqueOrThrow.mockResolvedValue({
-        id: "usr-1",
-        platformRole: "USER",
-        tokenVersion: 1,
-      });
+      prisma.user.findFirst.mockResolvedValue(
+        createMockUser({
+          id: TEST_USER_TREASURER,
+          displayName: "Test User",
+          primaryMobile: "+919876543210",
+        }),
+      );
+      prisma.user.findUniqueOrThrow.mockResolvedValue(
+        createMockUser({
+          id: TEST_USER_TREASURER,
+        }),
+      );
+      prisma.refreshSession.create.mockResolvedValue({ id: "s-1" });
 
       const res = await service.verifyOtp({
         phoneNumber: "+919876543210",
@@ -145,7 +130,7 @@ describe("AuthService (Phase 0 Unit Tests)", () => {
   });
 
   describe("Password Login & Lockout", () => {
-    it("locks account after 5 consecutive password failures", async () => {
+    it("GIVEN 4 previous failed logins WHEN 5th failure occurs THEN locks the account and throws UnauthorizedException", async () => {
       const passwordHash = await hashingService.hashPassword("CorrectPass#123");
       prisma.authIdentity.findFirst.mockResolvedValue({
         id: "ident-1",
@@ -171,7 +156,7 @@ describe("AuthService (Phase 0 Unit Tests)", () => {
   });
 
   describe("Refresh Token Family Reuse Detection", () => {
-    it("marks entire token family COMPROMISED on reuse detection", async () => {
+    it("GIVEN a REVOKED refresh token WHEN reuse is attempted THEN marks entire token family COMPROMISED", async () => {
       prisma.refreshSession.findFirst.mockResolvedValue({
         id: "sess-revoked",
         tokenFamilyId: "family-999",
@@ -192,14 +177,14 @@ describe("AuthService (Phase 0 Unit Tests)", () => {
   });
 
   describe("MPIN Authentication & Governance", () => {
-    it("creates 6-digit MPIN and hashes it with Argon2id", async () => {
+    it("GIVEN a valid 6-digit MPIN WHEN createMpin is called THEN hashes MPIN with Argon2id and clears lockout state", async () => {
       prisma.authIdentity.findFirst.mockResolvedValue({
         id: "ident-1",
-        userId: "u-1",
+        userId: TEST_USER_TREASURER,
       });
       prisma.authIdentity.update.mockResolvedValue({ id: "ident-1" });
 
-      const res = await service.createMpin("u-1", { mpin: "123456" });
+      const res = await service.createMpin(TEST_USER_TREASURER, { mpin: "123456" });
       expect(res.hasMpin).toBe(true);
       expect(prisma.authIdentity.update).toHaveBeenCalledWith(
         expect.objectContaining({
@@ -212,7 +197,7 @@ describe("AuthService (Phase 0 Unit Tests)", () => {
       );
     });
 
-    it("authenticates returning user with MPIN and issues session tokens", async () => {
+    it("GIVEN correct MPIN credentials WHEN loginMpin is called THEN issues access token and logs audit success", async () => {
       const mpinHash = await hashingService.hashPassword("123456");
       prisma.authIdentity.findFirst.mockResolvedValue({
         id: "ident-1",
@@ -230,6 +215,7 @@ describe("AuthService (Phase 0 Unit Tests)", () => {
         },
       });
       prisma.user.findUniqueOrThrow.mockResolvedValue({ id: "u-1", tokenVersion: 1 });
+      prisma.refreshSession.create.mockResolvedValue({ id: "s-1" });
 
       const res = await service.loginMpin({
         phoneNumber: "9876543210",
@@ -244,7 +230,7 @@ describe("AuthService (Phase 0 Unit Tests)", () => {
       );
     });
 
-    it("rejects invalid MPIN and increments failure counter", async () => {
+    it("GIVEN incorrect MPIN WHEN loginMpin is called THEN increments failedMpinCount and throws UnauthorizedException", async () => {
       const mpinHash = await hashingService.hashPassword("123456");
       prisma.authIdentity.findFirst.mockResolvedValue({
         id: "ident-1",
@@ -271,7 +257,7 @@ describe("AuthService (Phase 0 Unit Tests)", () => {
       );
     });
 
-    it("locks MPIN authentication for 15 mins after 5 consecutive failures", async () => {
+    it("GIVEN 4 previous MPIN failures WHEN 5th failure occurs THEN locks MPIN for 15 mins and throws ForbiddenException", async () => {
       const mpinHash = await hashingService.hashPassword("123456");
       prisma.authIdentity.findFirst.mockResolvedValue({
         id: "ident-1",
@@ -301,7 +287,7 @@ describe("AuthService (Phase 0 Unit Tests)", () => {
       );
     });
 
-    it("verifies MPIN reset via OTP and revokes active sessions", async () => {
+    it("GIVEN valid MPIN reset OTP challenge WHEN verifyMpinReset is called THEN sets new MPIN and revokes all active sessions", async () => {
       const otpHash = await hashingService.hashPassword("123456");
       prisma.otpChallenge.findFirst.mockResolvedValue({
         id: "otp-mpin-1",
@@ -327,6 +313,7 @@ describe("AuthService (Phase 0 Unit Tests)", () => {
         },
       });
       prisma.user.findUniqueOrThrow.mockResolvedValue({ id: "u-1", tokenVersion: 1 });
+      prisma.refreshSession.create.mockResolvedValue({ id: "s-1" });
 
       const res = await service.verifyMpinReset({
         phoneNumber: "9876543210",
@@ -343,4 +330,3 @@ describe("AuthService (Phase 0 Unit Tests)", () => {
     });
   });
 });
-
