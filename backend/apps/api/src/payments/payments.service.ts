@@ -1,6 +1,7 @@
 import { ConflictException, ForbiddenException, Inject, Injectable, Logger, NotFoundException, Optional, ServiceUnavailableException } from "@nestjs/common";
 import { Payment, PaymentChannel, PaymentStatus, PrismaService } from "@pauti-pustak/backend-database";
 import { FestivalYearService } from "../common/festival-year/festival-year.service";
+import { CollectDonationDto } from "./dto/collect-donation.dto";
 import { CreatePaymentOrderDto } from "./dto/create-payment-order.dto";
 import { CreatePaymentDto } from "./dto/create-payment.dto";
 import { ListPaymentsQueryDto } from "./dto/list-payments-query.dto";
@@ -98,6 +99,50 @@ export class PaymentsService {
       );
       throw new ServiceUnavailableException("Unable to start the Razorpay payment. Please try again.");
     }
+  }
+
+  /**
+   * Directly records a confirmed donation (Cash/UPI/Net Banking/Cheque)
+   * and auto-triggers Receipt Generation in a single atomic flow.
+   */
+  async collectDonation(
+    organizationId: string,
+    createdByUserId: string,
+    dto: CollectDonationDto,
+  ): Promise<{ payment: Payment; receipt: any }> {
+    const { festivalYear } = await this.festivalYear.getActiveFestivalYear(organizationId);
+
+    const channel = dto.paymentMethod === "UPI" ? PaymentChannel.IN_APP : PaymentChannel.QR_CODE;
+
+    const payment = await this.prisma.payment.create({
+      data: {
+        organizationId,
+        festivalYear,
+        donorId: dto.donorId ?? null,
+        donorNameSnapshot: dto.donorNameSnapshot,
+        addressSnapshot: dto.addressSnapshot ?? null,
+        contactSnapshot: dto.contactSnapshot ?? null,
+        amount: dto.amount,
+        paymentDateTime: new Date(),
+        channel,
+        razorpayOrderId: null,
+        collectedByUserId: createdByUserId,
+        status: PaymentStatus.CONFIRMED,
+        matchedByUserId: createdByUserId,
+        matchedAt: new Date(),
+        createdByUserId,
+      },
+    });
+
+    await this.writeAuditEvent(organizationId, payment.id, "direct_donation_collected", createdByUserId);
+
+    const receiptedPayment = await this.advanceToReceipted(payment, createdByUserId);
+
+    const receipt = await this.prisma.paymentReceipt.findUnique({
+      where: { paymentId: receiptedPayment.id },
+    });
+
+    return { payment: receiptedPayment, receipt };
   }
 
   async list(organizationId: string, filter: ListPaymentsQueryDto): Promise<Payment[]> {

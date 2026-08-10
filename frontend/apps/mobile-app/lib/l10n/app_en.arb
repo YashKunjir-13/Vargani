@@ -134,5 +134,22 @@
   "resendCodeIn": "Resend code in",
   "seconds": "seconds",
   "createMpinButton": "Create MPIN & Finish",
-  "saveNewMpin": "Save New MPIN"
+  "saveNewMpin": "Save New MPIN",
+  "homeTab": "Home",
+  "contributionsTab": "Contributions",
+  "billsTab": "Bills",
+  "reportsTab": "Reports",
+  "receiptsTab": "Receipts",
+  "historyTab": "History",
+  "paymentsTab": "Payments",
+  "allRecordsTab": "All Records",
+  "quickSummarySection": "QUICK SUMMARY",
+  "keyHighlightsSection": "KEY HIGHLIGHTS",
+  "bankDetailsSection": "Bank Details & VPA",
+  "accountHolderLabel": "Account Holder",
+  "bankNameLabel": "Bank Name",
+  "accountNumberLabel": "Account Number",
+  "ifscCodeLabel": "IFSC Code",
+  "branchNameLabel": "Branch Name",
+  "vpaLabel": "VPA / UPI ID"
 }

@@ -42,7 +42,7 @@ class AuditLogsNotifier extends Notifier<AuditLogsState> {
 
   @override
   AuditLogsState build() {
-    loadAuditLogs();
+    Future.microtask(() => loadAuditLogs());
     return AuditLogsState(isLoading: true);
   }
 
@@ -50,7 +50,7 @@ class AuditLogsNotifier extends Notifier<AuditLogsState> {
     state = state.copyWith(isLoading: true, error: null);
     try {
       final events = await _repository.getAuditLogs();
-      state = state.copyWith(isLoading: false, events: events);
+      state = state.copyWith(isLoading: false, events: events, error: null);
     } catch (e) {
       state = state.copyWith(isLoading: false, error: e.toString());
     }

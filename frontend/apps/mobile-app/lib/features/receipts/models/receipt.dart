@@ -24,6 +24,7 @@ class Receipt {
   final String receiptNumber;
   final String paymentId;
   final String donorName;
+  final String? contactNumber;
   final double amount;
   final DateTime issuedDate;
   final String mandalName;
@@ -38,6 +39,7 @@ class Receipt {
     required this.receiptNumber,
     required this.paymentId,
     required this.donorName,
+    this.contactNumber,
     required this.amount,
     required this.issuedDate,
     required this.mandalName,
@@ -54,12 +56,14 @@ class Receipt {
     int? whatsappRetryCount,
     String? voidReason,
     String? pdfUrl,
+    String? contactNumber,
   }) {
     return Receipt(
       id: id,
       receiptNumber: receiptNumber,
       paymentId: paymentId,
       donorName: donorName,
+      contactNumber: contactNumber ?? this.contactNumber,
       amount: amount,
       issuedDate: issuedDate,
       mandalName: mandalName,
@@ -102,6 +106,7 @@ class Receipt {
       receiptNumber: json['receiptNumber'] as String? ?? '',
       paymentId: json['paymentId'] as String? ?? '',
       donorName: json['donorNameSnapshot'] as String? ?? json['donorName'] as String? ?? 'Anonymous Donor',
+      contactNumber: json['contactSnapshot'] as String? ?? json['contactNumber'] as String? ?? json['contact'] as String?,
       amount: parsedAmount,
       issuedDate: rawIssued != null ? DateTime.parse(rawIssued) : DateTime.now(),
       mandalName: json['mandalNameSnapshot'] as String? ?? json['mandalName'] as String? ?? 'Shree Ganesh Mandal',

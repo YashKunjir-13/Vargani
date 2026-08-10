@@ -5,6 +5,9 @@ import '../../../core/core.dart';
 import '../../../shared/shared.dart';
 import '../../../shared/widgets/formatters.dart';
 import '../../authentication/presentation/widgets/auth_design_tokens.dart';
+import 'package:go_router/go_router.dart';
+import '../../receipts/models/receipt.dart';
+import '../../receipts/state/receipts_notifier.dart';
 import '../models/donor.dart';
 import '../providers/donor_providers.dart';
 import 'donor_form_screen.dart';
@@ -172,7 +175,87 @@ class DonorDetailScreen extends ConsumerWidget {
                 ),
                 const SizedBox(height: AppSpacing.space24),
 
-                // ── 4. Actions: Edit Profile & Merge Duplicate ────────────────
+                // ── 4. Donation & Receipt History Section ────────────────────
+                Text(
+                  'DONATION & RECEIPT HISTORY',
+                  style: TextStyle(
+                    color: colors.secondaryText,
+                    fontSize: 12,
+                    fontWeight: FontWeight.w900,
+                    letterSpacing: 1.2,
+                  ),
+                ),
+                const SizedBox(height: AppSpacing.space12),
+
+                Builder(
+                  builder: (context) {
+                    final asyncReceipts = ref.watch(receiptsProvider);
+                    final receipts = asyncReceipts.value ?? [];
+                    final donorReceipts = receipts.where((r) {
+                      final nameMatches = r.donorName.toLowerCase().contains(donor.fullName.toLowerCase()) ||
+                          donor.fullName.toLowerCase().contains(r.donorName.toLowerCase());
+                      final cleanDonorMobile = donor.mobile?.replaceAll(RegExp(r'\D'), '') ?? '';
+                      final cleanRcptMobile = r.contactNumber?.replaceAll(RegExp(r'\D'), '') ?? '';
+                      final phoneMatches = cleanDonorMobile.isNotEmpty && cleanRcptMobile.isNotEmpty && cleanRcptMobile.endsWith(cleanDonorMobile);
+                      return nameMatches || phoneMatches;
+                    }).toList();
+
+                    if (donorReceipts.isEmpty) {
+                      return Container(
+                        width: double.infinity,
+                        padding: const EdgeInsets.all(AppSpacing.space16),
+                        decoration: BoxDecoration(
+                          color: colors.surfaceMuted,
+                          borderRadius: BorderRadius.circular(AppRadius.medium),
+                          border: Border.all(color: colors.border),
+                        ),
+                        child: Text(
+                          'No donation receipts linked to this donor profile yet.',
+                          style: TextStyle(fontSize: 13, color: colors.secondaryText),
+                        ),
+                      );
+                    }
+
+                    return Column(
+                      children: donorReceipts.map((r) {
+                        return Container(
+                          margin: const EdgeInsets.only(bottom: AppSpacing.space8),
+                          decoration: BoxDecoration(
+                            color: colors.card,
+                            borderRadius: BorderRadius.circular(AppRadius.medium),
+                            border: Border.all(color: colors.border),
+                          ),
+                          child: ListTile(
+                            leading: CircleAvatar(
+                              backgroundColor: colors.brandOrange.withValues(alpha: 0.15),
+                              child: Icon(Icons.receipt_long, color: colors.brandOrange, size: 20),
+                            ),
+                            title: Text(r.receiptNumber, style: TextStyle(fontWeight: FontWeight.bold, color: colors.text)),
+                            subtitle: Text(
+                              '${r.issuedDate.toString().split(' ').first} • ${r.status == ReceiptStatus.active ? "Confirmed" : "Voided"}',
+                              style: TextStyle(color: colors.secondaryText, fontSize: 12),
+                            ),
+                            trailing: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Text(
+                                  '₹${r.amount.toStringAsFixed(0)}',
+                                  style: TextStyle(fontWeight: FontWeight.w900, color: colors.text, fontSize: 15),
+                                ),
+                                const SizedBox(width: 4),
+                                Icon(Icons.chevron_right, color: colors.secondaryText),
+                              ],
+                            ),
+                            onTap: () => context.push('/receipts/${r.id}'),
+                          ),
+                        );
+                      }).toList(),
+                    );
+                  },
+                ),
+                const SizedBox(height: AppSpacing.space24),
+
+                // ── 5. Actions: Edit Profile & Merge Duplicate ────────────────
                 if (canManageDonors)
                   Row(
                     children: [

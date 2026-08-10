@@ -131,8 +131,8 @@ export class ReceiptsService implements ReceiptGenerationPort {
     await this.voidReceiptRecord(receipt, params.voidedByUserId, params.reason);
   }
 
-  async list(organizationId: string, filter: ListReceiptsQueryDto): Promise<PaymentReceipt[]> {
-    return this.prisma.paymentReceipt.findMany({
+  async list(organizationId: string, filter: ListReceiptsQueryDto): Promise<any[]> {
+    const receipts = await this.prisma.paymentReceipt.findMany({
       where: {
         organizationId,
         ...(filter.donorId ? { donorId: filter.donorId } : {}),
@@ -148,6 +148,21 @@ export class ReceiptsService implements ReceiptGenerationPort {
       },
       orderBy: { issuedDate: "desc" },
     });
+
+    const paymentIds = receipts.map((r) => r.paymentId);
+    let payments: any[] = [];
+    if (this.prisma.payment && typeof this.prisma.payment.findMany === "function") {
+      payments = await this.prisma.payment.findMany({
+        where: { id: { in: paymentIds } },
+        select: { id: true, contactSnapshot: true },
+      });
+    }
+    const paymentMap = new Map(payments.map((p) => [p.id, p]));
+
+    return receipts.map((r) => ({
+      ...r,
+      contactSnapshot: paymentMap.get(r.paymentId)?.contactSnapshot ?? null,
+    }));
   }
 
   /**
@@ -155,17 +170,24 @@ export class ReceiptsService implements ReceiptGenerationPort {
    * `receipt.viewOwn`-only holders (Donor) only ever get their own --
    * resolved via their DonorProfile, never trusted from a query param.
    */
-  async getById(organizationId: string, id: string, requestingUserId: string, hasViewAll: boolean): Promise<PaymentReceipt> {
+  async getById(organizationId: string, id: string, requestingUserId: string, hasViewAll: boolean): Promise<any> {
     const receipt = await this.requireOwnedReceipt(organizationId, id);
-    if (hasViewAll) {
-      return receipt;
+    if (!hasViewAll) {
+      const donorProfileId = await this.resolveDonorProfileId(requestingUserId);
+      if (!donorProfileId || receipt.donorId !== donorProfileId) {
+        throw new NotFoundException("Receipt not found");
+      }
     }
 
-    const donorProfileId = await this.resolveDonorProfileId(requestingUserId);
-    if (!donorProfileId || receipt.donorId !== donorProfileId) {
-      throw new NotFoundException("Receipt not found");
+    let payment: any = null;
+    if (this.prisma.payment && typeof this.prisma.payment.findUnique === "function") {
+      payment = await this.prisma.payment.findUnique({ where: { id: receipt.paymentId } });
     }
-    return receipt;
+
+    return {
+      ...receipt,
+      contactSnapshot: payment?.contactSnapshot ?? null,
+    };
   }
 
   /** A logged-in Donor's complete receipt history in this organization, regardless of WhatsApp delivery outcome. */

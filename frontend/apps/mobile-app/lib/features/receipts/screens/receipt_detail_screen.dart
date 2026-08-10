@@ -289,13 +289,14 @@ class ReceiptDetailScreen extends ConsumerWidget {
                             fontWeight: FontWeight.bold,
                           ),
                         ),
-                        const Text(
-                          '+91 98765 43210',
-                          style: TextStyle(
-                            color: AppColors.textSecondaryLight,
-                            fontSize: 13,
+                        if (receipt.contactNumber != null && receipt.contactNumber!.isNotEmpty)
+                          Text(
+                            receipt.contactNumber!.startsWith('+') ? receipt.contactNumber! : '+91 ${receipt.contactNumber!}',
+                            style: const TextStyle(
+                              color: AppColors.textSecondaryLight,
+                              fontSize: 13,
+                            ),
                           ),
-                        ),
                         const SizedBox(height: 16),
 
                         // Purpose
@@ -358,7 +359,7 @@ class ReceiptDetailScreen extends ConsumerWidget {
                                   borderRadius: BorderRadius.circular(20),
                                 ),
                                 child: Text(
-                                  receipt.status == ReceiptStatus.active ? 'UPI Confirmed' : 'Voided',
+                                  receipt.status == ReceiptStatus.active ? 'Payment Confirmed' : 'Voided',
                                   style: const TextStyle(
                                     color: AppColors.mintGreenText,
                                     fontSize: 12,

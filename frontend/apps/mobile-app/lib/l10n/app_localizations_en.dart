@@ -418,4 +418,55 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get saveNewMpin => 'Save New MPIN';
+
+  @override
+  String get homeTab => 'Home';
+
+  @override
+  String get contributionsTab => 'Contributions';
+
+  @override
+  String get billsTab => 'Bills';
+
+  @override
+  String get reportsTab => 'Reports';
+
+  @override
+  String get receiptsTab => 'Receipts';
+
+  @override
+  String get historyTab => 'History';
+
+  @override
+  String get paymentsTab => 'Payments';
+
+  @override
+  String get allRecordsTab => 'All Records';
+
+  @override
+  String get quickSummarySection => 'QUICK SUMMARY';
+
+  @override
+  String get keyHighlightsSection => 'KEY HIGHLIGHTS';
+
+  @override
+  String get bankDetailsSection => 'Bank Details & VPA';
+
+  @override
+  String get accountHolderLabel => 'Account Holder';
+
+  @override
+  String get bankNameLabel => 'Bank Name';
+
+  @override
+  String get accountNumberLabel => 'Account Number';
+
+  @override
+  String get ifscCodeLabel => 'IFSC Code';
+
+  @override
+  String get branchNameLabel => 'Branch Name';
+
+  @override
+  String get vpaLabel => 'VPA / UPI ID';
 }
