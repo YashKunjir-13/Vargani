@@ -1,118 +1,66 @@
+/**
+ * BillsService — Unit Tests
+ *
+ * Structure: GIVEN-WHEN-THEN behavioral contracts.
+ * Mock source: @pauti-pustak/backend-testing (no inline mock construction).
+ */
 import { ConflictException, ForbiddenException } from "@nestjs/common";
 import { BillStatus, PaymentMode } from "@pauti-pustak/backend-database";
+import {
+  createMockPrisma,
+  createMockBillDto,
+  createMockFestivalYearService,
+  createMockSequenceCounter,
+  createMockLedger,
+  createMockOcr,
+  TEST_ORG_A,
+  TEST_ORG_B,
+  TEST_USER_TREASURER,
+  TEST_USER_PRESIDENT,
+} from "@pauti-pustak/backend-testing";
 import { BillsService } from "./bills.service";
 
-const ORG_A = "org-a";
-const ORG_B = "org-b";
-
-function buildPrismaMock() {
-  const bills = new Map<string, any>();
-  const auditEvents: any[] = [];
-  let idCounter = 0;
-
-  const bill = {
-    create: jest.fn(({ data }: any) => {
-      idCounter += 1;
-      const row = { id: `bill-${idCounter}`, createdAt: new Date(), updatedAt: new Date(), ...data };
-      bills.set(row.id, row);
-      return Promise.resolve({ ...row });
-    }),
-    findUnique: jest.fn(({ where }: any) => Promise.resolve(bills.get(where.id) ?? null)),
-    findMany: jest.fn(({ where }: any) =>
-      Promise.resolve(
-        [...bills.values()].filter((b) => {
-          if (b.organizationId !== where.organizationId) return false;
-          if (where.status && b.status !== where.status) return false;
-          if (where.vendorId && b.vendorId !== where.vendorId) return false;
-          if (where.taskOrField && b.taskOrField !== where.taskOrField) return false;
-          return true;
-        }),
-      ),
-    ),
-    update: jest.fn(({ where, data }: any) => {
-      const row = { ...bills.get(where.id), ...data };
-      bills.set(where.id, row);
-      return Promise.resolve({ ...row });
-    }),
-  };
-
-  const billAuditEvent = {
-    create: jest.fn(({ data }: any) => {
-      auditEvents.push(data);
-      return Promise.resolve({ id: `audit-${auditEvents.length}`, createdAt: new Date(), ...data });
-    }),
-  };
-
-  return { bill, billAuditEvent, __bills: bills, __auditEvents: auditEvents };
-}
-
-function buildFestivalYearMock(festivalYear = 2026) {
-  return {
-    getActiveFestivalYear: jest.fn(() =>
-      Promise.resolve({ eventId: "event-1", organizationId: ORG_A, festivalYear, financialYearLabel: "2025-26" }),
-    ),
-  };
-}
-
-function buildSequenceCounterMock() {
-  const counters = new Map<string, number>();
-  return {
-    getNextSequence: jest.fn((organizationId: string, festivalYear: number, sequenceName: string) => {
-      const key = `${organizationId}:${festivalYear}:${sequenceName}`;
-      const next = (counters.get(key) ?? 0) + 1;
-      counters.set(key, next);
-      return Promise.resolve(BigInt(next));
-    }),
-  };
-}
-
-function buildLedgerMock() {
-  return { recordBillPayment: jest.fn(() => Promise.resolve()) };
-}
-
-function buildOcrMock(proposed: any = {}) {
-  return { proposeFields: jest.fn(() => Promise.resolve(proposed)) };
-}
+// ─── Shared Setup ────────────────────────────────────────────────────────────
 
 function buildService(overrides: { festivalYear?: number; ocrProposed?: any } = {}) {
-  const prisma = buildPrismaMock();
-  const festivalYear = buildFestivalYearMock(overrides.festivalYear);
-  const sequenceCounter = buildSequenceCounterMock();
-  const ledger = buildLedgerMock();
-  const ocr = buildOcrMock(overrides.ocrProposed);
+  const prisma = createMockPrisma(["bill", "billAuditEvent"]);
+  const festivalYear = createMockFestivalYearService({ festivalYear: overrides.festivalYear });
+  const sequenceCounter = createMockSequenceCounter();
+  const ledger = createMockLedger();
+  const ocr = createMockOcr(overrides.ocrProposed);
 
-  const service = new BillsService(prisma as any, festivalYear as any, sequenceCounter as any, ledger as any, ocr as any);
+  const service = new BillsService(
+    prisma as any,
+    festivalYear as any,
+    sequenceCounter as any,
+    ledger as any,
+    ocr as any,
+  );
 
   return { service, prisma, festivalYear, sequenceCounter, ledger, ocr };
 }
 
-function createDto(overrides: Partial<Record<string, any>> = {}) {
-  return {
-    receiverNameSnapshot: "Ganesh Decorators",
-    amount: 15000,
-    date: "2026-08-01",
-    taskOrField: "Mandap Decoration",
-    ...overrides,
-  };
-}
+// ─── Create & Numbering ──────────────────────────────────────────────────────
 
 describe("BillsService - create + numbering", () => {
-  it("assigns unique, sequential bill numbers within an organizationId+festivalYear", async () => {
+  it("GIVEN three sequential bills WHEN created for the same org+year THEN assigns unique sequential bill numbers", async () => {
     const { service } = buildService();
+    const dto = createMockBillDto();
 
-    const b1 = await service.create(ORG_A, "treasurer-1", createDto());
-    const b2 = await service.create(ORG_A, "treasurer-1", createDto());
-    const b3 = await service.create(ORG_A, "treasurer-1", createDto());
+    const b1 = await service.create(TEST_ORG_A, TEST_USER_TREASURER, dto);
+    const b2 = await service.create(TEST_ORG_A, TEST_USER_TREASURER, dto);
+    const b3 = await service.create(TEST_ORG_A, TEST_USER_TREASURER, dto);
 
     expect(b1.billNumber).toBe("BILL-2026-000001");
     expect(b2.billNumber).toBe("BILL-2026-000002");
     expect(b3.billNumber).toBe("BILL-2026-000003");
   });
 
-  it("saves fine when contactSnapshot/vendorId/milestoneId/billPhotoUrl are all omitted", async () => {
+  it("GIVEN a DTO with only required fields WHEN created THEN optional fields default to null and status is DRAFT", async () => {
     const { service } = buildService();
+    const dto = createMockBillDto();
 
-    const created = await service.create(ORG_A, "treasurer-1", createDto());
+    const created = await service.create(TEST_ORG_A, TEST_USER_TREASURER, dto);
 
     expect(created.vendorId).toBeNull();
     expect(created.contactSnapshot).toBeNull();
@@ -120,104 +68,128 @@ describe("BillsService - create + numbering", () => {
     expect(created.billPhotoUrl).toBeNull();
     expect(created.status).toBe(BillStatus.DRAFT);
   });
+
+  it("GIVEN a valid DTO with custom amount WHEN created THEN persists the exact amount and properties", async () => {
+    const { service } = buildService();
+    const dto = createMockBillDto({ amount: 25000 });
+
+    const created = await service.create(TEST_ORG_A, TEST_USER_TREASURER, dto);
+    expect(created.amount).toBe(25000);
+  });
 });
 
+// ─── State Machine (Full Path) ───────────────────────────────────────────────
+
 describe("BillsService - full state machine (service level)", () => {
-  it("rejects Draft -> Paid directly (skipping submit and approve)", async () => {
+  it("GIVEN a DRAFT bill WHEN markPaid is called directly THEN rejects (skipping submit+approve)", async () => {
     const { service } = buildService();
-    const created = await service.create(ORG_A, "treasurer-1", createDto());
+    const created = await service.create(TEST_ORG_A, TEST_USER_TREASURER, createMockBillDto());
 
     await expect(
-      service.markPaid(ORG_A, created.id, "treasurer-1", PaymentMode.CASH),
+      service.markPaid(TEST_ORG_A, created.id, TEST_USER_TREASURER, PaymentMode.CASH),
     ).rejects.toBeInstanceOf(ConflictException);
   });
 
-  it("rejects Draft -> Approved directly (skipping submit)", async () => {
+  it("GIVEN a DRAFT bill WHEN approve is called directly THEN rejects (skipping submit)", async () => {
     const { service } = buildService();
-    const created = await service.create(ORG_A, "treasurer-1", createDto());
+    const created = await service.create(TEST_ORG_A, TEST_USER_TREASURER, createMockBillDto());
 
-    await expect(service.approve(ORG_A, created.id, "president-1")).rejects.toBeInstanceOf(ConflictException);
+    await expect(service.approve(TEST_ORG_A, created.id, TEST_USER_PRESIDENT)).rejects.toBeInstanceOf(
+      ConflictException,
+    );
   });
 
-  it("rejects Pending Approval -> Paid directly (skipping approve)", async () => {
+  it("GIVEN a PENDING_APPROVAL bill WHEN markPaid is called directly THEN rejects (skipping approve)", async () => {
     const { service } = buildService();
-    const created = await service.create(ORG_A, "treasurer-1", createDto());
-    await service.submit(ORG_A, created.id);
+    const created = await service.create(TEST_ORG_A, TEST_USER_TREASURER, createMockBillDto());
+    await service.submit(TEST_ORG_A, created.id);
 
     await expect(
-      service.markPaid(ORG_A, created.id, "treasurer-1", PaymentMode.CASH),
+      service.markPaid(TEST_ORG_A, created.id, TEST_USER_TREASURER, PaymentMode.CASH),
     ).rejects.toBeInstanceOf(ConflictException);
   });
 
-  it("walks the full happy path: Draft -> Pending Approval -> Approved -> Paid", async () => {
+  it("GIVEN a DRAFT bill WHEN walking Draft→Pending→Approved→Paid THEN each transition succeeds and ledger is called", async () => {
     const { service, ledger } = buildService();
-    const created = await service.create(ORG_A, "treasurer-1", createDto());
+    const created = await service.create(TEST_ORG_A, TEST_USER_TREASURER, createMockBillDto());
 
-    await service.submit(ORG_A, created.id);
-    const approved = await service.approve(ORG_A, created.id, "president-1");
+    await service.submit(TEST_ORG_A, created.id);
+    const approved = await service.approve(TEST_ORG_A, created.id, TEST_USER_PRESIDENT);
     expect(approved.status).toBe(BillStatus.APPROVED);
 
-    const paid = await service.markPaid(ORG_A, created.id, "treasurer-1", PaymentMode.UPI);
+    const paid = await service.markPaid(TEST_ORG_A, created.id, TEST_USER_TREASURER, PaymentMode.UPI);
     expect(paid.status).toBe(BillStatus.PAID);
     expect(paid.paymentMode).toBe(PaymentMode.UPI);
     expect(ledger.recordBillPayment).toHaveBeenCalledTimes(1);
     expect(ledger.recordBillPayment).toHaveBeenCalledWith(
-      expect.objectContaining({ billId: created.id, billNumber: created.billNumber, paymentMode: PaymentMode.UPI }),
+      expect.objectContaining({
+        billId: created.id,
+        billNumber: created.billNumber,
+        paymentMode: PaymentMode.UPI,
+      }),
     );
   });
 });
 
+// ─── Self-Approval Prohibition ───────────────────────────────────────────────
+
 describe("BillsService - self-approval prohibition", () => {
-  it("CRITICAL: the same user who created/submitted a bill cannot also approve it, even holding bill.approve", async () => {
+  it("GIVEN a bill submitted by treasurer-1 WHEN treasurer-1 tries to approve it THEN throws ForbiddenException", async () => {
     const { service } = buildService();
-    const created = await service.create(ORG_A, "treasurer-1", createDto());
-    await service.submit(ORG_A, created.id);
+    const created = await service.create(TEST_ORG_A, TEST_USER_TREASURER, createMockBillDto());
+    await service.submit(TEST_ORG_A, created.id);
 
-    await expect(service.approve(ORG_A, created.id, "treasurer-1")).rejects.toBeInstanceOf(ForbiddenException);
+    await expect(service.approve(TEST_ORG_A, created.id, TEST_USER_TREASURER)).rejects.toBeInstanceOf(
+      ForbiddenException,
+    );
 
-    const reloaded = await service.getById(ORG_A, created.id);
+    const reloaded = await service.getById(TEST_ORG_A, created.id);
     expect(reloaded.status).toBe(BillStatus.PENDING_APPROVAL);
   });
 
-  it("allows approval by a different user", async () => {
+  it("GIVEN a bill submitted by treasurer WHEN a different user approves THEN status moves to APPROVED", async () => {
     const { service } = buildService();
-    const created = await service.create(ORG_A, "treasurer-1", createDto());
-    await service.submit(ORG_A, created.id);
+    const created = await service.create(TEST_ORG_A, TEST_USER_TREASURER, createMockBillDto());
+    await service.submit(TEST_ORG_A, created.id);
 
-    const approved = await service.approve(ORG_A, created.id, "president-1");
+    const approved = await service.approve(TEST_ORG_A, created.id, TEST_USER_PRESIDENT);
     expect(approved.status).toBe(BillStatus.APPROVED);
   });
 });
 
-describe("BillsService - reject path", () => {
-  it("returns a Pending Approval bill to Draft with a mandatory reason, not a delete", async () => {
-    const { service, prisma } = buildService();
-    const created = await service.create(ORG_A, "treasurer-1", createDto());
-    await service.submit(ORG_A, created.id);
+// ─── Reject Path ─────────────────────────────────────────────────────────────
 
-    const rejected = await service.reject(ORG_A, created.id, "president-1", "Amount doesn't match the photo");
+describe("BillsService - reject path", () => {
+  it("GIVEN a PENDING_APPROVAL bill WHEN rejected with a reason THEN returns to DRAFT (not deleted)", async () => {
+    const { service, prisma } = buildService();
+    const created = await service.create(TEST_ORG_A, TEST_USER_TREASURER, createMockBillDto());
+    await service.submit(TEST_ORG_A, created.id);
+
+    const rejected = await service.reject(TEST_ORG_A, created.id, TEST_USER_PRESIDENT, "Amount doesn't match the photo");
 
     expect(rejected.status).toBe(BillStatus.DRAFT);
     expect(rejected.rejectionReason).toBe("Amount doesn't match the photo");
-    expect(prisma.__bills.has(created.id)).toBe(true);
+    expect(prisma.bill.__store.has(created.id)).toBe(true);
   });
 
-  it("a rejected (now Draft) bill is editable and resubmittable again", async () => {
+  it("GIVEN a rejected bill (now DRAFT) WHEN edited and resubmitted THEN moves to PENDING_APPROVAL again", async () => {
     const { service } = buildService();
-    const created = await service.create(ORG_A, "treasurer-1", createDto());
-    await service.submit(ORG_A, created.id);
-    await service.reject(ORG_A, created.id, "president-1", "wrong amount");
+    const created = await service.create(TEST_ORG_A, TEST_USER_TREASURER, createMockBillDto());
+    await service.submit(TEST_ORG_A, created.id);
+    await service.reject(TEST_ORG_A, created.id, TEST_USER_PRESIDENT, "wrong amount");
 
-    const updated = await service.update(ORG_A, created.id, { amount: 20000 });
+    const updated = await service.update(TEST_ORG_A, created.id, { amount: 20000 });
     expect(updated.amount).toBe(20000);
 
-    const resubmitted = await service.submit(ORG_A, created.id);
+    const resubmitted = await service.submit(TEST_ORG_A, created.id);
     expect(resubmitted.status).toBe(BillStatus.PENDING_APPROVAL);
   });
 });
 
+// ─── OCR Pre-fill ────────────────────────────────────────────────────────────
+
 describe("BillsService - OCR pre-fill", () => {
-  it("the OCR hook receives billPhotoUrl and returns proposed values without touching any bill or auto-submitting", async () => {
+  it("GIVEN a bill photo URL WHEN previewOcr is called THEN returns proposed fields without creating any bill", async () => {
     const proposed = { amount: 15000, receiverName: "Ganesh Decorators", date: "2026-08-01" };
     const { service, prisma, ocr } = buildService({ ocrProposed: proposed });
 
@@ -229,31 +201,37 @@ describe("BillsService - OCR pre-fill", () => {
   });
 });
 
-describe("BillsService - immutability and cancel", () => {
-  it("direct PATCH on a Paid bill's amount is rejected", async () => {
-    const { service } = buildService();
-    const created = await service.create(ORG_A, "treasurer-1", createDto());
-    await service.submit(ORG_A, created.id);
-    await service.approve(ORG_A, created.id, "president-1");
-    await service.markPaid(ORG_A, created.id, "treasurer-1", PaymentMode.CASH);
+// ─── Immutability & Cancel ───────────────────────────────────────────────────
 
-    await expect(service.update(ORG_A, created.id, { amount: 99999 })).rejects.toBeInstanceOf(ForbiddenException);
+describe("BillsService - immutability and cancel", () => {
+  it("GIVEN a PAID bill WHEN amount is patched directly THEN throws ForbiddenException", async () => {
+    const { service } = buildService();
+    const created = await service.create(TEST_ORG_A, TEST_USER_TREASURER, createMockBillDto());
+    await service.submit(TEST_ORG_A, created.id);
+    await service.approve(TEST_ORG_A, created.id, TEST_USER_PRESIDENT);
+    await service.markPaid(TEST_ORG_A, created.id, TEST_USER_TREASURER, PaymentMode.CASH);
+
+    await expect(service.update(TEST_ORG_A, created.id, { amount: 99999 })).rejects.toBeInstanceOf(
+      ForbiddenException,
+    );
   });
 
-  it("only /cancel may alter a Paid bill's status thereafter", async () => {
+  it("GIVEN a PAID bill WHEN submit/approve/markPaid are retried THEN all throw ConflictException; only cancel succeeds", async () => {
     const { service } = buildService();
-    const created = await service.create(ORG_A, "treasurer-1", createDto());
-    await service.submit(ORG_A, created.id);
-    await service.approve(ORG_A, created.id, "president-1");
-    await service.markPaid(ORG_A, created.id, "treasurer-1", PaymentMode.CASH);
+    const created = await service.create(TEST_ORG_A, TEST_USER_TREASURER, createMockBillDto());
+    await service.submit(TEST_ORG_A, created.id);
+    await service.approve(TEST_ORG_A, created.id, TEST_USER_PRESIDENT);
+    await service.markPaid(TEST_ORG_A, created.id, TEST_USER_TREASURER, PaymentMode.CASH);
 
-    await expect(service.submit(ORG_A, created.id)).rejects.toBeInstanceOf(ConflictException);
-    await expect(service.approve(ORG_A, created.id, "president-1")).rejects.toBeInstanceOf(ConflictException);
+    await expect(service.submit(TEST_ORG_A, created.id)).rejects.toBeInstanceOf(ConflictException);
+    await expect(service.approve(TEST_ORG_A, created.id, TEST_USER_PRESIDENT)).rejects.toBeInstanceOf(
+      ConflictException,
+    );
     await expect(
-      service.markPaid(ORG_A, created.id, "treasurer-1", PaymentMode.CASH),
+      service.markPaid(TEST_ORG_A, created.id, TEST_USER_TREASURER, PaymentMode.CASH),
     ).rejects.toBeInstanceOf(ConflictException);
 
-    const cancelled = await service.cancel(ORG_A, created.id, "president-1", "Duplicate bill entry");
+    const cancelled = await service.cancel(TEST_ORG_A, created.id, TEST_USER_PRESIDENT, "Duplicate bill entry");
     expect(cancelled.status).toBe(BillStatus.CANCELLED);
     expect(cancelled.cancelReason).toBe("Duplicate bill entry");
     // Core fields untouched by cancel.
@@ -262,23 +240,68 @@ describe("BillsService - immutability and cancel", () => {
   });
 });
 
-describe("BillsService - multi-tenant isolation", () => {
-  it("Org A cannot retrieve or approve Org B's bill, even by guessing the id", async () => {
-    const { service } = buildService();
-    const created = await service.create(ORG_B, "treasurer-1", createDto());
+// ─── Multi-Tenant Isolation ──────────────────────────────────────────────────
 
-    await expect(service.getById(ORG_A, created.id)).rejects.toThrow("Bill not found");
-    await expect(service.approve(ORG_A, created.id, "president-1")).rejects.toThrow("Bill not found");
+describe("BillsService - multi-tenant isolation", () => {
+  it("GIVEN Org B's bill WHEN Org A tries to retrieve or approve by id THEN throws 'Bill not found'", async () => {
+    const { service } = buildService();
+    const created = await service.create(TEST_ORG_B, TEST_USER_TREASURER, createMockBillDto());
+
+    await expect(service.getById(TEST_ORG_A, created.id)).rejects.toThrow("Bill not found");
+    await expect(service.approve(TEST_ORG_A, created.id, TEST_USER_PRESIDENT)).rejects.toThrow("Bill not found");
   });
 
-  it("Org A's list never includes Org B's bills", async () => {
+  it("GIVEN bills in Org A and Org B WHEN Org A lists bills THEN result contains only Org A's bills", async () => {
     const { service } = buildService();
-    await service.create(ORG_A, "treasurer-1", createDto({ taskOrField: "A task" }));
-    await service.create(ORG_B, "treasurer-1", createDto({ taskOrField: "B task" }));
+    await service.create(TEST_ORG_A, TEST_USER_TREASURER, createMockBillDto({ taskOrField: "A task" }));
+    await service.create(TEST_ORG_B, TEST_USER_TREASURER, createMockBillDto({ taskOrField: "B task" }));
 
-    const results = await service.list(ORG_A, {});
+    const results = await service.list(TEST_ORG_A, {});
 
     expect(results).toHaveLength(1);
-    expect(results[0].organizationId).toBe(ORG_A);
+    expect(results[0].organizationId).toBe(TEST_ORG_A);
+  });
+});
+
+// ─── Edge Cases (Phase 3) ────────────────────────────────────────────────────
+
+describe("BillsService - edge cases", () => {
+  it("GIVEN an empty org WHEN list is called THEN returns empty array (not null/undefined)", async () => {
+    const { service } = buildService();
+
+    const results = await service.list(TEST_ORG_A, {});
+
+    expect(results).toEqual([]);
+    expect(Array.isArray(results)).toBe(true);
+  });
+
+  it("GIVEN a non-existent bill id WHEN getById is called THEN throws NotFoundException", async () => {
+    const { service } = buildService();
+
+    await expect(service.getById(TEST_ORG_A, "non-existent-id")).rejects.toThrow();
+  });
+
+  it("GIVEN a CANCELLED bill WHEN submit is called THEN throws ConflictException", async () => {
+    const { service } = buildService();
+    const created = await service.create(TEST_ORG_A, TEST_USER_TREASURER, createMockBillDto());
+    await service.submit(TEST_ORG_A, created.id);
+    await service.approve(TEST_ORG_A, created.id, TEST_USER_PRESIDENT);
+    await service.markPaid(TEST_ORG_A, created.id, TEST_USER_TREASURER, PaymentMode.CASH);
+    await service.cancel(TEST_ORG_A, created.id, TEST_USER_PRESIDENT, "Duplicate");
+
+    await expect(service.submit(TEST_ORG_A, created.id)).rejects.toBeInstanceOf(ConflictException);
+  });
+
+  it("GIVEN a CANCELLED bill WHEN cancel is called again THEN throws ConflictException (idempotent guard)", async () => {
+    const { service } = buildService();
+    const created = await service.create(TEST_ORG_A, TEST_USER_TREASURER, createMockBillDto());
+    await service.submit(TEST_ORG_A, created.id);
+    await service.approve(TEST_ORG_A, created.id, TEST_USER_PRESIDENT);
+    await service.markPaid(TEST_ORG_A, created.id, TEST_USER_TREASURER, PaymentMode.CASH);
+    await service.cancel(TEST_ORG_A, created.id, TEST_USER_PRESIDENT, "Duplicate");
+
+    await expect(
+      service.cancel(TEST_ORG_A, created.id, TEST_USER_PRESIDENT, "Double cancel"),
+    ).rejects.toBeInstanceOf(ConflictException);
   });
 });

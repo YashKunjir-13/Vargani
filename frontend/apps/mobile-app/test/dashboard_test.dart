@@ -1,43 +1,34 @@
-import 'package:flutter/material.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:pauti_pustak_mobile/core/session/session_controller.dart';
-import 'package:pauti_pustak_mobile/core/session/session_state.dart';
 import 'package:pauti_pustak_mobile/features/dashboard/dashboard.dart';
-import 'package:pauti_pustak_mobile/l10n/app_localizations.dart';
+import 'helpers/test_wrapper.dart';
 
 void main() {
-  Widget buildTestableWidget(Widget child) {
-    return ProviderScope(
-      overrides: [
-        initialSessionStateProvider.overrideWithValue(SessionState.unauthenticated),
-      ],
-      child: MaterialApp(
-        localizationsDelegates: AppLocalizations.localizationsDelegates,
-        supportedLocales: AppLocalizations.supportedLocales,
-        home: child,
-      ),
+  group('Dashboard Screens — GIVEN-WHEN-THEN UI States', () {
+    testWidgets(
+      'GIVEN an active Mandal session WHEN MandalDashboardScreen is rendered THEN shows header, overview cards, and module navigation',
+      (tester) async {
+        await tester.pumpWidget(createTestableWidget(child: const MandalDashboardScreen()));
+        await tester.pumpAndSettle();
+
+        expect(find.text('Shree Siddhivinayak Ganpati Mandal'), findsWidgets);
+        expect(find.text('FESTIVAL OVERVIEW'), findsOneWidget);
+        expect(find.text('QUICK ACTIONS'), findsOneWidget);
+        expect(find.text('MAIN MODULES'), findsOneWidget);
+        expect(find.text('Contribution Management'), findsOneWidget);
+      },
     );
-  }
 
-  testWidgets('MandalDashboardScreen renders header, quick actions, modules and navigation', (tester) async {
-    await tester.pumpWidget(buildTestableWidget(const MandalDashboardScreen()));
-    await tester.pumpAndSettle();
+    testWidgets(
+      'GIVEN an active Donor session WHEN DonorDashboardScreen is rendered THEN shows donor profile, overview, highlights and receipts',
+      (tester) async {
+        await tester.pumpWidget(createTestableWidget(child: const DonorDashboardScreen()));
+        await tester.pumpAndSettle();
 
-    expect(find.text('Shree Siddhivinayak Ganpati Mandal'), findsWidgets);
-    expect(find.text('FESTIVAL OVERVIEW'), findsOneWidget);
-    expect(find.text('QUICK ACTIONS'), findsOneWidget);
-    expect(find.text('MAIN MODULES'), findsOneWidget);
-    expect(find.text('Contribution Management'), findsOneWidget);
-  });
-
-  testWidgets('DonorDashboardScreen renders header, summary cards, quick actions and receipts', (tester) async {
-    await tester.pumpWidget(buildTestableWidget(const DonorDashboardScreen()));
-    await tester.pumpAndSettle();
-
-    expect(find.text('Ramesh Shivaji Patil'), findsWidgets);
-    expect(find.text('YOUR CONTRIBUTION OVERVIEW'), findsOneWidget);
-    expect(find.text('KEY HIGHLIGHTS'), findsOneWidget);
-    expect(find.text('QUICK ACTIONS'), findsOneWidget);
+        expect(find.text('Ramesh Shivaji Patil'), findsWidgets);
+        expect(find.text('YOUR CONTRIBUTION OVERVIEW'), findsOneWidget);
+        expect(find.text('KEY HIGHLIGHTS'), findsOneWidget);
+        expect(find.text('QUICK ACTIONS'), findsOneWidget);
+      },
+    );
   });
 }
