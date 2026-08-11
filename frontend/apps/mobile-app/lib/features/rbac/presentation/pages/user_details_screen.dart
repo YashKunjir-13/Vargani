@@ -337,7 +337,7 @@ class UserDetailsScreen extends ConsumerWidget {
         'amount': '₹5,000',
         'reason': 'Ganpati decoration & floral expenses',
         'date': '04 Aug 2026',
-        'requester': 'Ujwal Pandey • Trust President',
+        'requester': 'Trust President',
         'status': 'PENDING',
       },
       {

@@ -47,6 +47,16 @@ import '../features/notifications/notification_settings_screen.dart';
 import '../features/payments/screens/create_payment_screen.dart';
 import '../features/payments/screens/payment_detail_screen.dart';
 import '../features/payments/screens/payments_list_screen.dart';
+import '../features/payments/screens/select_event_screen.dart';
+import '../features/payments/screens/select_donor_screen.dart';
+import '../features/payments/screens/donation_amount_screen.dart';
+import '../features/payments/screens/donation_details_screen.dart';
+import '../features/payments/screens/payment_method_screen.dart';
+import '../features/payments/screens/payment_review_screen.dart';
+import '../features/payments/screens/payment_processing_screen.dart';
+import '../features/payments/screens/mock_payment_screen.dart';
+import '../features/payments/screens/payment_result_screens.dart';
+import '../features/payments/screens/donation_receipt_screen.dart';
 import '../features/receipts/screens/receipt_detail_screen.dart';
 import '../features/receipts/screens/receipts_list_screen.dart';
 import '../features/reports/screens/reports_hub_screen.dart';
@@ -183,7 +193,7 @@ final appRouterProvider = Provider.family<GoRouter, String>((ref, environment) {
                 pageBuilder: (context, state) => _buildSmoothPage(
                   context: context,
                   state: state,
-                  child: const CreatePaymentScreen(),
+                  child: const SelectEventScreen(),
                 ),
               ),
               GoRoute(
@@ -197,6 +207,97 @@ final appRouterProvider = Provider.family<GoRouter, String>((ref, environment) {
                 ),
               ),
             ],
+          ),
+          // --- 10-Step Donation Payment Journey ---
+          GoRoute(
+            path: '/donation/select-event',
+            name: 'donation-select-event',
+            pageBuilder: (context, state) => _buildSmoothPage(
+              context: context,
+              state: state,
+              child: const SelectEventScreen(),
+            ),
+          ),
+          GoRoute(
+            path: '/donation/select-donor',
+            name: 'donation-select-donor',
+            pageBuilder: (context, state) => _buildSmoothPage(
+              context: context,
+              state: state,
+              child: const SelectDonorScreen(),
+            ),
+          ),
+          GoRoute(
+            path: '/donation/amount',
+            name: 'donation-amount',
+            pageBuilder: (context, state) => _buildSmoothPage(
+              context: context,
+              state: state,
+              child: const DonationAmountScreen(),
+            ),
+          ),
+          GoRoute(
+            path: '/donation/details',
+            name: 'donation-details',
+            pageBuilder: (context, state) => _buildSmoothPage(
+              context: context,
+              state: state,
+              child: const DonationDetailsScreen(),
+            ),
+          ),
+          GoRoute(
+            path: '/donation/payment-method',
+            name: 'donation-payment-method',
+            pageBuilder: (context, state) => _buildSmoothPage(
+              context: context,
+              state: state,
+              child: const PaymentMethodScreen(),
+            ),
+          ),
+          GoRoute(
+            path: '/donation/review',
+            name: 'donation-review',
+            pageBuilder: (context, state) => _buildSmoothPage(
+              context: context,
+              state: state,
+              child: const PaymentReviewScreen(),
+            ),
+          ),
+          GoRoute(
+            path: '/donation/processing',
+            name: 'donation-processing',
+            pageBuilder: (context, state) => _buildSmoothPage(
+              context: context,
+              state: state,
+              child: const PaymentProcessingScreen(),
+            ),
+          ),
+          GoRoute(
+            path: '/donation/mock-gateway',
+            name: 'donation-mock-gateway',
+            pageBuilder: (context, state) => _buildSmoothPage(
+              context: context,
+              state: state,
+              child: const MockPaymentScreen(),
+            ),
+          ),
+          GoRoute(
+            path: '/donation/result',
+            name: 'donation-result',
+            pageBuilder: (context, state) => _buildSmoothPage(
+              context: context,
+              state: state,
+              child: const PaymentResultScreen(),
+            ),
+          ),
+          GoRoute(
+            path: '/donation/receipt',
+            name: 'donation-receipt',
+            pageBuilder: (context, state) => _buildSmoothPage(
+              context: context,
+              state: state,
+              child: const DonationReceiptScreen(),
+            ),
           ),
           GoRoute(
             path: '/receipts',

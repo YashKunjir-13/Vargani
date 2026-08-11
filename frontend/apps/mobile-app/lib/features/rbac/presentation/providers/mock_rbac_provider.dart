@@ -191,8 +191,8 @@ class MockRbacNotifier extends Notifier<MockRbacState> {
       activeRole: defaultRole,
       isSuperAdmin: true,
       permissions: _rolePermissions[defaultRole] ?? [],
-      testingUserName: 'Ujwal Pandey',
-      testingUserId: 'USR-001',
+      testingUserName: 'Trust President',
+      testingUserId: 'USR-PRESIDENT',
     );
   }
 
