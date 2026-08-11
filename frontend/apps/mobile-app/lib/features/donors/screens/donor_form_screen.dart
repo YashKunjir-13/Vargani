@@ -429,6 +429,7 @@ class _DonorFormScreenState extends ConsumerState<DonorFormScreen> {
                   paymentMethod: _selectedPaymentMethod,
                   donorName: fullName,
                 );
+                ref.read(mandalDashboardProvider.notifier).refresh();
                 ref.invalidate(donorListProvider);
                 ref.invalidate(receiptsProvider);
 

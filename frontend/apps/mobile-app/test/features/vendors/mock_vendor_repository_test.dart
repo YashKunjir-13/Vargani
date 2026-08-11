@@ -10,6 +10,13 @@ void main() {
   });
 
   test('returns filtered vendors and computes derived totals', () async {
+    await repository.createVendor(
+      name: 'Decor Vendor',
+      category: 'Mandap & Decoration',
+      contractAmountPaise: 1000000,
+      paidAmountPaise: 500000,
+      status: VendorStatus.active,
+    );
     final vendors = await repository.getVendors(search: 'decor');
 
     expect(vendors, isNotEmpty);

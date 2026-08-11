@@ -176,9 +176,9 @@ class _MandalDashboardScreenState extends ConsumerState<MandalDashboardScreen> {
             mainAmount: _formatAmount(data.totalCollectionPaise),
             subtitle: 'Total collections • ${data.festivalYear}',
             stat1Label: 'Expenses',
-            stat1Value: '₹1.15K',
+            stat1Value: _formatAmount(data.totalExpensesPaise),
             stat2Label: 'Balance',
-            stat2Value: '₹3.67K',
+            stat2Value: _formatAmount(data.currentBalancePaise),
             stat3Label: 'Donors',
             stat3Value: '${data.totalDonorsCount}',
             onTap: () {},
@@ -288,7 +288,7 @@ class _MandalDashboardScreenState extends ConsumerState<MandalDashboardScreen> {
               if (action.id == 'records') {
                 Navigator.of(context).push(MaterialPageRoute(builder: (_) => const AllRecordsScreen()));
               } else if (action.id == 'collect' || action.id == 'receipt') {
-                DashboardActionSheets.showCollectDonationSheet(context, ref: ref, mandalName: data.mandalName);
+                context.push('/donation/select-event');
               } else if (action.id == 'expense' || action.id == 'bill') {
                 DashboardActionSheets.showAddExpenseSheet(context);
               } else if (action.id == 'volunteer') {
@@ -435,13 +435,16 @@ class _MandalDashboardScreenState extends ConsumerState<MandalDashboardScreen> {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text(
-                l10n.recentTransactions,
-                style: TextStyle(
-                  color: colors.secondaryText,
-                  fontSize: 12,
-                  fontWeight: FontWeight.w900,
-                  letterSpacing: 1.2,
+              Flexible(
+                child: Text(
+                  l10n.recentTransactions,
+                  style: TextStyle(
+                    color: colors.secondaryText,
+                    fontSize: 12,
+                    fontWeight: FontWeight.w900,
+                    letterSpacing: 1.2,
+                  ),
+                  overflow: TextOverflow.ellipsis,
                 ),
               ),
               TextButton(

@@ -29,10 +29,24 @@ export class DashboardService {
       _count: { id: true },
     });
 
+    const startOfToday = new Date();
+    startOfToday.setHours(0, 0, 0, 0);
+
+    const todayCollectionsAgg = await this.prisma.collectionRecord.aggregate({
+      where: { organizationId, status: "CONFIRMED", collectedAt: { gte: startOfToday } },
+      _sum: { amountPaise: true },
+      _count: { id: true },
+    });
+
+    const totalDonorsCount = await this.prisma.contributorAccount.count({
+      where: { organizationId, status: "ACTIVE" },
+    });
+
     const totalCollectionsPaise = collectionsAgg._sum.amountPaise ?? BigInt(0);
     const approvedExpensesPaise = expensesAgg._sum.approvedAmountPaise ?? BigInt(0);
     const paidExpensesPaise = expensesAgg._sum.paidAmountPaise ?? BigInt(0);
     const netLiquidityBalancePaise = totalCollectionsPaise - paidExpensesPaise;
+    const todayTotalCollectedPaise = todayCollectionsAgg._sum.amountPaise ?? BigInt(0);
 
     return {
       activeEventsCount,
@@ -43,6 +57,9 @@ export class DashboardService {
       paidExpensesPaise: paidExpensesPaise.toString(),
       expensesCount: expensesAgg._count.id,
       netLiquidityBalancePaise: netLiquidityBalancePaise.toString(),
+      todayTotalCollectedPaise: todayTotalCollectedPaise.toString(),
+      todayCollectionsCount: todayCollectionsAgg._count.id,
+      totalDonorsCount,
     };
   }
 

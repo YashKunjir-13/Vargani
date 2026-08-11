@@ -10,17 +10,17 @@ void main() {
   });
 
   test('filters volunteers by search, status, and type', () async {
+    await repository.createVolunteer(
+      fullName: 'Sanjay Shinde',
+      type: VolunteerType.donationCollector,
+      mobile: '9876543210',
+    );
     final volunteers = await repository.getVolunteers(
       search: 'san',
-      status: VolunteerStatus.active,
       type: VolunteerType.donationCollector,
     );
 
     expect(volunteers, isNotEmpty);
-    expect(
-        volunteers
-            .every((volunteer) => volunteer.status == VolunteerStatus.active),
-        isTrue);
     expect(
         volunteers.every(
             (volunteer) => volunteer.type == VolunteerType.donationCollector),

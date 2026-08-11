@@ -219,6 +219,7 @@ class DashboardActionSheets {
                                       paymentMethod: selectedMethod,
                                       donorName: donorName,
                                     );
+                                    ref.read(mandalDashboardProvider.notifier).refresh();
                                   }
 
                                   if (!context.mounted) return;
