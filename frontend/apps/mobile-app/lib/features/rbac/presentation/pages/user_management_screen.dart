@@ -65,7 +65,8 @@ class MockUser {
       joinedDate: joinedDate ?? this.joinedDate,
       appointedBy: appointedBy ?? this.appointedBy,
       customRoleName: customRoleName ?? this.customRoleName,
-      customRoleDescription: customRoleDescription ?? this.customRoleDescription,
+      customRoleDescription:
+          customRoleDescription ?? this.customRoleDescription,
       customPermissions: customPermissions ?? this.customPermissions,
     );
   }
@@ -92,7 +93,8 @@ class MockUserListNotifier extends Notifier<List<MockUser>> {
           final roleName = role['name'] as String? ?? 'Member';
 
           MockRole mockRole = MockRole.volunteer;
-          if (roleName.toLowerCase().contains('owner') || roleName.toLowerCase().contains('president')) {
+          if (roleName.toLowerCase().contains('owner') ||
+              roleName.toLowerCase().contains('president')) {
             mockRole = MockRole.president;
           } else if (roleName.toLowerCase().contains('treasurer')) {
             mockRole = MockRole.treasurer;
@@ -103,7 +105,9 @@ class MockUserListNotifier extends Notifier<List<MockUser>> {
           return MockUser(
             id: m['id'] as String? ?? user['id'] as String? ?? '',
             name: user['displayName'] as String? ?? 'Organization Member',
-            contact: user['primaryMobile'] as String? ?? user['primaryEmail'] as String? ?? '',
+            contact: user['primaryMobile'] as String? ??
+                user['primaryEmail'] as String? ??
+                '',
             role: mockRole,
             isSuperAdmin: m['isOwner'] as bool? ?? false,
           );
@@ -127,7 +131,8 @@ class MockUserListNotifier extends Notifier<List<MockUser>> {
   }
 }
 
-final mockUserListProvider = NotifierProvider<MockUserListNotifier, List<MockUser>>(
+final mockUserListProvider =
+    NotifierProvider<MockUserListNotifier, List<MockUser>>(
   MockUserListNotifier.new,
 );
 
@@ -179,7 +184,8 @@ class UserManagementScreen extends ConsumerWidget {
               },
               borderRadius: BorderRadius.circular(16),
               child: ListTile(
-                contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                contentPadding:
+                    const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                 leading: CircleAvatar(
                   backgroundColor: colors.brandOrange.withValues(alpha: 0.1),
                   child: Text(
@@ -204,19 +210,23 @@ class UserManagementScreen extends ConsumerWidget {
                     const SizedBox(height: 4),
                     Text(
                       user.contact,
-                      style: TextStyle(color: colors.secondaryText, fontSize: 13),
+                      style:
+                          TextStyle(color: colors.secondaryText, fontSize: 13),
                     ),
                     const SizedBox(height: 6),
                     Row(
                       children: [
                         Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 8, vertical: 4),
                           decoration: BoxDecoration(
                             color: colors.brandOrange.withValues(alpha: 0.1),
                             borderRadius: BorderRadius.circular(6),
                           ),
                           child: Text(
-                            user.role == MockRole.custom ? (user.customRoleName ?? 'Custom Role') : user.role.displayName,
+                            user.role == MockRole.custom
+                                ? (user.customRoleName ?? 'Custom Role')
+                                : user.role.displayName,
                             style: TextStyle(
                               color: colors.brandOrange,
                               fontSize: 12,
@@ -227,7 +237,8 @@ class UserManagementScreen extends ConsumerWidget {
                         if (user.role == MockRole.custom) ...[
                           const SizedBox(width: 8),
                           Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 4),
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 6, vertical: 4),
                             decoration: BoxDecoration(
                               color: Colors.blue.shade100,
                               borderRadius: BorderRadius.circular(6),

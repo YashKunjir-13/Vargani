@@ -62,9 +62,11 @@ class MockBudgetRepository implements BudgetRepository {
       );
 
       // Apply the adjustments to the budget
-      List<MockBudgetCategory> updatedCategories = List.from(_budget.categories);
+      List<MockBudgetCategory> updatedCategories =
+          List.from(_budget.categories);
       for (var adjustment in oldRev.adjustments) {
-        final catIndex = updatedCategories.indexWhere((c) => c.id == adjustment.categoryId);
+        final catIndex =
+            updatedCategories.indexWhere((c) => c.id == adjustment.categoryId);
         if (catIndex != -1) {
           updatedCategories[catIndex] = updatedCategories[catIndex].copyWith(
             allocatedPaise: adjustment.proposedAllocationPaise,

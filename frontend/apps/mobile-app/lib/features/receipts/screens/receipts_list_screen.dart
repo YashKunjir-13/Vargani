@@ -7,6 +7,7 @@ import 'package:intl/intl.dart';
 import 'package:printing/printing.dart';
 
 import '../../../core/l10n/app_localizations.dart';
+import '../../../core/session/session_controller.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../shared/utils/pdf_generator.dart';
 import '../../../shared/widgets/pauti_app_bar.dart';
@@ -381,10 +382,10 @@ class _ReceiptsListScreenState extends ConsumerState<ReceiptsListScreen> {
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
-                    children: const [
+                    children: [
                       Text(
-                        'Shree Siddhivinayak Ganpati...',
-                        style: TextStyle(
+                        ref.watch(sessionControllerProvider).user?.organization?.name ?? 'My Mandal',
+                        style: const TextStyle(
                           color: AppColors.textPrimaryLight,
                           fontWeight: FontWeight.bold,
                           fontSize: 15,

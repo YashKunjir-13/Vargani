@@ -82,10 +82,24 @@ export class UsersService {
       where: { id: userId },
       data: {
         ...(dto.displayName ? { displayName: dto.displayName } : {}),
+        ...(dto.primaryMobile ? { primaryMobile: dto.primaryMobile } : {}),
+        ...(dto.primaryEmail !== undefined ? { primaryEmail: dto.primaryEmail ? dto.primaryEmail.toLowerCase().trim() : null } : {}),
         ...(dto.preferredLanguage ? { preferredLanguage: dto.preferredLanguage } : {}),
         ...(dto.avatarDocumentId !== undefined ? { avatarDocumentId: dto.avatarDocumentId } : {}),
       },
     });
+
+    const donorProfile = await this.prisma.donorProfile.findUnique({ where: { userId } });
+    if (donorProfile) {
+      await this.prisma.donorProfile.update({
+        where: { id: donorProfile.id },
+        data: {
+          ...(dto.displayName ? { fullName: dto.displayName } : {}),
+          ...(dto.primaryMobile ? { mobile: dto.primaryMobile } : {}),
+          ...(dto.primaryEmail !== undefined ? { email: dto.primaryEmail ? dto.primaryEmail.toLowerCase().trim() : null } : {}),
+        },
+      });
+    }
 
     return this.getMe(updated.id);
   }

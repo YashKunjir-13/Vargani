@@ -59,15 +59,21 @@ class BankDetails {
 class BankDetailsNotifier extends Notifier<BankDetails> {
   @override
   BankDetails build() {
-    return const BankDetails(
-      accountHolderName: 'Shree Siddhivinayak Ganpati Mandal',
-      bankName: 'State Bank of India',
-      accountNumber: '912345678901',
-      accountNumberMasked: 'XXXX XXXX 8901',
-      ifscCode: 'SBIN0001234',
-      branchName: 'Dadar West Branch',
-      vpa: 'siddhivinayak@upi',
-    );
+    Future.microtask(() => fetchBankDetails());
+    return const BankDetails();
+  }
+
+  Future<void> fetchBankDetails() async {
+    try {
+      final dio = ref.read(dioProvider);
+      final response = await dio.get<Map<String, dynamic>>('/organizations/current');
+      final data = response.data?['data'] as Map<String, dynamic>?;
+      if (data != null) {
+        state = BankDetails.fromJson(data);
+      }
+    } catch (_) {
+      // Retain clean empty state if fetch fails or unconfigured
+    }
   }
 
   Future<bool> saveBankDetails({
@@ -98,7 +104,7 @@ class BankDetailsNotifier extends Notifier<BankDetails> {
 
     try {
       final dio = ref.read(dioProvider);
-      await dio.patch('/api/v1/organizations/current/banking', data: updated.toJson());
+      await dio.patch('/organizations/current/banking', data: updated.toJson());
     } catch (_) {
       // Offline fallback preserves local state update
     }

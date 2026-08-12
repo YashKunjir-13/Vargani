@@ -24,7 +24,7 @@ class DashboardHeader extends ConsumerWidget implements PreferredSizeWidget {
   final int unreadNotificationsCount;
 
   @override
-  Size get preferredSize => const Size.fromHeight(88);
+  Size get preferredSize => const Size.fromHeight(kToolbarHeight);
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -33,10 +33,12 @@ class DashboardHeader extends ConsumerWidget implements PreferredSizeWidget {
 
     return Container(
       color: colors.card,
-      padding: const EdgeInsets.only(left: 16, right: 16, top: 12, bottom: 12),
+      padding: const EdgeInsets.symmetric(horizontal: 16),
       child: SafeArea(
         bottom: false,
-        child: Row(
+        child: SizedBox(
+          height: kToolbarHeight,
+          child: Row(
           children: [
             // Logo / Profile Badge
             GestureDetector(
@@ -181,6 +183,7 @@ class DashboardHeader extends ConsumerWidget implements PreferredSizeWidget {
           ],
         ),
       ),
-    );
-  }
+    ),
+  );
+}
 }

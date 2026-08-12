@@ -4,15 +4,13 @@ import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
-import 'package:printing/printing.dart';
 
 import '../../../core/permissions/permission_guard.dart';
 import '../../../core/permissions/user_role.dart';
 import '../../../core/theme/app_colors.dart';
-import '../../../shared/utils/pdf_generator.dart';
 import '../../../shared/widgets/app_button.dart';
 import '../../../shared/widgets/pauti_app_bar.dart';
-import '../models/receipt.dart';
+import '../models/receipt.dart';import 'package:pauti_pustak_mobile/core/session/session_controller.dart';import 'package:pauti_pustak_mobile/shared/utils/pdf_download_utils.dart';
 import '../state/receipts_notifier.dart';
 
 class ReceiptDetailScreen extends ConsumerWidget {
@@ -52,18 +50,13 @@ class ReceiptDetailScreen extends ConsumerWidget {
             children: [
               // PDF Action Button
               InkWell(
-                onTap: () {
-                  Printing.layoutPdf(
-                    onLayout: (format) async {
-                      return PdfReceiptGenerator.generateReceiptPdf(
-                        receiptNumber: receipt.receiptNumber,
-                        mandalName: receipt.mandalName,
-                        donorName: receipt.donorName,
-                        amountText: currency.format(receipt.amount),
-                        dateText: dateFormat.format(receipt.issuedDate),
-                        typeLabel: 'Festival Donation — Ganpati Utsav 2026',
-                      );
-                    },
+                onTap: () async {
+                  final dio = ref.read(dioProvider);
+                  await PdfDownloadUtils.downloadReceiptPdf(
+                    context, 
+                    dio, 
+                    receiptId, 
+                    receipt.receiptNumber
                   );
                 },
                 borderRadius: BorderRadius.circular(12),

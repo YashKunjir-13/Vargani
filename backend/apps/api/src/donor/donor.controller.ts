@@ -1,7 +1,8 @@
-import { Body, Controller, Get, HttpCode, HttpStatus, Param, Patch, Post, Query, UseGuards } from "@nestjs/common";
+import { Body, Controller, Get, HttpCode, HttpStatus, Param, Patch, Post, Query, UseGuards, Res } from "@nestjs/common";
+import { Response } from "express";
 import { ApiBearerAuth, ApiOperation, ApiQuery, ApiTags } from "@nestjs/swagger";
 import { createApiResponse } from "@pauti-pustak/backend-contracts";
-import { AuthenticatedUser, PlatformRole, RequirePermission } from "@pauti-pustak/backend-security";
+import { AuthenticatedUser, PlatformRole, RequirePermission, TenantOptional } from "@pauti-pustak/backend-security";
 import { CurrentUser } from "../auth/current-user.decorator";
 import { JwtAuthGuard } from "../auth/jwt-auth.guard";
 import { CreateDonorDto } from "./dto/create-donor.dto";
@@ -62,6 +63,7 @@ export class DonorController {
   }
 
   @Get("donor/profile")
+  @TenantOptional()
   @ApiOperation({ summary: "Retrieve logged-in user's self donor profile" })
   async getSelfProfile(@CurrentUser() user: AuthenticatedUser) {
     const result = await this.donorService.getSelfProfile(user.userId);
@@ -69,6 +71,7 @@ export class DonorController {
   }
 
   @Patch("donor/profile")
+  @TenantOptional()
   @ApiOperation({ summary: "Update logged-in user's self donor profile details" })
   async updateSelfProfile(@CurrentUser() user: AuthenticatedUser, @Body() dto: UpdateDonorDto) {
     const result = await this.donorService.updateSelfProfile(user.userId, dto);
@@ -76,6 +79,7 @@ export class DonorController {
   }
 
   @Get("donor/organizations")
+  @TenantOptional()
   @ApiOperation({ summary: "List all organizations (mandals) where donor has accounts/contributions" })
   async getDonorOrganizations(@CurrentUser() user: AuthenticatedUser) {
     const result = await this.donorService.getDonorOrganizations(user.userId);
@@ -83,6 +87,7 @@ export class DonorController {
   }
 
   @Post("donor/organizations/select")
+  @TenantOptional()
   @ApiOperation({ summary: "Select an active organization context for donor operations" })
   async selectOrganization(@CurrentUser() user: AuthenticatedUser, @Body() dto: SelectOrganizationDto) {
     const result = await this.donorService.selectOrganization(user.userId, dto.organizationId);
@@ -90,6 +95,7 @@ export class DonorController {
   }
 
   @Get("donor/events")
+  @TenantOptional()
   @ApiOperation({ summary: "List active events for selected organization or all donor mandals" })
   @ApiQuery({ name: "organizationId", required: false })
   async getDonorEvents(
@@ -102,6 +108,7 @@ export class DonorController {
   }
 
   @Get("donor/contributor-accounts")
+  @TenantOptional()
   @ApiOperation({ summary: "List donor's contributor accounts for an event/organization" })
   @ApiQuery({ name: "organizationId", required: false })
   @ApiQuery({ name: "eventId", required: false })
@@ -116,6 +123,7 @@ export class DonorController {
   }
 
   @Post("donor/contributor-accounts")
+  @TenantOptional()
   @HttpCode(HttpStatus.CREATED)
   @ApiOperation({ summary: "Create a new contributor account under an event for the donor" })
   @ApiQuery({ name: "organizationId", required: false })
@@ -140,6 +148,7 @@ export class DonorController {
   }
 
   @Get("donor/bills")
+  @TenantOptional()
   @ApiOperation({ summary: "List pending/issued bills for logged-in donor's contributor accounts" })
   @ApiQuery({ name: "organizationId", required: false })
   async getDonorBills(
@@ -152,6 +161,7 @@ export class DonorController {
   }
 
   @Get("donor/bills/:id")
+  @TenantOptional()
   @ApiOperation({ summary: "Retrieve pending bill details (verifying donor ownership)" })
   async getDonorBillDetails(@CurrentUser() user: AuthenticatedUser, @Param("id") billId: string) {
     const result = await this.donorService.getDonorBillDetails(user.userId, billId);
@@ -159,6 +169,7 @@ export class DonorController {
   }
 
   @Post("donor/payments/checkout")
+  @TenantOptional()
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: "Process online payment checkout for a pending bill or contribution" })
   async checkoutPayment(@CurrentUser() user: AuthenticatedUser, @Body() dto: CheckoutPaymentDto) {
@@ -167,6 +178,7 @@ export class DonorController {
   }
 
   @Get("donor/receipts")
+  @TenantOptional()
   @ApiOperation({ summary: "List confirmed contribution receipts for logged-in donor" })
   @ApiQuery({ name: "organizationId", required: false })
   async getDonorReceipts(
@@ -179,13 +191,34 @@ export class DonorController {
   }
 
   @Get("donor/receipts/:id")
+  @TenantOptional()
   @ApiOperation({ summary: "Retrieve receipt details (verifying donor ownership)" })
   async getDonorReceiptDetails(@CurrentUser() user: AuthenticatedUser, @Param("id") receiptId: string) {
     const result = await this.donorService.getDonorReceiptDetails(user.userId, receiptId);
     return createApiResponse(result, HttpStatus.OK);
   }
 
+  @Get("donor/receipts/:id/pdf")
+  @TenantOptional()
+  @ApiOperation({ summary: "Render and stream receipt PDF document for donor" })
+  async getDonorReceiptPdf(
+    @CurrentUser() user: AuthenticatedUser,
+    @Param("id") receiptId: string,
+    @Res() res: Response
+  ) {
+    const result = await this.donorService.getDonorReceiptPdf(user.userId, receiptId);
+
+    res.set({
+      "Content-Type": result.mimeType || "application/pdf",
+      "Content-Disposition": `attachment; filename="${result.filename}"`,
+      "Content-Length": result.pdfBytes.length,
+    });
+
+    res.end(result.pdfBytes);
+  }
+
   @Get("donor/contributions")
+  @TenantOptional()
   @ApiOperation({ summary: "Filterable contribution history stream for logged-in donor" })
   @ApiQuery({ name: "organizationId", required: false })
   @ApiQuery({ name: "eventId", required: false })
@@ -200,6 +233,7 @@ export class DonorController {
   }
 
   @Get("donor/dashboard")
+  @TenantOptional()
   @ApiOperation({ summary: "Aggregated donor portal dashboard metrics" })
   async getDonorDashboard(@CurrentUser() user: AuthenticatedUser) {
     const result = await this.donorService.getDonorDashboard(user.userId);
@@ -218,6 +252,7 @@ export class DonorController {
   }
 
   @Get("donors/me/history")
+  @TenantOptional()
   @ApiOperation({ summary: "View own cross-organization private donation history" })
   async getOwnHistory(@CurrentUser() user: AuthenticatedUser) {
     const result = await this.donorService.getOwnHistory(user.userId);

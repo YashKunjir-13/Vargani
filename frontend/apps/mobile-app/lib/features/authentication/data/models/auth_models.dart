@@ -55,6 +55,17 @@ class AuthDonorProfile {
   final String id;
   final String fullName;
   final String status;
+
+  AuthDonorProfile copyWith({
+    String? fullName,
+    String? status,
+  }) {
+    return AuthDonorProfile(
+      id: id,
+      fullName: fullName ?? this.fullName,
+      status: status ?? this.status,
+    );
+  }
 }
 
 class AuthUser {
@@ -95,6 +106,26 @@ class AuthUser {
   final String status;
   final AuthOrganization? organization;
   final AuthDonorProfile? donorProfile;
+
+  AuthUser copyWith({
+    String? displayName,
+    String? primaryMobile,
+    String? primaryEmail,
+    String? preferredLanguage,
+    AuthDonorProfile? donorProfile,
+  }) {
+    return AuthUser(
+      id: id,
+      displayName: displayName ?? this.displayName,
+      primaryMobile: primaryMobile ?? this.primaryMobile,
+      primaryEmail: primaryEmail ?? this.primaryEmail,
+      preferredLanguage: preferredLanguage ?? this.preferredLanguage,
+      platformRole: platformRole,
+      status: status,
+      organization: organization,
+      donorProfile: donorProfile ?? this.donorProfile,
+    );
+  }
 
   bool get isTrustOwner => organization != null;
   bool get isDonor => donorProfile != null;

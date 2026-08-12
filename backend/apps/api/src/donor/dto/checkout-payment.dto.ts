@@ -8,10 +8,10 @@ export class CheckoutPaymentDto {
   @IsUUID()
   organizationId!: string;
 
-  @ApiProperty({ example: "00000000-0000-4000-a000-000000000002" })
-  @IsNotEmpty()
+  @ApiPropertyOptional({ example: "00000000-0000-4000-a000-000000000002" })
+  @IsOptional()
   @IsUUID()
-  eventId!: string;
+  eventId?: string;
 
   @ApiPropertyOptional({ example: "00000000-0000-4000-a000-000000000003", description: "Pending bill ID to pay" })
   @IsOptional()

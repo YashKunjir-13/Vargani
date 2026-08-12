@@ -14,6 +14,7 @@ import 'package:pauti_pustak_mobile/features/dashboard/presentation/widgets/quic
 import 'package:pauti_pustak_mobile/features/dashboard/presentation/widgets/summary_card.dart';
 import 'package:pauti_pustak_mobile/features/dashboard/presentation/widgets/transaction_list.dart';
 import 'package:pauti_pustak_mobile/features/dashboard/presentation/pages/search_mandal_screen.dart';
+import 'package:pauti_pustak_mobile/features/profile/screens/edit_profile_screen.dart';
 import 'package:pauti_pustak_mobile/shared/widgets/app_bottom_nav.dart';
 
 class DonorDashboardScreen extends ConsumerStatefulWidget {
@@ -25,6 +26,14 @@ class DonorDashboardScreen extends ConsumerStatefulWidget {
 
 class _DonorDashboardScreenState extends ConsumerState<DonorDashboardScreen> {
   int _currentIndex = 0;
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      ref.read(donorDashboardProvider.notifier).fetchDashboard();
+    });
+  }
 
   String _formatAmount(int paise) {
     final rupees = (paise / 100).floor();
@@ -45,7 +54,7 @@ class _DonorDashboardScreenState extends ConsumerState<DonorDashboardScreen> {
       appBar: DashboardHeader(
         title: l10n.welcomeBack,
         subtitle: donorName,
-        badgeText: 'दे',
+        badgeText: 'ॐ',
         onProfileTap: () => setState(() => _currentIndex = 3),
         onSearchTap: () {
           Navigator.push(
@@ -213,8 +222,6 @@ class _DonorDashboardScreenState extends ConsumerState<DonorDashboardScreen> {
               const QuickActionButtonItem(id: 'donate', label: 'New Donation', icon: Icons.volunteer_activism, primary: true),
               QuickActionButtonItem(id: 'view_receipts', label: l10n.viewReceipts, icon: Icons.receipt_long),
               QuickActionButtonItem(id: 'history', label: l10n.contributionHistory, icon: Icons.history),
-              QuickActionButtonItem(id: 'campaigns', label: l10n.supportCampaigns, icon: Icons.campaign),
-              QuickActionButtonItem(id: 'favs', label: l10n.favouriteMandals, icon: Icons.star_border),
               QuickActionButtonItem(id: 'download', label: l10n.downloadReceiptPdf, icon: Icons.download),
             ],
             onActionTap: (action) {
@@ -227,6 +234,8 @@ class _DonorDashboardScreenState extends ConsumerState<DonorDashboardScreen> {
                 );
               } else if (action.id == 'view_receipts' || action.id == 'download') {
                 setState(() => _currentIndex = 2);
+              } else if (action.id == 'history') {
+                setState(() => _currentIndex = 1);
               } else {
                 ScaffoldMessenger.of(context).showSnackBar(
                   SnackBar(
@@ -266,6 +275,7 @@ class _DonorDashboardScreenState extends ConsumerState<DonorDashboardScreen> {
               onTap: () {
                 DashboardActionSheets.showReceiptDetailModal(
                   context,
+                  tx.id,
                   tx.receiptNumber,
                   tx.donorName,
                   _formatAmount(tx.amountPaise),
@@ -411,6 +421,7 @@ class _DonorDashboardScreenState extends ConsumerState<DonorDashboardScreen> {
                   onPressed: () {
                     DashboardActionSheets.showReceiptDetailModal(
                       context,
+                      tx.id,
                       tx.receiptNumber,
                       tx.donorName,
                       _formatAmount(tx.amountPaise),
@@ -465,7 +476,14 @@ class _DonorDashboardScreenState extends ConsumerState<DonorDashboardScreen> {
           leading: Icon(Icons.edit_outlined, color: colors.brandOrange),
           title: Text(l10n.editProfile, style: TextStyle(color: colors.text, fontWeight: FontWeight.w700)),
           trailing: Icon(Icons.chevron_right, color: colors.secondaryText),
-          onTap: () {},
+          onTap: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => const EditProfileScreen(),
+              ),
+            );
+          },
         ),
         const Divider(),
         ListTile(
