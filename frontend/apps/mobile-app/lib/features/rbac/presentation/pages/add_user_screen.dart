@@ -118,7 +118,7 @@ class _AddUserScreenState extends ConsumerState<AddUserScreen> {
         role: _selectedRole,
         status: isEdit ? widget.editingUser!.status : 'Active',
         joinedDate: isEdit ? widget.editingUser!.joinedDate : 'Today',
-        appointedBy: isEdit ? widget.editingUser!.appointedBy : 'Ujwal Pandey • Trust President',
+        appointedBy: isEdit ? widget.editingUser!.appointedBy : 'Trust President',
         customRoleName: _selectedRole == MockRole.custom ? _customRoleNameController.text.trim() : null,
         customRoleDescription: _selectedRole == MockRole.custom ? _customRoleDescController.text.trim() : null,
         customPermissions: isOverridden ? _selectedPermissions.toList() : null,

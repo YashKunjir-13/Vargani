@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-
+import 'package:pauti_pustak_mobile/core/session/session_controller.dart';
 import 'package:pauti_pustak_mobile/features/authentication/presentation/widgets/auth_design_tokens.dart';
 
 import 'add_user_screen.dart';
@@ -75,75 +75,44 @@ class MockUser {
 class MockUserListNotifier extends Notifier<List<MockUser>> {
   @override
   List<MockUser> build() {
-    return [
-      MockUser(
-        id: 'USR-001',
-        name: 'Ujwal Pandey',
-        contact: 'ujwal@example.com',
-        role: MockRole.president,
-        isSuperAdmin: true,
-      ),
-      MockUser(
-        id: 'USR-VP-A',
-        name: 'Suresh Patil (VP - Restricted)',
-        contact: 'suresh.vp1@example.com',
-        role: MockRole.vicePresident,
-        isSuperAdmin: false,
-        customPermissions: const [
-          'contribution.view',
-          'collections.create',
-          'reports.view',
-          'analytics.view',
-          'member.view',
-          'members.view',
-        ],
-        appointedBy: 'Ujwal Pandey • Trust President (Adhyaksha)',
-      ),
-      MockUser(
-        id: 'USR-VP-B',
-        name: 'Anil Deshmukh (VP - Extended)',
-        contact: 'anil.vp2@example.com',
-        role: MockRole.vicePresident,
-        isSuperAdmin: false,
-        customPermissions: const [
-          'contribution.view',
-          'collections.create',
-          'reports.view',
-          'analytics.view',
-          'member.view',
-          'members.view',
-          'bill.view',
-          'bills.create',
-          'vendor_payment.view',
-          'bills.approve',
-        ],
-        appointedBy: 'Ujwal Pandey • Trust President (Adhyaksha)',
-      ),
-      MockUser(
-        id: 'USR-002',
-        name: 'Rahul Sharma',
-        contact: '+91 9876543210',
-        role: MockRole.treasurer,
-        isSuperAdmin: false,
-        appointedBy: 'Ujwal Pandey • Trust President (Adhyaksha)',
-      ),
-      MockUser(
-        id: 'USR-003',
-        name: 'Amit Patil',
-        contact: 'amit@example.com',
-        role: MockRole.secretary,
-        isSuperAdmin: false,
-        appointedBy: 'Ujwal Pandey • Trust President (Adhyaksha)',
-      ),
-      MockUser(
-        id: 'USR-004',
-        name: 'Rohit Joshi',
-        contact: '+91 9876543211',
-        role: MockRole.volunteer,
-        isSuperAdmin: false,
-        appointedBy: 'Rahul Sharma • Treasurer (Khajindar)',
-      ),
-    ];
+    _fetchLiveMembers();
+    return const [];
+  }
+
+  Future<void> _fetchLiveMembers() async {
+    try {
+      final dio = ref.read(dioProvider);
+      final response = await dio.get<Map<String, dynamic>>('/memberships');
+      if (response.data?['data'] is List) {
+        final list = response.data!['data'] as List;
+        final members = list.map((item) {
+          final m = item as Map<String, dynamic>;
+          final user = m['user'] as Map<String, dynamic>? ?? {};
+          final role = m['role'] as Map<String, dynamic>? ?? {};
+          final roleName = role['name'] as String? ?? 'Member';
+
+          MockRole mockRole = MockRole.volunteer;
+          if (roleName.toLowerCase().contains('owner') || roleName.toLowerCase().contains('president')) {
+            mockRole = MockRole.president;
+          } else if (roleName.toLowerCase().contains('treasurer')) {
+            mockRole = MockRole.treasurer;
+          } else if (roleName.toLowerCase().contains('secretary')) {
+            mockRole = MockRole.secretary;
+          }
+
+          return MockUser(
+            id: m['id'] as String? ?? user['id'] as String? ?? '',
+            name: user['displayName'] as String? ?? 'Organization Member',
+            contact: user['primaryMobile'] as String? ?? user['primaryEmail'] as String? ?? '',
+            role: mockRole,
+            isSuperAdmin: m['isOwner'] as bool? ?? false,
+          );
+        }).toList();
+        state = members;
+      }
+    } catch (_) {
+      // Retain empty list state if backend returns empty or unauthenticated
+    }
   }
 
   void addUser(MockUser user) {
