@@ -4,7 +4,8 @@ import 'package:go_router/go_router.dart';
 
 import '../core/session/session_controller.dart';
 import '../shared/screens/access_restricted_screen.dart';
-import '../features/analytics/presentation/pages/analytical_dashboard_screen.dart' as pauti_analytics;
+import '../features/analytics/presentation/pages/analytical_dashboard_screen.dart'
+    as pauti_analytics;
 import '../features/audit_logs/advanced_filters_sheet.dart';
 import '../features/audit_logs/audit_detail_screen.dart';
 import '../features/audit_logs/audit_overview_screen.dart';
@@ -44,7 +45,7 @@ import '../features/notifications/models/notification_models.dart';
 import '../features/notifications/notification_center_screen.dart';
 import '../features/notifications/notification_detail_screen.dart';
 import '../features/notifications/notification_settings_screen.dart';
-import '../features/payments/screens/create_payment_screen.dart';
+
 import '../features/payments/screens/payment_detail_screen.dart';
 import '../features/payments/screens/payments_list_screen.dart';
 import '../features/payments/screens/select_event_screen.dart';
@@ -425,7 +426,8 @@ final appRouterProvider = Provider.family<GoRouter, String>((ref, environment) {
           onCreateRevision: () => context.pushNamed('budget-revision'),
           onOpenCategory: (category) =>
               context.pushNamed('budget-details', extra: category.id),
-          onOpenRevision: (revision) => context.pushNamed('budget-approval', extra: revision.id),
+          onOpenRevision: (revision) =>
+              context.pushNamed('budget-approval', extra: revision.id),
         ),
         routes: [
           GoRoute(
@@ -495,8 +497,8 @@ final appRouterProvider = Provider.family<GoRouter, String>((ref, environment) {
           return null;
         },
         builder: (context, state) => AuditOverviewScreen(
-          onOpenEvent: (event) =>
-              context.pushNamed('audit-detail', pathParameters: {'id': event.id}),
+          onOpenEvent: (event) => context
+              .pushNamed('audit-detail', pathParameters: {'id': event.id}),
           onOpenSearch: () => context.pushNamed('audit-search'),
           onOpenFilters: () => AuditFiltersSheet.show(context),
         ),
@@ -505,8 +507,8 @@ final appRouterProvider = Provider.family<GoRouter, String>((ref, environment) {
             path: 'timeline',
             name: 'audit-timeline',
             builder: (context, state) => AuditTimelineScreen(
-              onOpenEvent: (event) =>
-                  context.pushNamed('audit-detail', pathParameters: {'id': event.id}),
+              onOpenEvent: (event) => context
+                  .pushNamed('audit-detail', pathParameters: {'id': event.id}),
             ),
           ),
           GoRoute(
@@ -704,7 +706,8 @@ final appRouterProvider = Provider.family<GoRouter, String>((ref, environment) {
           }
           return null;
         },
-        builder: (context, state) => const pauti_analytics.AnalyticalDashboardScreen(),
+        builder: (context, state) =>
+            const pauti_analytics.AnalyticalDashboardScreen(),
       ),
       GoRoute(
         path: '/reports-hub',

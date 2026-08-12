@@ -11,7 +11,8 @@ class DonationDetailsScreen extends ConsumerStatefulWidget {
   const DonationDetailsScreen({super.key});
 
   @override
-  ConsumerState<DonationDetailsScreen> createState() => _DonationDetailsScreenState();
+  ConsumerState<DonationDetailsScreen> createState() =>
+      _DonationDetailsScreenState();
 }
 
 class _DonationDetailsScreenState extends ConsumerState<DonationDetailsScreen> {
@@ -79,9 +80,14 @@ class _DonationDetailsScreenState extends ConsumerState<DonationDetailsScreen> {
                     Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text('Donor: $donorName', style: const TextStyle(fontWeight: FontWeight.bold)),
+                        Text('Donor: $donorName',
+                            style:
+                                const TextStyle(fontWeight: FontWeight.bold)),
                         const SizedBox(height: 2),
-                        Text('Amount: ₹${amount.toStringAsFixed(2)}', style: TextStyle(color: theme.colorScheme.primary, fontWeight: FontWeight.bold)),
+                        Text('Amount: ₹${amount.toStringAsFixed(2)}',
+                            style: TextStyle(
+                                color: theme.colorScheme.primary,
+                                fontWeight: FontWeight.bold)),
                       ],
                     ),
                     const Icon(Icons.description, color: Colors.deepOrange),
@@ -90,15 +96,23 @@ class _DonationDetailsScreenState extends ConsumerState<DonationDetailsScreen> {
               ),
               const SizedBox(height: 24),
 
-              Text('Donation Purpose', style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold)),
+              Text('Donation Purpose',
+                  style: theme.textTheme.titleMedium
+                      ?.copyWith(fontWeight: FontWeight.bold)),
               const SizedBox(height: 8),
               DropdownButtonFormField<String>(
-                initialValue: _purposes.contains(_purposeCtrl.text) ? _purposeCtrl.text : _purposes.first,
+                initialValue: _purposes.contains(_purposeCtrl.text)
+                    ? _purposeCtrl.text
+                    : _purposes.first,
                 decoration: InputDecoration(
-                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
-                  contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                  border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12)),
+                  contentPadding:
+                      const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
                 ),
-                items: _purposes.map((p) => DropdownMenuItem(value: p, child: Text(p))).toList(),
+                items: _purposes
+                    .map((p) => DropdownMenuItem(value: p, child: Text(p)))
+                    .toList(),
                 onChanged: (val) {
                   if (val != null) setState(() => _purposeCtrl.text = val);
                 },
@@ -108,8 +122,11 @@ class _DonationDetailsScreenState extends ConsumerState<DonationDetailsScreen> {
               // 80G Tax Exemption Switch
               AppCard(
                 child: SwitchListTile(
-                  title: const Text('Require 80G Tax Exemption Certificate?', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
-                  subtitle: const Text('Generates official 80G receipt for tax deduction.'),
+                  title: const Text('Require 80G Tax Exemption Certificate?',
+                      style:
+                          TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
+                  subtitle: const Text(
+                      'Generates official 80G receipt for tax deduction.'),
                   value: _is80GRequired,
                   activeThumbColor: theme.colorScheme.primary,
                   onChanged: (val) => setState(() => _is80GRequired = val),

@@ -11,9 +11,12 @@ class AppTypography {
         ? isDarkOrBrightness
         : isDarkOrBrightness == Brightness.dark;
 
-    final primaryColor = isDark ? AppColors.textPrimaryDark : AppColors.textPrimaryLight;
-    final secondaryColor = isDark ? AppColors.textSecondaryDark : AppColors.textSecondaryLight;
-    final mutedColor = isDark ? AppColors.textMutedDark : AppColors.textMutedLight;
+    final primaryColor =
+        isDark ? AppColors.textPrimaryDark : AppColors.textPrimaryLight;
+    final secondaryColor =
+        isDark ? AppColors.textSecondaryDark : AppColors.textSecondaryLight;
+    final mutedColor =
+        isDark ? AppColors.textMutedDark : AppColors.textMutedLight;
 
     return TextTheme(
       displayLarge: TextStyle(
@@ -132,5 +135,3 @@ class AppTypography {
     return color != null ? style.copyWith(color: color) : style;
   }
 }
-
-

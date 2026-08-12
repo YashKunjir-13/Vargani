@@ -46,7 +46,8 @@ class AnalyticalDashboardScreen extends ConsumerWidget {
     );
   }
 
-  Widget _buildBody(BuildContext context, WidgetRef ref, AnalyticsState state, AuthColors colors) {
+  Widget _buildBody(BuildContext context, WidgetRef ref, AnalyticsState state,
+      AuthColors colors) {
     if (state.isUnauthorized) {
       return Center(
         child: Padding(
@@ -60,12 +61,16 @@ class AnalyticalDashboardScreen extends ConsumerWidget {
                   color: colors.surfaceMuted,
                   shape: BoxShape.circle,
                 ),
-                child: Icon(Icons.lock_outline, size: 48, color: colors.secondaryText),
+                child: Icon(Icons.lock_outline,
+                    size: 48, color: colors.secondaryText),
               ),
               const SizedBox(height: 20),
               Text(
                 'Access Restricted',
-                style: TextStyle(color: colors.text, fontSize: 20, fontWeight: FontWeight.w900),
+                style: TextStyle(
+                    color: colors.text,
+                    fontSize: 20,
+                    fontWeight: FontWeight.w900),
               ),
               const SizedBox(height: 8),
               Text(
@@ -88,7 +93,10 @@ class AnalyticalDashboardScreen extends ConsumerWidget {
             const SizedBox(height: 16),
             Text(
               'Loading Analytics...',
-              style: TextStyle(color: colors.secondaryText, fontSize: 14, fontWeight: FontWeight.w600),
+              style: TextStyle(
+                  color: colors.secondaryText,
+                  fontSize: 14,
+                  fontWeight: FontWeight.w600),
             ),
           ],
         ),
@@ -102,14 +110,19 @@ class AnalyticalDashboardScreen extends ConsumerWidget {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Icon(Icons.error_outline, size: 48, color: Colors.redAccent),
+              const Icon(Icons.error_outline, size: 48, color: Colors.redAccent),
               const SizedBox(height: 16),
               Text(
                 'Failed to load analytics',
-                style: TextStyle(color: colors.text, fontSize: 18, fontWeight: FontWeight.w800),
+                style: TextStyle(
+                    color: colors.text,
+                    fontSize: 18,
+                    fontWeight: FontWeight.w800),
               ),
               const SizedBox(height: 8),
-              Text(state.error!, textAlign: TextAlign.center, style: TextStyle(color: colors.secondaryText, fontSize: 13)),
+              Text(state.error!,
+                  textAlign: TextAlign.center,
+                  style: TextStyle(color: colors.secondaryText, fontSize: 13)),
               const SizedBox(height: 20),
               ElevatedButton.icon(
                 onPressed: () => ref.read(analyticsProvider.notifier).refresh(),
@@ -159,14 +172,18 @@ class AnalyticalDashboardScreen extends ConsumerWidget {
             const SizedBox(height: 10),
             HeroOverviewCard(
               tagline: 'FESTIVAL NET BALANCE',
-              mainAmount: _formatIndianCurrency(data.financialMetrics.netBalancePaise),
+              mainAmount:
+                  _formatIndianCurrency(data.financialMetrics.netBalancePaise),
               subtitle: 'Total Receipts + Sponsorships + Ads vs Total Bills',
               stat1Label: 'Inflow',
-              stat1Value: _formatIndianCurrency(data.financialMetrics.totalInflowPaise),
+              stat1Value:
+                  _formatIndianCurrency(data.financialMetrics.totalInflowPaise),
               stat2Label: 'Outflow',
-              stat2Value: _formatIndianCurrency(data.financialMetrics.totalOutflowPaise),
+              stat2Value: _formatIndianCurrency(
+                  data.financialMetrics.totalOutflowPaise),
               stat3Label: 'Surplus',
-              stat3Value: _formatIndianCurrency(data.financialMetrics.netBalancePaise),
+              stat3Value:
+                  _formatIndianCurrency(data.financialMetrics.netBalancePaise),
             ),
 
             const SizedBox(height: 24),
@@ -212,7 +229,8 @@ class AnalyticalDashboardScreen extends ConsumerWidget {
     );
   }
 
-  Widget _buildDateFilterChips(BuildContext context, WidgetRef ref, AnalyticsState state, AuthColors colors) {
+  Widget _buildDateFilterChips(BuildContext context, WidgetRef ref,
+      AnalyticsState state, AuthColors colors) {
     final filters = [
       {'filter': DateRangeFilter.entireFestival, 'label': 'All Time'},
       {'filter': DateRangeFilter.today, 'label': 'Today'},
@@ -243,8 +261,10 @@ class AnalyticalDashboardScreen extends ConsumerWidget {
               selected: isSelected,
               selectedColor: colors.brandOrange,
               backgroundColor: colors.card,
-              side: BorderSide(color: isSelected ? colors.brandOrange : colors.border),
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+              side: BorderSide(
+                  color: isSelected ? colors.brandOrange : colors.border),
+              shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(20)),
               onSelected: (selected) {
                 if (selected) {
                   ref.read(analyticsProvider.notifier).setFilter(filter);
@@ -257,7 +277,8 @@ class AnalyticalDashboardScreen extends ConsumerWidget {
     );
   }
 
-  Widget _buildVisualAnalyticsRow(BuildContext context, AnalyticalDashboardData data, AuthColors colors) {
+  Widget _buildVisualAnalyticsRow(
+      BuildContext context, AnalyticalDashboardData data, AuthColors colors) {
     final isCompact = MediaQuery.of(context).size.width < 600;
 
     final milestoneChart = _buildChartCard(
@@ -265,16 +286,34 @@ class AnalyticalDashboardScreen extends ConsumerWidget {
       colors,
       title: 'Milestone Progress',
       slices: [
-        DonutSlice(label: 'Completed', value: data.milestoneSummary.completed.toDouble(), color: Colors.green),
-        DonutSlice(label: 'In Progress', value: data.milestoneSummary.inProgress.toDouble(), color: colors.brandOrange),
-        DonutSlice(label: 'Pending', value: data.milestoneSummary.pending.toDouble(), color: Colors.amber),
+        DonutSlice(
+            label: 'Completed',
+            value: data.milestoneSummary.completed.toDouble(),
+            color: Colors.green),
+        DonutSlice(
+            label: 'In Progress',
+            value: data.milestoneSummary.inProgress.toDouble(),
+            color: colors.brandOrange),
+        DonutSlice(
+            label: 'Pending',
+            value: data.milestoneSummary.pending.toDouble(),
+            color: Colors.amber),
       ],
       centerText: '${data.milestoneSummary.totalMilestones}',
       centerLabel: 'Milestones',
       legendItems: [
-        _LegendItem(label: 'Completed', value: '${data.milestoneSummary.completed}', color: Colors.green),
-        _LegendItem(label: 'In Progress', value: '${data.milestoneSummary.inProgress}', color: colors.brandOrange),
-        _LegendItem(label: 'Pending', value: '${data.milestoneSummary.pending}', color: Colors.amber),
+        _LegendItem(
+            label: 'Completed',
+            value: '${data.milestoneSummary.completed}',
+            color: Colors.green),
+        _LegendItem(
+            label: 'In Progress',
+            value: '${data.milestoneSummary.inProgress}',
+            color: colors.brandOrange),
+        _LegendItem(
+            label: 'Pending',
+            value: '${data.milestoneSummary.pending}',
+            color: Colors.amber),
       ],
     );
 
@@ -283,16 +322,34 @@ class AnalyticalDashboardScreen extends ConsumerWidget {
       colors,
       title: 'Audit Record Severity',
       slices: [
-        DonutSlice(label: 'Passed', value: data.auditSummary.passedRecords.toDouble(), color: Colors.green),
-        DonutSlice(label: 'Warnings', value: data.auditSummary.warnings.toDouble(), color: Colors.amber),
-        DonutSlice(label: 'Critical', value: data.auditSummary.criticalFindings.toDouble(), color: Colors.redAccent),
+        DonutSlice(
+            label: 'Passed',
+            value: data.auditSummary.passedRecords.toDouble(),
+            color: Colors.green),
+        DonutSlice(
+            label: 'Warnings',
+            value: data.auditSummary.warnings.toDouble(),
+            color: Colors.amber),
+        DonutSlice(
+            label: 'Critical',
+            value: data.auditSummary.criticalFindings.toDouble(),
+            color: Colors.redAccent),
       ],
       centerText: '${data.auditSummary.totalEvents}',
       centerLabel: 'Events',
       legendItems: [
-        _LegendItem(label: 'Passed', value: '${data.auditSummary.passedRecords}', color: Colors.green),
-        _LegendItem(label: 'Warnings', value: '${data.auditSummary.warnings}', color: Colors.amber),
-        _LegendItem(label: 'Critical', value: '${data.auditSummary.criticalFindings}', color: Colors.redAccent),
+        _LegendItem(
+            label: 'Passed',
+            value: '${data.auditSummary.passedRecords}',
+            color: Colors.green),
+        _LegendItem(
+            label: 'Warnings',
+            value: '${data.auditSummary.warnings}',
+            color: Colors.amber),
+        _LegendItem(
+            label: 'Critical',
+            value: '${data.auditSummary.criticalFindings}',
+            color: Colors.redAccent),
       ],
     );
 
@@ -343,7 +400,8 @@ class AnalyticalDashboardScreen extends ConsumerWidget {
         children: [
           Text(
             title,
-            style: TextStyle(color: colors.text, fontSize: 15, fontWeight: FontWeight.w900),
+            style: TextStyle(
+                color: colors.text, fontSize: 15, fontWeight: FontWeight.w900),
           ),
           const SizedBox(height: 16),
           Row(
@@ -357,11 +415,17 @@ class AnalyticalDashboardScreen extends ConsumerWidget {
                     children: [
                       Text(
                         centerText,
-                        style: TextStyle(color: colors.text, fontSize: 16, fontWeight: FontWeight.w900),
+                        style: TextStyle(
+                            color: colors.text,
+                            fontSize: 16,
+                            fontWeight: FontWeight.w900),
                       ),
                       Text(
                         centerLabel,
-                        style: TextStyle(color: colors.secondaryText, fontSize: 9, fontWeight: FontWeight.w600),
+                        style: TextStyle(
+                            color: colors.secondaryText,
+                            fontSize: 9,
+                            fontWeight: FontWeight.w600),
                       ),
                     ],
                   ),
@@ -382,18 +446,25 @@ class AnalyticalDashboardScreen extends ConsumerWidget {
                               Container(
                                 width: 10,
                                 height: 10,
-                                decoration: BoxDecoration(color: item.color, shape: BoxShape.circle),
+                                decoration: BoxDecoration(
+                                    color: item.color, shape: BoxShape.circle),
                               ),
                               const SizedBox(width: 6),
                               Text(
                                 item.label,
-                                style: TextStyle(color: colors.secondaryText, fontSize: 12, fontWeight: FontWeight.w600),
+                                style: TextStyle(
+                                    color: colors.secondaryText,
+                                    fontSize: 12,
+                                    fontWeight: FontWeight.w600),
                               ),
                             ],
                           ),
                           Text(
                             item.value,
-                            style: TextStyle(color: colors.text, fontSize: 12, fontWeight: FontWeight.w900),
+                            style: TextStyle(
+                                color: colors.text,
+                                fontSize: 12,
+                                fontWeight: FontWeight.w900),
                           ),
                         ],
                       ),
@@ -408,30 +479,37 @@ class AnalyticalDashboardScreen extends ConsumerWidget {
     );
   }
 
-  Widget _buildModuleCardsGrid(BuildContext context, AnalyticalDashboardData data, AuthColors colors) {
+  Widget _buildModuleCardsGrid(
+      BuildContext context, AnalyticalDashboardData data, AuthColors colors) {
     final cards = [
       GlassStatCard(
         title: 'Audit Records',
         value: '${data.auditSummary.totalEvents} Events',
-        subtitle: 'Warnings: ${data.auditSummary.warnings} • Critical: ${data.auditSummary.criticalFindings}',
+        subtitle:
+            'Warnings: ${data.auditSummary.warnings} • Critical: ${data.auditSummary.criticalFindings}',
         icon: Icons.security_outlined,
       ),
       GlassStatCard(
         title: 'Bills Records',
         value: _formatIndianCurrency(data.billSummary.totalBilledPaise),
-        subtitle: '${data.billSummary.totalBills} Bills • ${data.billSummary.pendingBills} Pending',
+        subtitle:
+            '${data.billSummary.totalBills} Bills • ${data.billSummary.pendingBills} Pending',
         icon: Icons.description_outlined,
       ),
       GlassStatCard(
         title: 'Receipt Records',
-        value: _formatIndianCurrency(data.receiptSummary.totalReceiptAmountPaise),
-        subtitle: '${data.receiptSummary.totalReceipts} Total • ${data.receiptSummary.todaysReceipts} Today',
+        value:
+            _formatIndianCurrency(data.receiptSummary.totalReceiptAmountPaise),
+        subtitle:
+            '${data.receiptSummary.totalReceipts} Total • ${data.receiptSummary.todaysReceipts} Today',
         icon: Icons.receipt_outlined,
       ),
       GlassStatCard(
         title: 'Sponsorship Records',
-        value: _formatIndianCurrency(data.sponsorshipSummary.totalSponsorshipAmountPaise),
-        subtitle: '${data.sponsorshipSummary.activeSponsors} Active • ${data.sponsorshipSummary.totalSponsorships} Total',
+        value: _formatIndianCurrency(
+            data.sponsorshipSummary.totalSponsorshipAmountPaise),
+        subtitle:
+            '${data.sponsorshipSummary.activeSponsors} Active • ${data.sponsorshipSummary.totalSponsorships} Total',
         icon: Icons.handshake_outlined,
       ),
       GlassStatCard(
@@ -442,20 +520,24 @@ class AnalyticalDashboardScreen extends ConsumerWidget {
       ),
       GlassStatCard(
         title: 'Advertiser Records',
-        value: _formatIndianCurrency(data.advertiserSummary.associatedRevenuePaise),
-        subtitle: '${data.advertiserSummary.totalAdvertisers} Advertisers Active',
+        value: _formatIndianCurrency(
+            data.advertiserSummary.associatedRevenuePaise),
+        subtitle:
+            '${data.advertiserSummary.totalAdvertisers} Advertisers Active',
         icon: Icons.campaign_outlined,
       ),
       GlassStatCard(
         title: 'Milestone Records',
         value: '${data.milestoneSummary.totalMilestones} Milestones',
-        subtitle: '${data.milestoneSummary.completed} Complete • ${data.milestoneSummary.inProgress} In Progress',
+        subtitle:
+            '${data.milestoneSummary.completed} Complete • ${data.milestoneSummary.inProgress} In Progress',
         icon: Icons.flag_outlined,
       ),
       GlassStatCard(
         title: 'Contribution Records',
         value: '${data.contributionSummary.totalContributions} Total',
-        subtitle: 'Types: ${data.contributionSummary.breakdownByType.keys.take(3).join(', ')}',
+        subtitle:
+            'Types: ${data.contributionSummary.breakdownByType.keys.take(3).join(', ')}',
         icon: Icons.monetization_on_outlined,
       ),
     ];
@@ -485,5 +567,6 @@ class _LegendItem {
   final String value;
   final Color color;
 
-  const _LegendItem({required this.label, required this.value, required this.color});
+  const _LegendItem(
+      {required this.label, required this.value, required this.color});
 }

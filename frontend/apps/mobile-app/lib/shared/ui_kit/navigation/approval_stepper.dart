@@ -33,7 +33,9 @@ class ApprovalStepper extends StatelessWidget {
 
     Color connectorColorAfter(int index) {
       if (index < 0 || index >= steps.length) return Colors.transparent;
-      return steps[index].state == StepState.done ? colorScheme.primary : colorScheme.outlineVariant;
+      return steps[index].state == StepState.done
+          ? colorScheme.primary
+          : colorScheme.outlineVariant;
     }
 
     return Row(
@@ -46,12 +48,19 @@ class ApprovalStepper extends StatelessWidget {
                 Row(
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
-                    Expanded(child: Container(height: 2, color: i == 0 ? Colors.transparent : connectorColorAfter(i - 1))),
+                    Expanded(
+                        child: Container(
+                            height: 2,
+                            color: i == 0
+                                ? Colors.transparent
+                                : connectorColorAfter(i - 1))),
                     _StepDot(step: steps[i], index: i + 1),
                     Expanded(
                       child: Container(
                         height: 2,
-                        color: i == steps.length - 1 ? Colors.transparent : connectorColorAfter(i),
+                        color: i == steps.length - 1
+                            ? Colors.transparent
+                            : connectorColorAfter(i),
                       ),
                     ),
                   ],
@@ -62,7 +71,10 @@ class ApprovalStepper extends StatelessWidget {
                   textAlign: TextAlign.center,
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
-                  style: Theme.of(context).textTheme.labelSmall?.copyWith(color: colorScheme.onSurfaceVariant),
+                  style: Theme.of(context)
+                      .textTheme
+                      .labelSmall
+                      ?.copyWith(color: colorScheme.onSurfaceVariant),
                 ),
               ],
             ),
@@ -83,7 +95,8 @@ class _StepDot extends StatelessWidget {
     final colorScheme = Theme.of(context).colorScheme;
     final textTheme = Theme.of(context).textTheme;
 
-    final (Color background, Color foreground, Border? border) = switch (step.state) {
+    final (Color background, Color foreground, Border? border) =
+        switch (step.state) {
       StepState.done => (colorScheme.primary, colorScheme.onPrimary, null),
       StepState.current => (colorScheme.primary, colorScheme.onPrimary, null),
       StepState.pending => (
@@ -96,11 +109,14 @@ class _StepDot extends StatelessWidget {
     return Container(
       width: 22,
       height: 22,
-      decoration: BoxDecoration(color: background, shape: BoxShape.circle, border: border),
+      decoration: BoxDecoration(
+          color: background, shape: BoxShape.circle, border: border),
       alignment: Alignment.center,
       child: step.state == StepState.done
           ? Icon(Icons.check, size: 14, color: foreground)
-          : Text('$index', style: textTheme.labelSmall?.copyWith(color: foreground, fontWeight: FontWeight.w800)),
+          : Text('$index',
+              style: textTheme.labelSmall
+                  ?.copyWith(color: foreground, fontWeight: FontWeight.w800)),
     );
   }
 }

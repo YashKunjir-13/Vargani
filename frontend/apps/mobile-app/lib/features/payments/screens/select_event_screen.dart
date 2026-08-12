@@ -72,7 +72,10 @@ class _SelectEventScreenState extends ConsumerState<SelectEventScreen> {
                   SizedBox(width: 6),
                   Text(
                     'Demo Payment Mode • Mock Provider Active',
-                    style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 12),
+                    style: TextStyle(
+                        color: Colors.white,
+                        fontWeight: FontWeight.bold,
+                        fontSize: 12),
                   ),
                 ],
               ),
@@ -84,8 +87,10 @@ class _SelectEventScreenState extends ConsumerState<SelectEventScreen> {
                 decoration: InputDecoration(
                   hintText: 'Search festival / event...',
                   prefixIcon: const Icon(Icons.search),
-                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
-                  contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                  border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12)),
+                  contentPadding:
+                      const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
                 ),
                 onChanged: (val) => setState(() => _searchQuery = val),
               ),
@@ -100,17 +105,21 @@ class _SelectEventScreenState extends ConsumerState<SelectEventScreen> {
                             child: Column(
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: [
-                                const Icon(Icons.event_busy, size: 64, color: Colors.grey),
+                                const Icon(Icons.event_busy,
+                                    size: 64, color: Colors.grey),
                                 const SizedBox(height: 16),
                                 Text(
                                   'No active events found in database',
-                                  style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
+                                  style: theme.textTheme.titleMedium
+                                      ?.copyWith(fontWeight: FontWeight.bold),
                                 ),
                                 const SizedBox(height: 8),
                                 Text(
                                   'Create an active event in Event Management or select a general festival fund to proceed.',
                                   textAlign: TextAlign.center,
-                                  style: TextStyle(color: Colors.grey.shade600, fontSize: 13),
+                                  style: TextStyle(
+                                      color: Colors.grey.shade600,
+                                      fontSize: 13),
                                 ),
                                 const SizedBox(height: 24),
                                 AppButton(
@@ -121,7 +130,9 @@ class _SelectEventScreenState extends ConsumerState<SelectEventScreen> {
                                       'name': 'Ganesh Utsav 2026',
                                       'status': 'Active',
                                     };
-                                    ref.read(donationFlowProvider.notifier).selectEvent(defaultEvent);
+                                    ref
+                                        .read(donationFlowProvider.notifier)
+                                        .selectEvent(defaultEvent);
                                     context.push('/donation/select-donor');
                                   },
                                 ),
@@ -134,40 +145,59 @@ class _SelectEventScreenState extends ConsumerState<SelectEventScreen> {
                           itemCount: filteredEvents.length,
                           itemBuilder: (context, index) {
                             final event = filteredEvents[index];
-                            final eventName = (event['name'] ?? event['title'] ?? 'Festival Event').toString();
-                            final status = (event['status'] ?? 'Active').toString();
-                            final isSelected = ref.watch(donationFlowProvider).selectedEvent?['id'] == event['id'];
+                            final eventName = (event['name'] ??
+                                    event['title'] ??
+                                    'Festival Event')
+                                .toString();
+                            final status =
+                                (event['status'] ?? 'Active').toString();
+                            final isSelected = ref
+                                    .watch(donationFlowProvider)
+                                    .selectedEvent?['id'] ==
+                                event['id'];
 
                             return Padding(
                               padding: const EdgeInsets.only(bottom: 14),
                               child: AppCard(
-                                border: isSelected ? Border.all(color: theme.colorScheme.primary, width: 2) : null,
+                                border: isSelected
+                                    ? Border.all(
+                                        color: theme.colorScheme.primary,
+                                        width: 2)
+                                    : null,
                                 child: Column(
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
                                     Row(
-                                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.spaceBetween,
                                       children: [
                                         Expanded(
                                           child: Text(
                                             eventName,
-                                            style: theme.textTheme.titleMedium?.copyWith(
+                                            style: theme.textTheme.titleMedium
+                                                ?.copyWith(
                                               fontWeight: FontWeight.bold,
                                             ),
                                           ),
                                         ),
                                         Container(
-                                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                                          padding: const EdgeInsets.symmetric(
+                                              horizontal: 8, vertical: 4),
                                           decoration: BoxDecoration(
-                                            color: status == 'Active' ? Colors.green.shade100 : Colors.orange.shade100,
-                                            borderRadius: BorderRadius.circular(6),
+                                            color: status == 'Active'
+                                                ? Colors.green.shade100
+                                                : Colors.orange.shade100,
+                                            borderRadius:
+                                                BorderRadius.circular(6),
                                           ),
                                           child: Text(
                                             status,
                                             style: TextStyle(
                                               fontSize: 12,
                                               fontWeight: FontWeight.bold,
-                                              color: status == 'Active' ? Colors.green.shade800 : Colors.orange.shade800,
+                                              color: status == 'Active'
+                                                  ? Colors.green.shade800
+                                                  : Colors.orange.shade800,
                                             ),
                                           ),
                                         ),
@@ -175,10 +205,16 @@ class _SelectEventScreenState extends ConsumerState<SelectEventScreen> {
                                     ),
                                     const SizedBox(height: 14),
                                     AppButton(
-                                      label: isSelected ? 'Selected' : 'Select Event',
-                                      variant: isSelected ? AppButtonVariant.secondary : AppButtonVariant.primary,
+                                      label: isSelected
+                                          ? 'Selected'
+                                          : 'Select Event',
+                                      variant: isSelected
+                                          ? AppButtonVariant.secondary
+                                          : AppButtonVariant.primary,
                                       onPressed: () {
-                                        ref.read(donationFlowProvider.notifier).selectEvent(event);
+                                        ref
+                                            .read(donationFlowProvider.notifier)
+                                            .selectEvent(event);
                                         context.push('/donation/select-donor');
                                       },
                                     ),

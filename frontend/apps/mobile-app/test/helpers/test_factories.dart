@@ -1,5 +1,5 @@
-/// Centralized test factories for Flutter widget and unit tests.
-/// Provides deterministic mock data with type-safe overrides.
+// Centralized test factories for Flutter widget and unit tests.
+// Provides deterministic mock data with type-safe overrides.
 
 class MockOrganizationData {
   final String id;

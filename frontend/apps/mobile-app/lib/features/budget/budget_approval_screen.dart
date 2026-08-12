@@ -19,7 +19,8 @@ class BudgetApprovalScreen extends ConsumerStatefulWidget {
   const BudgetApprovalScreen({super.key, required this.revisionId});
 
   @override
-  ConsumerState<BudgetApprovalScreen> createState() => _BudgetApprovalScreenState();
+  ConsumerState<BudgetApprovalScreen> createState() =>
+      _BudgetApprovalScreenState();
 }
 
 class _BudgetApprovalScreenState extends ConsumerState<BudgetApprovalScreen> {
@@ -34,19 +35,25 @@ class _BudgetApprovalScreenState extends ConsumerState<BudgetApprovalScreen> {
   void _onApprove(MockBudgetRevision revision) {
     try {
       ref.read(budgetActionsProvider).approveRevision(
-        revision.id,
-        _commentController.text.isNotEmpty ? _commentController.text : 'Approved',
-      );
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Revision approved')));
+            revision.id,
+            _commentController.text.isNotEmpty
+                ? _commentController.text
+                : 'Approved',
+          );
+      ScaffoldMessenger.of(context)
+          .showSnackBar(const SnackBar(content: Text('Revision approved')));
       context.pop();
     } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(e.toString())));
+      ScaffoldMessenger.of(context)
+          .showSnackBar(SnackBar(content: Text(e.toString())));
     }
   }
 
   void _onAddComment(MockBudgetRevision revision) {
     if (_commentController.text.isEmpty) return;
-    ref.read(budgetActionsProvider).addComment(revision.id, _commentController.text);
+    ref
+        .read(budgetActionsProvider)
+        .addComment(revision.id, _commentController.text);
     _commentController.clear();
   }
 
@@ -61,7 +68,8 @@ class _BudgetApprovalScreenState extends ConsumerState<BudgetApprovalScreen> {
     }
 
     final revisions = ref.watch(budgetRevisionsProvider(budget.id));
-    final revision = revisions.firstWhere((r) => r.id == widget.revisionId, orElse: () => revisions.first);
+    final revision = revisions.firstWhere((r) => r.id == widget.revisionId,
+        orElse: () => revisions.first);
 
     final colorScheme = Theme.of(context).colorScheme;
     final textTheme = Theme.of(context).textTheme;
@@ -75,7 +83,8 @@ class _BudgetApprovalScreenState extends ConsumerState<BudgetApprovalScreen> {
             Text('Approve Revision ${revision.version}'),
             Text(
               'Submitted by ${revision.requestedByUserName}',
-              style: textTheme.labelMedium?.copyWith(color: colorScheme.onSurfaceVariant),
+              style: textTheme.labelMedium
+                  ?.copyWith(color: colorScheme.onSurfaceVariant),
             ),
           ],
         ),
@@ -90,8 +99,12 @@ class _BudgetApprovalScreenState extends ConsumerState<BudgetApprovalScreen> {
               state: StepState.done,
             ),
             ApprovalStep(
-              label: revision.status == 'Approved' ? 'Approved by ${revision.approvedByUserName}' : 'Pending Approval',
-              state: revision.status == 'Approved' ? StepState.done : StepState.current,
+              label: revision.status == 'Approved'
+                  ? 'Approved by ${revision.approvedByUserName}'
+                  : 'Pending Approval',
+              state: revision.status == 'Approved'
+                  ? StepState.done
+                  : StepState.current,
             ),
           ]),
           const SizedBox(height: 24),
@@ -100,7 +113,8 @@ class _BudgetApprovalScreenState extends ConsumerState<BudgetApprovalScreen> {
           for (final change in revision.adjustments) ...[
             Text(
               '${change.categoryName} — allocated amount',
-              style: textTheme.labelMedium?.copyWith(color: colorScheme.onSurfaceVariant),
+              style: textTheme.labelMedium
+                  ?.copyWith(color: colorScheme.onSurfaceVariant),
             ),
             const SizedBox(height: 4),
             DiffRow(
@@ -112,7 +126,9 @@ class _BudgetApprovalScreenState extends ConsumerState<BudgetApprovalScreen> {
           if (revision.reason != null && revision.reason!.isNotEmpty)
             Text(
               'Reason: "${revision.reason}"',
-              style: textTheme.bodyMedium?.copyWith(color: colorScheme.onSurfaceVariant, fontStyle: FontStyle.italic),
+              style: textTheme.bodyMedium?.copyWith(
+                  color: colorScheme.onSurfaceVariant,
+                  fontStyle: FontStyle.italic),
             ),
           const SizedBox(height: 24),
           Text('Comments', style: textTheme.titleMedium),
@@ -127,8 +143,11 @@ class _BudgetApprovalScreenState extends ConsumerState<BudgetApprovalScreen> {
                     radius: 13,
                     backgroundColor: colorScheme.primaryContainer,
                     child: Text(
-                      comment.authorUserName.isNotEmpty ? comment.authorUserName.substring(0, 1).toUpperCase() : 'U',
-                      style: textTheme.labelSmall?.copyWith(color: colorScheme.onPrimaryContainer),
+                      comment.authorUserName.isNotEmpty
+                          ? comment.authorUserName.substring(0, 1).toUpperCase()
+                          : 'U',
+                      style: textTheme.labelSmall
+                          ?.copyWith(color: colorScheme.onPrimaryContainer),
                     ),
                   ),
                   const SizedBox(width: 8),
@@ -139,7 +158,8 @@ class _BudgetApprovalScreenState extends ConsumerState<BudgetApprovalScreen> {
                         Text.rich(
                           TextSpan(
                             text: comment.authorUserName,
-                            style: textTheme.bodyLarge?.copyWith(fontWeight: FontWeight.w700),
+                            style: textTheme.bodyLarge
+                                ?.copyWith(fontWeight: FontWeight.w700),
                             children: [
                               TextSpan(
                                 text: ' · ${comment.authorRoleName}',
@@ -180,22 +200,27 @@ class _BudgetApprovalScreenState extends ConsumerState<BudgetApprovalScreen> {
           ),
         ],
       ),
-      bottomNavigationBar: revision.status == 'Approved' ? null : SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.all(16),
-          child: Row(
-            children: [
-              Expanded(
-                child: SecondaryButton(label: 'Reject', onPressed: () => context.pop()),
+      bottomNavigationBar: revision.status == 'Approved'
+          ? null
+          : SafeArea(
+              child: Padding(
+                padding: const EdgeInsets.all(16),
+                child: Row(
+                  children: [
+                    Expanded(
+                      child: SecondaryButton(
+                          label: 'Reject', onPressed: () => context.pop()),
+                    ),
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: PrimaryButton(
+                          label: 'Approve',
+                          onPressed: () => _onApprove(revision)),
+                    ),
+                  ],
+                ),
               ),
-              const SizedBox(width: 8),
-              Expanded(
-                child: PrimaryButton(label: 'Approve', onPressed: () => _onApprove(revision)),
-              ),
-            ],
-          ),
-        ),
-      ),
+            ),
     );
   }
 }

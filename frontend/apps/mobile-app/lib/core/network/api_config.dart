@@ -16,8 +16,9 @@ String apiBaseUrlFor(String environment) {
     default:
       // Allow overriding the backend host/port via flutter run --dart-define
       const String customHost = String.fromEnvironment('BACKEND_HOST');
-      const String port = String.fromEnvironment('BACKEND_PORT', defaultValue: '3000');
-      
+      const String port =
+          String.fromEnvironment('BACKEND_PORT', defaultValue: '3000');
+
       if (customHost.isNotEmpty) {
         return 'http://$customHost:$port/api/v1';
       }
@@ -25,12 +26,12 @@ String apiBaseUrlFor(String environment) {
       if (kIsWeb) {
         return 'http://localhost:$port/api/v1';
       }
-      
+
       if (defaultTargetPlatform == TargetPlatform.android) {
         // Default for Android Emulator
         return 'http://10.0.2.2:$port/api/v1';
       }
-      
+
       // Default for iOS Simulator and Desktop
       return 'http://127.0.0.1:$port/api/v1';
   }

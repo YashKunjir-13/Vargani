@@ -41,20 +41,24 @@ class AnalyticsDrilldownScreen extends StatelessWidget {
                       Text(
                         '${data.segmentName.toUpperCase()} · ${data.segmentShareLabel}',
                         style: textTheme.labelMedium?.copyWith(
-                          color: colorScheme.onSecondaryContainer.withValues(alpha: 0.8),
+                          color: colorScheme.onSecondaryContainer
+                              .withValues(alpha: 0.8),
                         ),
                       ),
                       const SizedBox(height: 4),
                       Text(
                         data.segmentValueLabel,
-                        style: textTheme.headlineMedium?.copyWith(color: colorScheme.onSecondaryContainer),
+                        style: textTheme.headlineMedium
+                            ?.copyWith(color: colorScheme.onSecondaryContainer),
                       ),
                     ],
                   ),
                 ),
                 StatusChip(
                   label: data.budgetStatusLabel,
-                  type: data.isOverBudget ? StatusChipType.error : StatusChipType.success,
+                  type: data.isOverBudget
+                      ? StatusChipType.error
+                      : StatusChipType.success,
                 ),
               ],
             ),
@@ -63,7 +67,10 @@ class AnalyticsDrilldownScreen extends StatelessWidget {
           Text('Sub-items', style: textTheme.titleMedium),
           const SizedBox(height: 12),
           AppBarChart(
-            groups: [for (final item in data.subItems) BarGroup(label: item.label, primaryValue: item.value)],
+            groups: [
+              for (final item in data.subItems)
+                BarGroup(label: item.label, primaryValue: item.value)
+            ],
             primaryColor: colorScheme.secondary,
           ),
           const SizedBox(height: 24),
@@ -77,17 +84,22 @@ class AnalyticsDrilldownScreen extends StatelessWidget {
                 children: [
                   for (final vendor in data.vendors)
                     Padding(
-                      padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 12),
+                      padding: const EdgeInsets.symmetric(
+                          vertical: 8, horizontal: 12),
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          Expanded(child: Text(vendor.vendorName, style: textTheme.bodyLarge)),
+                          Expanded(
+                              child: Text(vendor.vendorName,
+                                  style: textTheme.bodyLarge)),
                           const SizedBox(width: 8),
                           Text(vendor.amountLabel, style: textTheme.bodyLarge),
                           const SizedBox(width: 8),
                           StatusChip(
                             label: vendor.statusLabel,
-                            type: vendor.isPaid ? StatusChipType.success : StatusChipType.warning,
+                            type: vendor.isPaid
+                                ? StatusChipType.success
+                                : StatusChipType.warning,
                           ),
                         ],
                       ),
@@ -107,7 +119,9 @@ class AnalyticsDrilldownScreen extends StatelessWidget {
             allocatedLabel: data.segmentValueLabel,
             trailing: StatusChip(
               label: data.linkedCategoryStatusLabel,
-              type: data.isOverBudget ? StatusChipType.error : StatusChipType.success,
+              type: data.isOverBudget
+                  ? StatusChipType.error
+                  : StatusChipType.success,
             ),
             onTap: () {},
           ),

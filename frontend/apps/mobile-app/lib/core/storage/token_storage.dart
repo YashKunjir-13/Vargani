@@ -27,17 +27,14 @@ class TokenStorage {
     await _storage.write(key: _refreshTokenKey, value: refreshToken);
   }
 
-  Future<String?> readAccessToken() =>
-      _storage.read(key: _accessTokenKey);
+  Future<String?> readAccessToken() => _storage.read(key: _accessTokenKey);
 
-  Future<String?> readRefreshToken() =>
-      _storage.read(key: _refreshTokenKey);
+  Future<String?> readRefreshToken() => _storage.read(key: _refreshTokenKey);
 
   Future<void> saveRole(String role) =>
       _storage.write(key: _roleKey, value: role);
 
-  Future<String?> readRole() =>
-      _storage.read(key: _roleKey);
+  Future<String?> readRole() => _storage.read(key: _roleKey);
 
   // Tenant methods
   Future<void> saveActiveTenantId(String tenantId) =>
@@ -50,8 +47,7 @@ class TokenStorage {
   Future<void> saveOrganizationId(String orgId) =>
       _storage.write(key: _orgKey, value: orgId);
 
-  Future<String?> readOrganizationId() =>
-      _storage.read(key: _orgKey);
+  Future<String?> readOrganizationId() => _storage.read(key: _orgKey);
 
   Future<void> clear() async {
     await _storage.delete(key: _accessTokenKey);

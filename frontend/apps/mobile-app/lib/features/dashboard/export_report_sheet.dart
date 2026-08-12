@@ -11,7 +11,8 @@ class ExportReportSheet extends StatelessWidget {
   const ExportReportSheet({super.key, this.activeScopeLabel = 'This Week'});
 
   /// Presents this sheet modally.
-  static Future<void> show(BuildContext context, {String activeScopeLabel = 'This Week'}) {
+  static Future<void> show(BuildContext context,
+      {String activeScopeLabel = 'This Week'}) {
     return AppBottomSheet.show<void>(
       context,
       builder: (_) => ExportReportSheet(activeScopeLabel: activeScopeLabel),
@@ -29,7 +30,12 @@ class ExportReportSheet extends StatelessWidget {
         ExportFormatOption(label: 'CSV', icon: Icons.description_outlined),
         ExportFormatOption(label: 'Print', icon: Icons.print_outlined),
       ],
-      sections: const ['Financial KPIs', 'Charts & analytics', 'Recent activity', 'Operational KPIs'],
+      sections: const [
+        'Financial KPIs',
+        'Charts & analytics',
+        'Recent activity',
+        'Operational KPIs'
+      ],
       initiallyIncludedSections: const {'Financial KPIs', 'Charts & analytics'},
       onGenerate: (format, sections) {
         ScaffoldMessenger.of(context).showSnackBar(

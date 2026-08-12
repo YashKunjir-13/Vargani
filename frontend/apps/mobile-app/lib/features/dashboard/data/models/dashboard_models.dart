@@ -83,7 +83,8 @@ class BudgetItem {
   final int allocatedPaise;
   final int spentPaise;
 
-  double get spentPercentage => (spentPaise / allocatedPaise * 100).clamp(0, 100);
+  double get spentPercentage =>
+      (spentPaise / allocatedPaise * 100).clamp(0, 100);
 }
 
 class MandalDashboardData {
@@ -217,13 +218,16 @@ class MandalDashboardData {
       mandalName: mandalName ?? this.mandalName,
       festivalYear: festivalYear ?? this.festivalYear,
       currentBalancePaise: currentBalancePaise ?? this.currentBalancePaise,
-      todaysCollectionPaise: todaysCollectionPaise ?? this.todaysCollectionPaise,
+      todaysCollectionPaise:
+          todaysCollectionPaise ?? this.todaysCollectionPaise,
       totalCollectionPaise: totalCollectionPaise ?? this.totalCollectionPaise,
       totalExpensesPaise: totalExpensesPaise ?? this.totalExpensesPaise,
       pendingBillsCount: pendingBillsCount ?? this.pendingBillsCount,
-      pendingBillsAmountPaise: pendingBillsAmountPaise ?? this.pendingBillsAmountPaise,
+      pendingBillsAmountPaise:
+          pendingBillsAmountPaise ?? this.pendingBillsAmountPaise,
       pendingReceiptsCount: pendingReceiptsCount ?? this.pendingReceiptsCount,
-      activeVolunteersCount: activeVolunteersCount ?? this.activeVolunteersCount,
+      activeVolunteersCount:
+          activeVolunteersCount ?? this.activeVolunteersCount,
       totalDonorsCount: totalDonorsCount ?? this.totalDonorsCount,
       upcomingEventsCount: upcomingEventsCount ?? this.upcomingEventsCount,
       transactions: transactions ?? this.transactions,
@@ -280,8 +284,10 @@ class DonorDashboardData {
       mobile: mobile ?? this.mobile,
       email: email ?? this.email,
       totalDonationsPaise: totalDonationsPaise ?? this.totalDonationsPaise,
-      thisYearDonationsPaise: thisYearDonationsPaise ?? this.thisYearDonationsPaise,
-      lastDonationAmountPaise: lastDonationAmountPaise ?? this.lastDonationAmountPaise,
+      thisYearDonationsPaise:
+          thisYearDonationsPaise ?? this.thisYearDonationsPaise,
+      lastDonationAmountPaise:
+          lastDonationAmountPaise ?? this.lastDonationAmountPaise,
       lastDonationDate: lastDonationDate ?? this.lastDonationDate,
       favoriteMandalName: favoriteMandalName ?? this.favoriteMandalName,
       digitalReceiptsCount: digitalReceiptsCount ?? this.digitalReceiptsCount,

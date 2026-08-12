@@ -38,8 +38,8 @@ class DashboardHeader extends StatelessWidget {
               Expanded(
                 child: Text(
                   '$_greeting, ${info.userName} 🙏',
-                  style: theme.textTheme.titleMedium
-                      ?.copyWith(color: Colors.white, fontWeight: FontWeight.w600),
+                  style: theme.textTheme.titleMedium?.copyWith(
+                      color: Colors.white, fontWeight: FontWeight.w600),
                   overflow: TextOverflow.ellipsis,
                 ),
               ),
@@ -49,13 +49,15 @@ class DashboardHeader extends StatelessWidget {
                 icon: Badge(
                   label: Text('${info.unreadNotificationCount}'),
                   isLabelVisible: info.unreadNotificationCount > 0,
-                  child: const Icon(Icons.notifications_outlined, color: Colors.white),
+                  child: const Icon(Icons.notifications_outlined,
+                      color: Colors.white),
                 ),
               ),
               const CircleAvatar(
                 radius: 18,
                 backgroundColor: Colors.white24,
-                child: Icon(Icons.person_outline, color: Colors.white, size: 20),
+                child:
+                    Icon(Icons.person_outline, color: Colors.white, size: 20),
               ),
             ],
           ),
@@ -68,7 +70,8 @@ class DashboardHeader extends StatelessWidget {
           const SizedBox(height: 4),
           Text(
             info.festivalName,
-            style: theme.textTheme.bodyLarge?.copyWith(color: Colors.white.withValues(alpha: 0.9)),
+            style: theme.textTheme.bodyLarge
+                ?.copyWith(color: Colors.white.withValues(alpha: 0.9)),
           ),
           const SizedBox(height: 12),
           Container(

@@ -15,10 +15,10 @@ class SelectDonorScreen extends ConsumerStatefulWidget {
   ConsumerState<SelectDonorScreen> createState() => _SelectDonorScreenState();
 }
 
-class _SelectDonorScreenState extends ConsumerState<SelectDonorScreen> with SingleTickerProviderStateMixin {
+class _SelectDonorScreenState extends ConsumerState<SelectDonorScreen>
+    with SingleTickerProviderStateMixin {
   late TabController _tabController;
   final _searchCtrl = TextEditingController();
-  String _searchQuery = '';
   List<Map<String, dynamic>> _donors = [];
   bool _isLoading = true;
 
@@ -140,10 +140,10 @@ class _SelectDonorScreenState extends ConsumerState<SelectDonorScreen> with Sing
                         decoration: InputDecoration(
                           hintText: 'Search donor by Name or Mobile...',
                           prefixIcon: const Icon(Icons.search),
-                          border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                          border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(12)),
                         ),
                         onChanged: (val) {
-                          _searchQuery = val;
                           _loadDonors(val);
                         },
                       ),
@@ -156,68 +156,103 @@ class _SelectDonorScreenState extends ConsumerState<SelectDonorScreen> with Sing
                                   child: Padding(
                                     padding: const EdgeInsets.all(32),
                                     child: Column(
-                                      mainAxisAlignment: MainAxisAlignment.center,
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.center,
                                       children: [
-                                        const Icon(Icons.person_search, size: 64, color: Colors.grey),
+                                        const Icon(Icons.person_search,
+                                            size: 64, color: Colors.grey),
                                         const SizedBox(height: 16),
                                         Text(
                                           'No registered donors found',
-                                          style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
+                                          style: theme.textTheme.titleMedium
+                                              ?.copyWith(
+                                                  fontWeight: FontWeight.bold),
                                         ),
                                         const SizedBox(height: 8),
                                         Text(
                                           'Switch to "New Donor" tab to register a donor profile.',
                                           textAlign: TextAlign.center,
-                                          style: TextStyle(color: Colors.grey.shade600, fontSize: 13),
+                                          style: TextStyle(
+                                              color: Colors.grey.shade600,
+                                              fontSize: 13),
                                         ),
                                         const SizedBox(height: 20),
                                         AppButton(
                                           label: 'Register New Donor',
-                                          onPressed: () => _tabController.animateTo(1),
+                                          onPressed: () =>
+                                              _tabController.animateTo(1),
                                         ),
                                       ],
                                     ),
                                   ),
                                 )
                               : ListView.builder(
-                                  padding: const EdgeInsets.symmetric(horizontal: 16),
+                                  padding: const EdgeInsets.symmetric(
+                                      horizontal: 16),
                                   itemCount: _donors.length,
                                   itemBuilder: (context, index) {
                                     final donor = _donors[index];
-                                    final name = (donor['fullName'] ?? donor['name'] ?? 'Donor').toString();
-                                    final mobile = (donor['mobile'] ?? donor['contact'] ?? 'N/A').toString();
-                                    final email = (donor['email'] ?? '').toString();
+                                    final name = (donor['fullName'] ??
+                                            donor['name'] ??
+                                            'Donor')
+                                        .toString();
+                                    final mobile = (donor['mobile'] ??
+                                            donor['contact'] ??
+                                            'N/A')
+                                        .toString();
+                                    final email =
+                                        (donor['email'] ?? '').toString();
 
                                     return Padding(
-                                      padding: const EdgeInsets.only(bottom: 12),
+                                      padding:
+                                          const EdgeInsets.only(bottom: 12),
                                       child: AppCard(
                                         child: Column(
-                                          crossAxisAlignment: CrossAxisAlignment.start,
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.start,
                                           children: [
                                             Row(
                                               children: [
                                                 CircleAvatar(
-                                                  backgroundColor: theme.colorScheme.primaryContainer,
+                                                  backgroundColor: theme
+                                                      .colorScheme
+                                                      .primaryContainer,
                                                   child: Text(
-                                                    name.isNotEmpty ? name[0].toUpperCase() : 'D',
+                                                    name.isNotEmpty
+                                                        ? name[0].toUpperCase()
+                                                        : 'D',
                                                     style: TextStyle(
-                                                      fontWeight: FontWeight.bold,
-                                                      color: theme.colorScheme.primary,
+                                                      fontWeight:
+                                                          FontWeight.bold,
+                                                      color: theme
+                                                          .colorScheme.primary,
                                                     ),
                                                   ),
                                                 ),
                                                 const SizedBox(width: 12),
                                                 Expanded(
                                                   child: Column(
-                                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                                    crossAxisAlignment:
+                                                        CrossAxisAlignment
+                                                            .start,
                                                     children: [
                                                       Text(
                                                         name,
-                                                        style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
+                                                        style: theme.textTheme
+                                                            .titleMedium
+                                                            ?.copyWith(
+                                                                fontWeight:
+                                                                    FontWeight
+                                                                        .bold),
                                                       ),
                                                       Text(
                                                         'Mobile: $mobile${email.isNotEmpty ? ' • $email' : ''}',
-                                                        style: theme.textTheme.bodySmall?.copyWith(color: Colors.grey.shade700),
+                                                        style: theme
+                                                            .textTheme.bodySmall
+                                                            ?.copyWith(
+                                                                color: Colors
+                                                                    .grey
+                                                                    .shade700),
                                                       ),
                                                     ],
                                                   ),
@@ -228,14 +263,18 @@ class _SelectDonorScreenState extends ConsumerState<SelectDonorScreen> with Sing
                                             AppButton(
                                               label: 'Select Donor',
                                               onPressed: () {
-                                                ref.read(donationFlowProvider.notifier).selectDonor({
+                                                ref
+                                                    .read(donationFlowProvider
+                                                        .notifier)
+                                                    .selectDonor({
                                                   'donorType': 'existing',
                                                   'id': donor['id'],
                                                   'name': name,
                                                   'mobile': mobile,
                                                   'email': email,
                                                 });
-                                                context.push('/donation/amount');
+                                                context
+                                                    .push('/donation/amount');
                                               },
                                             ),
                                           ],
@@ -260,7 +299,9 @@ class _SelectDonorScreenState extends ConsumerState<SelectDonorScreen> with Sing
                           controller: _nameCtrl,
                           label: 'Full Name *',
                           hintText: 'Enter donor full name',
-                          validator: (v) => v == null || v.trim().isEmpty ? 'Full name is required' : null,
+                          validator: (v) => v == null || v.trim().isEmpty
+                              ? 'Full name is required'
+                              : null,
                         ),
                         const SizedBox(height: 14),
                         AppTextField(
@@ -268,7 +309,9 @@ class _SelectDonorScreenState extends ConsumerState<SelectDonorScreen> with Sing
                           label: 'Mobile Number *',
                           hintText: 'Enter 10-digit mobile number',
                           keyboardType: TextInputType.phone,
-                          validator: (v) => v == null || v.trim().length < 10 ? 'Enter valid mobile number' : null,
+                          validator: (v) => v == null || v.trim().length < 10
+                              ? 'Enter valid mobile number'
+                              : null,
                         ),
                         const SizedBox(height: 14),
                         AppTextField(

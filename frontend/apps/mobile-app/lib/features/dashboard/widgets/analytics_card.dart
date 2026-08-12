@@ -55,7 +55,8 @@ class AnalyticsCard extends StatelessWidget {
                 const SizedBox(height: 12),
                 Text(
                   data.value,
-                  style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
+                  style: theme.textTheme.titleMedium
+                      ?.copyWith(fontWeight: FontWeight.bold),
                   overflow: TextOverflow.ellipsis,
                 ),
                 const SizedBox(height: 2),
@@ -66,7 +67,10 @@ class AnalyticsCard extends StatelessWidget {
                   overflow: TextOverflow.ellipsis,
                 ),
                 const SizedBox(height: 8),
-                MiniSparkline(values: data.sparklineData, color: data.accentColor, height: 32),
+                MiniSparkline(
+                    values: data.sparklineData,
+                    color: data.accentColor,
+                    height: 32),
                 const SizedBox(height: 8),
                 StatusChip(label: data.statusLabel, type: StatusChipType.info),
               ],

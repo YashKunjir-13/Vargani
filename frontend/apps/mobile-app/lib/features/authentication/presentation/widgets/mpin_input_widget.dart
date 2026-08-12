@@ -83,15 +83,23 @@ class _MpinInputWidgetState extends State<MpinInputWidget> {
             keyboardType: TextInputType.number,
             obscureText: _obscureMpin,
             maxLength: 6,
-            style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, letterSpacing: 8, color: colors.text),
+            style: TextStyle(
+                fontSize: 20,
+                fontWeight: FontWeight.bold,
+                letterSpacing: 8,
+                color: colors.text),
             decoration: InputDecoration(
               labelText: widget.title,
               hintText: '••••••',
               counterText: '',
-              contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-              border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+              contentPadding:
+                  const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+              border:
+                  OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
               suffixIcon: IconButton(
-                icon: Icon(_obscureMpin ? Icons.visibility_off : Icons.visibility, color: colors.secondaryText),
+                icon: Icon(
+                    _obscureMpin ? Icons.visibility_off : Icons.visibility,
+                    color: colors.secondaryText),
                 onPressed: () => setState(() => _obscureMpin = !_obscureMpin),
               ),
             ),
@@ -104,16 +112,25 @@ class _MpinInputWidgetState extends State<MpinInputWidget> {
               keyboardType: TextInputType.number,
               obscureText: _obscureConfirm,
               maxLength: 6,
-              style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, letterSpacing: 8, color: colors.text),
+              style: TextStyle(
+                  fontSize: 20,
+                  fontWeight: FontWeight.bold,
+                  letterSpacing: 8,
+                  color: colors.text),
               decoration: InputDecoration(
                 labelText: l10n.confirmMpin,
                 hintText: '••••••',
                 counterText: '',
-                contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-                border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                contentPadding:
+                    const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+                border:
+                    OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
                 suffixIcon: IconButton(
-                  icon: Icon(_obscureConfirm ? Icons.visibility_off : Icons.visibility, color: colors.secondaryText),
-                  onPressed: () => setState(() => _obscureConfirm = !_obscureConfirm),
+                  icon: Icon(
+                      _obscureConfirm ? Icons.visibility_off : Icons.visibility,
+                      color: colors.secondaryText),
+                  onPressed: () =>
+                      setState(() => _obscureConfirm = !_obscureConfirm),
                 ),
               ),
               onChanged: (_) => setState(() => _localError = null),

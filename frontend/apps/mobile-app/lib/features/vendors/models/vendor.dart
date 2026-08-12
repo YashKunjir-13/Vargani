@@ -70,7 +70,9 @@ class Vendor {
   }
 
   String get maskedBankAccount {
-    if (bankAccount == null || bankAccount!.length < 4) return bankAccount ?? '—';
+    if (bankAccount == null || bankAccount!.length < 4) {
+      return bankAccount ?? '—';
+    }
     final last4 = bankAccount!.substring(bankAccount!.length - 4);
     return 'XXXX XXXX $last4';
   }
@@ -118,7 +120,8 @@ class Vendor {
       createdAt: createdAt ?? this.createdAt,
       contractAmountPaise: contractAmountPaise ?? this.contractAmountPaise,
       paidAmountPaise: paidAmountPaise ?? this.paidAmountPaise,
-      outstandingAmountPaise: outstandingAmountPaise ?? this.outstandingAmountPaise,
+      outstandingAmountPaise:
+          outstandingAmountPaise ?? this.outstandingAmountPaise,
       contractStatus: contractStatus ?? this.contractStatus,
       category: category ?? this.category,
     );

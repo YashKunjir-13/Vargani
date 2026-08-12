@@ -13,8 +13,8 @@ class LocalePreferences {
   Future<Locale> load() async {
     final languageCode = await _preferences.getString(_localeKey);
     return supportedLocales
-        .where((locale) => locale.languageCode == languageCode)
-        .firstOrNull ??
+            .where((locale) => locale.languageCode == languageCode)
+            .firstOrNull ??
         defaultLocale;
   }
 

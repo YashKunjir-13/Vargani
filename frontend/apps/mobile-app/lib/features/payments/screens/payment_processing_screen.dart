@@ -9,10 +9,12 @@ class PaymentProcessingScreen extends ConsumerStatefulWidget {
   const PaymentProcessingScreen({super.key});
 
   @override
-  ConsumerState<PaymentProcessingScreen> createState() => _PaymentProcessingScreenState();
+  ConsumerState<PaymentProcessingScreen> createState() =>
+      _PaymentProcessingScreenState();
 }
 
-class _PaymentProcessingScreenState extends ConsumerState<PaymentProcessingScreen> {
+class _PaymentProcessingScreenState
+    extends ConsumerState<PaymentProcessingScreen> {
   int _messageIndex = 0;
   Timer? _timer;
 
@@ -71,7 +73,8 @@ class _PaymentProcessingScreenState extends ConsumerState<PaymentProcessingScree
               const SizedBox(height: 32),
               Text(
                 'Processing Donation',
-                style: theme.textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.bold),
+                style: theme.textTheme.headlineSmall
+                    ?.copyWith(fontWeight: FontWeight.bold),
               ),
               const SizedBox(height: 12),
               AnimatedSwitcher(
@@ -100,7 +103,10 @@ class _PaymentProcessingScreenState extends ConsumerState<PaymentProcessingScree
                     Expanded(
                       child: Text(
                         'Amount: ₹${flow.amount.toStringAsFixed(2)} • Do not close or refresh this screen.',
-                        style: const TextStyle(fontSize: 12, color: Colors.blue, fontWeight: FontWeight.w600),
+                        style: const TextStyle(
+                            fontSize: 12,
+                            color: Colors.blue,
+                            fontWeight: FontWeight.w600),
                       ),
                     ),
                   ],

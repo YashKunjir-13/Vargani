@@ -21,12 +21,14 @@ class MilestonesScreen extends ConsumerWidget {
     final milestones = ref.watch(milestoneListProvider);
 
     final total = milestones.length;
-    final inProgress = milestones.where((m) => m.status == 'In Progress').length;
+    final inProgress =
+        milestones.where((m) => m.status == 'In Progress').length;
     final pending = milestones.where((m) => m.status == 'Pending').length;
     final completed = milestones.where((m) => m.status == 'Completed').length;
 
     final canCreate = rbacState.hasPermission('milestones.create');
-    final isVolunteer = !rbacState.hasPermission('milestones.view') && rbacState.hasPermission('milestones.view_assigned');
+    final isVolunteer = !rbacState.hasPermission('milestones.view') &&
+        rbacState.hasPermission('milestones.view_assigned');
 
     return Scaffold(
       backgroundColor: colors.background,
@@ -50,7 +52,8 @@ class MilestonesScreen extends ConsumerWidget {
           ? FloatingActionButton(
               onPressed: () {
                 Navigator.of(context).push(
-                  MaterialPageRoute(builder: (_) => const MilestoneFormScreen()),
+                  MaterialPageRoute(
+                      builder: (_) => const MilestoneFormScreen()),
                 );
               },
               backgroundColor: colors.brandOrange,
@@ -67,13 +70,17 @@ class MilestonesScreen extends ConsumerWidget {
               scrollDirection: Axis.horizontal,
               child: Row(
                 children: [
-                  _buildSummaryCard('Total', '$total', Icons.assignment, colors, Colors.blue),
+                  _buildSummaryCard(
+                      'Total', '$total', Icons.assignment, colors, Colors.blue),
                   const SizedBox(width: 12),
-                  _buildSummaryCard('In Progress', '$inProgress', Icons.sync, colors, Colors.orange),
+                  _buildSummaryCard('In Progress', '$inProgress', Icons.sync,
+                      colors, Colors.orange),
                   const SizedBox(width: 12),
-                  _buildSummaryCard('Pending', '$pending', Icons.hourglass_empty, colors, Colors.grey),
+                  _buildSummaryCard('Pending', '$pending',
+                      Icons.hourglass_empty, colors, Colors.grey),
                   const SizedBox(width: 12),
-                  _buildSummaryCard('Completed', '$completed', Icons.check_circle, colors, Colors.green),
+                  _buildSummaryCard('Completed', '$completed',
+                      Icons.check_circle, colors, Colors.green),
                 ],
               ),
             ),
@@ -101,14 +108,16 @@ class MilestonesScreen extends ConsumerWidget {
                 ),
               )
             else
-              ...milestones.map((m) => _buildMilestoneCard(context, m, colors, users)),
+              ...milestones
+                  .map((m) => _buildMilestoneCard(context, m, colors, users)),
           ],
         ),
       ),
     );
   }
 
-  Widget _buildSummaryCard(String title, String value, IconData icon, AuthColors colors, Color accentColor) {
+  Widget _buildSummaryCard(String title, String value, IconData icon,
+      AuthColors colors, Color accentColor) {
     return Container(
       width: 140,
       padding: const EdgeInsets.all(16),
@@ -144,7 +153,8 @@ class MilestonesScreen extends ConsumerWidget {
     );
   }
 
-  Widget _buildMilestoneCard(BuildContext context, MockMilestone m, AuthColors colors, List<MockUser> users) {
+  Widget _buildMilestoneCard(BuildContext context, MockMilestone m,
+      AuthColors colors, List<MockUser> users) {
     Color statusColor;
     switch (m.status) {
       case 'Completed':
@@ -162,7 +172,8 @@ class MilestonesScreen extends ConsumerWidget {
     return GestureDetector(
       onTap: () {
         Navigator.of(context).push(
-          MaterialPageRoute(builder: (_) => MilestoneDetailsScreen(milestone: m)),
+          MaterialPageRoute(
+              builder: (_) => MilestoneDetailsScreen(milestone: m)),
         );
       },
       child: Container(
@@ -190,7 +201,8 @@ class MilestonesScreen extends ConsumerWidget {
                   ),
                 ),
                 Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                   decoration: BoxDecoration(
                     color: statusColor.withValues(alpha: 0.1),
                     borderRadius: BorderRadius.circular(12),
@@ -232,7 +244,12 @@ class MilestonesScreen extends ConsumerWidget {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text(
-                              users.where((u) => u.id == m.assignedToUserId).firstOrNull?.name ?? m.assignedToUserName ?? 'Unassigned',
+                              users
+                                      .where((u) => u.id == m.assignedToUserId)
+                                      .firstOrNull
+                                      ?.name ??
+                                  m.assignedToUserName ??
+                                  'Unassigned',
                               style: TextStyle(
                                 color: colors.secondaryText,
                                 fontSize: 14,
@@ -241,7 +258,11 @@ class MilestonesScreen extends ConsumerWidget {
                             ),
                             if (users.any((u) => u.id == m.assignedToUserId))
                               Text(
-                                users.firstWhere((u) => u.id == m.assignedToUserId).role.displayName,
+                                users
+                                    .firstWhere(
+                                        (u) => u.id == m.assignedToUserId)
+                                    .role
+                                    .displayName,
                                 style: TextStyle(
                                   color: colors.secondaryText,
                                   fontSize: 12,

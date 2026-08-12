@@ -10,14 +10,16 @@ class GoldSilverEntryScreen extends ConsumerStatefulWidget {
   const GoldSilverEntryScreen({super.key});
 
   @override
-  ConsumerState<GoldSilverEntryScreen> createState() => _GoldSilverEntryScreenState();
+  ConsumerState<GoldSilverEntryScreen> createState() =>
+      _GoldSilverEntryScreenState();
 }
 
 class _GoldSilverEntryScreenState extends ConsumerState<GoldSilverEntryScreen> {
   final _formKey = GlobalKey<FormState>();
   final _donorNameController = TextEditingController(text: 'Sunita Deshmukh');
   final _phoneController = TextEditingController(text: '9822019283');
-  final _itemDescriptionController = TextEditingController(text: 'Gold Mukut / Crown for Lord Ganesha');
+  final _itemDescriptionController =
+      TextEditingController(text: 'Gold Mukut / Crown for Lord Ganesha');
   final _weightController = TextEditingController(text: '12.5');
   final _estimatedValueController = TextEditingController(text: '95000');
   final _certNumberController = TextEditingController(text: 'CERT-BIS-99420');
@@ -60,7 +62,8 @@ class _GoldSilverEntryScreenState extends ConsumerState<GoldSilverEntryScreen> {
                     CircleAvatar(
                       radius: 24,
                       backgroundColor: Colors.amber.shade200,
-                      child: Icon(Icons.workspace_premium, color: Colors.amber.shade900, size: 28),
+                      child: Icon(Icons.workspace_premium,
+                          color: Colors.amber.shade900, size: 28),
                     ),
                     const SizedBox(width: 14),
                     Expanded(
@@ -69,11 +72,15 @@ class _GoldSilverEntryScreenState extends ConsumerState<GoldSilverEntryScreen> {
                         children: [
                           Text(
                             'Precious Metal Vault Log',
-                            style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16, color: Colors.amber.shade900),
+                            style: TextStyle(
+                                fontWeight: FontWeight.bold,
+                                fontSize: 16,
+                                color: Colors.amber.shade900),
                           ),
                           Text(
                             'Generates specialized CRCPT- receipt with weight & purity cert',
-                            style: TextStyle(fontSize: 12, color: Colors.amber.shade800),
+                            style: TextStyle(
+                                fontSize: 12, color: Colors.amber.shade800),
                           ),
                         ],
                       ),
@@ -88,18 +95,22 @@ class _GoldSilverEntryScreenState extends ConsumerState<GoldSilverEntryScreen> {
               const SizedBox(height: 8),
               TextFormField(
                 controller: _donorNameController,
-                decoration: const InputDecoration(labelText: 'Donor Full Name', prefixIcon: Icon(Icons.person)),
+                decoration: const InputDecoration(
+                    labelText: 'Donor Full Name',
+                    prefixIcon: Icon(Icons.person)),
               ),
               const SizedBox(height: 12),
               TextFormField(
                 controller: _phoneController,
                 keyboardType: TextInputType.phone,
-                decoration: const InputDecoration(labelText: 'Mobile Number', prefixIcon: Icon(Icons.phone)),
+                decoration: const InputDecoration(
+                    labelText: 'Mobile Number', prefixIcon: Icon(Icons.phone)),
               ),
 
               const SizedBox(height: AppSpacing.lg),
 
-              Text('PRECIOUS METAL SPECIFICATION', style: AppTypography.caption(context)),
+              Text('PRECIOUS METAL SPECIFICATION',
+                  style: AppTypography.caption(context)),
               const SizedBox(height: 8),
 
               // Metal Type Selector
@@ -142,7 +153,9 @@ class _GoldSilverEntryScreenState extends ConsumerState<GoldSilverEntryScreen> {
 
               TextFormField(
                 controller: _itemDescriptionController,
-                decoration: const InputDecoration(labelText: 'Item Description (Ornaments / Crown / Idol)', prefixIcon: Icon(Icons.shopping_bag_outlined)),
+                decoration: const InputDecoration(
+                    labelText: 'Item Description (Ornaments / Crown / Idol)',
+                    prefixIcon: Icon(Icons.shopping_bag_outlined)),
               ),
               const SizedBox(height: 12),
 
@@ -152,18 +165,21 @@ class _GoldSilverEntryScreenState extends ConsumerState<GoldSilverEntryScreen> {
                     child: TextFormField(
                       controller: _weightController,
                       keyboardType: TextInputType.number,
-                      decoration: const InputDecoration(labelText: 'Weight (Grams)', suffixText: 'g'),
+                      decoration: const InputDecoration(
+                          labelText: 'Weight (Grams)', suffixText: 'g'),
                     ),
                   ),
                   const SizedBox(width: 12),
                   Expanded(
                     child: DropdownButtonFormField<String>(
                       initialValue: _purity,
-                      decoration: const InputDecoration(labelText: 'Purity / Hallmark'),
+                      decoration:
+                          const InputDecoration(labelText: 'Purity / Hallmark'),
                       items: (_metalType == 'Gold'
                               ? ['24K (999)', '22K (916)', '18K (750)']
                               : ['99.9 Pure', '92.5 Sterling'])
-                          .map((e) => DropdownMenuItem(value: e, child: Text(e)))
+                          .map(
+                              (e) => DropdownMenuItem(value: e, child: Text(e)))
                           .toList(),
                       onChanged: (val) {
                         if (val != null) setState(() => _purity = val);
@@ -177,13 +193,17 @@ class _GoldSilverEntryScreenState extends ConsumerState<GoldSilverEntryScreen> {
               TextFormField(
                 controller: _estimatedValueController,
                 keyboardType: TextInputType.number,
-                decoration: const InputDecoration(labelText: 'Estimated Market Value (₹)', prefixIcon: Icon(Icons.attach_money)),
+                decoration: const InputDecoration(
+                    labelText: 'Estimated Market Value (₹)',
+                    prefixIcon: Icon(Icons.attach_money)),
               ),
               const SizedBox(height: 12),
 
               TextFormField(
                 controller: _certNumberController,
-                decoration: const InputDecoration(labelText: 'Valuation / BIS Hallmark Cert #', prefixIcon: Icon(Icons.verified)),
+                decoration: const InputDecoration(
+                    labelText: 'Valuation / BIS Hallmark Cert #',
+                    prefixIcon: Icon(Icons.verified)),
               ),
               const SizedBox(height: 16),
 
@@ -197,23 +217,34 @@ class _GoldSilverEntryScreenState extends ConsumerState<GoldSilverEntryScreen> {
                   decoration: BoxDecoration(
                     color: Colors.grey.shade100,
                     borderRadius: BorderRadius.circular(12),
-                    border: Border.all(color: Colors.grey.shade300, style: BorderStyle.solid),
+                    border: Border.all(
+                        color: Colors.grey.shade300, style: BorderStyle.solid),
                   ),
                   child: Row(
                     children: [
-                      Icon(_hasCertPhoto ? Icons.check_circle : Icons.camera_alt_outlined, color: _hasCertPhoto ? Colors.green : Colors.grey),
+                      Icon(
+                          _hasCertPhoto
+                              ? Icons.check_circle
+                              : Icons.camera_alt_outlined,
+                          color: _hasCertPhoto ? Colors.green : Colors.grey),
                       const SizedBox(width: 12),
                       Expanded(
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text(
-                              _hasCertPhoto ? 'Purity Certificate Attached' : 'Attach Valuation Photo',
-                              style: const TextStyle(fontWeight: FontWeight.bold),
+                              _hasCertPhoto
+                                  ? 'Purity Certificate Attached'
+                                  : 'Attach Valuation Photo',
+                              style:
+                                  const TextStyle(fontWeight: FontWeight.bold),
                             ),
                             Text(
-                              _hasCertPhoto ? 'hallmark_cert_sunita.jpg (240 KB)' : 'Tap to capture / upload certificate photo',
-                              style: TextStyle(fontSize: 12, color: Colors.grey.shade600),
+                              _hasCertPhoto
+                                  ? 'hallmark_cert_sunita.jpg (240 KB)'
+                                  : 'Tap to capture / upload certificate photo',
+                              style: TextStyle(
+                                  fontSize: 12, color: Colors.grey.shade600),
                             ),
                           ],
                         ),
@@ -230,7 +261,8 @@ class _GoldSilverEntryScreenState extends ConsumerState<GoldSilverEntryScreen> {
                   Navigator.pop(context);
                   ScaffoldMessenger.of(context).showSnackBar(
                     SnackBar(
-                      content: Text('Logged $_metalType Offer (${_weightController.text}g) - Receipt CRCPT-2025-092 Generated!'),
+                      content: Text(
+                          'Logged $_metalType Offer (${_weightController.text}g) - Receipt CRCPT-2025-092 Generated!'),
                       backgroundColor: Colors.amber.shade900,
                     ),
                   );

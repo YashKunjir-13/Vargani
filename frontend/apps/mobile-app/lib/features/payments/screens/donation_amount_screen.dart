@@ -10,7 +10,8 @@ class DonationAmountScreen extends ConsumerStatefulWidget {
   const DonationAmountScreen({super.key});
 
   @override
-  ConsumerState<DonationAmountScreen> createState() => _DonationAmountScreenState();
+  ConsumerState<DonationAmountScreen> createState() =>
+      _DonationAmountScreenState();
 }
 
 class _DonationAmountScreenState extends ConsumerState<DonationAmountScreen> {
@@ -69,11 +70,13 @@ class _DonationAmountScreenState extends ConsumerState<DonationAmountScreen> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final eventName = ref.watch(donationFlowProvider).selectedEvent?['name'] ?? 'Ganesh Utsav 2026';
-    final donorName = ref.watch(donationFlowProvider).selectedDonor?['name'] ?? 'Donor';
+    final eventName = ref.watch(donationFlowProvider).selectedEvent?['name'] ??
+        'Ganesh Utsav 2026';
+    final donorName =
+        ref.watch(donationFlowProvider).selectedDonor?['name'] ?? 'Donor';
 
     return Scaffold(
-      appBar: PautiAppBar(
+      appBar: const PautiAppBar(
         title: 'Collect Donation',
         subtitle: 'Step 3 of 10 • Enter Amount',
         showBackButton: true,
@@ -86,7 +89,7 @@ class _DonationAmountScreenState extends ConsumerState<DonationAmountScreen> {
             children: [
               // Summary Banner
               AppCard(
-                color: theme.colorScheme.primaryContainer.withOpacity(0.4),
+                color: theme.colorScheme.primaryContainer.withValues(alpha: 0.4),
                 child: Row(
                   children: [
                     const Icon(Icons.event, color: Colors.deepOrange),
@@ -95,8 +98,12 @@ class _DonationAmountScreenState extends ConsumerState<DonationAmountScreen> {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Text(eventName, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
-                          Text('Donor: $donorName', style: TextStyle(color: Colors.grey.shade800, fontSize: 12)),
+                          Text(eventName,
+                              style: const TextStyle(
+                                  fontWeight: FontWeight.bold, fontSize: 14)),
+                          Text('Donor: $donorName',
+                              style: TextStyle(
+                                  color: Colors.grey.shade800, fontSize: 12)),
                         ],
                       ),
                     ),
@@ -105,29 +112,38 @@ class _DonationAmountScreenState extends ConsumerState<DonationAmountScreen> {
               ),
               const SizedBox(height: 24),
 
-              Text('Donation Amount', style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold)),
+              Text('Donation Amount',
+                  style: theme.textTheme.titleMedium
+                      ?.copyWith(fontWeight: FontWeight.bold)),
               const SizedBox(height: 12),
 
               // Large Input Box
               Container(
-                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
                 decoration: BoxDecoration(
                   color: theme.colorScheme.surface,
                   borderRadius: BorderRadius.circular(16),
                   border: Border.all(
-                    color: _errorText != null ? Colors.red : theme.colorScheme.primary,
+                    color: _errorText != null
+                        ? Colors.red
+                        : theme.colorScheme.primary,
                     width: 2,
                   ),
                 ),
                 child: Row(
                   children: [
-                    Text('₹', style: theme.textTheme.headlineMedium?.copyWith(fontWeight: FontWeight.bold, color: theme.colorScheme.primary)),
+                    Text('₹',
+                        style: theme.textTheme.headlineMedium?.copyWith(
+                            fontWeight: FontWeight.bold,
+                            color: theme.colorScheme.primary)),
                     const SizedBox(width: 12),
                     Expanded(
                       child: TextField(
                         controller: _amountCtrl,
                         keyboardType: TextInputType.number,
-                        style: theme.textTheme.headlineMedium?.copyWith(fontWeight: FontWeight.bold),
+                        style: theme.textTheme.headlineMedium
+                            ?.copyWith(fontWeight: FontWeight.bold),
                         decoration: const InputDecoration(
                           border: InputBorder.none,
                           hintText: '0',
@@ -140,11 +156,14 @@ class _DonationAmountScreenState extends ConsumerState<DonationAmountScreen> {
               ),
               if (_errorText != null) ...[
                 const SizedBox(height: 6),
-                Text(_errorText!, style: const TextStyle(color: Colors.red, fontSize: 12)),
+                Text(_errorText!,
+                    style: const TextStyle(color: Colors.red, fontSize: 12)),
               ],
               const SizedBox(height: 20),
 
-              Text('Quick Select', style: theme.textTheme.bodyMedium?.copyWith(fontWeight: FontWeight.w600)),
+              Text('Quick Select',
+                  style: theme.textTheme.bodyMedium
+                      ?.copyWith(fontWeight: FontWeight.w600)),
               const SizedBox(height: 10),
               Wrap(
                 spacing: 10,
@@ -174,7 +193,9 @@ class _DonationAmountScreenState extends ConsumerState<DonationAmountScreen> {
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         const Text('Donation Amount'),
-                        Text('₹${_selectedAmount.toStringAsFixed(2)}', style: const TextStyle(fontWeight: FontWeight.w600)),
+                        Text('₹${_selectedAmount.toStringAsFixed(2)}',
+                            style:
+                                const TextStyle(fontWeight: FontWeight.w600)),
                       ],
                     ),
                     const SizedBox(height: 8),
@@ -182,17 +203,24 @@ class _DonationAmountScreenState extends ConsumerState<DonationAmountScreen> {
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         Text('Platform / Gateway Fee'),
-                        Text('₹0.00 (Waived)', style: TextStyle(color: Colors.green, fontWeight: FontWeight.bold)),
+                        Text('₹0.00 (Waived)',
+                            style: TextStyle(
+                                color: Colors.green,
+                                fontWeight: FontWeight.bold)),
                       ],
                     ),
                     const Divider(height: 20),
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        Text('Total Payable', style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold)),
+                        Text('Total Payable',
+                            style: theme.textTheme.titleMedium
+                                ?.copyWith(fontWeight: FontWeight.bold)),
                         Text(
                           '₹${_selectedAmount.toStringAsFixed(2)}',
-                          style: theme.textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold, color: theme.colorScheme.primary),
+                          style: theme.textTheme.titleLarge?.copyWith(
+                              fontWeight: FontWeight.bold,
+                              color: theme.colorScheme.primary),
                         ),
                       ],
                     ),

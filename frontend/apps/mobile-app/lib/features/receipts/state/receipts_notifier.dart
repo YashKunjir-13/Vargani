@@ -4,7 +4,8 @@ import 'package:pauti_pustak_mobile/core/session/session_controller.dart';
 import '../data/receipts_remote_datasource.dart';
 import '../models/receipt.dart';
 
-final receiptsRemoteDataSourceProvider = Provider<ReceiptsRemoteDataSource>((ref) {
+final receiptsRemoteDataSourceProvider =
+    Provider<ReceiptsRemoteDataSource>((ref) {
   return ReceiptsRemoteDataSource(ref.watch(dioProvider));
 });
 
@@ -54,7 +55,8 @@ class ReceiptsNotifier extends Notifier<AsyncValue<List<Receipt>>> {
       final index = currentList.indexWhere((r) => r.id == id);
       if (index != -1) {
         final updatedList = List<Receipt>.from(currentList);
-        updatedList[index] = updatedList[index].copyWith(whatsappDeliveryStatus: WhatsappDeliveryStatus.sent);
+        updatedList[index] = updatedList[index]
+            .copyWith(whatsappDeliveryStatus: WhatsappDeliveryStatus.sent);
         state = AsyncValue.data(updatedList);
       }
       return true;
@@ -62,6 +64,7 @@ class ReceiptsNotifier extends Notifier<AsyncValue<List<Receipt>>> {
   }
 }
 
-final receiptsProvider = NotifierProvider<ReceiptsNotifier, AsyncValue<List<Receipt>>>(
+final receiptsProvider =
+    NotifierProvider<ReceiptsNotifier, AsyncValue<List<Receipt>>>(
   ReceiptsNotifier.new,
 );

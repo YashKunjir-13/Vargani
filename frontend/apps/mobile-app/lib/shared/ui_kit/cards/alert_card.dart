@@ -43,8 +43,14 @@ class AlertCard extends StatelessWidget {
     final textTheme = Theme.of(context).textTheme;
 
     final (Color background, Color foreground) = switch (tone) {
-      AlertTone.critical => (colorScheme.errorContainer, colorScheme.onErrorContainer),
-      AlertTone.warning => (semantic.warningContainer, semantic.onWarningContainer),
+      AlertTone.critical => (
+          colorScheme.errorContainer,
+          colorScheme.onErrorContainer
+        ),
+      AlertTone.warning => (
+          semantic.warningContainer,
+          semantic.onWarningContainer
+        ),
       AlertTone.info => (semantic.infoContainer, semantic.onInfoContainer),
     };
 
@@ -67,12 +73,14 @@ class AlertCard extends StatelessWidget {
                   children: [
                     Text(
                       title,
-                      style: textTheme.bodyLarge?.copyWith(color: foreground, fontWeight: FontWeight.w700),
+                      style: textTheme.bodyLarge?.copyWith(
+                          color: foreground, fontWeight: FontWeight.w700),
                     ),
                     if (subtitle != null)
                       Text(
                         subtitle!,
-                        style: textTheme.bodyMedium?.copyWith(color: foreground.withValues(alpha: 0.85)),
+                        style: textTheme.bodyMedium?.copyWith(
+                            color: foreground.withValues(alpha: 0.85)),
                       ),
                   ],
                 ),

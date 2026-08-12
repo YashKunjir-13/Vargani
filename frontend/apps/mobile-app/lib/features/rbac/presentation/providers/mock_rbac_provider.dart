@@ -1,5 +1,4 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:pauti_pustak_mobile/core/session/session_controller.dart';
 
 import '../pages/user_management_screen.dart';
 
@@ -203,9 +202,6 @@ class MockRbacNotifier extends Notifier<MockRbacState> {
 
   @override
   MockRbacState build() {
-    final session = ref.watch(sessionControllerProvider);
-    final user = session.user;
-
     const defaultRole = MockRole.president;
     return MockRbacState(
       activeRole: defaultRole,

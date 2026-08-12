@@ -10,7 +10,8 @@ class TemplatesRemoteDataSource {
     final response = await _dio.get('/templates');
     final data = response.data as List<dynamic>? ?? [];
     return data
-        .map((item) => ReceiptTemplate.fromJson(Map<String, dynamic>.from(item)))
+        .map(
+            (item) => ReceiptTemplate.fromJson(Map<String, dynamic>.from(item)))
         .toList();
   }
 

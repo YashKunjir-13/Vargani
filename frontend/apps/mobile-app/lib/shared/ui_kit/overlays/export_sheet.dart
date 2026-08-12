@@ -73,10 +73,12 @@ class _ExportSheetState extends State<ExportSheet> {
       title: widget.title,
       trailing: Text(
         widget.activeScopeLabel,
-        style: textTheme.labelMedium?.copyWith(color: colorScheme.onSurfaceVariant),
+        style: textTheme.labelMedium
+            ?.copyWith(color: colorScheme.onSurfaceVariant),
       ),
       actions: [
-        SecondaryButton(label: 'Cancel', onPressed: () => Navigator.of(context).pop()),
+        SecondaryButton(
+            label: 'Cancel', onPressed: () => Navigator.of(context).pop()),
         PrimaryButton(
           label: 'Generate Export',
           onPressed: () {
@@ -138,7 +140,10 @@ class _GroupLabel extends StatelessWidget {
     final colorScheme = Theme.of(context).colorScheme;
     return Text(
       label.toUpperCase(),
-      style: Theme.of(context).textTheme.labelMedium?.copyWith(color: colorScheme.onSurfaceVariant),
+      style: Theme.of(context)
+          .textTheme
+          .labelMedium
+          ?.copyWith(color: colorScheme.onSurfaceVariant),
     );
   }
 }
@@ -148,7 +153,8 @@ class _FormatTile extends StatelessWidget {
   final bool selected;
   final VoidCallback onTap;
 
-  const _FormatTile({required this.option, required this.selected, required this.onTap});
+  const _FormatTile(
+      {required this.option, required this.selected, required this.onTap});
 
   @override
   Widget build(BuildContext context) {
@@ -163,7 +169,8 @@ class _FormatTile extends StatelessWidget {
         padding: const EdgeInsets.symmetric(vertical: AppSpacing.space12),
         decoration: BoxDecoration(
           color: selected ? colorScheme.primaryContainer : colorScheme.surface,
-          border: Border.all(color: selected ? Colors.transparent : colorScheme.outline),
+          border: Border.all(
+              color: selected ? Colors.transparent : colorScheme.outline),
           borderRadius: BorderRadius.circular(AppRadius.small),
         ),
         child: Column(
@@ -171,13 +178,17 @@ class _FormatTile extends StatelessWidget {
             Icon(
               option.icon,
               size: AppIconSize.medium,
-              color: selected ? colorScheme.onPrimaryContainer : colorScheme.onSurfaceVariant,
+              color: selected
+                  ? colorScheme.onPrimaryContainer
+                  : colorScheme.onSurfaceVariant,
             ),
             const SizedBox(height: AppSpacing.space4),
             Text(
               option.label,
               style: textTheme.labelSmall?.copyWith(
-                color: selected ? colorScheme.onPrimaryContainer : colorScheme.onSurfaceVariant,
+                color: selected
+                    ? colorScheme.onPrimaryContainer
+                    : colorScheme.onSurfaceVariant,
                 fontWeight: FontWeight.w700,
               ),
             ),

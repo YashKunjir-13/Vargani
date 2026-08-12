@@ -20,21 +20,31 @@ class UserRoleNotifier extends Notifier<UserRole> {
   }
 }
 
-final userRoleProvider = NotifierProvider<UserRoleNotifier, UserRole>(UserRoleNotifier.new);
+final userRoleProvider =
+    NotifierProvider<UserRoleNotifier, UserRole>(UserRoleNotifier.new);
 
 class AppPermissions {
   final UserRole role;
 
   const AppPermissions(this.role);
 
-  bool get canActivateTemplate => role == UserRole.admin || role == UserRole.auditor;
-  bool get canConfirmPaymentMatch => role == UserRole.admin || role == UserRole.collector || role == UserRole.auditor;
+  bool get canActivateTemplate =>
+      role == UserRole.admin || role == UserRole.auditor;
+  bool get canConfirmPaymentMatch =>
+      role == UserRole.admin ||
+      role == UserRole.collector ||
+      role == UserRole.auditor;
   bool get canVoidPayment => role == UserRole.admin || role == UserRole.auditor;
-  bool get canSubmitBill => role != UserRole.volunteer; // Collector, Auditor, Admin
-  bool get canApproveRejectBill => role == UserRole.admin || role == UserRole.auditor;
+  bool get canSubmitBill =>
+      role != UserRole.volunteer; // Collector, Auditor, Admin
+  bool get canApproveRejectBill =>
+      role == UserRole.admin || role == UserRole.auditor;
   bool get canMarkBillPaid => role == UserRole.admin;
   bool get canCreateContribution => true; // All roles
-  bool get canIssueContributionReceipt => role == UserRole.admin || role == UserRole.collector || role == UserRole.auditor;
+  bool get canIssueContributionReceipt =>
+      role == UserRole.admin ||
+      role == UserRole.collector ||
+      role == UserRole.auditor;
 }
 
 final permissionsProvider = Provider<AppPermissions>((ref) {

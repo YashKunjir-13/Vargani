@@ -443,9 +443,11 @@ class _MandalDetailsScreenState extends ConsumerState<MandalDetailsScreen> {
                       ),
                       focusedBorder: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(8),
-                        borderSide: BorderSide(color: colors.brandOrange, width: 2),
+                        borderSide:
+                            BorderSide(color: colors.brandOrange, width: 2),
                       ),
-                      contentPadding: const EdgeInsets.symmetric(vertical: 16, horizontal: 16),
+                      contentPadding: const EdgeInsets.symmetric(
+                          vertical: 16, horizontal: 16),
                     ),
                     validator: (val) {
                       if (val == null || val.trim().isEmpty) {
@@ -474,9 +476,11 @@ class _MandalDetailsScreenState extends ConsumerState<MandalDetailsScreen> {
                       ),
                       focusedBorder: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(8),
-                        borderSide: BorderSide(color: colors.brandOrange, width: 2),
+                        borderSide:
+                            BorderSide(color: colors.brandOrange, width: 2),
                       ),
-                      contentPadding: const EdgeInsets.symmetric(vertical: 16, horizontal: 16),
+                      contentPadding: const EdgeInsets.symmetric(
+                          vertical: 16, horizontal: 16),
                     ),
                     validator: (val) {
                       if (val == null || val.trim().isEmpty) {
@@ -509,9 +513,11 @@ class _MandalDetailsScreenState extends ConsumerState<MandalDetailsScreen> {
                       ),
                       focusedBorder: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(8),
-                        borderSide: BorderSide(color: colors.brandOrange, width: 2),
+                        borderSide:
+                            BorderSide(color: colors.brandOrange, width: 2),
                       ),
-                      contentPadding: const EdgeInsets.symmetric(vertical: 16, horizontal: 16),
+                      contentPadding: const EdgeInsets.symmetric(
+                          vertical: 16, horizontal: 16),
                     ),
                     validator: (val) {
                       if (val != null && val.trim().isNotEmpty) {
@@ -599,7 +605,9 @@ class _MandalDetailsScreenState extends ConsumerState<MandalDetailsScreen> {
                     decoration: InputDecoration(
                       labelText: 'Donation Purpose',
                       labelStyle: TextStyle(color: colors.secondaryText),
-                      border: InputBorder.none, contentPadding: const EdgeInsets.symmetric(vertical: 16, horizontal: 8),
+                      border: InputBorder.none,
+                      contentPadding: const EdgeInsets.symmetric(
+                          vertical: 16, horizontal: 8),
                     ),
                     items: _purposes
                         .map((p) => DropdownMenuItem(value: p, child: Text(p)))
@@ -634,7 +642,9 @@ class _MandalDetailsScreenState extends ConsumerState<MandalDetailsScreen> {
                           color: colors.secondaryText.withValues(alpha: 0.6),
                           fontSize: 13),
                       labelStyle: TextStyle(color: colors.secondaryText),
-                      border: InputBorder.none, contentPadding: const EdgeInsets.symmetric(vertical: 16, horizontal: 8),
+                      border: InputBorder.none,
+                      contentPadding: const EdgeInsets.symmetric(
+                          vertical: 16, horizontal: 8),
                     ),
                   ),
                 ],
@@ -864,7 +874,8 @@ class _MandalDetailsScreenState extends ConsumerState<MandalDetailsScreen> {
                   const SizedBox(width: 6),
                   InkWell(
                     onTap: onCopy,
-                    child: Icon(Icons.copy, size: 14, color: colors.brandOrange),
+                    child:
+                        Icon(Icons.copy, size: 14, color: colors.brandOrange),
                   ),
                 ],
               ],

@@ -22,7 +22,8 @@ class AuditTimelineScreen extends ConsumerStatefulWidget {
   });
 
   @override
-  ConsumerState<AuditTimelineScreen> createState() => _AuditTimelineScreenState();
+  ConsumerState<AuditTimelineScreen> createState() =>
+      _AuditTimelineScreenState();
 }
 
 class _AuditTimelineScreenState extends ConsumerState<AuditTimelineScreen> {
@@ -64,18 +65,26 @@ class _AuditTimelineScreenState extends ConsumerState<AuditTimelineScreen> {
                       ),
                       () {
                         final isExpanded = _expandedGroups.contains(group.key);
-                        final visible = isExpanded || group.value.length <= widget.collapseThreshold
+                        final visible = isExpanded ||
+                                group.value.length <= widget.collapseThreshold
                             ? group.value
-                            : group.value.take(widget.collapseThreshold).toList();
+                            : group.value
+                                .take(widget.collapseThreshold)
+                                .toList();
                         return Column(
                           children: [
-                            for (final event in visible) _TimelineRow(event: event, onTap: widget.onOpenEvent),
-                            if (!isExpanded && group.value.length > widget.collapseThreshold)
+                            for (final event in visible)
+                              _TimelineRow(
+                                  event: event, onTap: widget.onOpenEvent),
+                            if (!isExpanded &&
+                                group.value.length > widget.collapseThreshold)
                               Align(
                                 alignment: Alignment.centerLeft,
                                 child: TextButton(
-                                  onPressed: () => setState(() => _expandedGroups.add(group.key)),
-                                  child: Text('${group.value.length - widget.collapseThreshold} more'),
+                                  onPressed: () => setState(
+                                      () => _expandedGroups.add(group.key)),
+                                  child: Text(
+                                      '${group.value.length - widget.collapseThreshold} more'),
                                 ),
                               ),
                           ],
@@ -102,7 +111,8 @@ class _TimelineRow extends StatelessWidget {
       contentPadding: EdgeInsets.zero,
       onTap: onTap == null ? null : () => onTap!(event),
       leading: SeverityBadge(severity: event.severity),
-      title: Text(event.title, style: textTheme.bodyLarge?.copyWith(fontWeight: FontWeight.w700)),
+      title: Text(event.title,
+          style: textTheme.bodyLarge?.copyWith(fontWeight: FontWeight.w700)),
       subtitle: Text('${event.actorName} · ${event.moduleLabel}'),
       trailing: Text(event.timeLabel, style: textTheme.labelSmall),
     );

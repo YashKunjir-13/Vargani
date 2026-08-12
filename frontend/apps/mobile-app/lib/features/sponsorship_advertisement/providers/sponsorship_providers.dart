@@ -51,6 +51,7 @@ class SelectedSponsorshipTabNotifier extends Notifier<int> {
   set value(int val) => state = val;
 }
 
-final selectedSponsorshipTabProvider = NotifierProvider<SelectedSponsorshipTabNotifier, int>(
+final selectedSponsorshipTabProvider =
+    NotifierProvider<SelectedSponsorshipTabNotifier, int>(
   SelectedSponsorshipTabNotifier.new,
 );

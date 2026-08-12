@@ -16,7 +16,8 @@ class AuditDetailScreen extends ConsumerWidget {
   final String eventId;
   final VoidCallback? onOpenLinkedRecord;
 
-  const AuditDetailScreen({super.key, required this.eventId, this.onOpenLinkedRecord});
+  const AuditDetailScreen(
+      {super.key, required this.eventId, this.onOpenLinkedRecord});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -35,7 +36,8 @@ class AuditDetailScreen extends ConsumerWidget {
             if (eventAsync.hasValue)
               Text(
                 '${eventAsync.value!.moduleLabel} · Event',
-                style: textTheme.labelMedium?.copyWith(color: colorScheme.onSurfaceVariant),
+                style: textTheme.labelMedium
+                    ?.copyWith(color: colorScheme.onSurfaceVariant),
               ),
           ],
         ),
@@ -50,7 +52,8 @@ class AuditDetailScreen extends ConsumerWidget {
         loading: () => const Center(child: CircularProgressIndicator()),
         error: (err, stack) => Center(child: Text('Error: $err')),
         data: (event) {
-          final timeLabel = '${event.timestamp.day}/${event.timestamp.month}/${event.timestamp.year} ${event.timestamp.hour}:${event.timestamp.minute.toString().padLeft(2, '0')}';
+          final timeLabel =
+              '${event.timestamp.day}/${event.timestamp.month}/${event.timestamp.year} ${event.timestamp.hour}:${event.timestamp.minute.toString().padLeft(2, '0')}';
 
           return ListView(
             padding: const EdgeInsets.all(16),
@@ -69,7 +72,8 @@ class AuditDetailScreen extends ConsumerWidget {
                 const SizedBox(height: 12),
                 Text(
                   '${event.changes.first.fieldLabel} — modified',
-                  style: textTheme.labelMedium?.copyWith(color: colorScheme.onSurfaceVariant),
+                  style: textTheme.labelMedium
+                      ?.copyWith(color: colorScheme.onSurfaceVariant),
                 ),
                 const SizedBox(height: 4),
                 DiffRow(
@@ -80,7 +84,8 @@ class AuditDetailScreen extends ConsumerWidget {
                   const SizedBox(height: 8),
                   Text(
                     'Reason logged: "${event.reason}"',
-                    style: textTheme.bodyMedium?.copyWith(color: colorScheme.onSurfaceVariant),
+                    style: textTheme.bodyMedium
+                        ?.copyWith(color: colorScheme.onSurfaceVariant),
                   ),
                 ],
               ],
@@ -90,16 +95,19 @@ class AuditDetailScreen extends ConsumerWidget {
                 const SizedBox(height: 4),
                 Text(
                   'reconstructs the workflow',
-                  style: textTheme.labelSmall?.copyWith(color: colorScheme.onSurfaceVariant),
+                  style: textTheme.labelSmall
+                      ?.copyWith(color: colorScheme.onSurfaceVariant),
                 ),
                 const SizedBox(height: 12),
                 for (final related in event.relatedEvents)
                   Card(
                     margin: const EdgeInsets.only(bottom: 6),
                     child: ListTile(
-                      leading: Icon(related.icon, color: colorScheme.onSurfaceVariant),
+                      leading: Icon(related.icon,
+                          color: colorScheme.onSurfaceVariant),
                       title: Text(related.title),
-                      trailing: Text(related.timeAgoLabel, style: textTheme.labelSmall),
+                      trailing: Text(related.timeAgoLabel,
+                          style: textTheme.labelSmall),
                     ),
                   ),
               ],
@@ -129,7 +137,8 @@ class AuditDetailScreen extends ConsumerWidget {
                   Expanded(
                     child: SecondaryButton(
                       label: 'Copy Audit ID',
-                      onPressed: () => Clipboard.setData(ClipboardData(text: event.id)),
+                      onPressed: () =>
+                          Clipboard.setData(ClipboardData(text: event.id)),
                     ),
                   ),
                   const SizedBox(width: 8),
@@ -175,9 +184,12 @@ class _KeyValueGrid extends StatelessWidget {
               children: [
                 Text(
                   entry.key.toUpperCase(),
-                  style: textTheme.labelSmall?.copyWith(color: colorScheme.onSurfaceVariant),
+                  style: textTheme.labelSmall
+                      ?.copyWith(color: colorScheme.onSurfaceVariant),
                 ),
-                Text(entry.value, style: textTheme.bodyLarge?.copyWith(fontWeight: FontWeight.w600)),
+                Text(entry.value,
+                    style: textTheme.bodyLarge
+                        ?.copyWith(fontWeight: FontWeight.w600)),
               ],
             ),
           ),

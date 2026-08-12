@@ -52,7 +52,9 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
 
     final name = _nameController.text.trim();
     final mobile = _mobileController.text.trim();
-    final email = _emailController.text.trim().isEmpty ? null : _emailController.text.trim();
+    final email = _emailController.text.trim().isEmpty
+        ? null
+        : _emailController.text.trim();
 
     try {
       final dio = ref.read(dioProvider);
@@ -122,7 +124,8 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
         iconTheme: IconThemeData(color: colors.text),
         title: Text(
           'Edit Profile',
-          style: TextStyle(color: colors.text, fontSize: 18, fontWeight: FontWeight.bold),
+          style: TextStyle(
+              color: colors.text, fontSize: 18, fontWeight: FontWeight.bold),
         ),
       ),
       body: SingleChildScrollView(
@@ -134,7 +137,10 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
             children: [
               Text(
                 'Personal Information',
-                style: TextStyle(color: colors.text, fontSize: 16, fontWeight: FontWeight.bold),
+                style: TextStyle(
+                    color: colors.text,
+                    fontSize: 16,
+                    fontWeight: FontWeight.bold),
               ),
               const SizedBox(height: 16),
 
@@ -147,8 +153,11 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
                   labelStyle: TextStyle(color: colors.secondaryText),
                   filled: true,
                   fillColor: colors.card,
-                  prefixIcon: Icon(Icons.person_outline, color: colors.brandOrange),
-                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide.none),
+                  prefixIcon:
+                      Icon(Icons.person_outline, color: colors.brandOrange),
+                  border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                      borderSide: BorderSide.none),
                 ),
                 validator: (val) {
                   if (val == null || val.trim().isEmpty) {
@@ -169,8 +178,11 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
                   labelStyle: TextStyle(color: colors.secondaryText),
                   filled: true,
                   fillColor: colors.card,
-                  prefixIcon: Icon(Icons.phone_outlined, color: colors.brandOrange),
-                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide.none),
+                  prefixIcon:
+                      Icon(Icons.phone_outlined, color: colors.brandOrange),
+                  border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                      borderSide: BorderSide.none),
                 ),
                 validator: (val) {
                   if (val == null || val.trim().isEmpty) {
@@ -195,13 +207,17 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
                   labelStyle: TextStyle(color: colors.secondaryText),
                   filled: true,
                   fillColor: colors.card,
-                  prefixIcon: Icon(Icons.email_outlined, color: colors.brandOrange),
-                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide.none),
+                  prefixIcon:
+                      Icon(Icons.email_outlined, color: colors.brandOrange),
+                  border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                      borderSide: BorderSide.none),
                 ),
                 validator: (val) {
                   if (val != null && val.trim().isNotEmpty) {
                     final trimmed = val.trim();
-                    if (!RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$').hasMatch(trimmed)) {
+                    if (!RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$')
+                        .hasMatch(trimmed)) {
                       return 'Enter a valid email address';
                     }
                   }
@@ -217,14 +233,18 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
                 child: ElevatedButton(
                   style: ElevatedButton.styleFrom(
                     backgroundColor: colors.brandOrange,
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                    shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12)),
                   ),
                   onPressed: _isSaving ? null : _saveProfile,
                   child: _isSaving
                       ? const CircularProgressIndicator(color: Colors.white)
                       : const Text(
                           'Save Changes',
-                          style: TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold),
+                          style: TextStyle(
+                              color: Colors.white,
+                              fontSize: 16,
+                              fontWeight: FontWeight.bold),
                         ),
                 ),
               ),

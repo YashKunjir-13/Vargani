@@ -31,7 +31,8 @@ class NotificationCenterScreen extends StatefulWidget {
   });
 
   @override
-  State<NotificationCenterScreen> createState() => _NotificationCenterScreenState();
+  State<NotificationCenterScreen> createState() =>
+      _NotificationCenterScreenState();
 }
 
 class _NotificationCenterScreenState extends State<NotificationCenterScreen> {
@@ -58,13 +59,18 @@ class _NotificationCenterScreenState extends State<NotificationCenterScreen> {
             const Text('Notifications'),
             Text(
               '${widget.summary.unreadCount} unread',
-              style: textTheme.labelMedium?.copyWith(color: colorScheme.onSurfaceVariant),
+              style: textTheme.labelMedium
+                  ?.copyWith(color: colorScheme.onSurfaceVariant),
             ),
           ],
         ),
         actions: [
-          IconButton(onPressed: widget.onOpenFilters, icon: const Icon(Icons.filter_list)),
-          IconButton(onPressed: widget.onOpenSettings, icon: const Icon(Icons.settings_outlined)),
+          IconButton(
+              onPressed: widget.onOpenFilters,
+              icon: const Icon(Icons.filter_list)),
+          IconButton(
+              onPressed: widget.onOpenSettings,
+              icon: const Icon(Icons.settings_outlined)),
         ],
       ),
       body: Stack(
@@ -74,7 +80,10 @@ class _NotificationCenterScreenState extends State<NotificationCenterScreen> {
             children: [
               Row(
                 children: [
-                  Expanded(child: _SummaryTile(value: '${widget.summary.unreadCount}', label: 'Unread')),
+                  Expanded(
+                      child: _SummaryTile(
+                          value: '${widget.summary.unreadCount}',
+                          label: 'Unread')),
                   Expanded(
                     child: _SummaryTile(
                       value: '${widget.summary.criticalCount}',
@@ -82,8 +91,14 @@ class _NotificationCenterScreenState extends State<NotificationCenterScreen> {
                       valueColor: colorScheme.error,
                     ),
                   ),
-                  Expanded(child: _SummaryTile(value: '${widget.summary.approvalsCount}', label: 'Approvals')),
-                  Expanded(child: _SummaryTile(value: '${widget.summary.paymentsDueCount}', label: 'Payments Due')),
+                  Expanded(
+                      child: _SummaryTile(
+                          value: '${widget.summary.approvalsCount}',
+                          label: 'Approvals')),
+                  Expanded(
+                      child: _SummaryTile(
+                          value: '${widget.summary.paymentsDueCount}',
+                          label: 'Payments Due')),
                 ],
               ),
               if (widget.priorityAlertTitle != null) ...[
@@ -115,14 +130,21 @@ class _NotificationCenterScreenState extends State<NotificationCenterScreen> {
                     description: item.description,
                     isUnread: item.isUnread,
                     primaryActionLabel: item.primaryActionLabel,
-                    onPrimaryAction: widget.onPrimaryAction == null ? null : () => widget.onPrimaryAction!(item.id),
+                    onPrimaryAction: widget.onPrimaryAction == null
+                        ? null
+                        : () => widget.onPrimaryAction!(item.id),
                     secondaryActionLabel: item.secondaryActionLabel,
                     onSecondaryAction: () {},
-                    onSelectedChanged: _selectionMode ? (checked) => _toggleSelection(item.id, checked) : null,
+                    onSelectedChanged: _selectionMode
+                        ? (checked) => _toggleSelection(item.id, checked)
+                        : null,
                     isSelected: _selected.contains(item.id),
                     onTap: _selectionMode
-                        ? () => _toggleSelection(item.id, !_selected.contains(item.id))
-                        : (widget.onOpenItem == null ? null : () => widget.onOpenItem!(item)),
+                        ? () => _toggleSelection(
+                            item.id, !_selected.contains(item.id))
+                        : (widget.onOpenItem == null
+                            ? null
+                            : () => widget.onOpenItem!(item)),
                   ),
                 const SizedBox(height: 8),
               ],
@@ -136,8 +158,12 @@ class _NotificationCenterScreenState extends State<NotificationCenterScreen> {
               child: BulkActionBar(
                 selectedCount: _selected.length,
                 actions: [
-                  BulkAction(label: 'Mark Read', onPressed: () => setState(_selected.clear)),
-                  BulkAction(label: 'Archive', onPressed: () => setState(_selected.clear)),
+                  BulkAction(
+                      label: 'Mark Read',
+                      onPressed: () => setState(_selected.clear)),
+                  BulkAction(
+                      label: 'Archive',
+                      onPressed: () => setState(_selected.clear)),
                 ],
                 onCancel: () => setState(_selected.clear),
               ),
@@ -163,7 +189,8 @@ class _SummaryTile extends StatelessWidget {
   final String label;
   final Color? valueColor;
 
-  const _SummaryTile({required this.value, required this.label, this.valueColor});
+  const _SummaryTile(
+      {required this.value, required this.label, this.valueColor});
 
   @override
   Widget build(BuildContext context) {
@@ -179,7 +206,9 @@ class _SummaryTile extends StatelessWidget {
             fontFeatures: const [FontFeature.tabularFigures()],
           ),
         ),
-        Text(label, style: textTheme.labelSmall?.copyWith(color: colorScheme.onSurfaceVariant)),
+        Text(label,
+            style: textTheme.labelSmall
+                ?.copyWith(color: colorScheme.onSurfaceVariant)),
       ],
     );
   }

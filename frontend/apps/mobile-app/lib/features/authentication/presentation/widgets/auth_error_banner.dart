@@ -14,9 +14,11 @@ class AuthErrorBanner extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    final background = isDark ? const Color(0xFF3A1F1F) : const Color(0xFFFDECEC);
+    final background =
+        isDark ? const Color(0xFF3A1F1F) : const Color(0xFFFDECEC);
     final border = isDark ? const Color(0xFF6B3232) : const Color(0xFFF5C2C2);
-    final foreground = isDark ? const Color(0xFFFFB4B4) : const Color(0xFFB3261E);
+    final foreground =
+        isDark ? const Color(0xFFFFB4B4) : const Color(0xFFB3261E);
 
     return Container(
       width: double.infinity,
@@ -33,7 +35,8 @@ class AuthErrorBanner extends StatelessWidget {
           Icon(Icons.error_outline, color: foreground, size: 20),
           const SizedBox(width: 10),
           Expanded(
-            child: Text(message, style: TextStyle(color: foreground, fontSize: 14, height: 1.3)),
+            child: Text(message,
+                style: TextStyle(color: foreground, fontSize: 14, height: 1.3)),
           ),
           if (onRetry != null) ...[
             const SizedBox(width: 8),

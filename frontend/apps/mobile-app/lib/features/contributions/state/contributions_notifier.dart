@@ -6,7 +6,8 @@ import '../data/contributions_mock_data.dart';
 import '../data/contributions_remote_datasource.dart';
 import '../models/contribution.dart';
 
-final contributionsRemoteDataSourceProvider = Provider<ContributionsRemoteDataSource>((ref) {
+final contributionsRemoteDataSourceProvider =
+    Provider<ContributionsRemoteDataSource>((ref) {
   final dio = ref.watch(dioProvider);
   return ContributionsRemoteDataSource(dio);
 });
@@ -112,7 +113,8 @@ class ContributionsNotifier extends Notifier<List<Contribution>> {
         certificatePhotoUrl: certificatePhotoUrl,
       );
       state = [
-        for (final c in state) if (c.id == localId) created else c,
+        for (final c in state)
+          if (c.id == localId) created else c,
       ];
       await fetchRemote();
     } catch (_) {}
@@ -177,12 +179,17 @@ class ContributionsNotifier extends Notifier<List<Contribution>> {
         estimatedValue: estimatedValue,
         certificatePhotoUrl: certificatePhotoUrl,
       );
-      state = [for (final c in state) if (c.id == id) updated else c];
+      state = [
+        for (final c in state)
+          if (c.id == id) updated else c
+      ];
     } catch (_) {}
   }
 
   void delete(String id) {
-    state = state.where((c) => !(c.id == id && c.status == ContributionStatus.recorded)).toList();
+    state = state
+        .where((c) => !(c.id == id && c.status == ContributionStatus.recorded))
+        .toList();
     _deleteRemote(id);
   }
 
@@ -194,5 +201,6 @@ class ContributionsNotifier extends Notifier<List<Contribution>> {
   }
 }
 
-final contributionsProvider = NotifierProvider<ContributionsNotifier, List<Contribution>>(ContributionsNotifier.new);
-
+final contributionsProvider =
+    NotifierProvider<ContributionsNotifier, List<Contribution>>(
+        ContributionsNotifier.new);

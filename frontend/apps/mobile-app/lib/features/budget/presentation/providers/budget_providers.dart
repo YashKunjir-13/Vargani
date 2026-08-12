@@ -1,4 +1,3 @@
-
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../rbac/presentation/providers/mock_rbac_provider.dart';
 import '../../models/budget_models.dart';
@@ -30,7 +29,8 @@ final budgetProvider = NotifierProvider<BudgetNotifier, MockBudget?>(
   BudgetNotifier.new,
 );
 
-final budgetRevisionsProvider = Provider.family<List<MockBudgetRevision>, String>((ref, budgetId) {
+final budgetRevisionsProvider =
+    Provider.family<List<MockBudgetRevision>, String>((ref, budgetId) {
   final rbacState = ref.watch(mockRbacProvider);
   if (!rbacState.hasPermission('expenses.create')) {
     return [];
@@ -40,7 +40,8 @@ final budgetRevisionsProvider = Provider.family<List<MockBudgetRevision>, String
   return ref.read(mockBudgetRepositoryProvider).getRevisions(budgetId);
 });
 
-final linkedExpensesProvider = Provider.family<List<MockLinkedExpense>, String>((ref, categoryId) {
+final linkedExpensesProvider =
+    Provider.family<List<MockLinkedExpense>, String>((ref, categoryId) {
   final rbacState = ref.watch(mockRbacProvider);
   if (!rbacState.hasPermission('expenses.create')) {
     return [];
@@ -86,7 +87,9 @@ class BudgetActions {
       timestamp: DateTime.now(),
     );
 
-    ref.read(mockBudgetRepositoryProvider).addRevisionComment(revisionId, comment);
+    ref
+        .read(mockBudgetRepositoryProvider)
+        .addRevisionComment(revisionId, comment);
     ref.read(budgetProvider.notifier).refresh();
   }
 }

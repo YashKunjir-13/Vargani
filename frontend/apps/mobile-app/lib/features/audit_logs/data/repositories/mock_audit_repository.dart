@@ -1,4 +1,4 @@
-import '../../../../shared/ui_kit/chips/severity_badge.dart';
+
 import '../../models/audit_models.dart';
 import 'audit_repository.dart';
 
@@ -6,11 +6,14 @@ class MockAuditRepository implements AuditRepository {
   static final List<MockAuditEvent> _logs = [];
 
   @override
-  Future<List<MockAuditEvent>> getAuditLogs({AuditFilterParameters? filters}) async {
+  Future<List<MockAuditEvent>> getAuditLogs(
+      {AuditFilterParameters? filters}) async {
     if (filters == null) return _logs;
 
     return _logs.where((event) {
-      if (filters.module != null && filters.module!.isNotEmpty && !event.moduleLabel.contains(filters.module!)) {
+      if (filters.module != null &&
+          filters.module!.isNotEmpty &&
+          !event.moduleLabel.contains(filters.module!)) {
         return false;
       }
       if (filters.severity != null && event.severity != filters.severity) {

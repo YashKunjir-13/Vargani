@@ -56,7 +56,12 @@ class BillsNotifier extends Notifier<List<Bill>> {
     state = [bill, ...state];
 
     // Fire & forget async sync to remote API if available
-    _createRemote(receiverName: receiverName, contact: contact, amount: amount, taskOrField: taskOrField, localId: bill.id);
+    _createRemote(
+        receiverName: receiverName,
+        contact: contact,
+        amount: amount,
+        taskOrField: taskOrField,
+        localId: bill.id);
 
     return bill;
   }
@@ -77,34 +82,45 @@ class BillsNotifier extends Notifier<List<Bill>> {
         taskOrField: taskOrField,
       );
       state = [
-        for (final b in state) if (b.id == localId) created else b,
+        for (final b in state)
+          if (b.id == localId) created else b,
       ];
       await fetchRemote();
     } catch (_) {}
   }
 
-  void update(String id, {double? amount, String? receiverName, String? taskOrField}) {
+  void update(String id,
+      {double? amount, String? receiverName, String? taskOrField}) {
     state = [
       for (final b in state)
         if (b.id == id && b.status == BillStatus.draft)
-          b.copyWith(amount: amount, receiverName: receiverName, taskOrField: taskOrField)
+          b.copyWith(
+              amount: amount,
+              receiverName: receiverName,
+              taskOrField: taskOrField)
         else
           b,
     ];
-    _updateRemote(id, amount: amount, receiverName: receiverName, taskOrField: taskOrField);
+    _updateRemote(id,
+        amount: amount, receiverName: receiverName, taskOrField: taskOrField);
   }
 
-  Future<void> _updateRemote(String id, {double? amount, String? receiverName, String? taskOrField}) async {
+  Future<void> _updateRemote(String id,
+      {double? amount, String? receiverName, String? taskOrField}) async {
     final remote = ref.read(billsRemoteDataSourceProvider);
     try {
-      await remote.updateBill(id, amount: amount, receiverName: receiverName, taskOrField: taskOrField);
+      await remote.updateBill(id,
+          amount: amount, receiverName: receiverName, taskOrField: taskOrField);
     } catch (_) {}
   }
 
   void submit(String id) {
     state = [
       for (final b in state)
-        if (b.id == id && b.status == BillStatus.draft) b.copyWith(status: BillStatus.pendingApproval) else b,
+        if (b.id == id && b.status == BillStatus.draft)
+          b.copyWith(status: BillStatus.pendingApproval)
+        else
+          b,
     ];
     _submitRemote(id);
   }
@@ -113,20 +129,28 @@ class BillsNotifier extends Notifier<List<Bill>> {
     final remote = ref.read(billsRemoteDataSourceProvider);
     try {
       final updated = await remote.submitBill(id);
-      state = [for (final b in state) if (b.id == id) updated else b];
+      state = [
+        for (final b in state)
+          if (b.id == id) updated else b
+      ];
     } catch (_) {}
   }
 
   /// Throws SelfApprovalException if approvedBy == the bill's own creator,
   /// even though the Treasurer role holds both bill.create and bill.approve.
   void approve(String id, {required String approvedBy}) {
-    final bill = state.firstWhere((b) => b.id == id, orElse: () => throw Exception('Bill not found'));
+    final bill = state.firstWhere((b) => b.id == id,
+        orElse: () => throw Exception('Bill not found'));
     if (bill.createdBy == approvedBy) {
-      throw const SelfApprovalException('A bill cannot be approved by the same user who created/submitted it');
+      throw const SelfApprovalException(
+          'A bill cannot be approved by the same user who created/submitted it');
     }
     state = [
       for (final b in state)
-        if (b.id == id && b.status == BillStatus.pendingApproval) b.copyWith(status: BillStatus.approved, approvedBy: approvedBy) else b,
+        if (b.id == id && b.status == BillStatus.pendingApproval)
+          b.copyWith(status: BillStatus.approved, approvedBy: approvedBy)
+        else
+          b,
     ];
     _approveRemote(id, approvedBy: approvedBy);
   }
@@ -135,10 +159,14 @@ class BillsNotifier extends Notifier<List<Bill>> {
     final remote = ref.read(billsRemoteDataSourceProvider);
     try {
       final updated = await remote.approveBill(id);
-      state = [for (final b in state) if (b.id == id) updated else b];
+      state = [
+        for (final b in state)
+          if (b.id == id) updated else b
+      ];
     } on DioException catch (e) {
       if (e.response?.statusCode == 403) {
-        throw SelfApprovalException(e.response?.data['message']?.toString() ?? 'A bill cannot be approved by the same user who created/submitted it');
+        throw SelfApprovalException(e.response?.data['message']?.toString() ??
+            'A bill cannot be approved by the same user who created/submitted it');
       }
     } catch (_) {}
   }
@@ -158,30 +186,43 @@ class BillsNotifier extends Notifier<List<Bill>> {
     final remote = ref.read(billsRemoteDataSourceProvider);
     try {
       final updated = await remote.rejectBill(id, reason: reason);
-      state = [for (final b in state) if (b.id == id) updated else b];
+      state = [
+        for (final b in state)
+          if (b.id == id) updated else b
+      ];
     } catch (_) {}
   }
 
   void markPaid(String id, {required BillPaymentMode paymentMode}) {
     state = [
       for (final b in state)
-        if (b.id == id && b.status == BillStatus.approved) b.copyWith(status: BillStatus.paid, paymentMode: paymentMode) else b,
+        if (b.id == id && b.status == BillStatus.approved)
+          b.copyWith(status: BillStatus.paid, paymentMode: paymentMode)
+        else
+          b,
     ];
     _markPaidRemote(id, paymentMode: paymentMode);
   }
 
-  Future<void> _markPaidRemote(String id, {required BillPaymentMode paymentMode}) async {
+  Future<void> _markPaidRemote(String id,
+      {required BillPaymentMode paymentMode}) async {
     final remote = ref.read(billsRemoteDataSourceProvider);
     try {
       final updated = await remote.markPaidBill(id, paymentMode: paymentMode);
-      state = [for (final b in state) if (b.id == id) updated else b];
+      state = [
+        for (final b in state)
+          if (b.id == id) updated else b
+      ];
     } catch (_) {}
   }
 
   void cancel(String id, {required String reason}) {
     state = [
       for (final b in state)
-        if (b.id == id && b.status != BillStatus.cancelled) b.copyWith(status: BillStatus.cancelled, cancelReason: reason) else b,
+        if (b.id == id && b.status != BillStatus.cancelled)
+          b.copyWith(status: BillStatus.cancelled, cancelReason: reason)
+        else
+          b,
     ];
     _cancelRemote(id, reason: reason);
   }
@@ -190,10 +231,13 @@ class BillsNotifier extends Notifier<List<Bill>> {
     final remote = ref.read(billsRemoteDataSourceProvider);
     try {
       final updated = await remote.cancelBill(id, reason: reason);
-      state = [for (final b in state) if (b.id == id) updated else b];
+      state = [
+        for (final b in state)
+          if (b.id == id) updated else b
+      ];
     } catch (_) {}
   }
 }
 
-final billsProvider = NotifierProvider<BillsNotifier, List<Bill>>(BillsNotifier.new);
-
+final billsProvider =
+    NotifierProvider<BillsNotifier, List<Bill>>(BillsNotifier.new);

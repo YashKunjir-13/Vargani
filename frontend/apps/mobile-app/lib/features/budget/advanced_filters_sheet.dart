@@ -11,7 +11,8 @@ class BudgetFiltersSheet extends StatefulWidget {
   const BudgetFiltersSheet({super.key});
 
   static Future<void> show(BuildContext context) {
-    return AppBottomSheet.show<void>(context, builder: (_) => const BudgetFiltersSheet());
+    return AppBottomSheet.show<void>(context,
+        builder: (_) => const BudgetFiltersSheet());
   }
 
   @override
@@ -36,8 +37,10 @@ class _BudgetFiltersSheetState extends State<BudgetFiltersSheet> {
         child: const Text('Reset'),
       ),
       actions: [
-        SecondaryButton(label: 'Clear all', onPressed: () => Navigator.of(context).pop()),
-        PrimaryButton(label: 'Apply (3)', onPressed: () => Navigator.of(context).pop()),
+        SecondaryButton(
+            label: 'Clear all', onPressed: () => Navigator.of(context).pop()),
+        PrimaryButton(
+            label: 'Apply (3)', onPressed: () => Navigator.of(context).pop()),
       ],
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -62,7 +65,12 @@ class _BudgetFiltersSheetState extends State<BudgetFiltersSheet> {
             child: Wrap(
               spacing: 8,
               children: [
-                for (final health in ['Over Budget', 'Warning', 'Healthy', 'Under-utilized'])
+                for (final health in [
+                  'Over Budget',
+                  'Warning',
+                  'Healthy',
+                  'Under-utilized'
+                ])
                   ChoiceChip(
                     label: Text(health),
                     selected: _health == health,
@@ -73,13 +81,15 @@ class _BudgetFiltersSheetState extends State<BudgetFiltersSheet> {
           ),
           const SizedBox(height: 20),
           _FilterGroup(
-            label: 'Utilization % — ${_utilization.start.round()} to ${_utilization.end.round()}',
+            label:
+                'Utilization % — ${_utilization.start.round()} to ${_utilization.end.round()}',
             child: RangeSlider(
               values: _utilization,
               min: 0,
               max: 150,
               divisions: 30,
-              labels: RangeLabels('${_utilization.start.round()}', '${_utilization.end.round()}'),
+              labels: RangeLabels('${_utilization.start.round()}',
+                  '${_utilization.end.round()}'),
               onChanged: (values) => setState(() => _utilization = values),
             ),
           ),
@@ -103,7 +113,10 @@ class _FilterGroup extends StatelessWidget {
       children: [
         Text(
           label.toUpperCase(),
-          style: Theme.of(context).textTheme.labelMedium?.copyWith(color: colorScheme.onSurfaceVariant),
+          style: Theme.of(context)
+              .textTheme
+              .labelMedium
+              ?.copyWith(color: colorScheme.onSurfaceVariant),
         ),
         const SizedBox(height: 8),
         child,

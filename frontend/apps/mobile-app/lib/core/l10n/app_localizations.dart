@@ -20,7 +20,8 @@ class AppLanguageNotifier extends Notifier<AppLanguage> {
   }
 }
 
-final appLanguageProvider = NotifierProvider<AppLanguageNotifier, AppLanguage>(AppLanguageNotifier.new);
+final appLanguageProvider =
+    NotifierProvider<AppLanguageNotifier, AppLanguage>(AppLanguageNotifier.new);
 
 /// Centralized localization strings for Pauti Pustak.
 class L10n {
@@ -131,7 +132,9 @@ class L10n {
 
   static String tr(WidgetRef ref, String key) {
     final lang = ref.watch(appLanguageProvider);
-    return _translations[lang]?[key] ?? _translations[AppLanguage.english]?[key] ?? key;
+    return _translations[lang]?[key] ??
+        _translations[AppLanguage.english]?[key] ??
+        key;
   }
 
   static String trContext(BuildContext context, WidgetRef ref, String key) {

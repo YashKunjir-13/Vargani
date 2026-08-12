@@ -3,7 +3,8 @@ import '../../data/models/milestone_model.dart';
 import '../../data/repositories/mock_milestone_repository.dart';
 import '../../../rbac/presentation/providers/mock_rbac_provider.dart';
 
-final mockMilestoneRepositoryProvider = Provider<MockMilestoneRepository>((ref) {
+final mockMilestoneRepositoryProvider =
+    Provider<MockMilestoneRepository>((ref) {
   return MockMilestoneRepository();
 });
 
@@ -36,7 +37,9 @@ class MilestoneListNotifier extends Notifier<List<MockMilestone>> {
         // Condition 1: Milestone itself is assigned to the user
         if (m.assignedToUserId == activeUserId) return true;
         // Condition 2: At least one work item is assigned to the user
-        if (m.workItems.any((w) => w.assignedToUserId == activeUserId)) return true;
+        if (m.workItems.any((w) => w.assignedToUserId == activeUserId)) {
+          return true;
+        }
 
         return false;
       }).toList();
@@ -65,6 +68,7 @@ class MilestoneListNotifier extends Notifier<List<MockMilestone>> {
   }
 }
 
-final milestoneListProvider = NotifierProvider<MilestoneListNotifier, List<MockMilestone>>(
+final milestoneListProvider =
+    NotifierProvider<MilestoneListNotifier, List<MockMilestone>>(
   MilestoneListNotifier.new,
 );

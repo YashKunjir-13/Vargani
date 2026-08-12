@@ -9,9 +9,11 @@ import 'package:pauti_pustak_mobile/l10n/app_localizations.dart';
 
 class DummyTestHttpAdapter implements HttpClientAdapter {
   @override
-  Future<ResponseBody> fetch(RequestOptions options, Stream<Uint8List>? requestStream, Future<void>? cancelFuture) {
+  Future<ResponseBody> fetch(RequestOptions options,
+      Stream<Uint8List>? requestStream, Future<void>? cancelFuture) {
     return Future.value(ResponseBody(
-      Stream.value(Uint8List.fromList('{"statusCode": 200, "data": {}}'.codeUnits)),
+      Stream.value(
+          Uint8List.fromList('{"statusCode": 200, "data": {}}'.codeUnits)),
       200,
       headers: {
         Headers.contentTypeHeader: [Headers.jsonContentType],

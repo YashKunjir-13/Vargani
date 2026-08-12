@@ -17,7 +17,8 @@ class SponsorshipDetailScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final sponsorshipAsync = ref.watch(sponsorshipDetailProvider(sponsorshipId));
+    final sponsorshipAsync =
+        ref.watch(sponsorshipDetailProvider(sponsorshipId));
     final role = ref.watch(roleProvider);
     final textTheme = Theme.of(context).textTheme;
 
@@ -105,14 +106,16 @@ class SponsorshipDetailScreen extends ConsumerWidget {
                     Expanded(
                       child: AppSummaryStatCard(
                         label: 'Pledged Amount',
-                        value: formatPaiseAsRupees(sponsorship.pledgedAmountPaise),
+                        value:
+                            formatPaiseAsRupees(sponsorship.pledgedAmountPaise),
                       ),
                     ),
                     const SizedBox(width: AppSpacing.space8),
                     Expanded(
                       child: AppSummaryStatCard(
                         label: 'Confirmed Amount',
-                        value: formatPaiseAsRupees(sponsorship.confirmedAmountPaise),
+                        value: formatPaiseAsRupees(
+                            sponsorship.confirmedAmountPaise),
                         valueColor: sponsorship.confirmedAmountPaise > 0
                             ? (Theme.of(context).brightness == Brightness.dark
                                 ? AppColors.darkSuccess
@@ -131,11 +134,13 @@ class SponsorshipDetailScreen extends ConsumerWidget {
                       UserRole.treasurer,
                     ],
                     child: Padding(
-                      padding: const EdgeInsets.only(bottom: AppSpacing.space16),
+                      padding:
+                          const EdgeInsets.only(bottom: AppSpacing.space16),
                       child: AppButton(
                         label: 'Mark as Confirmed',
                         icon: Icons.check_circle_outline,
-                        onPressed: () => _confirmSponsorship(context, ref, sponsorship),
+                        onPressed: () =>
+                            _confirmSponsorship(context, ref, sponsorship),
                       ),
                     ),
                   ),

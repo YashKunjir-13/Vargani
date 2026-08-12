@@ -59,8 +59,8 @@ class AdvertisementListScreen extends ConsumerWidget {
                         advertisement: ad,
                         onTap: () => Navigator.of(context).push(
                           MaterialPageRoute(
-                            builder: (_) =>
-                                AdvertisementDetailScreen(advertisementId: ad.id),
+                            builder: (_) => AdvertisementDetailScreen(
+                                advertisementId: ad.id),
                           ),
                         ),
                       ),

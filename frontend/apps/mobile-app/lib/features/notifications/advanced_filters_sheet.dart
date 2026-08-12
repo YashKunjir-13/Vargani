@@ -11,11 +11,13 @@ class NotificationFiltersSheet extends StatefulWidget {
   const NotificationFiltersSheet({super.key});
 
   static Future<void> show(BuildContext context) {
-    return AppBottomSheet.show<void>(context, builder: (_) => const NotificationFiltersSheet());
+    return AppBottomSheet.show<void>(context,
+        builder: (_) => const NotificationFiltersSheet());
   }
 
   @override
-  State<NotificationFiltersSheet> createState() => _NotificationFiltersSheetState();
+  State<NotificationFiltersSheet> createState() =>
+      _NotificationFiltersSheetState();
 }
 
 class _NotificationFiltersSheetState extends State<NotificationFiltersSheet> {
@@ -44,13 +46,18 @@ class _NotificationFiltersSheetState extends State<NotificationFiltersSheet> {
         child: const Text('Reset'),
       ),
       actions: [
-        SecondaryButton(label: 'Clear all', onPressed: () => Navigator.of(context).pop()),
-        PrimaryButton(label: 'Apply (4)', onPressed: () => Navigator.of(context).pop()),
+        SecondaryButton(
+            label: 'Clear all', onPressed: () => Navigator.of(context).pop()),
+        PrimaryButton(
+            label: 'Apply (4)', onPressed: () => Navigator.of(context).pop()),
       ],
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          _MultiChipGroup(label: 'Read status', options: const ['Unread', 'Read'], selected: _readStatus),
+          _MultiChipGroup(
+              label: 'Read status',
+              options: const ['Unread', 'Read'],
+              selected: _readStatus),
           const SizedBox(height: 20),
           _MultiChipGroup(
             label: 'Priority',
@@ -60,7 +67,14 @@ class _NotificationFiltersSheetState extends State<NotificationFiltersSheet> {
           const SizedBox(height: 20),
           _MultiChipGroup(
             label: 'Category',
-            options: const ['Financial', 'Budget', 'Audit', 'Receipts', 'Vendors', 'Milestones'],
+            options: const [
+              'Financial',
+              'Budget',
+              'Audit',
+              'Receipts',
+              'Vendors',
+              'Milestones'
+            ],
             selected: _categories,
           ),
           const SizedBox(height: 20),
@@ -69,7 +83,13 @@ class _NotificationFiltersSheetState extends State<NotificationFiltersSheet> {
             child: Wrap(
               spacing: 8,
               children: [
-                for (final range in ['Today', 'Yesterday', 'Last 7 Days', 'Last 30 Days', 'Custom'])
+                for (final range in [
+                  'Today',
+                  'Yesterday',
+                  'Last 7 Days',
+                  'Last 30 Days',
+                  'Custom'
+                ])
                   ChoiceChip(
                     label: Text(range),
                     selected: _dateRange == range,
@@ -89,7 +109,8 @@ class _MultiChipGroup extends StatefulWidget {
   final List<String> options;
   final Set<String> selected;
 
-  const _MultiChipGroup({required this.label, required this.options, required this.selected});
+  const _MultiChipGroup(
+      {required this.label, required this.options, required this.selected});
 
   @override
   State<_MultiChipGroup> createState() => _MultiChipGroupState();
@@ -135,7 +156,10 @@ class _FilterGroup extends StatelessWidget {
       children: [
         Text(
           label.toUpperCase(),
-          style: Theme.of(context).textTheme.labelMedium?.copyWith(color: colorScheme.onSurfaceVariant),
+          style: Theme.of(context)
+              .textTheme
+              .labelMedium
+              ?.copyWith(color: colorScheme.onSurfaceVariant),
         ),
         const SizedBox(height: 8),
         child,

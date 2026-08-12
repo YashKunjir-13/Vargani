@@ -4,7 +4,8 @@ import '../data/advertisement_repository.dart';
 import '../data/mock_advertisement_repository.dart';
 import '../models/advertisement.dart';
 
-final advertisementRepositoryProvider = Provider<AdvertisementRepository>((ref) {
+final advertisementRepositoryProvider =
+    Provider<AdvertisementRepository>((ref) {
   return MockAdvertisementRepository();
 });
 

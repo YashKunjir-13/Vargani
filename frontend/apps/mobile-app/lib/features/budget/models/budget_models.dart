@@ -1,5 +1,3 @@
-
-
 /// Represents a category-wise allocation in the budget.
 class MockBudgetCategory {
   final String id;
@@ -73,8 +71,10 @@ class MockBudget {
     required this.ownerUserName,
   });
 
-  int get totalAllocatedPaise => categories.fold(0, (sum, cat) => sum + cat.allocatedPaise);
-  int get totalUtilizedPaise => categories.fold(0, (sum, cat) => sum + cat.utilizedPaise);
+  int get totalAllocatedPaise =>
+      categories.fold(0, (sum, cat) => sum + cat.allocatedPaise);
+  int get totalUtilizedPaise =>
+      categories.fold(0, (sum, cat) => sum + cat.utilizedPaise);
   int get remainingPaise => totalBudgetPaise - totalAllocatedPaise;
 
   MockBudget copyWith({

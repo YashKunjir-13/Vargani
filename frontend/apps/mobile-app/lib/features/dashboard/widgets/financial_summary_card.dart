@@ -13,7 +13,8 @@ class FinancialSummaryCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final currency = NumberFormat.currency(locale: 'en_IN', symbol: '₹', decimalDigits: 0);
+    final currency =
+        NumberFormat.currency(locale: 'en_IN', symbol: '₹', decimalDigits: 0);
 
     return Container(
       width: double.infinity,
@@ -52,7 +53,8 @@ class FinancialSummaryCard extends StatelessWidget {
                   ),
                 ],
               ),
-              StatusChip(label: data.liveStatusLabel, type: StatusChipType.success),
+              StatusChip(
+                  label: data.liveStatusLabel, type: StatusChipType.success),
             ],
           ),
           const SizedBox(height: 20),

@@ -3,8 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:dio/dio.dart';
 
 class PdfDownloadUtils {
-  static Future<void> downloadReceiptPdf(
-      BuildContext context, Dio dio, String receiptId, String receiptNumber) async {
+  static Future<void> downloadReceiptPdf(BuildContext context, Dio dio,
+      String receiptId, String receiptNumber) async {
     try {
       if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(

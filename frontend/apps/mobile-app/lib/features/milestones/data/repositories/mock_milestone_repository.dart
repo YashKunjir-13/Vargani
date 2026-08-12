@@ -35,19 +35,26 @@ class MockMilestoneRepository {
     if (mIndex != -1) {
       final m = _milestones[mIndex];
       final newWorkItems = List<MockWorkItem>.from(m.workItems)..add(workItem);
-      _milestones[mIndex] = m.copyWith(workItems: newWorkItems, updatedAt: DateTime.now(), lastUpdatedAt: DateTime.now());
+      _milestones[mIndex] = m.copyWith(
+          workItems: newWorkItems,
+          updatedAt: DateTime.now(),
+          lastUpdatedAt: DateTime.now());
     }
   }
 
   void updateWorkItem(MockWorkItem updatedWorkItem) {
-    final mIndex = _milestones.indexWhere((m) => m.id == updatedWorkItem.milestoneId);
+    final mIndex =
+        _milestones.indexWhere((m) => m.id == updatedWorkItem.milestoneId);
     if (mIndex != -1) {
       final m = _milestones[mIndex];
       final wIndex = m.workItems.indexWhere((w) => w.id == updatedWorkItem.id);
       if (wIndex != -1) {
         final newWorkItems = List<MockWorkItem>.from(m.workItems);
         newWorkItems[wIndex] = updatedWorkItem;
-        _milestones[mIndex] = m.copyWith(workItems: newWorkItems, updatedAt: DateTime.now(), lastUpdatedAt: DateTime.now());
+        _milestones[mIndex] = m.copyWith(
+            workItems: newWorkItems,
+            updatedAt: DateTime.now(),
+            lastUpdatedAt: DateTime.now());
       }
     }
   }

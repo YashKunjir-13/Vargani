@@ -7,8 +7,6 @@ import 'auth_design_tokens.dart';
 import 'auth_error_banner.dart';
 import 'registration_widgets.dart';
 
-
-
 class OtpVerificationWidget extends StatefulWidget {
   const OtpVerificationWidget({
     super.key,
@@ -32,7 +30,8 @@ class OtpVerificationWidget extends StatefulWidget {
 }
 
 class _OtpVerificationWidgetState extends State<OtpVerificationWidget> {
-  final List<TextEditingController> _controllers = List.generate(6, (_) => TextEditingController());
+  final List<TextEditingController> _controllers =
+      List.generate(6, (_) => TextEditingController());
   final List<FocusNode> _focusNodes = List.generate(6, (_) => FocusNode());
   Timer? _timer;
   int _secondsRemaining = 60;
@@ -129,7 +128,8 @@ class _OtpVerificationWidgetState extends State<OtpVerificationWidget> {
             GestureDetector(
               onTap: () => _applyOtp(widget.debugOtp!),
               child: Container(
-                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
                 decoration: BoxDecoration(
                   color: colors.surfaceMuted,
                   borderRadius: BorderRadius.circular(10),
@@ -137,7 +137,8 @@ class _OtpVerificationWidgetState extends State<OtpVerificationWidget> {
                 ),
                 child: Row(
                   children: [
-                    Icon(Icons.developer_mode, size: 20, color: colors.brandOrange),
+                    Icon(Icons.developer_mode,
+                        size: 20, color: colors.brandOrange),
                     const SizedBox(width: 8),
                     Expanded(
                       child: Text(
@@ -166,7 +167,10 @@ class _OtpVerificationWidgetState extends State<OtpVerificationWidget> {
                   keyboardType: TextInputType.number,
                   textAlign: TextAlign.center,
                   maxLength: 1,
-                  style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: colors.text),
+                  style: TextStyle(
+                      fontSize: 20,
+                      fontWeight: FontWeight.bold,
+                      color: colors.text),
                   decoration: InputDecoration(
                     counterText: '',
                     contentPadding: const EdgeInsets.symmetric(vertical: 12),
@@ -176,7 +180,8 @@ class _OtpVerificationWidgetState extends State<OtpVerificationWidget> {
                     ),
                     focusedBorder: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(8),
-                      borderSide: BorderSide(color: colors.brandOrange, width: 2),
+                      borderSide:
+                          BorderSide(color: colors.brandOrange, width: 2),
                     ),
                   ),
                   onChanged: (val) => _onDigitChanged(index, val),
@@ -186,7 +191,9 @@ class _OtpVerificationWidgetState extends State<OtpVerificationWidget> {
           ),
           const SizedBox(height: 16),
           if (widget.errorMessage != null) ...[
-            AuthErrorBanner(message: widget.errorMessage!, onRetry: () => widget.onVerify(_otpCode)),
+            AuthErrorBanner(
+                message: widget.errorMessage!,
+                onRetry: () => widget.onVerify(_otpCode)),
             const SizedBox(height: 12),
           ],
           Row(
@@ -209,7 +216,9 @@ class _OtpVerificationWidgetState extends State<OtpVerificationWidget> {
                   l10n.resendOtp,
                   style: TextStyle(
                     fontWeight: FontWeight.bold,
-                    color: _canResend ? colors.brandOrange : colors.secondaryText.withValues(alpha: 0.5),
+                    color: _canResend
+                        ? colors.brandOrange
+                        : colors.secondaryText.withValues(alpha: 0.5),
                   ),
                 ),
               ),

@@ -27,12 +27,16 @@ class BillDetailScreen extends ConsumerWidget {
     final theme = Theme.of(context);
 
     final bill = bills.where((b) => b.id == billId).firstOrNull;
-    final currency = NumberFormat.currency(locale: 'en_IN', symbol: '₹', decimalDigits: 0);
+    final currency =
+        NumberFormat.currency(locale: 'en_IN', symbol: '₹', decimalDigits: 0);
     final dateFormat = DateFormat('d MMMM yyyy');
 
     if (bill == null) {
       return const Scaffold(
-        appBar: PautiAppBar(title: 'Bill Details', subtitle: 'Mandal Management', showBackButton: true),
+        appBar: PautiAppBar(
+            title: 'Bill Details',
+            subtitle: 'Mandal Management',
+            showBackButton: true),
         body: Center(child: Text('Bill not found')),
       );
     }
@@ -56,7 +60,8 @@ class BillDetailScreen extends ConsumerWidget {
                   children: [
                     Text(
                       bill.billNumber,
-                      style: theme.textTheme.bodySmall?.copyWith(fontWeight: FontWeight.bold),
+                      style: theme.textTheme.bodySmall
+                          ?.copyWith(fontWeight: FontWeight.bold),
                     ),
                     StatusChip(label: bill.status.label),
                   ],
@@ -72,7 +77,8 @@ class BillDetailScreen extends ConsumerWidget {
                 const SizedBox(height: 4),
                 Text(
                   bill.receiverName,
-                  style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
+                  style: theme.textTheme.titleMedium
+                      ?.copyWith(fontWeight: FontWeight.bold),
                 ),
                 Text(
                   'Task: ${bill.taskOrField}',
@@ -90,18 +96,38 @@ class BillDetailScreen extends ConsumerWidget {
               children: [
                 Text(
                   'Bill Specifications',
-                  style: theme.textTheme.titleSmall?.copyWith(fontWeight: FontWeight.bold),
+                  style: theme.textTheme.titleSmall
+                      ?.copyWith(fontWeight: FontWeight.bold),
                 ),
                 const Divider(height: 24),
-                _InfoRow(label: 'Receiver / Vendor', value: bill.receiverName + (bill.isRegisteredVendor ? ' (Registered)' : ' (Ad-hoc)')),
+                _InfoRow(
+                    label: 'Receiver / Vendor',
+                    value: bill.receiverName +
+                        (bill.isRegisteredVendor
+                            ? ' (Registered)'
+                            : ' (Ad-hoc)')),
                 _InfoRow(label: 'Expense Field', value: bill.taskOrField),
-                _InfoRow(label: 'Invoice Date', value: dateFormat.format(bill.date)),
-                if (bill.contact != null) _InfoRow(label: 'Contact', value: bill.contact!),
+                _InfoRow(
+                    label: 'Invoice Date', value: dateFormat.format(bill.date)),
+                if (bill.contact != null)
+                  _InfoRow(label: 'Contact', value: bill.contact!),
                 _InfoRow(label: 'Created By', value: bill.createdBy),
-                if (bill.approvedBy != null) _InfoRow(label: 'Approved By', value: bill.approvedBy!),
-                if (bill.paymentMode != null) _InfoRow(label: 'Disbursement Mode', value: bill.paymentMode!.label),
-                if (bill.rejectionReason != null) _InfoRow(label: 'Last Rejection', value: bill.rejectionReason!, isDanger: true),
-                if (bill.cancelReason != null) _InfoRow(label: 'Cancel Reason', value: bill.cancelReason!, isDanger: true),
+                if (bill.approvedBy != null)
+                  _InfoRow(label: 'Approved By', value: bill.approvedBy!),
+                if (bill.paymentMode != null)
+                  _InfoRow(
+                      label: 'Disbursement Mode',
+                      value: bill.paymentMode!.label),
+                if (bill.rejectionReason != null)
+                  _InfoRow(
+                      label: 'Last Rejection',
+                      value: bill.rejectionReason!,
+                      isDanger: true),
+                if (bill.cancelReason != null)
+                  _InfoRow(
+                      label: 'Cancel Reason',
+                      value: bill.cancelReason!,
+                      isDanger: true),
               ],
             ),
           ),
@@ -114,10 +140,12 @@ class BillDetailScreen extends ConsumerWidget {
     );
   }
 
-  List<Widget> _buildWorkflowActions(BuildContext context, WidgetRef ref, Bill bill, AppPermissions permissions) {
+  List<Widget> _buildWorkflowActions(BuildContext context, WidgetRef ref,
+      Bill bill, AppPermissions permissions) {
     final notifier = ref.read(billsProvider.notifier);
     final sessionUser = ref.watch(sessionControllerProvider).user;
-    final currentUserId = sessionUser?.id ?? sessionUser?.displayName ?? 'user-president-2';
+    final currentUserId =
+        sessionUser?.id ?? sessionUser?.displayName ?? 'user-president-2';
     final actions = <Widget>[];
 
     // 1. Submit for Approval (Collector / Auditor / Admin)
@@ -125,7 +153,8 @@ class BillDetailScreen extends ConsumerWidget {
       actions.add(
         PermissionGuard(
           hasPermission: permissions.canSubmitBill,
-          fallbackTooltip: 'Collector, Auditor or Admin role required to submit bill',
+          fallbackTooltip:
+              'Collector, Auditor or Admin role required to submit bill',
           child: AppButton(
             label: 'Submit Bill for Approval',
             icon: Icons.send_outlined,
@@ -143,7 +172,8 @@ class BillDetailScreen extends ConsumerWidget {
       actions.add(
         PermissionGuard(
           hasPermission: permissions.canApproveRejectBill,
-          fallbackTooltip: 'Auditor or Admin role required to approve/reject bills',
+          fallbackTooltip:
+              'Auditor or Admin role required to approve/reject bills',
           child: Column(
             children: [
               AppButton(
@@ -210,7 +240,9 @@ class BillDetailScreen extends ConsumerWidget {
 
   void _snack(BuildContext context, String message, {bool isError = false}) {
     ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text(message), backgroundColor: isError ? Colors.red.shade700 : null),
+      SnackBar(
+          content: Text(message),
+          backgroundColor: isError ? Colors.red.shade700 : null),
     );
   }
 
@@ -231,15 +263,19 @@ class BillDetailScreen extends ConsumerWidget {
           maxLines: 2,
         ),
         actions: [
-          TextButton(onPressed: () => context.pop(), child: const Text('Cancel')),
-          FilledButton(onPressed: () => context.pop(controller.text.trim()), child: const Text('Confirm')),
+          TextButton(
+              onPressed: () => context.pop(), child: const Text('Cancel')),
+          FilledButton(
+              onPressed: () => context.pop(controller.text.trim()),
+              child: const Text('Confirm')),
         ],
       ),
     );
     if (reason != null && reason.isNotEmpty) onSubmit(reason);
   }
 
-  Future<void> _showMarkPaidDialog(BuildContext context, BillsNotifier notifier, String billId) async {
+  Future<void> _showMarkPaidDialog(
+      BuildContext context, BillsNotifier notifier, String billId) async {
     final mode = await showDialog<BillPaymentMode>(
       context: context,
       builder: (context) => SimpleDialog(
@@ -249,7 +285,8 @@ class BillDetailScreen extends ConsumerWidget {
                   onPressed: () => context.pop(m),
                   child: Padding(
                     padding: const EdgeInsets.symmetric(vertical: 8),
-                    child: Text(m.label, style: const TextStyle(fontWeight: FontWeight.w600)),
+                    child: Text(m.label,
+                        style: const TextStyle(fontWeight: FontWeight.w600)),
                   ),
                 ))
             .toList(),

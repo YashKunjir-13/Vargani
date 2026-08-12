@@ -43,16 +43,20 @@ class IncomeVsExpenseCard extends StatelessWidget {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text(
-                'Income vs Expense',
-                style: TextStyle(
-                  color: colors.text,
-                  fontSize: 16,
-                  fontWeight: FontWeight.w900,
+              Expanded(
+                child: Text(
+                  'Income vs Expense',
+                  style: TextStyle(
+                    color: colors.text,
+                    fontSize: 16,
+                    fontWeight: FontWeight.w900,
+                  ),
                 ),
               ),
+              const SizedBox(width: 8),
               Container(
-                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                 decoration: BoxDecoration(
                   color: colors.surfaceMuted,
                   borderRadius: BorderRadius.circular(10),
@@ -89,10 +93,12 @@ class IncomeVsExpenseCard extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 18),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          Wrap(
+            alignment: WrapAlignment.spaceBetween,
+            runSpacing: 12,
             children: [
               Row(
+                mainAxisSize: MainAxisSize.min,
                 children: [
                   Container(
                     width: 12,
@@ -126,6 +132,7 @@ class IncomeVsExpenseCard extends StatelessWidget {
                 ],
               ),
               Row(
+                mainAxisSize: MainAxisSize.min,
                 children: [
                   Container(
                     width: 12,
@@ -219,7 +226,9 @@ class TopDonorsWidget extends StatelessWidget {
                           ? colors.gold
                           : (donor.rank == 2
                               ? const Color(0xFFC0C0C0)
-                              : (donor.rank == 3 ? const Color(0xFFCD7F32) : colors.surfaceMuted)),
+                              : (donor.rank == 3
+                                  ? const Color(0xFFCD7F32)
+                                  : colors.surfaceMuted)),
                       shape: BoxShape.circle,
                     ),
                     alignment: Alignment.center,
@@ -317,7 +326,8 @@ class BudgetUtilizationWidget extends StatelessWidget {
                       Text(
                         '${percentage.toStringAsFixed(0)}%',
                         style: TextStyle(
-                          color: percentage > 85 ? Colors.red : colors.brandOrange,
+                          color:
+                              percentage > 85 ? Colors.red : colors.brandOrange,
                           fontSize: 13,
                           fontWeight: FontWeight.w900,
                         ),

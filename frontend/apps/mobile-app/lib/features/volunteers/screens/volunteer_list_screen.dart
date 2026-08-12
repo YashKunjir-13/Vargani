@@ -55,7 +55,8 @@ class VolunteerListScreen extends ConsumerWidget {
                     items: [
                       DropdownMenuItem(
                         value: null,
-                        child: Text(context.allLabel, overflow: TextOverflow.ellipsis),
+                        child: Text(context.allLabel,
+                            overflow: TextOverflow.ellipsis),
                       ),
                       for (final status in VolunteerStatus.values)
                         DropdownMenuItem(
@@ -80,12 +81,14 @@ class VolunteerListScreen extends ConsumerWidget {
                     items: [
                       DropdownMenuItem(
                         value: null,
-                        child: Text(context.allLabel, overflow: TextOverflow.ellipsis),
+                        child: Text(context.allLabel,
+                            overflow: TextOverflow.ellipsis),
                       ),
                       for (final type in VolunteerType.values)
                         DropdownMenuItem(
                           value: type,
-                          child: Text(type.label, overflow: TextOverflow.ellipsis),
+                          child:
+                              Text(type.label, overflow: TextOverflow.ellipsis),
                         ),
                     ],
                     onChanged: (value) => ref
@@ -107,7 +110,8 @@ class VolunteerListScreen extends ConsumerWidget {
               child: AppButton(
                 label: context.l10n.addVolunteer,
                 onPressed: () => Navigator.of(context).push(
-                  MaterialPageRoute(builder: (_) => const VolunteerFormScreen()),
+                  MaterialPageRoute(
+                      builder: (_) => const VolunteerFormScreen()),
                 ),
               ),
             ),
@@ -127,9 +131,10 @@ class VolunteerListScreen extends ConsumerWidget {
                         const SizedBox(height: AppSpacing.space16),
                     itemBuilder: (context, index) {
                       final volunteer = volunteers[index];
-                      final canViewSensitive = role == UserRole.trustPresident ||
-                          role == UserRole.vicePresident ||
-                          role == UserRole.treasurer;
+                      final canViewSensitive =
+                          role == UserRole.trustPresident ||
+                              role == UserRole.vicePresident ||
+                              role == UserRole.treasurer;
                       return AppCard(
                         child: ListTile(
                           contentPadding: EdgeInsets.zero,
@@ -159,7 +164,8 @@ class VolunteerListScreen extends ConsumerWidget {
                                     type: volunteer.type,
                                     customTypeLabel: volunteer.customTypeLabel,
                                   ),
-                                  if (volunteer.currentAssignmentSummary != null)
+                                  if (volunteer.currentAssignmentSummary !=
+                                      null)
                                     Text(
                                       volunteer.currentAssignmentSummary!,
                                       style: textTheme.bodyMedium,
@@ -179,8 +185,8 @@ class VolunteerListScreen extends ConsumerWidget {
                           ),
                           onTap: () => Navigator.of(context).push(
                             MaterialPageRoute(
-                              builder: (_) =>
-                                  VolunteerDetailScreen(volunteerId: volunteer.id),
+                              builder: (_) => VolunteerDetailScreen(
+                                  volunteerId: volunteer.id),
                             ),
                           ),
                         ),
@@ -202,14 +208,26 @@ class VolunteerListScreen extends ConsumerWidget {
 
   String _statusLabel(VolunteerStatus status, String code) {
     return switch (status) {
-      VolunteerStatus.active =>
-        code == 'hi' ? 'सक्रिय' : code == 'mr' ? 'सक्रिय' : 'Active',
-      VolunteerStatus.draft =>
-        code == 'hi' ? 'ड्राफ्ट' : code == 'mr' ? 'मसुदा' : 'Draft',
-      VolunteerStatus.suspended =>
-        code == 'hi' ? 'निलंबित' : code == 'mr' ? 'निलंबित' : 'Suspended',
-      VolunteerStatus.inactive =>
-        code == 'hi' ? 'निष्क्रिय' : code == 'mr' ? 'निष्क्रिय' : 'Inactive',
+      VolunteerStatus.active => code == 'hi'
+          ? 'सक्रिय'
+          : code == 'mr'
+              ? 'सक्रिय'
+              : 'Active',
+      VolunteerStatus.draft => code == 'hi'
+          ? 'ड्राफ्ट'
+          : code == 'mr'
+              ? 'मसुदा'
+              : 'Draft',
+      VolunteerStatus.suspended => code == 'hi'
+          ? 'निलंबित'
+          : code == 'mr'
+              ? 'निलंबित'
+              : 'Suspended',
+      VolunteerStatus.inactive => code == 'hi'
+          ? 'निष्क्रिय'
+          : code == 'mr'
+              ? 'निष्क्रिय'
+              : 'Inactive',
     };
   }
 }

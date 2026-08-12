@@ -54,18 +54,21 @@ class BulkActionBar extends StatelessWidget {
           children: [
             Text(
               '$selectedCount selected',
-              style: textTheme.labelLarge?.copyWith(color: colorScheme.onInverseSurface),
+              style: textTheme.labelLarge
+                  ?.copyWith(color: colorScheme.onInverseSurface),
             ),
             for (final action in actions)
               TextButton(
                 onPressed: action.onPressed,
-                style: TextButton.styleFrom(foregroundColor: colorScheme.onInverseSurface),
+                style: TextButton.styleFrom(
+                    foregroundColor: colorScheme.onInverseSurface),
                 child: Text(action.label),
               ),
             if (onCancel != null)
               TextButton(
                 onPressed: onCancel,
-                style: TextButton.styleFrom(foregroundColor: colorScheme.onInverseSurface),
+                style: TextButton.styleFrom(
+                    foregroundColor: colorScheme.onInverseSurface),
                 child: const Text('Cancel'),
               ),
           ],

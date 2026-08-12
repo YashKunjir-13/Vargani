@@ -14,11 +14,12 @@ class MilestoneDetailsScreen extends ConsumerStatefulWidget {
   const MilestoneDetailsScreen({super.key, required this.milestone});
 
   @override
-  ConsumerState<MilestoneDetailsScreen> createState() => _MilestoneDetailsScreenState();
+  ConsumerState<MilestoneDetailsScreen> createState() =>
+      _MilestoneDetailsScreenState();
 }
 
-class _MilestoneDetailsScreenState extends ConsumerState<MilestoneDetailsScreen> {
-
+class _MilestoneDetailsScreenState
+    extends ConsumerState<MilestoneDetailsScreen> {
   @override
   Widget build(BuildContext context) {
     final colors = context.authColors;
@@ -27,15 +28,22 @@ class _MilestoneDetailsScreenState extends ConsumerState<MilestoneDetailsScreen>
     final allMilestones = ref.watch(milestoneListProvider);
 
     // Find the latest instance of this milestone from the provider
-    final currentMilestone = allMilestones.where((m) => m.id == widget.milestone.id).firstOrNull ?? widget.milestone;
+    final currentMilestone =
+        allMilestones.where((m) => m.id == widget.milestone.id).firstOrNull ??
+            widget.milestone;
 
     final canUpdate = rbacState.hasPermission('milestones.update');
-    final canUpdateAssigned = rbacState.hasPermission('milestones.update_assigned') &&
-                              (currentMilestone.assignedToUserName == rbacState.testingUserName || rbacState.activeRole == MockRole.volunteer);
+    final canUpdateAssigned =
+        rbacState.hasPermission('milestones.update_assigned') &&
+            (currentMilestone.assignedToUserName == rbacState.testingUserName ||
+                rbacState.activeRole == MockRole.volunteer);
 
-    final canEditMilestone = canUpdate || (canUpdateAssigned && currentMilestone.assignedToUserName == rbacState.testingUserName);
+    final canEditMilestone = canUpdate ||
+        (canUpdateAssigned &&
+            currentMilestone.assignedToUserName == rbacState.testingUserName);
 
-    final canManageFinancials = rbacState.hasPermission('milestones.manage_financials');
+    final canManageFinancials =
+        rbacState.hasPermission('milestones.manage_financials');
 
     Color statusColor;
     switch (currentMilestone.status) {
@@ -62,7 +70,8 @@ class _MilestoneDetailsScreenState extends ConsumerState<MilestoneDetailsScreen>
         ),
         title: Text(
           'Milestone Details',
-          style: TextStyle(color: colors.text, fontWeight: FontWeight.w900, fontSize: 20),
+          style: TextStyle(
+              color: colors.text, fontWeight: FontWeight.w900, fontSize: 20),
         ),
         actions: [
           if (canEditMilestone)
@@ -71,7 +80,9 @@ class _MilestoneDetailsScreenState extends ConsumerState<MilestoneDetailsScreen>
               onPressed: () {
                 Navigator.push(
                   context,
-                  MaterialPageRoute(builder: (_) => MilestoneFormScreen(existingMilestone: currentMilestone)),
+                  MaterialPageRoute(
+                      builder: (_) => MilestoneFormScreen(
+                          existingMilestone: currentMilestone)),
                 );
               },
             ),
@@ -95,26 +106,36 @@ class _MilestoneDetailsScreenState extends ConsumerState<MilestoneDetailsScreen>
                 children: [
                   Text(
                     currentMilestone.title,
-                    style: TextStyle(color: colors.text, fontSize: 22, fontWeight: FontWeight.w900),
+                    style: TextStyle(
+                        color: colors.text,
+                        fontSize: 22,
+                        fontWeight: FontWeight.w900),
                   ),
                   const SizedBox(height: 12),
                   Row(
                     children: [
                       Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 10, vertical: 4),
                         decoration: BoxDecoration(
                           color: statusColor.withValues(alpha: 0.1),
                           borderRadius: BorderRadius.circular(12),
                         ),
                         child: Text(
                           currentMilestone.status,
-                          style: TextStyle(color: statusColor, fontSize: 12, fontWeight: FontWeight.bold),
+                          style: TextStyle(
+                              color: statusColor,
+                              fontSize: 12,
+                              fontWeight: FontWeight.bold),
                         ),
                       ),
                       const SizedBox(width: 12),
                       Text(
                         '${currentMilestone.calculatedProgress}% Complete',
-                        style: TextStyle(color: colors.brandOrange, fontSize: 14, fontWeight: FontWeight.bold),
+                        style: TextStyle(
+                            color: colors.brandOrange,
+                            fontSize: 14,
+                            fontWeight: FontWeight.bold),
                       ),
                     ],
                   ),
@@ -122,7 +143,8 @@ class _MilestoneDetailsScreenState extends ConsumerState<MilestoneDetailsScreen>
                   LinearProgressIndicator(
                     value: currentMilestone.calculatedProgress / 100.0,
                     backgroundColor: colors.border,
-                    valueColor: AlwaysStoppedAnimation<Color>(colors.brandOrange),
+                    valueColor:
+                        AlwaysStoppedAnimation<Color>(colors.brandOrange),
                     borderRadius: BorderRadius.circular(4),
                   ),
                 ],
@@ -135,7 +157,8 @@ class _MilestoneDetailsScreenState extends ConsumerState<MilestoneDetailsScreen>
               colors,
               Column(
                 children: [
-                  _buildInfoRow('Description', currentMilestone.description, colors),
+                  _buildInfoRow(
+                      'Description', currentMilestone.description, colors),
                   _buildInfoRow('Category', currentMilestone.category, colors),
                   _buildInfoRow('Priority', currentMilestone.priority, colors),
                 ],
@@ -148,8 +171,10 @@ class _MilestoneDetailsScreenState extends ConsumerState<MilestoneDetailsScreen>
               colors,
               Column(
                 children: [
-                  _buildInfoRow('Start Date', _formatDate(currentMilestone.startDate), colors),
-                  _buildInfoRow('Due Date', _formatDate(currentMilestone.dueDate), colors),
+                  _buildInfoRow('Start Date',
+                      _formatDate(currentMilestone.startDate), colors),
+                  _buildInfoRow('Due Date',
+                      _formatDate(currentMilestone.dueDate), colors),
                 ],
               ),
             ),
@@ -160,8 +185,18 @@ class _MilestoneDetailsScreenState extends ConsumerState<MilestoneDetailsScreen>
               colors,
               Column(
                 children: [
-                  _buildUserDetailRow('Assigned Coordinator', currentMilestone.assignedToUserId, currentMilestone.assignedToUserName ?? 'Unassigned', users, colors),
-                  _buildUserDetailRow('Assigned By', currentMilestone.assignedByUserId, currentMilestone.assignedByUserName ?? 'System', users, colors),
+                  _buildUserDetailRow(
+                      'Assigned Coordinator',
+                      currentMilestone.assignedToUserId,
+                      currentMilestone.assignedToUserName ?? 'Unassigned',
+                      users,
+                      colors),
+                  _buildUserDetailRow(
+                      'Assigned By',
+                      currentMilestone.assignedByUserId,
+                      currentMilestone.assignedByUserName ?? 'System',
+                      users,
+                      colors),
                 ],
               ),
             ),
@@ -173,16 +208,26 @@ class _MilestoneDetailsScreenState extends ConsumerState<MilestoneDetailsScreen>
                 colors,
                 Column(
                   children: currentMilestone.workItems.map((wi) {
-                    final assignedUser = users.where((u) => u.id == wi.assignedToUserId).firstOrNull;
+                    final assignedUser = users
+                        .where((u) => u.id == wi.assignedToUserId)
+                        .firstOrNull;
 
-                    bool canUpdateThisWorkItem = canUpdate || (rbacState.hasPermission('milestones.update_assigned') && (assignedUser?.id == rbacState.testingUserId));
+                    bool canUpdateThisWorkItem = canUpdate ||
+                        (rbacState
+                                .hasPermission('milestones.update_assigned') &&
+                            (assignedUser?.id == rbacState.testingUserId));
                     // Check volunteer filtering: volunteer should only see their own work items, UNLESS they are assigned the whole milestone.
                     // Actually, the provider already filters milestones. Here we should filter out work items they aren't assigned to IF they are a volunteer and NOT the milestone coordinator.
-                    bool isCoordinator = currentMilestone.assignedToUserId == rbacState.testingUserId;
-                    bool isGlobalView = rbacState.hasPermission('milestones.view');
+                    bool isCoordinator = currentMilestone.assignedToUserId ==
+                        rbacState.testingUserId;
+                    bool isGlobalView =
+                        rbacState.hasPermission('milestones.view');
 
-                    if (!isGlobalView && !isCoordinator && assignedUser?.id != rbacState.testingUserId) {
-                      return const SizedBox.shrink(); // Hide work items they don't own
+                    if (!isGlobalView &&
+                        !isCoordinator &&
+                        assignedUser?.id != rbacState.testingUserId) {
+                      return const SizedBox
+                          .shrink(); // Hide work items they don't own
                     }
 
                     IconData statusIcon = Icons.radio_button_unchecked;
@@ -206,9 +251,15 @@ class _MilestoneDetailsScreenState extends ConsumerState<MilestoneDetailsScreen>
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                Text(wi.title, style: TextStyle(color: colors.text, fontWeight: FontWeight.bold)),
+                                Text(wi.title,
+                                    style: TextStyle(
+                                        color: colors.text,
+                                        fontWeight: FontWeight.bold)),
                                 const SizedBox(height: 4),
-                                Text(assignedUser?.name ?? 'Unassigned', style: TextStyle(color: colors.secondaryText, fontSize: 12)),
+                                Text(assignedUser?.name ?? 'Unassigned',
+                                    style: TextStyle(
+                                        color: colors.secondaryText,
+                                        fontSize: 12)),
                                 const SizedBox(height: 4),
                                 Row(
                                   children: [
@@ -220,7 +271,10 @@ class _MilestoneDetailsScreenState extends ConsumerState<MilestoneDetailsScreen>
                                       ),
                                     ),
                                     const SizedBox(width: 8),
-                                    Text('${wi.progress}%', style: TextStyle(color: colors.secondaryText, fontSize: 12)),
+                                    Text('${wi.progress}%',
+                                        style: TextStyle(
+                                            color: colors.secondaryText,
+                                            fontSize: 12)),
                                   ],
                                 ),
                               ],
@@ -228,8 +282,10 @@ class _MilestoneDetailsScreenState extends ConsumerState<MilestoneDetailsScreen>
                           ),
                           if (canUpdateThisWorkItem)
                             IconButton(
-                              icon: Icon(Icons.edit, color: colors.brandOrange, size: 20),
-                              onPressed: () => _showUpdateProgressSheet(wi, currentMilestone, colors),
+                              icon: Icon(Icons.edit,
+                                  color: colors.brandOrange, size: 20),
+                              onPressed: () => _showUpdateProgressSheet(
+                                  wi, currentMilestone, colors),
                             ),
                         ],
                       ),
@@ -247,93 +303,159 @@ class _MilestoneDetailsScreenState extends ConsumerState<MilestoneDetailsScreen>
                 colors,
                 Column(
                   children: [
-                    _buildInfoRow('Estimated Budget', _formatCurrency(currentMilestone.estimatedCostPaise), colors),
-                    _buildInfoRow('Actual Cost', _formatCurrency(currentMilestone.actualCostPaise), colors),
-                    _buildUserDetailRow('Payment Responsible', currentMilestone.paymentResponsibleUserId, currentMilestone.paymentResponsibleUserName ?? 'Unassigned', users, colors),
-                    _buildInfoRow('Payment Status', currentMilestone.paymentRequestStatus, colors),
+                    _buildInfoRow(
+                        'Estimated Budget',
+                        _formatCurrency(currentMilestone.estimatedCostPaise),
+                        colors),
+                    _buildInfoRow(
+                        'Actual Cost',
+                        _formatCurrency(currentMilestone.actualCostPaise),
+                        colors),
+                    _buildUserDetailRow(
+                        'Payment Responsible',
+                        currentMilestone.paymentResponsibleUserId,
+                        currentMilestone.paymentResponsibleUserName ??
+                            'Unassigned',
+                        users,
+                        colors),
+                    _buildInfoRow('Payment Status',
+                        currentMilestone.paymentRequestStatus, colors),
                     if (currentMilestone.paymentReference != null)
-                      _buildInfoRow('Payment Reference', currentMilestone.paymentReference!, colors),
+                      _buildInfoRow('Payment Reference',
+                          currentMilestone.paymentReference!, colors),
                     if (currentMilestone.paymentDate != null)
-                      _buildInfoRow('Payment Date', _formatDate(currentMilestone.paymentDate), colors),
+                      _buildInfoRow('Payment Date',
+                          _formatDate(currentMilestone.paymentDate), colors),
                   ],
                 ),
               ),
               const SizedBox(height: 24),
-
               _buildSectionHeader('PAYMENT WORKFLOW', colors),
               _buildCardContainer(
                 colors,
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
-                    _buildInfoRow('Current State', currentMilestone.paymentRequestStatus, colors),
+                    _buildInfoRow('Current State',
+                        currentMilestone.paymentRequestStatus, colors),
                     if (currentMilestone.paymentRequestedByUserId != null)
-                      _buildInfoRow('Requested By', users.where((u) => u.id == currentMilestone.paymentRequestedByUserId).firstOrNull?.name ?? 'Unknown', colors),
+                      _buildInfoRow(
+                          'Requested By',
+                          users
+                                  .where((u) =>
+                                      u.id ==
+                                      currentMilestone.paymentRequestedByUserId)
+                                  .firstOrNull
+                                  ?.name ??
+                              'Unknown',
+                          colors),
                     const SizedBox(height: 12),
-                    if (currentMilestone.paymentRequestStatus == 'Not Required' || currentMilestone.paymentRequestStatus == 'Pending')
+                    if (currentMilestone.paymentRequestStatus ==
+                            'Not Required' ||
+                        currentMilestone.paymentRequestStatus == 'Pending')
                       ElevatedButton(
                         onPressed: () {
-                          final currentUser = users.where((u) => u.id == rbacState.testingUserId).firstOrNull ?? users.first;
-                          ref.read(milestoneListProvider.notifier).updateMilestone(
-                            currentMilestone.copyWith(
-                              paymentRequestStatus: 'Requested',
-                              paymentRequestedByUserId: currentUser.id,
-                              paymentRequestedAt: DateTime.now(),
-                            )
-                          );
-                          ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Payment Requested')));
+                          final currentUser = users
+                                  .where((u) => u.id == rbacState.testingUserId)
+                                  .firstOrNull ??
+                              users.first;
+                          ref
+                              .read(milestoneListProvider.notifier)
+                              .updateMilestone(currentMilestone.copyWith(
+                                paymentRequestStatus: 'Requested',
+                                paymentRequestedByUserId: currentUser.id,
+                                paymentRequestedAt: DateTime.now(),
+                              ));
+                          ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(
+                                  content: Text('Payment Requested')));
                         },
-                        style: ElevatedButton.styleFrom(backgroundColor: colors.brandOrange, shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8))),
-                        child: const Text('Request Payment', style: TextStyle(color: Colors.white)),
+                        style: ElevatedButton.styleFrom(
+                            backgroundColor: colors.brandOrange,
+                            shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(8))),
+                        child: const Text('Request Payment',
+                            style: TextStyle(color: Colors.white)),
                       ),
-
                     if (currentMilestone.paymentRequestStatus == 'Requested')
                       ElevatedButton(
                         onPressed: () {
-                          final currentUser = users.where((u) => u.id == rbacState.testingUserId).firstOrNull ?? users.first;
-                          final financialUsers = users.where((u) => MockRbacNotifier.getEffectivePermissions(u.role, u.customPermissions).contains('milestones.manage_financials')).toList();
-                          final hasOtherFinancialUsers = financialUsers.any((u) => u.id != currentUser.id);
+                          final currentUser = users
+                                  .where((u) => u.id == rbacState.testingUserId)
+                                  .firstOrNull ??
+                              users.first;
+                          final financialUsers = users
+                              .where((u) =>
+                                  MockRbacNotifier.getEffectivePermissions(
+                                          u.role, u.customPermissions)
+                                      .contains('milestones.manage_financials'))
+                              .toList();
+                          final hasOtherFinancialUsers =
+                              financialUsers.any((u) => u.id != currentUser.id);
 
-                          if (currentMilestone.paymentRequestedByUserId == currentUser.id && hasOtherFinancialUsers) {
-                            ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Self-approval blocked. Another authorized user must approve.')));
+                          if (currentMilestone.paymentRequestedByUserId ==
+                                  currentUser.id &&
+                              hasOtherFinancialUsers) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                                const SnackBar(
+                                    content: Text(
+                                        'Self-approval blocked. Another authorized user must approve.')));
                             return;
                           }
 
-                          ref.read(milestoneListProvider.notifier).updateMilestone(
-                            currentMilestone.copyWith(
-                              paymentRequestStatus: 'Approved',
-                              paymentApprovedByUserId: currentUser.id,
-                              paymentApprovedAt: DateTime.now(),
-                            )
-                          );
-                          ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Payment Approved')));
+                          ref
+                              .read(milestoneListProvider.notifier)
+                              .updateMilestone(currentMilestone.copyWith(
+                                paymentRequestStatus: 'Approved',
+                                paymentApprovedByUserId: currentUser.id,
+                                paymentApprovedAt: DateTime.now(),
+                              ));
+                          ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(
+                                  content: Text('Payment Approved')));
                         },
-                        style: ElevatedButton.styleFrom(backgroundColor: colors.brandOrange, shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8))),
-                        child: const Text('Approve Payment', style: TextStyle(color: Colors.white)),
+                        style: ElevatedButton.styleFrom(
+                            backgroundColor: colors.brandOrange,
+                            shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(8))),
+                        child: const Text('Approve Payment',
+                            style: TextStyle(color: Colors.white)),
                       ),
-
                     if (currentMilestone.paymentRequestStatus == 'Approved')
                       ElevatedButton(
                         onPressed: () {
-                          final currentUser = users.where((u) => u.id == rbacState.testingUserId).firstOrNull ?? users.first;
-                          ref.read(milestoneListProvider.notifier).updateMilestone(
-                            currentMilestone.copyWith(
-                              paymentRequestStatus: 'Initiated',
-                              paymentInitiatedByUserId: currentUser.id,
-                              paymentInitiatedAt: DateTime.now(),
-                            )
-                          );
-                          ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Payment Initiated')));
+                          final currentUser = users
+                                  .where((u) => u.id == rbacState.testingUserId)
+                                  .firstOrNull ??
+                              users.first;
+                          ref
+                              .read(milestoneListProvider.notifier)
+                              .updateMilestone(currentMilestone.copyWith(
+                                paymentRequestStatus: 'Initiated',
+                                paymentInitiatedByUserId: currentUser.id,
+                                paymentInitiatedAt: DateTime.now(),
+                              ));
+                          ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(
+                                  content: Text('Payment Initiated')));
                         },
-                        style: ElevatedButton.styleFrom(backgroundColor: colors.brandOrange, shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8))),
-                        child: const Text('Initiate Payment', style: TextStyle(color: Colors.white)),
+                        style: ElevatedButton.styleFrom(
+                            backgroundColor: colors.brandOrange,
+                            shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(8))),
+                        child: const Text('Initiate Payment',
+                            style: TextStyle(color: Colors.white)),
                       ),
-
                     if (currentMilestone.paymentRequestStatus == 'Initiated')
                       ElevatedButton(
-                        onPressed: () => _showMarkPaidSheet(currentMilestone, colors),
-                        style: ElevatedButton.styleFrom(backgroundColor: Colors.green, shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8))),
-                        child: const Text('Mark as Paid', style: TextStyle(color: Colors.white)),
+                        onPressed: () =>
+                            _showMarkPaidSheet(currentMilestone, colors),
+                        style: ElevatedButton.styleFrom(
+                            backgroundColor: Colors.green,
+                            shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(8))),
+                        child: const Text('Mark as Paid',
+                            style: TextStyle(color: Colors.white)),
                       ),
                   ],
                 ),
@@ -345,7 +467,8 @@ class _MilestoneDetailsScreenState extends ConsumerState<MilestoneDetailsScreen>
               _buildSectionHeader('VENDOR', colors),
               _buildCardContainer(
                 colors,
-                _buildInfoRow('Vendor Name', currentMilestone.vendorName, colors),
+                _buildInfoRow(
+                    'Vendor Name', currentMilestone.vendorName, colors),
               ),
               const SizedBox(height: 24),
             ],
@@ -355,8 +478,14 @@ class _MilestoneDetailsScreenState extends ConsumerState<MilestoneDetailsScreen>
               colors,
               Column(
                 children: [
-                  _buildInfoRow('Latest Note', currentMilestone.latestUpdate ?? 'No updates yet', colors),
-                  _buildInfoRow('Last Updated', _formatDate(currentMilestone.lastUpdatedAt, true), colors),
+                  _buildInfoRow(
+                      'Latest Note',
+                      currentMilestone.latestUpdate ?? 'No updates yet',
+                      colors),
+                  _buildInfoRow(
+                      'Last Updated',
+                      _formatDate(currentMilestone.lastUpdatedAt, true),
+                      colors),
                 ],
               ),
             ),
@@ -367,18 +496,19 @@ class _MilestoneDetailsScreenState extends ConsumerState<MilestoneDetailsScreen>
     );
   }
 
-  void _showUpdateProgressSheet(MockWorkItem wi, MockMilestone milestone, AuthColors colors) {
+  void _showUpdateProgressSheet(
+      MockWorkItem wi, MockMilestone milestone, AuthColors colors) {
     int currentProgress = wi.progress;
     String currentStatus = wi.status;
 
     showModalBottomSheet(
-      context: context,
-      isScrollControlled: true,
-      backgroundColor: colors.card,
-      shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(20))),
-      builder: (ctx) {
-        return StatefulBuilder(
-          builder: (ctx, setSheetState) {
+        context: context,
+        isScrollControlled: true,
+        backgroundColor: colors.card,
+        shape: const RoundedRectangleBorder(
+            borderRadius: BorderRadius.vertical(top: Radius.circular(20))),
+        builder: (ctx) {
+          return StatefulBuilder(builder: (ctx, setSheetState) {
             return Padding(
               padding: EdgeInsets.only(
                 bottom: MediaQuery.of(ctx).viewInsets.bottom,
@@ -390,19 +520,28 @@ class _MilestoneDetailsScreenState extends ConsumerState<MilestoneDetailsScreen>
                 mainAxisSize: MainAxisSize.min,
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  Text('Update Progress: ${wi.title}', style: TextStyle(color: colors.text, fontSize: 18, fontWeight: FontWeight.bold)),
+                  Text('Update Progress: ${wi.title}',
+                      style: TextStyle(
+                          color: colors.text,
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold)),
                   const SizedBox(height: 24),
-
-                  Text('Status', style: TextStyle(color: colors.secondaryText, fontSize: 14)),
+                  Text('Status',
+                      style:
+                          TextStyle(color: colors.secondaryText, fontSize: 14)),
                   const SizedBox(height: 8),
                   DropdownButtonFormField<String>(
                     initialValue: currentStatus,
                     dropdownColor: colors.background,
                     decoration: InputDecoration(
-                      border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                      border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(12)),
                     ),
-                    items: ['Pending', 'In Progress', 'Completed', 'Blocked'].map((s) {
-                      return DropdownMenuItem(value: s, child: Text(s, style: TextStyle(color: colors.text)));
+                    items: ['Pending', 'In Progress', 'Completed', 'Blocked']
+                        .map((s) {
+                      return DropdownMenuItem(
+                          value: s,
+                          child: Text(s, style: TextStyle(color: colors.text)));
                     }).toList(),
                     onChanged: (val) {
                       setSheetState(() {
@@ -414,8 +553,9 @@ class _MilestoneDetailsScreenState extends ConsumerState<MilestoneDetailsScreen>
                     },
                   ),
                   const SizedBox(height: 24),
-
-                  Text('Progress: $currentProgress%', style: TextStyle(color: colors.secondaryText, fontSize: 14)),
+                  Text('Progress: $currentProgress%',
+                      style:
+                          TextStyle(color: colors.secondaryText, fontSize: 14)),
                   Slider(
                     value: currentProgress.toDouble(),
                     min: 0,
@@ -428,33 +568,41 @@ class _MilestoneDetailsScreenState extends ConsumerState<MilestoneDetailsScreen>
                         currentProgress = val.toInt();
                         if (currentProgress == 100) {
                           currentStatus = 'Completed';
-                        } else if (currentProgress > 0 && currentStatus == 'Pending') {
+                        } else if (currentProgress > 0 &&
+                            currentStatus == 'Pending') {
                           currentStatus = 'In Progress';
                         }
                       });
                     },
                   ),
                   const SizedBox(height: 24),
-
                   ElevatedButton(
                     onPressed: () {
                       final updatedWi = wi.copyWith(
                         progress: currentProgress,
                         status: currentStatus,
-                        completedAt: currentStatus == 'Completed' ? DateTime.now() : wi.completedAt,
+                        completedAt: currentStatus == 'Completed'
+                            ? DateTime.now()
+                            : wi.completedAt,
                       );
 
-                      ref.read(mockMilestoneRepositoryProvider).updateWorkItem(updatedWi);
+                      ref
+                          .read(mockMilestoneRepositoryProvider)
+                          .updateWorkItem(updatedWi);
 
                       // We must also update the overall milestone to trigger providers
-                      final index = milestone.workItems.indexWhere((w) => w.id == wi.id);
-                      final newItems = List<MockWorkItem>.from(milestone.workItems);
+                      final index =
+                          milestone.workItems.indexWhere((w) => w.id == wi.id);
+                      final newItems =
+                          List<MockWorkItem>.from(milestone.workItems);
                       if (index != -1) {
                         newItems[index] = updatedWi;
 
                         // Recalculate milestone overall progress and status based on work items
-                        int totalProgress = newItems.fold(0, (sum, item) => sum + item.progress);
-                        int newMilestoneProgress = (totalProgress / newItems.length).round();
+                        int totalProgress = newItems.fold(
+                            0, (sum, item) => sum + item.progress);
+                        int newMilestoneProgress =
+                            (totalProgress / newItems.length).round();
                         String newMilestoneStatus = milestone.status;
 
                         if (newMilestoneProgress == 100) {
@@ -468,43 +616,51 @@ class _MilestoneDetailsScreenState extends ConsumerState<MilestoneDetailsScreen>
                           progressPercentage: newMilestoneProgress,
                           status: newMilestoneStatus,
                         );
-                        ref.read(milestoneListProvider.notifier).updateMilestone(updatedMilestone);
+                        ref
+                            .read(milestoneListProvider.notifier)
+                            .updateMilestone(updatedMilestone);
                       }
 
                       Navigator.pop(ctx);
-                      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Progress updated successfully')));
+                      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+                          content: Text('Progress updated successfully')));
                     },
                     style: ElevatedButton.styleFrom(
                       backgroundColor: colors.brandOrange,
                       padding: const EdgeInsets.symmetric(vertical: 16),
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                      shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12)),
                     ),
-                    child: const Text('Save Progress', style: TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold)),
+                    child: const Text('Save Progress',
+                        style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold)),
                   ),
                   const SizedBox(height: 24),
                 ],
               ),
             );
-          }
-        );
-      }
-    );
+          });
+        });
   }
 
   void _showMarkPaidSheet(MockMilestone milestone, AuthColors colors) {
     final refCtrl = TextEditingController();
     DateTime? pDate = DateTime.now();
-    int? amount = milestone.estimatedCostPaise != null ? (milestone.estimatedCostPaise! ~/ 100) : null;
+    int? amount = milestone.estimatedCostPaise != null
+        ? (milestone.estimatedCostPaise! ~/ 100)
+        : null;
     final amountCtrl = TextEditingController(text: amount?.toString() ?? '');
 
     showModalBottomSheet(
-      context: context,
-      isScrollControlled: true,
-      backgroundColor: colors.card,
-      shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(20))),
-      builder: (ctx) {
-        return StatefulBuilder(
-          builder: (ctx, setSheetState) {
+        context: context,
+        isScrollControlled: true,
+        backgroundColor: colors.card,
+        shape: const RoundedRectangleBorder(
+            borderRadius: BorderRadius.vertical(top: Radius.circular(20))),
+        builder: (ctx) {
+          return StatefulBuilder(builder: (ctx, setSheetState) {
             return Padding(
               padding: EdgeInsets.only(
                 bottom: MediaQuery.of(ctx).viewInsets.bottom,
@@ -516,22 +672,30 @@ class _MilestoneDetailsScreenState extends ConsumerState<MilestoneDetailsScreen>
                 mainAxisSize: MainAxisSize.min,
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  Text('Mark as Paid', style: TextStyle(color: colors.text, fontSize: 18, fontWeight: FontWeight.bold)),
+                  Text('Mark as Paid',
+                      style: TextStyle(
+                          color: colors.text,
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold)),
                   const SizedBox(height: 24),
-
                   TextField(
                     controller: refCtrl,
                     style: TextStyle(color: colors.text),
                     decoration: InputDecoration(
                       labelText: 'Payment Reference / UTR *',
                       labelStyle: TextStyle(color: colors.secondaryText),
-                      border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide(color: colors.border)),
-                      enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide(color: colors.border)),
-                      focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide(color: colors.brandOrange)),
+                      border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(12),
+                          borderSide: BorderSide(color: colors.border)),
+                      enabledBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(12),
+                          borderSide: BorderSide(color: colors.border)),
+                      focusedBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(12),
+                          borderSide: BorderSide(color: colors.brandOrange)),
                     ),
                   ),
                   const SizedBox(height: 16),
-
                   TextField(
                     controller: amountCtrl,
                     keyboardType: TextInputType.number,
@@ -539,13 +703,18 @@ class _MilestoneDetailsScreenState extends ConsumerState<MilestoneDetailsScreen>
                     decoration: InputDecoration(
                       labelText: 'Paid Amount (₹)',
                       labelStyle: TextStyle(color: colors.secondaryText),
-                      border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide(color: colors.border)),
-                      enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide(color: colors.border)),
-                      focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide(color: colors.brandOrange)),
+                      border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(12),
+                          borderSide: BorderSide(color: colors.border)),
+                      enabledBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(12),
+                          borderSide: BorderSide(color: colors.border)),
+                      focusedBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(12),
+                          borderSide: BorderSide(color: colors.brandOrange)),
                     ),
                   ),
                   const SizedBox(height: 16),
-
                   InkWell(
                     onTap: () async {
                       final date = await showDatePicker(
@@ -573,58 +742,75 @@ class _MilestoneDetailsScreenState extends ConsumerState<MilestoneDetailsScreen>
                       decoration: InputDecoration(
                         labelText: 'Payment Date *',
                         labelStyle: TextStyle(color: colors.secondaryText),
-                        border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide(color: colors.border)),
-                        enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide(color: colors.border)),
+                        border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(12),
+                            borderSide: BorderSide(color: colors.border)),
+                        enabledBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(12),
+                            borderSide: BorderSide(color: colors.border)),
                       ),
                       child: Text(
                         pDate != null ? _formatDate(pDate) : 'Select Date',
-                        style: TextStyle(color: pDate != null ? colors.text : colors.secondaryText),
+                        style: TextStyle(
+                            color: pDate != null
+                                ? colors.text
+                                : colors.secondaryText),
                       ),
                     ),
                   ),
                   const SizedBox(height: 24),
-
                   ElevatedButton(
                     onPressed: () {
                       if (refCtrl.text.isEmpty || pDate == null) {
-                        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Please provide Payment Reference and Date')));
+                        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+                            content: Text(
+                                'Please provide Payment Reference and Date')));
                         return;
                       }
                       final parsedAmount = int.tryParse(amountCtrl.text);
 
                       final rbacState = ref.read(mockRbacProvider);
                       final users = ref.read(mockUserListProvider);
-                      final currentUser = users.where((u) => u.id == rbacState.testingUserId).firstOrNull ?? users.first;
+                      final currentUser = users
+                              .where((u) => u.id == rbacState.testingUserId)
+                              .firstOrNull ??
+                          users.first;
 
-                      ref.read(milestoneListProvider.notifier).updateMilestone(
-                        milestone.copyWith(
-                          paymentRequestStatus: 'Paid',
-                          paymentReference: refCtrl.text,
-                          paymentDate: pDate,
-                          actualCostPaise: parsedAmount != null ? (parsedAmount * 100) : milestone.actualCostPaise,
-                          paymentPaidByUserId: currentUser.id,
-                          paymentPaidAt: DateTime.now(),
-                        )
-                      );
+                      ref
+                          .read(milestoneListProvider.notifier)
+                          .updateMilestone(milestone.copyWith(
+                            paymentRequestStatus: 'Paid',
+                            paymentReference: refCtrl.text,
+                            paymentDate: pDate,
+                            actualCostPaise: parsedAmount != null
+                                ? (parsedAmount * 100)
+                                : milestone.actualCostPaise,
+                            paymentPaidByUserId: currentUser.id,
+                            paymentPaidAt: DateTime.now(),
+                          ));
 
                       Navigator.pop(ctx);
-                      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Marked as Paid successfully')));
+                      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+                          content: Text('Marked as Paid successfully')));
                     },
                     style: ElevatedButton.styleFrom(
                       backgroundColor: Colors.green,
                       padding: const EdgeInsets.symmetric(vertical: 16),
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                      shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12)),
                     ),
-                    child: const Text('Save Payment', style: TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold)),
+                    child: const Text('Save Payment',
+                        style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold)),
                   ),
                   const SizedBox(height: 24),
                 ],
               ),
             );
-          }
-        );
-      }
-    );
+          });
+        });
   }
 
   Widget _buildSectionHeader(String title, AuthColors colors) {
@@ -671,7 +857,10 @@ class _MilestoneDetailsScreenState extends ConsumerState<MilestoneDetailsScreen>
             flex: 3,
             child: Text(
               value,
-              style: TextStyle(color: colors.text, fontSize: 14, fontWeight: FontWeight.w600),
+              style: TextStyle(
+                  color: colors.text,
+                  fontSize: 14,
+                  fontWeight: FontWeight.w600),
             ),
           ),
         ],
@@ -679,7 +868,8 @@ class _MilestoneDetailsScreenState extends ConsumerState<MilestoneDetailsScreen>
     );
   }
 
-  Widget _buildUserDetailRow(String label, String? userId, String fallbackName, List<MockUser> users, AuthColors colors) {
+  Widget _buildUserDetailRow(String label, String? userId, String fallbackName,
+      List<MockUser> users, AuthColors colors) {
     final user = users.where((u) => u.id == userId).firstOrNull;
     return Padding(
       padding: const EdgeInsets.only(bottom: 12),
@@ -700,7 +890,10 @@ class _MilestoneDetailsScreenState extends ConsumerState<MilestoneDetailsScreen>
               children: [
                 Text(
                   user?.name ?? fallbackName,
-                  style: TextStyle(color: colors.text, fontSize: 14, fontWeight: FontWeight.w600),
+                  style: TextStyle(
+                      color: colors.text,
+                      fontSize: 14,
+                      fontWeight: FontWeight.w600),
                 ),
                 if (user != null)
                   Text(
@@ -718,11 +911,23 @@ class _MilestoneDetailsScreenState extends ConsumerState<MilestoneDetailsScreen>
   String _formatDate(DateTime? date, [bool includeTime = false]) {
     if (date == null) return 'Not set';
     final m = [
-      'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'
+      'Jan',
+      'Feb',
+      'Mar',
+      'Apr',
+      'May',
+      'Jun',
+      'Jul',
+      'Aug',
+      'Sep',
+      'Oct',
+      'Nov',
+      'Dec'
     ];
     var str = '${date.day} ${m[date.month - 1]} ${date.year}';
     if (includeTime) {
-      str += ' at ${date.hour.toString().padLeft(2, '0')}:${date.minute.toString().padLeft(2, '0')}';
+      str +=
+          ' at ${date.hour.toString().padLeft(2, '0')}:${date.minute.toString().padLeft(2, '0')}';
     }
     return str;
   }

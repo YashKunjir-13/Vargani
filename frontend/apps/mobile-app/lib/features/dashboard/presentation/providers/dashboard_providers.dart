@@ -1,5 +1,5 @@
+import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:pauti_pustak_mobile/core/session/session_controller.dart';
 import 'package:pauti_pustak_mobile/core/session/session_controller.dart';
 import 'package:pauti_pustak_mobile/features/dashboard/data/dashboard_remote_datasource.dart';
 import 'package:pauti_pustak_mobile/features/dashboard/data/models/dashboard_models.dart';
@@ -19,38 +19,6 @@ final dashboardRemoteDataSourceProvider =
   return DashboardRemoteDataSource(ref.watch(dioProvider));
 });
 
-class MandalDashboardNotifier extends Notifier<MandalDashboardData> {
-  @override
-  MandalDashboardData build() {
-    _fetchLiveDashboard();
-    return const MandalDashboardData(
-      mandalName: 'Mandal Organization',
-      festivalYear: 'Utsav 2026',
-      currentBalancePaise: 0,
-      todaysCollectionPaise: 0,
-      totalCollectionPaise: 0,
-      totalExpensesPaise: 0,
-      pendingBillsCount: 0,
-      pendingBillsAmountPaise: 0,
-      pendingReceiptsCount: 0,
-      activeVolunteersCount: 0,
-      totalDonorsCount: 0,
-      upcomingEventsCount: 0,
-      transactions: [],
-    );
-  }
-
-  Future<void> _fetchLiveDashboard() async {
-    try {
-      final remote = ref.read(dashboardRemoteDataSourceProvider);
-      final liveData = await remote.getMandalDashboard();
-      state = liveData;
-    } catch (_) {
-      // Retain state if initial call is offline
-    }
-  }
-
-  Future<void> refresh() => _fetchLiveDashboard();
 const _standardModules = [
   MandalModuleItem(
     id: 'contributions',
@@ -124,7 +92,8 @@ class MandalDashboardNotifier extends Notifier<MandalDashboardData> {
   @override
   MandalDashboardData build() {
     final session = ref.watch(sessionControllerProvider);
-    final orgName = session.user?.organization?.name ?? 'Shree Siddhivinayak Ganpati Mandal';
+    final orgName = session.user?.organization?.name ??
+        'Shree Siddhivinayak Ganpati Mandal';
 
     Future.microtask(() => fetchDashboardData());
 
@@ -149,6 +118,8 @@ class MandalDashboardNotifier extends Notifier<MandalDashboardData> {
     );
   }
 
+  Future<void> refresh() => fetchDashboardData();
+
   Future<void> fetchDashboardData() async {
     final session = ref.read(sessionControllerProvider);
     final orgName = session.user?.organization?.name ?? state.mandalName;
@@ -157,32 +128,51 @@ class MandalDashboardNotifier extends Notifier<MandalDashboardData> {
       final dio = ref.read(dioProvider);
 
       // 1. Fetch Executive Dashboard KPIs from NestJS backend
-      final execResp = await dio.get<Map<String, dynamic>>('/dashboards/executive');
+      final execResp =
+          await dio.get<Map<String, dynamic>>('/dashboards/executive');
       final execData = execResp.data?['data'] as Map<String, dynamic>? ?? {};
 
-      final totalCollections = int.tryParse(execData['totalCollectionsPaise']?.toString() ?? '0') ?? 0;
-      final paidExpenses = int.tryParse(execData['paidExpensesPaise']?.toString() ?? '0') ?? 0;
-      final balance = int.tryParse(execData['netLiquidityBalancePaise']?.toString() ?? '0') ?? 0;
-      final activeEvents = (execData['activeEventsCount'] as num?)?.toInt() ?? 0;
-      final activeVolunteers = (execData['activeVolunteersCount'] as num?)?.toInt() ?? 0;
-      final collectionsCount = (execData['totalCollectionsCount'] as num?)?.toInt() ?? 0;
+      final totalCollections =
+          int.tryParse(execData['totalCollectionsPaise']?.toString() ?? '0') ??
+              0;
+      final paidExpenses =
+          int.tryParse(execData['paidExpensesPaise']?.toString() ?? '0') ?? 0;
+      final balance = int.tryParse(
+              execData['netLiquidityBalancePaise']?.toString() ?? '0') ??
+          0;
+      final activeEvents =
+          (execData['activeEventsCount'] as num?)?.toInt() ?? 0;
+      final activeVolunteers =
+          (execData['activeVolunteersCount'] as num?)?.toInt() ?? 0;
+      final collectionsCount =
+          (execData['totalCollectionsCount'] as num?)?.toInt() ?? 0;
 
       // 2. Fetch Recent Transactions from NestJS Payments API
       List<TransactionItem> realTransactions = [];
       try {
         final payResp = await dio.get<Map<String, dynamic>>('/payments');
-        final payList = payResp.data?['data'] as List<dynamic>? ?? (payResp.data is List ? payResp.data as List : []);
+        final payList = payResp.data?['data'] as List<dynamic>? ??
+            (payResp.data is List ? payResp.data as List : []);
         realTransactions = payList.map((item) {
           final map = Map<String, dynamic>.from(item as Map);
-          final rawAmount = (map['amountPaise'] as num?)?.toInt() ?? ((map['amount'] as num?)?.toDouble() ?? 0.0 * 100).round();
-          final dtStr = map['paymentDateTime'] as String? ?? map['createdAt'] as String?;
-          final dateVal = dtStr != null ? DateTime.tryParse(dtStr) ?? DateTime.now() : DateTime.now();
+          final rawAmount = (map['amountPaise'] as num?)?.toInt() ??
+              ((map['amount'] as num?)?.toDouble() ?? 0.0 * 100).round();
+          final dtStr =
+              map['paymentDateTime'] as String? ?? map['createdAt'] as String?;
+          final dateVal = dtStr != null
+              ? DateTime.tryParse(dtStr) ?? DateTime.now()
+              : DateTime.now();
           return TransactionItem(
             id: map['id']?.toString() ?? '',
-            receiptNumber: map['receiptNumber']?.toString() ?? 'RCT-${map['id']}',
-            donorName: map['donorNameSnapshot']?.toString() ?? map['donorName']?.toString() ?? 'Donor',
+            receiptNumber:
+                map['receiptNumber']?.toString() ?? 'RCT-${map['id']}',
+            donorName: map['donorNameSnapshot']?.toString() ??
+                map['donorName']?.toString() ??
+                'Donor',
             amountPaise: rawAmount,
-            paymentMethod: map['paymentMethod']?.toString() ?? map['channel']?.toString() ?? 'Cash',
+            paymentMethod: map['paymentMethod']?.toString() ??
+                map['channel']?.toString() ??
+                'Cash',
             date: dateVal,
             status: map['status']?.toString() ?? 'Confirmed',
           );
@@ -275,7 +265,9 @@ class DonorDashboardNotifier extends Notifier<DonorDashboardData> {
         dataMap = resData;
       }
 
-      final ytdTotal = int.tryParse(dataMap['ytdTotalContributedPaise']?.toString() ?? '0') ?? 0;
+      final ytdTotal = int.tryParse(
+              dataMap['ytdTotalContributedPaise']?.toString() ?? '0') ??
+          0;
       final receipts = dataMap['recentReceipts'] as List? ?? [];
 
       List<TransactionItem> recentList = [];
@@ -288,18 +280,23 @@ class DonorDashboardNotifier extends Notifier<DonorDashboardData> {
           if (lastAmount == 0 && amt > 0) {
             lastAmount = amt;
             if (r['collectedAt'] != null) {
-              lastDate = DateTime.tryParse(r['collectedAt'].toString()) ?? DateTime.now();
+              lastDate = DateTime.tryParse(r['collectedAt'].toString()) ??
+                  DateTime.now();
             }
           }
           recentList.add(
             TransactionItem(
               id: r['id']?.toString() ?? '',
-              receiptNumber: r['receiptNumber']?.toString() ?? 'RCPT-${r['id']?.toString().substring(0, 8)}',
+              receiptNumber: r['receiptNumber']?.toString() ??
+                  'RCPT-${r['id']?.toString().substring(0, 8)}',
               donorName: state.donorName,
               mandalName: r['organizationName']?.toString() ?? 'Mandal Trust',
               amountPaise: amt,
               paymentMethod: r['mode']?.toString() ?? 'UPI',
-              date: r['collectedAt'] != null ? (DateTime.tryParse(r['collectedAt'].toString()) ?? DateTime.now()) : DateTime.now(),
+              date: r['collectedAt'] != null
+                  ? (DateTime.tryParse(r['collectedAt'].toString()) ??
+                      DateTime.now())
+                  : DateTime.now(),
               status: 'Confirmed',
             ),
           );
@@ -309,10 +306,12 @@ class DonorDashboardNotifier extends Notifier<DonorDashboardData> {
       state = state.copyWith(
         totalDonationsPaise: ytdTotal,
         thisYearDonationsPaise: ytdTotal,
-        lastDonationAmountPaise: lastAmount > 0 ? lastAmount : state.lastDonationAmountPaise,
+        lastDonationAmountPaise:
+            lastAmount > 0 ? lastAmount : state.lastDonationAmountPaise,
         lastDonationDate: lastDate,
         digitalReceiptsCount: receipts.length,
-        recentDonations: recentList.isNotEmpty ? recentList : state.recentDonations,
+        recentDonations:
+            recentList.isNotEmpty ? recentList : state.recentDonations,
       );
     } catch (_) {
       // Keep existing state if offline

@@ -515,7 +515,7 @@ class _DonorFormScreenState extends ConsumerState<DonorFormScreen> {
                     Navigator.pop(confirmCtx); // Pop loading dialog
                     Navigator.pop(confirmCtx); // Pop confirm dialog
                   }
-                  if (context.mounted) {
+                  if (mounted) {
                     ScaffoldMessenger.of(context).showSnackBar(
                       SnackBar(
                         content: Text('Failed to collect donation: $err'),
@@ -526,7 +526,7 @@ class _DonorFormScreenState extends ConsumerState<DonorFormScreen> {
                   return;
                 }
 
-                if (!context.mounted) return;
+                if (!mounted) return;
 
                 final receiptNo = receipt?.receiptNumber ?? 'RCPT-2026-000001';
                 final receiptId = receipt?.id ?? '';
@@ -628,7 +628,7 @@ class _DonorFormScreenState extends ConsumerState<DonorFormScreen> {
                         TextButton(
                           onPressed: () {
                             Navigator.pop(successCtx);
-                            if (context.mounted) Navigator.pop(context);
+                            if (mounted) Navigator.pop(context);
                           },
                           child: Text('Done',
                               style: TextStyle(color: colors.secondaryText)),
@@ -643,7 +643,7 @@ class _DonorFormScreenState extends ConsumerState<DonorFormScreen> {
                             ),
                             onPressed: () {
                               Navigator.pop(successCtx);
-                              if (context.mounted) {
+                              if (mounted) {
                                 Navigator.pop(context);
                                 context.push('/receipts/$receiptId');
                               }

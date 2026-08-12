@@ -11,12 +11,14 @@ class MockVendorRepository implements VendorRepository {
   late List<Vendor> _vendors;
 
   @override
-  Future<List<Vendor>> getVendors({String search = '', VendorStatus? status}) async {
+  Future<List<Vendor>> getVendors(
+      {String search = '', VendorStatus? status}) async {
     final query = search.trim().toLowerCase();
     return _vendors.where((vendor) {
       final matchesStatus = status == null || vendor.status == status;
       final haystack =
-          '${vendor.name} ${vendor.contactPerson ?? ''} ${vendor.category ?? ''}'.toLowerCase();
+          '${vendor.name} ${vendor.contactPerson ?? ''} ${vendor.category ?? ''}'
+              .toLowerCase();
       final matchesQuery = query.isEmpty || haystack.contains(query);
       return matchesStatus && matchesQuery;
     }).toList();
@@ -58,10 +60,12 @@ class MockVendorRepository implements VendorRepository {
       createdAt: DateTime.now(),
       contractAmountPaise: contractAmountPaise,
       paidAmountPaise: paidAmountPaise,
-      outstandingAmountPaise: (contractAmountPaise - paidAmountPaise).clamp(0, double.maxFinite.toInt()),
-      contractStatus: (contractAmountPaise > 0 && contractAmountPaise <= paidAmountPaise)
-          ? VendorContractStatus.complete
-          : VendorContractStatus.active,
+      outstandingAmountPaise: (contractAmountPaise - paidAmountPaise)
+          .clamp(0, double.maxFinite.toInt()),
+      contractStatus:
+          (contractAmountPaise > 0 && contractAmountPaise <= paidAmountPaise)
+              ? VendorContractStatus.complete
+              : VendorContractStatus.active,
       category: category,
     );
     _vendors.add(vendor);
@@ -89,9 +93,11 @@ class MockVendorRepository implements VendorRepository {
     if (index == -1) return null;
     final existing = _vendors[index];
 
-    final newContractPaise = contractAmountPaise ?? existing.contractAmountPaise;
+    final newContractPaise =
+        contractAmountPaise ?? existing.contractAmountPaise;
     final newPaidPaise = paidAmountPaise ?? existing.paidAmountPaise;
-    final newOutstanding = (newContractPaise - newPaidPaise).clamp(0, double.maxFinite.toInt());
+    final newOutstanding =
+        (newContractPaise - newPaidPaise).clamp(0, double.maxFinite.toInt());
 
     final updated = existing.copyWith(
       name: name,

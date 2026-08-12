@@ -14,7 +14,8 @@ void main() {
     await tester.pumpWidget(
       ProviderScope(
         overrides: [
-          initialSessionStateProvider.overrideWithValue(SessionState.unauthenticated),
+          initialSessionStateProvider
+              .overrideWithValue(SessionState.unauthenticated),
         ],
         child: const PautiPustakApp(environment: 'test'),
       ),

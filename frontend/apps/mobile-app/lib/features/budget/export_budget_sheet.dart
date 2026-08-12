@@ -9,7 +9,8 @@ class ExportBudgetSheet extends StatelessWidget {
 
   const ExportBudgetSheet({super.key, this.activeScopeLabel = 'v4 · Active'});
 
-  static Future<void> show(BuildContext context, {String activeScopeLabel = 'v4 · Active'}) {
+  static Future<void> show(BuildContext context,
+      {String activeScopeLabel = 'v4 · Active'}) {
     return AppBottomSheet.show<void>(
       context,
       builder: (_) => ExportBudgetSheet(activeScopeLabel: activeScopeLabel),
@@ -27,7 +28,12 @@ class ExportBudgetSheet extends StatelessWidget {
         ExportFormatOption(label: 'CSV', icon: Icons.description_outlined),
         ExportFormatOption(label: 'Print', icon: Icons.print_outlined),
       ],
-      sections: const ['Budget summary', 'Category breakdown', 'Revision history', 'Approval trail'],
+      sections: const [
+        'Budget summary',
+        'Category breakdown',
+        'Revision history',
+        'Approval trail'
+      ],
       initiallyIncludedSections: const {'Budget summary', 'Category breakdown'},
       onGenerate: (format, sections) {
         ScaffoldMessenger.of(context).showSnackBar(

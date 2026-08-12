@@ -63,7 +63,8 @@ class _SearchMandalScreenState extends ConsumerState<SearchMandalScreen> {
                   borderRadius: BorderRadius.circular(12),
                   borderSide: BorderSide.none,
                 ),
-                contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+                contentPadding:
+                    const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
               ),
             ),
           ),
@@ -78,7 +79,8 @@ class _SearchMandalScreenState extends ConsumerState<SearchMandalScreen> {
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      Icon(Icons.cloud_off, size: 48, color: colors.secondaryText),
+                      Icon(Icons.cloud_off,
+                          size: 48, color: colors.secondaryText),
                       const SizedBox(height: 16),
                       Text(
                         'Unable to load mandals',
@@ -92,7 +94,8 @@ class _SearchMandalScreenState extends ConsumerState<SearchMandalScreen> {
                       Text(
                         'Please check your connection and try again.',
                         textAlign: TextAlign.center,
-                        style: TextStyle(color: colors.secondaryText, fontSize: 13),
+                        style: TextStyle(
+                            color: colors.secondaryText, fontSize: 13),
                       ),
                       const SizedBox(height: 16),
                       ElevatedButton.icon(
@@ -122,10 +125,13 @@ class _SearchMandalScreenState extends ConsumerState<SearchMandalScreen> {
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        Icon(Icons.temple_hindu_outlined, size: 48, color: colors.secondaryText),
+                        Icon(Icons.temple_hindu_outlined,
+                            size: 48, color: colors.secondaryText),
                         const SizedBox(height: 16),
                         Text(
-                          isSearching ? 'No mandals found' : 'No mandals available',
+                          isSearching
+                              ? 'No mandals found'
+                              : 'No mandals available',
                           style: TextStyle(
                             color: colors.secondaryText,
                             fontSize: 16,
@@ -155,7 +161,8 @@ class _SearchMandalScreenState extends ConsumerState<SearchMandalScreen> {
                           CircleAvatar(
                             backgroundColor: colors.surfaceMuted,
                             radius: 24,
-                            child: Icon(Icons.temple_hindu, color: colors.brandOrange),
+                            child: Icon(Icons.temple_hindu,
+                                color: colors.brandOrange),
                           ),
                           const SizedBox(width: 16),
                           Expanded(
@@ -173,10 +180,13 @@ class _SearchMandalScreenState extends ConsumerState<SearchMandalScreen> {
                                 const SizedBox(height: 4),
                                 Row(
                                   children: [
-                                    Icon(Icons.location_on, size: 14, color: colors.secondaryText),
+                                    Icon(Icons.location_on,
+                                        size: 14, color: colors.secondaryText),
                                     const SizedBox(width: 4),
                                     Text(
-                                      mandal.city.isNotEmpty ? mandal.city : 'Maharashtra',
+                                      mandal.city.isNotEmpty
+                                          ? mandal.city
+                                          : 'Maharashtra',
                                       style: TextStyle(
                                         color: colors.secondaryText,
                                         fontSize: 13,
@@ -206,12 +216,14 @@ class _SearchMandalScreenState extends ConsumerState<SearchMandalScreen> {
                               shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(10),
                               ),
-                              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                              padding: const EdgeInsets.symmetric(
+                                  horizontal: 16, vertical: 8),
                             ),
                             onPressed: () {
                               Navigator.of(context).push(
                                 MaterialPageRoute(
-                                  builder: (context) => MandalDetailsScreen(organization: mandal),
+                                  builder: (context) =>
+                                      MandalDetailsScreen(organization: mandal),
                                 ),
                               );
                             },

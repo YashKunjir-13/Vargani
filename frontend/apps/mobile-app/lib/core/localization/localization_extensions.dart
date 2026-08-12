@@ -339,29 +339,65 @@ extension LocalizationBuildContext on BuildContext {
   String localizedModuleTitle(String moduleId) {
     switch (moduleId) {
       case 'contributions':
-        return languageCode == 'hi' ? 'योगदान और भुगतान' : languageCode == 'mr' ? 'वर्गणी आणि भरणा' : 'Contribution Management';
+        return languageCode == 'hi'
+            ? 'योगदान और भुगतान'
+            : languageCode == 'mr'
+                ? 'वर्गणी आणि भरणा'
+                : 'Contribution Management';
       case 'collection':
-        return languageCode == 'hi' ? 'दान संग्रह' : languageCode == 'mr' ? 'देणगी संकलन' : 'Donation Collection';
+        return languageCode == 'hi'
+            ? 'दान संग्रह'
+            : languageCode == 'mr'
+                ? 'देणगी संकलन'
+                : 'Donation Collection';
       case 'receipts':
-        return languageCode == 'hi' ? 'रसीद जनरेशन' : languageCode == 'mr' ? 'पावती जनरेशन' : 'Receipt Generation';
+        return languageCode == 'hi'
+            ? 'रसीद जनरेशन'
+            : languageCode == 'mr'
+                ? 'पावती जनरेशन'
+                : 'Receipt Generation';
       case 'budget':
-        return languageCode == 'hi' ? 'बजट प्रबंधन' : languageCode == 'mr' ? 'अंदाज़पत्रक व्यवस्थापन' : 'Budget Management';
+        return languageCode == 'hi'
+            ? 'बजट प्रबंधन'
+            : languageCode == 'mr'
+                ? 'अंदाज़पत्रक व्यवस्थापन'
+                : 'Budget Management';
       case 'bills':
-        return languageCode == 'hi' ? 'बिल प्रबंधन' : languageCode == 'mr' ? 'बिल व्यवस्थापन' : 'Bill Management';
+        return languageCode == 'hi'
+            ? 'बिल प्रबंधन'
+            : languageCode == 'mr'
+                ? 'बिल व्यवस्थापन'
+                : 'Bill Management';
       case 'kunda':
-        return languageCode == 'hi' ? 'दानपेटी (कुंडा)' : languageCode == 'mr' ? 'दानपेटी (कुंडा)' : 'Donation Box (Kunda)';
+        return languageCode == 'hi'
+            ? 'दानपेटी (कुंडा)'
+            : languageCode == 'mr'
+                ? 'दानपेटी (कुंडा)'
+                : 'Donation Box (Kunda)';
       case 'all_records':
         return allRecords;
       case 'members':
-        return languageCode == 'hi' ? 'सदस्य प्रबंधन' : languageCode == 'mr' ? 'सदस्य व्यवस्थापन' : 'Member Management';
+        return languageCode == 'hi'
+            ? 'सदस्य प्रबंधन'
+            : languageCode == 'mr'
+                ? 'सदस्य व्यवस्थापन'
+                : 'Member Management';
       case 'reports':
         return l10n.reportsTab;
       case 'audit':
-        return languageCode == 'hi' ? 'ऑडिट लॉग' : languageCode == 'mr' ? 'ऑडिट लॉग' : 'Audit Log';
+        return languageCode == 'hi'
+            ? 'ऑडिट लॉग'
+            : languageCode == 'mr'
+                ? 'ऑडिट लॉग'
+                : 'Audit Log';
       case 'analytics':
         return l10n.analytics;
       case 'milestones':
-        return languageCode == 'hi' ? 'मील का पत्थर और कार्य' : languageCode == 'mr' ? 'टप्पे व कामे' : 'Milestones & Work';
+        return languageCode == 'hi'
+            ? 'मील का पत्थर और कार्य'
+            : languageCode == 'mr'
+                ? 'टप्पे व कामे'
+                : 'Milestones & Work';
       default:
         return moduleId;
     }

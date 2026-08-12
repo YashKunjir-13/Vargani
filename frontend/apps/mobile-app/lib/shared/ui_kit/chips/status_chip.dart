@@ -47,11 +47,23 @@ class StatusChip extends StatelessWidget {
     final textTheme = Theme.of(context).textTheme;
 
     final (Color background, Color foreground) = switch (type) {
-      StatusChipType.success => (semantic.successContainer, semantic.onSuccessContainer),
-      StatusChipType.warning => (semantic.warningContainer, semantic.onWarningContainer),
-      StatusChipType.error => (colorScheme.errorContainer, colorScheme.onErrorContainer),
+      StatusChipType.success => (
+          semantic.successContainer,
+          semantic.onSuccessContainer
+        ),
+      StatusChipType.warning => (
+          semantic.warningContainer,
+          semantic.onWarningContainer
+        ),
+      StatusChipType.error => (
+          colorScheme.errorContainer,
+          colorScheme.onErrorContainer
+        ),
       StatusChipType.info => (semantic.infoContainer, semantic.onInfoContainer),
-      StatusChipType.neutral => (colorScheme.surfaceContainerHighest, colorScheme.onSurfaceVariant),
+      StatusChipType.neutral => (
+          colorScheme.surfaceContainerHighest,
+          colorScheme.onSurfaceVariant
+        ),
     };
 
     return DecoratedBox(
@@ -73,7 +85,8 @@ class StatusChip extends StatelessWidget {
             ],
             Text(
               label,
-              style: textTheme.labelMedium?.copyWith(color: foreground, letterSpacing: 0),
+              style: textTheme.labelMedium
+                  ?.copyWith(color: foreground, letterSpacing: 0),
             ),
           ],
         ),

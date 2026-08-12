@@ -6,7 +6,6 @@ import '../../shared/ui_kit/cards/kpi_card.dart';
 import '../../shared/ui_kit/chips/status_chip.dart';
 import 'presentation/providers/budget_providers.dart';
 
-
 String _formatCurrency(int paise) {
   return '₹${(paise / 100).round()}';
 }
@@ -40,10 +39,13 @@ class BudgetDetailsScreen extends ConsumerWidget {
       );
     }
 
-    final category = budget.categories.firstWhere((c) => c.id == categoryId, orElse: () => budget.categories.first);
+    final category = budget.categories.firstWhere((c) => c.id == categoryId,
+        orElse: () => budget.categories.first);
     final linkedExpenses = ref.watch(linkedExpensesProvider(category.id));
 
-    final progress = category.allocatedPaise > 0 ? (category.utilizedPaise / category.allocatedPaise) : 0.0;
+    final progress = category.allocatedPaise > 0
+        ? (category.utilizedPaise / category.allocatedPaise)
+        : 0.0;
     final overBudget = progress >= 1.0;
     final percentLabel = '${(progress * 100).toStringAsFixed(0)}%';
 
@@ -56,7 +58,8 @@ class BudgetDetailsScreen extends ConsumerWidget {
             child: Center(
               child: StatusChip(
                 label: percentLabel,
-                type: overBudget ? StatusChipType.error : StatusChipType.success,
+                type:
+                    overBudget ? StatusChipType.error : StatusChipType.success,
               ),
             ),
           ),
@@ -67,13 +70,21 @@ class BudgetDetailsScreen extends ConsumerWidget {
         children: [
           Row(
             children: [
-              Expanded(child: KpiCard(label: 'ALLOCATED', value: _formatCurrency(category.allocatedPaise))),
+              Expanded(
+                  child: KpiCard(
+                      label: 'ALLOCATED',
+                      value: _formatCurrency(category.allocatedPaise))),
               const SizedBox(width: 10),
               Expanded(
                 child: KpiCard(
                   label: 'SPENT',
                   value: _formatCurrency(category.utilizedPaise),
-                  trend: overBudget ? const KpiTrend(direction: TrendDirection.up, label: 'Over', sentiment: TrendSentiment.negative) : null,
+                  trend: overBudget
+                      ? const KpiTrend(
+                          direction: TrendDirection.up,
+                          label: 'Over',
+                          sentiment: TrendSentiment.negative)
+                      : null,
                 ),
               ),
             ],
@@ -85,21 +96,25 @@ class BudgetDetailsScreen extends ConsumerWidget {
               value: progress.clamp(0.0, 1.0),
               minHeight: 8,
               backgroundColor: colorScheme.surfaceContainerHighest,
-              valueColor: AlwaysStoppedAnimation(overBudget ? colorScheme.error : colorScheme.primary),
+              valueColor: AlwaysStoppedAnimation(
+                  overBudget ? colorScheme.error : colorScheme.primary),
             ),
           ),
           if (overBudget) ...[
             const SizedBox(height: 6),
             Text(
               'Over allocation',
-              style: textTheme.labelMedium?.copyWith(color: colorScheme.error, fontWeight: FontWeight.w700),
+              style: textTheme.labelMedium?.copyWith(
+                  color: colorScheme.error, fontWeight: FontWeight.w700),
             ),
           ],
           const SizedBox(height: 24),
           Text('Linked expenses', style: textTheme.titleMedium),
           const SizedBox(height: 12),
           if (linkedExpenses.isEmpty)
-            Text('No expenses linked yet.', style: textTheme.bodyMedium?.copyWith(color: colorScheme.onSurfaceVariant))
+            Text('No expenses linked yet.',
+                style: textTheme.bodyMedium
+                    ?.copyWith(color: colorScheme.onSurfaceVariant))
           else
             Card(
               margin: EdgeInsets.zero,
@@ -113,10 +128,14 @@ class BudgetDetailsScreen extends ConsumerWidget {
                         mainAxisAlignment: MainAxisAlignment.center,
                         crossAxisAlignment: CrossAxisAlignment.end,
                         children: [
-                          Text(_formatCurrency(expense.amountPaise), style: textTheme.bodyLarge?.copyWith(fontWeight: FontWeight.w700)),
+                          Text(_formatCurrency(expense.amountPaise),
+                              style: textTheme.bodyLarge
+                                  ?.copyWith(fontWeight: FontWeight.w700)),
                           StatusChip(
                             label: expense.status,
-                            type: expense.isPaid ? StatusChipType.success : StatusChipType.warning,
+                            type: expense.isPaid
+                                ? StatusChipType.success
+                                : StatusChipType.warning,
                           ),
                         ],
                       ),

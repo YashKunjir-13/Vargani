@@ -33,20 +33,27 @@ void main() {
 
       expect(container.read(localeControllerProvider), const Locale('en'));
 
-      await container.read(localeControllerProvider.notifier).selectLocale(const Locale('hi'));
+      await container
+          .read(localeControllerProvider.notifier)
+          .selectLocale(const Locale('hi'));
       expect(container.read(localeControllerProvider), const Locale('hi'));
       expect(await fakePrefs.load(), const Locale('hi'));
 
-      await container.read(localeControllerProvider.notifier).selectLocale(const Locale('mr'));
+      await container
+          .read(localeControllerProvider.notifier)
+          .selectLocale(const Locale('mr'));
       expect(container.read(localeControllerProvider), const Locale('mr'));
       expect(await fakePrefs.load(), const Locale('mr'));
 
-      await container.read(localeControllerProvider.notifier).selectLocale(const Locale('en'));
+      await container
+          .read(localeControllerProvider.notifier)
+          .selectLocale(const Locale('en'));
       expect(container.read(localeControllerProvider), const Locale('en'));
       expect(await fakePrefs.load(), const Locale('en'));
     });
 
-    testWidgets('Instant app-wide localization update upon locale selection', (tester) async {
+    testWidgets('Instant app-wide localization update upon locale selection',
+        (tester) async {
       final fakePrefs = FakeLocalePreferences();
       late BuildContext savedContext;
 
@@ -97,7 +104,9 @@ void main() {
 
       // Switch to Hindi
       final container = ProviderScope.containerOf(savedContext);
-      await container.read(localeControllerProvider.notifier).selectLocale(const Locale('hi'));
+      await container
+          .read(localeControllerProvider.notifier)
+          .selectLocale(const Locale('hi'));
       await tester.pumpAndSettle();
 
       expect(find.text('प्रोफ़ाइल'), findsOneWidget);
@@ -108,7 +117,9 @@ void main() {
       expect(find.text('सभी रिकॉर्ड'), findsOneWidget);
 
       // Switch to Marathi
-      await container.read(localeControllerProvider.notifier).selectLocale(const Locale('mr'));
+      await container
+          .read(localeControllerProvider.notifier)
+          .selectLocale(const Locale('mr'));
       await tester.pumpAndSettle();
 
       expect(find.text('प्रोफाईल'), findsOneWidget);

@@ -107,8 +107,9 @@ class AuthRepository {
     if (refreshToken == null) return null;
 
     final roleStr = await _tokenStorage.readRole();
-    if (roleStr == null)
+    if (roleStr == null) {
       return null; // If role is missing, session is invalid for our dashboards
+    }
     final role = LoginRole.values
         .firstWhere((e) => e.name == roleStr, orElse: () => LoginRole.mandal);
 

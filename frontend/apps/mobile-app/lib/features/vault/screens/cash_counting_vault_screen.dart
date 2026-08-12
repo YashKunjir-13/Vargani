@@ -14,11 +14,14 @@ class CashCountingVaultScreen extends ConsumerStatefulWidget {
   const CashCountingVaultScreen({super.key});
 
   @override
-  ConsumerState<CashCountingVaultScreen> createState() => _CashCountingVaultScreenState();
+  ConsumerState<CashCountingVaultScreen> createState() =>
+      _CashCountingVaultScreenState();
 }
 
-class _CashCountingVaultScreenState extends ConsumerState<CashCountingVaultScreen> {
-  final _currencyFormat = NumberFormat.currency(symbol: '₹', locale: 'en_IN', decimalDigits: 0);
+class _CashCountingVaultScreenState
+    extends ConsumerState<CashCountingVaultScreen> {
+  final _currencyFormat =
+      NumberFormat.currency(symbol: '₹', locale: 'en_IN', decimalDigits: 0);
 
   @override
   Widget build(BuildContext context) {
@@ -95,7 +98,8 @@ class _CashCountingVaultScreenState extends ConsumerState<CashCountingVaultScree
               ),
               Text(
                 '${records.length} records',
-                style: AppTypography.caption(context, color: AppColors.mutedTextFor(context)),
+                style: AppTypography.caption(context,
+                    color: AppColors.mutedTextFor(context)),
               ),
             ],
           ),
@@ -107,7 +111,8 @@ class _CashCountingVaultScreenState extends ConsumerState<CashCountingVaultScree
     );
   }
 
-  Widget _buildRecordCard(BuildContext context, VaultDepositRecord record, bool isDark) {
+  Widget _buildRecordCard(
+      BuildContext context, VaultDepositRecord record, bool isDark) {
     final statusColor = switch (record.status) {
       VaultStatus.inVault => Colors.amber.shade800,
       VaultStatus.inTransit => Colors.orange.shade800,
@@ -118,127 +123,143 @@ class _CashCountingVaultScreenState extends ConsumerState<CashCountingVaultScree
       padding: const EdgeInsets.only(bottom: AppSpacing.md),
       child: AppCard(
         child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-                decoration: BoxDecoration(
-                  color: statusColor.withValues(alpha: 0.12),
-                  borderRadius: BorderRadius.circular(20),
-                  border: Border.all(color: statusColor.withValues(alpha: 0.3)),
-                ),
-                child: Row(
-                  children: [
-                    Icon(Icons.circle, size: 8, color: statusColor),
-                    const SizedBox(width: 6),
-                    Text(
-                      record.status.label,
-                      style: TextStyle(
-                        color: statusColor,
-                        fontWeight: FontWeight.bold,
-                        fontSize: 12,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Container(
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                  decoration: BoxDecoration(
+                    color: statusColor.withValues(alpha: 0.12),
+                    borderRadius: BorderRadius.circular(20),
+                    border:
+                        Border.all(color: statusColor.withValues(alpha: 0.3)),
+                  ),
+                  child: Row(
+                    children: [
+                      Icon(Icons.circle, size: 8, color: statusColor),
+                      const SizedBox(width: 6),
+                      Text(
+                        record.status.label,
+                        style: TextStyle(
+                          color: statusColor,
+                          fontWeight: FontWeight.bold,
+                          fontSize: 12,
+                        ),
                       ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
-              ),
-              Text(
-                DateFormat('dd MMM, hh:mm a').format(record.date),
-                style: TextStyle(fontSize: 12, color: AppColors.mutedTextFor(context)),
-              ),
-            ],
-          ),
-          const SizedBox(height: 10),
-          Row(
-            children: [
-              CircleAvatar(
-                radius: 20,
-                backgroundColor: AppColors.primaryLight.withValues(alpha: 0.12),
-                child: const Icon(Icons.inbox_outlined, color: AppColors.primaryLight, size: 20),
-              ),
-              const SizedBox(width: 12),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      record.sourceLabel,
-                      style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 15),
-                    ),
-                    Text(
-                      'ID: ${record.id}',
-                      style: TextStyle(fontSize: 12, color: AppColors.mutedTextFor(context)),
-                    ),
-                  ],
+                Text(
+                  DateFormat('dd MMM, hh:mm a').format(record.date),
+                  style: TextStyle(
+                      fontSize: 12, color: AppColors.mutedTextFor(context)),
                 ),
-              ),
-              Text(
-                _currencyFormat.format(record.totalAmount),
-                style: const TextStyle(
-                  fontWeight: FontWeight.w900,
-                  fontSize: 18,
-                  color: AppColors.primaryLight,
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 12),
-          const Divider(height: 1),
-          const SizedBox(height: 12),
-
-          // Dual Digital Sign-Off badges (Treasurer + President)
-          Row(
-            children: [
-              _SignOffBadge(
-                roleLabel: 'Treasurer',
-                isSigned: record.treasurerSigned,
-              ),
-              const SizedBox(width: 8),
-              _SignOffBadge(
-                roleLabel: 'President',
-                isSigned: record.presidentSigned,
-                onSignTap: !record.presidentSigned
-                    ? () {
-                        ref.read(vaultProvider.notifier).signOffAsPresident(record.id);
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(content: Text('President sign-off recorded for ${record.id}')),
-                        );
-                      }
-                    : null,
-              ),
-              const Spacer(),
-
-              if (record.status == VaultStatus.inVault)
-                TextButton.icon(
-                  onPressed: () {
-                    ref.read(vaultProvider.notifier).updateStatus(record.id, VaultStatus.inTransit);
-                  },
-                  icon: const Icon(Icons.local_shipping_outlined, size: 16),
-                  label: const Text('Mark Transit'),
-                )
-              else if (record.status == VaultStatus.inTransit)
-                TextButton.icon(
-                  onPressed: () => _showDepositDialog(context, record),
-                  icon: const Icon(Icons.account_balance_outlined, size: 16),
-                  label: const Text('Record Deposit'),
-                ),
-            ],
-          ),
-          if (record.bankReferenceNumber != null) ...[
-            const SizedBox(height: 6),
-            Text(
-              'Bank Ref: ${record.bankReferenceNumber}',
-              style: TextStyle(fontSize: 12, color: Colors.green.shade700, fontWeight: FontWeight.bold),
+              ],
             ),
+            const SizedBox(height: 10),
+            Row(
+              children: [
+                CircleAvatar(
+                  radius: 20,
+                  backgroundColor:
+                      AppColors.primaryLight.withValues(alpha: 0.12),
+                  child: const Icon(Icons.inbox_outlined,
+                      color: AppColors.primaryLight, size: 20),
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        record.sourceLabel,
+                        style: const TextStyle(
+                            fontWeight: FontWeight.bold, fontSize: 15),
+                      ),
+                      Text(
+                        'ID: ${record.id}',
+                        style: TextStyle(
+                            fontSize: 12,
+                            color: AppColors.mutedTextFor(context)),
+                      ),
+                    ],
+                  ),
+                ),
+                Text(
+                  _currencyFormat.format(record.totalAmount),
+                  style: const TextStyle(
+                    fontWeight: FontWeight.w900,
+                    fontSize: 18,
+                    color: AppColors.primaryLight,
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 12),
+            const Divider(height: 1),
+            const SizedBox(height: 12),
+
+            // Dual Digital Sign-Off badges (Treasurer + President)
+            Row(
+              children: [
+                _SignOffBadge(
+                  roleLabel: 'Treasurer',
+                  isSigned: record.treasurerSigned,
+                ),
+                const SizedBox(width: 8),
+                _SignOffBadge(
+                  roleLabel: 'President',
+                  isSigned: record.presidentSigned,
+                  onSignTap: !record.presidentSigned
+                      ? () {
+                          ref
+                              .read(vaultProvider.notifier)
+                              .signOffAsPresident(record.id);
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(
+                                content: Text(
+                                    'President sign-off recorded for ${record.id}')),
+                          );
+                        }
+                      : null,
+                ),
+                const Spacer(),
+                if (record.status == VaultStatus.inVault)
+                  TextButton.icon(
+                    onPressed: () {
+                      ref
+                          .read(vaultProvider.notifier)
+                          .updateStatus(record.id, VaultStatus.inTransit);
+                    },
+                    icon: const Icon(Icons.local_shipping_outlined, size: 16),
+                    label: const Text('Mark Transit'),
+                  )
+                else if (record.status == VaultStatus.inTransit)
+                  TextButton.icon(
+                    onPressed: () => _showDepositDialog(context, record),
+                    icon: const Icon(Icons.account_balance_outlined, size: 16),
+                    label: const Text('Record Deposit'),
+                  ),
+              ],
+            ),
+            if (record.bankReferenceNumber != null) ...[
+              const SizedBox(height: 6),
+              Text(
+                'Bank Ref: ${record.bankReferenceNumber}',
+                style: TextStyle(
+                    fontSize: 12,
+                    color: Colors.green.shade700,
+                    fontWeight: FontWeight.bold),
+              ),
+            ],
           ],
-        ],
+        ),
       ),
-    ),
-  );
-}
+    );
+  }
 
   void _showDepositDialog(BuildContext context, VaultDepositRecord record) {
     final refController = TextEditingController();
@@ -263,7 +284,9 @@ class _CashCountingVaultScreenState extends ConsumerState<CashCountingVaultScree
           ],
         ),
         actions: [
-          TextButton(onPressed: () => Navigator.pop(context), child: const Text('Cancel')),
+          TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text('Cancel')),
           ElevatedButton(
             onPressed: () {
               ref.read(vaultProvider.notifier).updateStatus(
@@ -326,9 +349,15 @@ class _VaultStatCard extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(title, style: TextStyle(color: color, fontSize: 12, fontWeight: FontWeight.bold)),
+                Text(title,
+                    style: TextStyle(
+                        color: color,
+                        fontSize: 12,
+                        fontWeight: FontWeight.bold)),
                 const SizedBox(height: 2),
-                Text(amount, style: const TextStyle(fontWeight: FontWeight.w900, fontSize: 16)),
+                Text(amount,
+                    style: const TextStyle(
+                        fontWeight: FontWeight.w900, fontSize: 16)),
               ],
             ),
           ),
@@ -365,11 +394,13 @@ class _SignOffBadge extends StatelessWidget {
         child: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(isSigned ? Icons.check_circle : Icons.error_outline, size: 14, color: color),
+            Icon(isSigned ? Icons.check_circle : Icons.error_outline,
+                size: 14, color: color),
             const SizedBox(width: 4),
             Text(
               '$roleLabel: ${isSigned ? 'Signed' : 'Pending'}',
-              style: TextStyle(fontSize: 11, color: color, fontWeight: FontWeight.bold),
+              style: TextStyle(
+                  fontSize: 11, color: color, fontWeight: FontWeight.bold),
             ),
           ],
         ),
@@ -382,19 +413,30 @@ class _CashDenominationSheet extends ConsumerStatefulWidget {
   const _CashDenominationSheet();
 
   @override
-  ConsumerState<_CashDenominationSheet> createState() => _CashDenominationSheetState();
+  ConsumerState<_CashDenominationSheet> createState() =>
+      _CashDenominationSheetState();
 }
 
-class _CashDenominationSheetState extends ConsumerState<_CashDenominationSheet> {
-  final _sourceController = TextEditingController(text: 'Daan Peti #1 (Main Sanctuary)');
+class _CashDenominationSheetState
+    extends ConsumerState<_CashDenominationSheet> {
+  final _sourceController =
+      TextEditingController(text: 'Daan Peti #1 (Main Sanctuary)');
   int c500 = 0, c200 = 0, c100 = 0, c50 = 0, c20 = 0, c10 = 0, coins = 0;
 
-  int get total => (c500 * 500) + (c200 * 200) + (c100 * 100) + (c50 * 50) + (c20 * 20) + (c10 * 10) + coins;
+  int get total =>
+      (c500 * 500) +
+      (c200 * 200) +
+      (c100 * 100) +
+      (c50 * 50) +
+      (c20 * 20) +
+      (c10 * 10) +
+      coins;
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final currency = NumberFormat.currency(symbol: '₹', locale: 'en_IN', decimalDigits: 0);
+    final currency =
+        NumberFormat.currency(symbol: '₹', locale: 'en_IN', decimalDigits: 0);
 
     return Container(
       decoration: BoxDecoration(
@@ -417,13 +459,15 @@ class _CashDenominationSheetState extends ConsumerState<_CashDenominationSheet> 
               children: [
                 Text(
                   'Daan Peti Cash Counter',
-                  style: theme.textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
+                  style: theme.textTheme.titleLarge
+                      ?.copyWith(fontWeight: FontWeight.bold),
                 ),
-                IconButton(onPressed: () => Navigator.pop(context), icon: const Icon(Icons.close)),
+                IconButton(
+                    onPressed: () => Navigator.pop(context),
+                    icon: const Icon(Icons.close)),
               ],
             ),
             const SizedBox(height: 12),
-
             TextField(
               controller: _sourceController,
               decoration: const InputDecoration(
@@ -432,42 +476,53 @@ class _CashDenominationSheetState extends ConsumerState<_CashDenominationSheet> 
               ),
             ),
             const SizedBox(height: 16),
-
             Text(
               'DENOMINATION BREAKDOWN',
-              style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Colors.grey.shade600),
+              style: TextStyle(
+                  fontSize: 12,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.grey.shade600),
             ),
             const SizedBox(height: 8),
-
-            _buildDenominationRow('₹500', 500, c500, (val) => setState(() => c500 = val)),
-            _buildDenominationRow('₹200', 200, c200, (val) => setState(() => c200 = val)),
-            _buildDenominationRow('₹100', 100, c100, (val) => setState(() => c100 = val)),
-            _buildDenominationRow('₹50', 50, c50, (val) => setState(() => c50 = val)),
-            _buildDenominationRow('₹20', 20, c20, (val) => setState(() => c20 = val)),
-            _buildDenominationRow('₹10', 10, c10, (val) => setState(() => c10 = val)),
+            _buildDenominationRow(
+                '₹500', 500, c500, (val) => setState(() => c500 = val)),
+            _buildDenominationRow(
+                '₹200', 200, c200, (val) => setState(() => c200 = val)),
+            _buildDenominationRow(
+                '₹100', 100, c100, (val) => setState(() => c100 = val)),
+            _buildDenominationRow(
+                '₹50', 50, c50, (val) => setState(() => c50 = val)),
+            _buildDenominationRow(
+                '₹20', 20, c20, (val) => setState(() => c20 = val)),
+            _buildDenominationRow(
+                '₹10', 10, c10, (val) => setState(() => c10 = val)),
             _buildCoinsRow(),
-
             const SizedBox(height: 16),
             Container(
               padding: const EdgeInsets.all(16),
               decoration: BoxDecoration(
                 color: AppColors.primaryLight.withValues(alpha: 0.1),
                 borderRadius: BorderRadius.circular(12),
-                border: Border.all(color: AppColors.primaryLight.withValues(alpha: 0.3)),
+                border: Border.all(
+                    color: AppColors.primaryLight.withValues(alpha: 0.3)),
               ),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  const Text('Total Counted Cash:', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+                  const Text('Total Counted Cash:',
+                      style:
+                          TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
                   Text(
                     currency.format(total),
-                    style: const TextStyle(fontWeight: FontWeight.w900, fontSize: 20, color: AppColors.primaryLight),
+                    style: const TextStyle(
+                        fontWeight: FontWeight.w900,
+                        fontSize: 20,
+                        color: AppColors.primaryLight),
                   ),
                 ],
               ),
             ),
             const SizedBox(height: 20),
-
             ElevatedButton.icon(
               onPressed: total > 0
                   ? () {
@@ -491,7 +546,9 @@ class _CashDenominationSheetState extends ConsumerState<_CashDenominationSheet> 
                       ref.read(vaultProvider.notifier).addRecord(newRecord);
                       Navigator.pop(context);
                       ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(content: Text('Cash count logged: ${currency.format(total)}')),
+                        SnackBar(
+                            content: Text(
+                                'Cash count logged: ${currency.format(total)}')),
                       );
                     }
                   : null,
@@ -509,8 +566,10 @@ class _CashDenominationSheetState extends ConsumerState<_CashDenominationSheet> 
     );
   }
 
-  Widget _buildDenominationRow(String label, int multiplier, int currentCount, ValueChanged<int> onChanged) {
-    final currency = NumberFormat.currency(symbol: '₹', locale: 'en_IN', decimalDigits: 0);
+  Widget _buildDenominationRow(String label, int multiplier, int currentCount,
+      ValueChanged<int> onChanged) {
+    final currency =
+        NumberFormat.currency(symbol: '₹', locale: 'en_IN', decimalDigits: 0);
 
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 4),
@@ -518,7 +577,8 @@ class _CashDenominationSheetState extends ConsumerState<_CashDenominationSheet> 
         children: [
           SizedBox(
             width: 60,
-            child: Text(label, style: const TextStyle(fontWeight: FontWeight.bold)),
+            child: Text(label,
+                style: const TextStyle(fontWeight: FontWeight.bold)),
           ),
           const Text('×'),
           const SizedBox(width: 12),
@@ -528,7 +588,8 @@ class _CashDenominationSheetState extends ConsumerState<_CashDenominationSheet> 
               initialValue: currentCount == 0 ? '' : '$currentCount',
               keyboardType: TextInputType.number,
               decoration: const InputDecoration(
-                contentPadding: EdgeInsets.symmetric(horizontal: 8, vertical: 8),
+                contentPadding:
+                    EdgeInsets.symmetric(horizontal: 8, vertical: 8),
                 isDense: true,
               ),
               onChanged: (val) {
@@ -547,7 +608,8 @@ class _CashDenominationSheetState extends ConsumerState<_CashDenominationSheet> 
   }
 
   Widget _buildCoinsRow() {
-    final currency = NumberFormat.currency(symbol: '₹', locale: 'en_IN', decimalDigits: 0);
+    final currency =
+        NumberFormat.currency(symbol: '₹', locale: 'en_IN', decimalDigits: 0);
 
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 4),
@@ -566,7 +628,8 @@ class _CashDenominationSheetState extends ConsumerState<_CashDenominationSheet> 
               keyboardType: TextInputType.number,
               decoration: const InputDecoration(
                 hintText: 'Total Coins ₹',
-                contentPadding: EdgeInsets.symmetric(horizontal: 8, vertical: 8),
+                contentPadding:
+                    EdgeInsets.symmetric(horizontal: 8, vertical: 8),
                 isDense: true,
               ),
               onChanged: (val) {

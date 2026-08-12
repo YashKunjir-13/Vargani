@@ -20,7 +20,8 @@ class VolunteerDetailScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     ref.watch(localeControllerProvider);
     final volunteerAsync = ref.watch(volunteerDetailProvider(volunteerId));
-    final assignmentsAsync = ref.watch(volunteerAssignmentsProvider(volunteerId));
+    final assignmentsAsync =
+        ref.watch(volunteerAssignmentsProvider(volunteerId));
     final role = ref.watch(roleProvider);
     final textTheme = Theme.of(context).textTheme;
     final colors = context.authColors;
@@ -50,7 +51,8 @@ class VolunteerDetailScreen extends ConsumerWidget {
                     Row(
                       children: [
                         Expanded(
-                          child: Text(volunteer.fullName, style: textTheme.headlineMedium),
+                          child: Text(volunteer.fullName,
+                              style: textTheme.headlineMedium),
                         ),
                         VolunteerStatusBadge(status: volunteer.status),
                       ],
@@ -61,18 +63,21 @@ class VolunteerDetailScreen extends ConsumerWidget {
                       customTypeLabel: volunteer.customTypeLabel,
                     ),
                     const SizedBox(height: AppSpacing.space16),
-                    _infoRow(context, 'Volunteer Code', volunteer.volunteerCode),
+                    _infoRow(
+                        context, 'Volunteer Code', volunteer.volunteerCode),
                     _infoRow(context, 'Email', volunteer.email ?? '—'),
                     _infoRow(
                       context,
                       'Mobile',
-                      maskMobile(volunteer.mobile, canViewSensitive: canViewSensitive),
+                      maskMobile(volunteer.mobile,
+                          canViewSensitive: canViewSensitive),
                     ),
                     if (volunteer.emergencyContact != null)
                       _infoRow(
                         context,
                         'Emergency Contact',
-                        maskMobile(volunteer.emergencyContact!, canViewSensitive: canViewSensitive),
+                        maskMobile(volunteer.emergencyContact!,
+                            canViewSensitive: canViewSensitive),
                       ),
                     if (volunteer.address != null)
                       _infoRow(context, 'Address', volunteer.address!),
@@ -84,7 +89,12 @@ class VolunteerDetailScreen extends ConsumerWidget {
                     _infoRow(
                       context,
                       'Joined On',
-                      volunteer.joinedOn?.toLocal().toString().split(' ').first ?? '—',
+                      volunteer.joinedOn
+                              ?.toLocal()
+                              .toString()
+                              .split(' ')
+                              .first ??
+                          '—',
                     ),
                   ],
                 ),
@@ -162,8 +172,12 @@ class VolunteerDetailScreen extends ConsumerWidget {
                 child: Row(
                   children: [
                     Icon(
-                      volunteer.hasLinkedUser ? Icons.link_rounded : Icons.link_off_rounded,
-                      color: volunteer.hasLinkedUser ? colors.brandOrange : colors.secondaryText,
+                      volunteer.hasLinkedUser
+                          ? Icons.link_rounded
+                          : Icons.link_off_rounded,
+                      color: volunteer.hasLinkedUser
+                          ? colors.brandOrange
+                          : colors.secondaryText,
                       size: 24,
                     ),
                     const SizedBox(width: 12),
@@ -205,7 +219,8 @@ class VolunteerDetailScreen extends ConsumerWidget {
                             if (userId != null && userId.isNotEmpty) {
                               await ref
                                   .read(volunteerRepositoryProvider)
-                                  .linkUserIdentity(id: volunteer.id, userId: userId);
+                                  .linkUserIdentity(
+                                      id: volunteer.id, userId: userId);
                             }
                           }
                           ref.invalidate(volunteerDetailProvider(volunteer.id));
@@ -235,16 +250,21 @@ class VolunteerDetailScreen extends ConsumerWidget {
                               : 'Activate',
                           variant: AppButtonVariant.primary,
                           onPressed: () async {
-                            final reason = volunteer.status == VolunteerStatus.suspended
-                                ? await _showReasonDialog(context, title: 'Reactivation Reason')
-                                : null;
-                            if (volunteer.status == VolunteerStatus.suspended && reason == null) {
+                            final reason =
+                                volunteer.status == VolunteerStatus.suspended
+                                    ? await _showReasonDialog(context,
+                                        title: 'Reactivation Reason')
+                                    : null;
+                            if (volunteer.status == VolunteerStatus.suspended &&
+                                reason == null) {
                               return;
                             }
                             await ref
                                 .read(volunteerRepositoryProvider)
-                                .activateVolunteer(id: volunteer.id, auditReason: reason);
-                            ref.invalidate(volunteerDetailProvider(volunteer.id));
+                                .activateVolunteer(
+                                    id: volunteer.id, auditReason: reason);
+                            ref.invalidate(
+                                volunteerDetailProvider(volunteer.id));
                           },
                         ),
                       ),
@@ -256,12 +276,15 @@ class VolunteerDetailScreen extends ConsumerWidget {
                           label: 'Suspend',
                           variant: AppButtonVariant.secondary,
                           onPressed: () async {
-                            final reason = await _showReasonDialog(context, title: 'Suspension Reason');
+                            final reason = await _showReasonDialog(context,
+                                title: 'Suspension Reason');
                             if (reason != null && reason.isNotEmpty) {
                               await ref
                                   .read(volunteerRepositoryProvider)
-                                  .suspendVolunteer(id: volunteer.id, reason: reason);
-                              ref.invalidate(volunteerDetailProvider(volunteer.id));
+                                  .suspendVolunteer(
+                                      id: volunteer.id, reason: reason);
+                              ref.invalidate(
+                                  volunteerDetailProvider(volunteer.id));
                             }
                           },
                         ),
@@ -275,19 +298,23 @@ class VolunteerDetailScreen extends ConsumerWidget {
                           label: 'Deactivate',
                           variant: AppButtonVariant.secondary,
                           onPressed: () async {
-                            final reason = await _showReasonDialog(context, title: 'Deactivation Reason');
+                            final reason = await _showReasonDialog(context,
+                                title: 'Deactivation Reason');
                             if (reason != null && reason.isNotEmpty) {
                               await ref
                                   .read(volunteerRepositoryProvider)
-                                  .deactivateVolunteer(id: volunteer.id, reason: reason);
-                              ref.invalidate(volunteerDetailProvider(volunteer.id));
+                                  .deactivateVolunteer(
+                                      id: volunteer.id, reason: reason);
+                              ref.invalidate(
+                                  volunteerDetailProvider(volunteer.id));
                             }
                           },
                         ),
                       ),
                   ],
                 ),
-              if (canManageVolunteers) const SizedBox(height: AppSpacing.space16),
+              if (canManageVolunteers)
+                const SizedBox(height: AppSpacing.space16),
 
               // ── 5. Assignments Section ────────────────────────────────────
               AppCard(
@@ -304,12 +331,16 @@ class VolunteerDetailScreen extends ConsumerWidget {
                             variant: AppButtonVariant.secondary,
                             fullWidth: false,
                             onPressed: () async {
-                              final newAssignment = await showDialog<VolunteerAssignment>(
+                              final newAssignment =
+                                  await showDialog<VolunteerAssignment>(
                                 context: context,
-                                builder: (_) => _AssignmentDialog(volunteerId: volunteer.id),
+                                builder: (_) => _AssignmentDialog(
+                                    volunteerId: volunteer.id),
                               );
                               if (newAssignment != null) {
-                                await ref.read(volunteerRepositoryProvider).addAssignment(
+                                await ref
+                                    .read(volunteerRepositoryProvider)
+                                    .addAssignment(
                                       volunteerId: volunteer.id,
                                       roleCode: newAssignment.roleCode,
                                       scopeType: newAssignment.scopeType,
@@ -318,8 +349,10 @@ class VolunteerDetailScreen extends ConsumerWidget {
                                       endsAt: newAssignment.endsAt,
                                       status: newAssignment.status,
                                     );
-                                ref.invalidate(volunteerAssignmentsProvider(volunteer.id));
-                                ref.invalidate(volunteerDetailProvider(volunteer.id));
+                                ref.invalidate(
+                                    volunteerAssignmentsProvider(volunteer.id));
+                                ref.invalidate(
+                                    volunteerDetailProvider(volunteer.id));
                               }
                             },
                           ),
@@ -329,15 +362,18 @@ class VolunteerDetailScreen extends ConsumerWidget {
                     assignmentsAsync.when(
                       data: (assignments) {
                         if (assignments.isEmpty) {
-                          return const AppEmptyState(title: 'No assignments yet');
+                          return const AppEmptyState(
+                              title: 'No assignments yet');
                         }
                         return Column(
                           children: assignments
                               .map(
                                 (assignment) => Padding(
-                                  padding: const EdgeInsets.only(bottom: AppSpacing.space8),
+                                  padding: const EdgeInsets.only(
+                                      bottom: AppSpacing.space8),
                                   child: Container(
-                                    padding: const EdgeInsets.all(AppSpacing.space16),
+                                    padding: const EdgeInsets.all(
+                                        AppSpacing.space16),
                                     decoration: BoxDecoration(
                                       color: colors.surfaceMuted,
                                       borderRadius: BorderRadius.circular(12),
@@ -347,11 +383,13 @@ class VolunteerDetailScreen extends ConsumerWidget {
                                       children: [
                                         Expanded(
                                           child: Column(
-                                            crossAxisAlignment: CrossAxisAlignment.start,
+                                            crossAxisAlignment:
+                                                CrossAxisAlignment.start,
                                             children: [
                                               Text(
                                                 assignment.roleCode,
-                                                style: textTheme.titleMedium?.copyWith(
+                                                style: textTheme.titleMedium
+                                                    ?.copyWith(
                                                   fontWeight: FontWeight.bold,
                                                 ),
                                               ),
@@ -371,16 +409,20 @@ class VolunteerDetailScreen extends ConsumerWidget {
                                               horizontal: 8, vertical: 4),
                                           decoration: BoxDecoration(
                                             color: assignment.status ==
-                                                    VolunteerAssignmentStatus.active
-                                                ? colors.brandOrange.withValues(alpha: 0.15)
+                                                    VolunteerAssignmentStatus
+                                                        .active
+                                                ? colors.brandOrange
+                                                    .withValues(alpha: 0.15)
                                                 : colors.surfaceMuted,
-                                            borderRadius: BorderRadius.circular(6),
+                                            borderRadius:
+                                                BorderRadius.circular(6),
                                           ),
                                           child: Text(
                                             assignment.status.label,
                                             style: TextStyle(
                                               color: assignment.status ==
-                                                      VolunteerAssignmentStatus.active
+                                                      VolunteerAssignmentStatus
+                                                          .active
                                                   ? colors.brandOrange
                                                   : colors.secondaryText,
                                               fontWeight: FontWeight.bold,
@@ -396,8 +438,10 @@ class VolunteerDetailScreen extends ConsumerWidget {
                               .toList(),
                         );
                       },
-                      loading: () => const AppLoadingIndicator(label: 'Loading assignments...'),
-                      error: (error, stackTrace) => AppErrorView(message: error.toString()),
+                      loading: () => const AppLoadingIndicator(
+                          label: 'Loading assignments...'),
+                      error: (error, stackTrace) =>
+                          AppErrorView(message: error.toString()),
                     ),
                   ],
                 ),
@@ -409,7 +453,8 @@ class VolunteerDetailScreen extends ConsumerWidget {
                   label: 'Edit volunteer',
                   onPressed: () => Navigator.of(context).push(
                     MaterialPageRoute(
-                      builder: (_) => VolunteerFormScreen(volunteerId: volunteer.id),
+                      builder: (_) =>
+                          VolunteerFormScreen(volunteerId: volunteer.id),
                     ),
                   ),
                 ),
@@ -452,7 +497,8 @@ class VolunteerDetailScreen extends ConsumerWidget {
     );
   }
 
-  Future<String?> _showReasonDialog(BuildContext context, {required String title}) async {
+  Future<String?> _showReasonDialog(BuildContext context,
+      {required String title}) async {
     final controller = TextEditingController();
     return showDialog<String>(
       context: context,
@@ -481,7 +527,8 @@ class VolunteerDetailScreen extends ConsumerWidget {
   }
 
   Future<String?> _showLinkUserDialog(BuildContext context) async {
-    final controller = TextEditingController(text: 'user-auth-${DateTime.now().millisecondsSinceEpoch % 1000}');
+    final controller = TextEditingController(
+        text: 'user-auth-${DateTime.now().millisecondsSinceEpoch % 1000}');
     return showDialog<String>(
       context: context,
       builder: (ctx) => AlertDialog(
@@ -558,7 +605,8 @@ class _AssignmentDialogState extends State<_AssignmentDialog> {
               initialValue: _roleCode,
               decoration: const InputDecoration(labelText: 'Role Code / Duty'),
               items: _roleOptions
-                  .map((role) => DropdownMenuItem(value: role, child: Text(role)))
+                  .map((role) =>
+                      DropdownMenuItem(value: role, child: Text(role)))
                   .toList(),
               onChanged: (val) => setState(() => _roleCode = val ?? _roleCode),
             ),
@@ -567,9 +615,11 @@ class _AssignmentDialogState extends State<_AssignmentDialog> {
               initialValue: _scopeType,
               decoration: const InputDecoration(labelText: 'Scope Type'),
               items: AssignmentScopeType.values
-                  .map((scope) => DropdownMenuItem(value: scope, child: Text(scope.label)))
+                  .map((scope) =>
+                      DropdownMenuItem(value: scope, child: Text(scope.label)))
                   .toList(),
-              onChanged: (val) => setState(() => _scopeType = val ?? _scopeType),
+              onChanged: (val) =>
+                  setState(() => _scopeType = val ?? _scopeType),
             ),
             const SizedBox(height: 12),
             TextField(
@@ -584,7 +634,8 @@ class _AssignmentDialogState extends State<_AssignmentDialog> {
               initialValue: _status,
               decoration: const InputDecoration(labelText: 'Status'),
               items: VolunteerAssignmentStatus.values
-                  .map((st) => DropdownMenuItem(value: st, child: Text(st.label)))
+                  .map((st) =>
+                      DropdownMenuItem(value: st, child: Text(st.label)))
                   .toList(),
               onChanged: (val) => setState(() => _status = val ?? _status),
             ),

@@ -52,8 +52,8 @@ class AppListItemCard extends StatelessWidget {
               ),
               if (status != null) ...[
                 AppStatusBadge(
-                  label: status!.name[0].toUpperCase() +
-                      status!.name.substring(1),
+                  label:
+                      status!.name[0].toUpperCase() + status!.name.substring(1),
                   status: status!,
                 ),
                 const SizedBox(width: AppSpacing.space8),

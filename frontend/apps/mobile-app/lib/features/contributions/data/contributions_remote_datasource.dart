@@ -10,7 +10,9 @@ class ContributionsRemoteDataSource {
   Future<List<Contribution>> fetchContributions() async {
     final response = await dio.get('/contributions');
     final data = response.data as List<dynamic>;
-    return data.map((json) => Contribution.fromJson(json as Map<String, dynamic>)).toList();
+    return data
+        .map((json) => Contribution.fromJson(json as Map<String, dynamic>))
+        .toList();
   }
 
   Future<Contribution> getContributionById(String id) async {
@@ -72,7 +74,8 @@ class ContributionsRemoteDataSource {
       if (unit != null) 'unit': unit,
       if (estimatedValue != null) 'estimatedValue': estimatedValue,
       if (notes != null) 'notes': notes,
-      if (certificatePhotoUrl != null) 'certificatePhotoUrl': certificatePhotoUrl,
+      if (certificatePhotoUrl != null)
+        'certificatePhotoUrl': certificatePhotoUrl,
     });
 
     return Contribution.fromJson(response.data as Map<String, dynamic>);
@@ -100,7 +103,8 @@ class ContributionsRemoteDataSource {
       if (unit != null) 'unit': unit,
       if (estimatedValue != null) 'estimatedValue': estimatedValue,
       if (notes != null) 'notes': notes,
-      if (certificatePhotoUrl != null) 'certificatePhotoUrl': certificatePhotoUrl,
+      if (certificatePhotoUrl != null)
+        'certificatePhotoUrl': certificatePhotoUrl,
     });
     return Contribution.fromJson(response.data as Map<String, dynamic>);
   }
@@ -111,9 +115,11 @@ class ContributionsRemoteDataSource {
 
   Future<String> uploadCertificatePhoto(File file) async {
     final formData = FormData.fromMap({
-      'file': await MultipartFile.fromFile(file.path, filename: file.path.split('/').last),
+      'file': await MultipartFile.fromFile(file.path,
+          filename: file.path.split('/').last),
     });
-    final response = await dio.post('/contributions/upload-certificate', data: formData);
+    final response =
+        await dio.post('/contributions/upload-certificate', data: formData);
     return response.data['url'] as String;
   }
 }

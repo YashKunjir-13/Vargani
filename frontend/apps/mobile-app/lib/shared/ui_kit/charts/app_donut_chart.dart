@@ -12,7 +12,8 @@ class DonutSlice {
   final double value;
   final Color color;
 
-  const DonutSlice({required this.label, required this.value, required this.color});
+  const DonutSlice(
+      {required this.label, required this.value, required this.color});
 }
 
 /// A donut chart for part-to-whole composition (e.g. expense distribution

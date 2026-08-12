@@ -20,12 +20,14 @@ class BudgetRevisionScreen extends ConsumerStatefulWidget {
   const BudgetRevisionScreen({super.key});
 
   @override
-  ConsumerState<BudgetRevisionScreen> createState() => _BudgetRevisionScreenState();
+  ConsumerState<BudgetRevisionScreen> createState() =>
+      _BudgetRevisionScreenState();
 }
 
 class _BudgetRevisionScreenState extends ConsumerState<BudgetRevisionScreen> {
   final _reasonController = TextEditingController();
-  final _titleController = TextEditingController(text: 'Budget Revision Request');
+  final _titleController =
+      TextEditingController(text: 'Budget Revision Request');
   List<MockRevisionAdjustment>? _adjustments;
 
   @override
@@ -55,7 +57,8 @@ class _BudgetRevisionScreenState extends ConsumerState<BudgetRevisionScreen> {
     );
 
     ref.read(budgetActionsProvider).requestRevision(revision);
-    ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Revision submitted')));
+    ScaffoldMessenger.of(context)
+        .showSnackBar(const SnackBar(content: Text('Revision submitted')));
     context.pop();
   }
 
@@ -79,7 +82,8 @@ class _BudgetRevisionScreenState extends ConsumerState<BudgetRevisionScreen> {
           categoryId: cat.id,
           categoryName: cat.name,
           currentAllocationPaise: cat.allocatedPaise,
-          proposedAllocationPaise: cat.allocatedPaise + 5000000, // add ₹50,000 for mock
+          proposedAllocationPaise:
+              cat.allocatedPaise + 5000000, // add ₹50,000 for mock
         )
       ];
     }
@@ -87,7 +91,10 @@ class _BudgetRevisionScreenState extends ConsumerState<BudgetRevisionScreen> {
     final adjustments = _adjustments ?? [];
 
     // In a real app we'd calculate net change across all categories
-    final int netChange = adjustments.fold(0, (sum, a) => sum + (a.proposedAllocationPaise - a.currentAllocationPaise));
+    final int netChange = adjustments.fold(
+        0,
+        (sum, a) =>
+            sum + (a.proposedAllocationPaise - a.currentAllocationPaise));
     final netChangeBalances = netChange == 0;
 
     return Scaffold(
@@ -97,14 +104,18 @@ class _BudgetRevisionScreenState extends ConsumerState<BudgetRevisionScreen> {
           mainAxisSize: MainAxisSize.min,
           children: [
             const Text('New Revision'),
-            Text('Draft', style: textTheme.labelMedium?.copyWith(color: colorScheme.onSurfaceVariant)),
+            Text('Draft',
+                style: textTheme.labelMedium
+                    ?.copyWith(color: colorScheme.onSurfaceVariant)),
           ],
         ),
       ),
       body: ListView(
         padding: const EdgeInsets.all(16),
         children: [
-          Text('Title', style: textTheme.labelMedium?.copyWith(color: colorScheme.onSurfaceVariant)),
+          Text('Title',
+              style: textTheme.labelMedium
+                  ?.copyWith(color: colorScheme.onSurfaceVariant)),
           const SizedBox(height: 8),
           TextField(
             controller: _titleController,
@@ -114,7 +125,9 @@ class _BudgetRevisionScreenState extends ConsumerState<BudgetRevisionScreen> {
             ),
           ),
           const SizedBox(height: 16),
-          Text('Reason for revision', style: textTheme.labelMedium?.copyWith(color: colorScheme.onSurfaceVariant)),
+          Text('Reason for revision',
+              style: textTheme.labelMedium
+                  ?.copyWith(color: colorScheme.onSurfaceVariant)),
           const SizedBox(height: 8),
           TextField(
             controller: _reasonController,
@@ -140,11 +153,15 @@ class _BudgetRevisionScreenState extends ConsumerState<BudgetRevisionScreen> {
                 else
                   for (final adjustment in adjustments)
                     ListTile(
-                      title: Text(adjustment.categoryName, style: textTheme.bodyLarge?.copyWith(fontWeight: FontWeight.w700)),
-                      subtitle: Text('Current ${_formatCurrency(adjustment.currentAllocationPaise)}'),
+                      title: Text(adjustment.categoryName,
+                          style: textTheme.bodyLarge
+                              ?.copyWith(fontWeight: FontWeight.w700)),
+                      subtitle: Text(
+                          'Current ${_formatCurrency(adjustment.currentAllocationPaise)}'),
                       trailing: Text(
                         _formatCurrency(adjustment.proposedAllocationPaise),
-                        style: textTheme.bodyLarge?.copyWith(fontWeight: FontWeight.w700),
+                        style: textTheme.bodyLarge
+                            ?.copyWith(fontWeight: FontWeight.w700),
                       ),
                     ),
               ],
@@ -154,19 +171,30 @@ class _BudgetRevisionScreenState extends ConsumerState<BudgetRevisionScreen> {
           Container(
             padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
-              color: netChangeBalances ? colorScheme.tertiaryContainer : colorScheme.errorContainer,
+              color: netChangeBalances
+                  ? colorScheme.tertiaryContainer
+                  : colorScheme.errorContainer,
               borderRadius: BorderRadius.circular(16),
             ),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Text(
-                  netChangeBalances ? 'Net change balances to zero' : 'Net change does not balance',
-                  style: textTheme.bodyLarge?.copyWith(fontWeight: FontWeight.w700),
+                  netChangeBalances
+                      ? 'Net change balances to zero'
+                      : 'Net change does not balance',
+                  style: textTheme.bodyLarge
+                      ?.copyWith(fontWeight: FontWeight.w700),
                 ),
                 StatusChip(
-                  label: netChangeBalances ? '₹0' : (netChange > 0 ? '+${_formatCurrency(netChange)}' : _formatCurrency(netChange)),
-                  type: netChangeBalances ? StatusChipType.success : StatusChipType.error,
+                  label: netChangeBalances
+                      ? '₹0'
+                      : (netChange > 0
+                          ? '+${_formatCurrency(netChange)}'
+                          : _formatCurrency(netChange)),
+                  type: netChangeBalances
+                      ? StatusChipType.success
+                      : StatusChipType.error,
                 ),
               ],
             ),
@@ -178,9 +206,14 @@ class _BudgetRevisionScreenState extends ConsumerState<BudgetRevisionScreen> {
           padding: const EdgeInsets.all(16),
           child: Row(
             children: [
-              Expanded(child: SecondaryButton(label: 'Cancel', onPressed: () => context.pop())),
+              Expanded(
+                  child: SecondaryButton(
+                      label: 'Cancel', onPressed: () => context.pop())),
               const SizedBox(width: 8),
-              Expanded(child: PrimaryButton(label: 'Submit for Approval', onPressed: _submitForApproval)),
+              Expanded(
+                  child: PrimaryButton(
+                      label: 'Submit for Approval',
+                      onPressed: _submitForApproval)),
             ],
           ),
         ),

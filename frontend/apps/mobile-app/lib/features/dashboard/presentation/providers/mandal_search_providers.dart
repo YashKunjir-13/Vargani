@@ -2,7 +2,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:pauti_pustak_mobile/core/session/session_controller.dart';
 import 'package:pauti_pustak_mobile/features/dashboard/models/organization_search_model.dart';
 
-class MandalSearchNotifier extends Notifier<AsyncValue<List<PublicOrganization>>> {
+class MandalSearchNotifier
+    extends Notifier<AsyncValue<List<PublicOrganization>>> {
   @override
   AsyncValue<List<PublicOrganization>> build() {
     fetchMandals();
@@ -30,7 +31,8 @@ class MandalSearchNotifier extends Notifier<AsyncValue<List<PublicOrganization>>
       }
 
       final mandals = items
-          .map((item) => PublicOrganization.fromJson(item as Map<String, dynamic>))
+          .map((item) =>
+              PublicOrganization.fromJson(item as Map<String, dynamic>))
           .toList();
 
       state = AsyncValue.data(mandals);
@@ -40,7 +42,7 @@ class MandalSearchNotifier extends Notifier<AsyncValue<List<PublicOrganization>>
   }
 }
 
-final mandalSearchProvider =
-    NotifierProvider<MandalSearchNotifier, AsyncValue<List<PublicOrganization>>>(
+final mandalSearchProvider = NotifierProvider<MandalSearchNotifier,
+    AsyncValue<List<PublicOrganization>>>(
   MandalSearchNotifier.new,
 );

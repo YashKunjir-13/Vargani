@@ -36,7 +36,8 @@ class BankDetails {
             : rawAccount);
 
     return BankDetails(
-      accountHolderName: json['bankAccountName'] as String? ?? json['accountHolderName'] as String?,
+      accountHolderName: json['bankAccountName'] as String? ??
+          json['accountHolderName'] as String?,
       bankName: json['bankName'] as String?,
       accountNumber: rawAccount,
       accountNumberMasked: masked,
@@ -66,7 +67,8 @@ class BankDetailsNotifier extends Notifier<BankDetails> {
   Future<void> fetchBankDetails() async {
     try {
       final dio = ref.read(dioProvider);
-      final response = await dio.get<Map<String, dynamic>>('/organizations/current');
+      final response =
+          await dio.get<Map<String, dynamic>>('/organizations/current');
       final data = response.data?['data'] as Map<String, dynamic>?;
       if (data != null) {
         state = BankDetails.fromJson(data);
@@ -142,7 +144,8 @@ class BankDetailsSection extends ConsumerWidget {
             children: [
               Row(
                 children: [
-                  Icon(Icons.account_balance_outlined, color: colors.brandOrange, size: 24),
+                  Icon(Icons.account_balance_outlined,
+                      color: colors.brandOrange, size: 24),
                   const SizedBox(width: 10),
                   Text(
                     l10n.bankDetailsSection,
@@ -155,7 +158,8 @@ class BankDetailsSection extends ConsumerWidget {
                 ],
               ),
               IconButton(
-                icon: Icon(Icons.edit_outlined, color: colors.brandOrange, size: 20),
+                icon: Icon(Icons.edit_outlined,
+                    color: colors.brandOrange, size: 20),
                 onPressed: () => _showEditBankDetailsSheet(context, ref, bank),
                 tooltip: l10n.editProfile,
               ),
@@ -172,26 +176,31 @@ class BankDetailsSection extends ConsumerWidget {
               style: ElevatedButton.styleFrom(
                 backgroundColor: colors.brandOrange,
                 foregroundColor: Colors.white,
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(10)),
               ),
               onPressed: () => _showEditBankDetailsSheet(context, ref, bank),
               icon: const Icon(Icons.add, size: 18),
               label: Text(l10n.bankDetailsSection),
             ),
           ] else ...[
-            _infoItem(context, l10n.accountHolderLabel, bank.accountHolderName ?? '—'),
+            _infoItem(context, l10n.accountHolderLabel,
+                bank.accountHolderName ?? '—'),
             _infoItem(context, l10n.bankNameLabel, bank.bankName ?? '—'),
-            _infoItem(context, l10n.accountNumberLabel, bank.accountNumberMasked ?? '—'),
+            _infoItem(context, l10n.accountNumberLabel,
+                bank.accountNumberMasked ?? '—'),
             _infoItem(context, l10n.ifscCodeLabel, bank.ifscCode ?? '—'),
             _infoItem(context, l10n.branchNameLabel, bank.branchName ?? '—'),
-            _infoItem(context, l10n.vpaLabel, bank.vpa ?? '—', isHighlight: true),
+            _infoItem(context, l10n.vpaLabel, bank.vpa ?? '—',
+                isHighlight: true),
           ],
         ],
       ),
     );
   }
 
-  Widget _infoItem(BuildContext context, String label, String value, {bool isHighlight = false}) {
+  Widget _infoItem(BuildContext context, String label, String value,
+      {bool isHighlight = false}) {
     final colors = context.authColors;
     return Padding(
       padding: const EdgeInsets.only(bottom: 10),
@@ -200,7 +209,10 @@ class BankDetailsSection extends ConsumerWidget {
         children: [
           Text(
             label,
-            style: TextStyle(color: colors.secondaryText, fontSize: 13, fontWeight: FontWeight.w600),
+            style: TextStyle(
+                color: colors.secondaryText,
+                fontSize: 13,
+                fontWeight: FontWeight.w600),
           ),
           const SizedBox(width: 12),
           Expanded(
@@ -219,13 +231,19 @@ class BankDetailsSection extends ConsumerWidget {
     );
   }
 
-  static void _showEditBankDetailsSheet(BuildContext context, WidgetRef ref, BankDetails currentBank) {
+  static void _showEditBankDetailsSheet(
+      BuildContext context, WidgetRef ref, BankDetails currentBank) {
     final colors = context.authColors;
-    final holderController = TextEditingController(text: currentBank.accountHolderName ?? '');
-    final bankNameController = TextEditingController(text: currentBank.bankName ?? '');
-    final accountController = TextEditingController(text: currentBank.accountNumber ?? '');
-    final ifscController = TextEditingController(text: currentBank.ifscCode ?? '');
-    final branchController = TextEditingController(text: currentBank.branchName ?? '');
+    final holderController =
+        TextEditingController(text: currentBank.accountHolderName ?? '');
+    final bankNameController =
+        TextEditingController(text: currentBank.bankName ?? '');
+    final accountController =
+        TextEditingController(text: currentBank.accountNumber ?? '');
+    final ifscController =
+        TextEditingController(text: currentBank.ifscCode ?? '');
+    final branchController =
+        TextEditingController(text: currentBank.branchName ?? '');
     final vpaController = TextEditingController(text: currentBank.vpa ?? '');
 
     bool isSubmitting = false;
@@ -311,7 +329,10 @@ class BankDetailsSection extends ConsumerWidget {
                       const SizedBox(height: 12),
                       Text(
                         errorText!,
-                        style: const TextStyle(color: Colors.red, fontWeight: FontWeight.bold, fontSize: 12),
+                        style: const TextStyle(
+                            color: Colors.red,
+                            fontWeight: FontWeight.bold,
+                            fontSize: 12),
                       ),
                     ],
                     const SizedBox(height: 24),
@@ -322,7 +343,8 @@ class BankDetailsSection extends ConsumerWidget {
                         style: ElevatedButton.styleFrom(
                           backgroundColor: colors.brandOrange,
                           foregroundColor: Colors.white,
-                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                          shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(12)),
                         ),
                         onPressed: isSubmitting
                             ? null
@@ -336,18 +358,22 @@ class BankDetailsSection extends ConsumerWidget {
                                 final vpa = vpaController.text.trim();
 
                                 if (vpa.isEmpty && account.isEmpty) {
-                                  setState(() => errorText = 'Please enter at least an Account Number or VPA / UPI ID.');
+                                  setState(() => errorText =
+                                      'Please enter at least an Account Number or VPA / UPI ID.');
                                   return;
                                 }
 
                                 if (vpa.isNotEmpty && !vpa.contains('@')) {
-                                  setState(() => errorText = 'Please enter a valid VPA / UPI ID (e.g. name@upi).');
+                                  setState(() => errorText =
+                                      'Please enter a valid VPA / UPI ID (e.g. name@upi).');
                                   return;
                                 }
 
                                 setState(() => isSubmitting = true);
                                 final messenger = ScaffoldMessenger.of(context);
-                                final success = await ref.read(bankDetailsProvider.notifier).saveBankDetails(
+                                final success = await ref
+                                    .read(bankDetailsProvider.notifier)
+                                    .saveBankDetails(
                                       accountHolderName: holder,
                                       bankName: bank,
                                       accountNumber: account,
@@ -361,7 +387,8 @@ class BankDetailsSection extends ConsumerWidget {
                                   if (success) {
                                     messenger.showSnackBar(
                                       SnackBar(
-                                        content: const Text('Bank details saved successfully'),
+                                        content: const Text(
+                                            'Bank details saved successfully'),
                                         backgroundColor: colors.brandOrange,
                                       ),
                                     );
@@ -372,11 +399,13 @@ class BankDetailsSection extends ConsumerWidget {
                             ? const SizedBox(
                                 width: 24,
                                 height: 24,
-                                child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2.5),
+                                child: CircularProgressIndicator(
+                                    color: Colors.white, strokeWidth: 2.5),
                               )
                             : const Text(
                                 'Save Bank Details',
-                                style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                                style: TextStyle(
+                                    fontSize: 16, fontWeight: FontWeight.bold),
                               ),
                       ),
                     ),

@@ -54,10 +54,12 @@ class ScaffoldWithNavBar extends ConsumerWidget {
     final bills = ref.watch(billsProvider);
 
     final pendingMatchCount = asyncPayments.maybeWhen(
-      data: (list) => list.where((p) => p.status == PaymentStatus.pendingMatch).length,
+      data: (list) =>
+          list.where((p) => p.status == PaymentStatus.pendingMatch).length,
       orElse: () => 0,
     );
-    final pendingApprovalCount = bills.where((b) => b.status == BillStatus.pendingApproval).length;
+    final pendingApprovalCount =
+        bills.where((b) => b.status == BillStatus.pendingApproval).length;
 
     final theme = Theme.of(context);
     final isDark = theme.brightness == Brightness.dark;
@@ -75,7 +77,8 @@ class ScaffoldWithNavBar extends ConsumerWidget {
               width: 1,
             ),
           ),
-          boxShadow: isDark ? AppColors.softShadowDark : AppColors.softShadowLight,
+          boxShadow:
+              isDark ? AppColors.softShadowDark : AppColors.softShadowLight,
         ),
         child: NavigationBar(
           selectedIndex: selectedIndex,

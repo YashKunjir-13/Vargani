@@ -8,14 +8,21 @@ class ContributionReceiptsRemoteDataSource {
 
   Future<List<ContributionReceipt>> fetchMyHistory() async {
     final response = await dio.get('/donors/me/history');
-    final data = response.data['data'] as List<dynamic>? ?? response.data as List<dynamic>;
-    return data.map((json) => ContributionReceipt.fromJson(json as Map<String, dynamic>)).toList();
+    final data = response.data['data'] as List<dynamic>? ??
+        response.data as List<dynamic>;
+    return data
+        .map((json) =>
+            ContributionReceipt.fromJson(json as Map<String, dynamic>))
+        .toList();
   }
 
   Future<List<ContributionReceipt>> fetchAll() async {
     final response = await dio.get('/contribution-receipts');
     final data = response.data as List<dynamic>;
-    return data.map((json) => ContributionReceipt.fromJson(json as Map<String, dynamic>)).toList();
+    return data
+        .map((json) =>
+            ContributionReceipt.fromJson(json as Map<String, dynamic>))
+        .toList();
   }
 
   Future<ContributionReceipt> getReceiptById(String id) async {
@@ -23,7 +30,8 @@ class ContributionReceiptsRemoteDataSource {
     return ContributionReceipt.fromJson(response.data as Map<String, dynamic>);
   }
 
-  Future<ContributionReceipt> generateForContribution(String contributionId) async {
+  Future<ContributionReceipt> generateForContribution(
+      String contributionId) async {
     final response = await dio.post('/contribution-receipts/generate', data: {
       'contributionId': contributionId,
     });

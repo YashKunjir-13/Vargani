@@ -1,10 +1,4 @@
-enum DateRangeFilter {
-  entireFestival,
-  today,
-  thisWeek,
-  thisMonth,
-  custom
-}
+enum DateRangeFilter { entireFestival, today, thisWeek, thisMonth, custom }
 
 class FinancialMetrics {
   final int totalInflowPaise;
