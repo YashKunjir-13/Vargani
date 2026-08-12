@@ -2,7 +2,8 @@ enum ContributionReceiptWhatsappStatus { pending, sent, failed }
 
 enum ContributionReceiptStatus { active, voided }
 
-extension ContributionReceiptWhatsappStatusLabel on ContributionReceiptWhatsappStatus {
+extension ContributionReceiptWhatsappStatusLabel
+    on ContributionReceiptWhatsappStatus {
   String get label => switch (this) {
         ContributionReceiptWhatsappStatus.pending => 'Pending',
         ContributionReceiptWhatsappStatus.sent => 'Sent',
@@ -77,15 +78,27 @@ class ContributionReceipt {
 
     return ContributionReceipt(
       id: json['id'] as String? ?? '',
-      contributionReceiptNumber: json['contributionReceiptNumber'] as String? ?? '',
+      contributionReceiptNumber:
+          json['contributionReceiptNumber'] as String? ?? '',
       contributionId: json['contributionId'] as String? ?? '',
-      contributorName: json['contributorNameSnapshot'] as String? ?? json['contributorName'] as String? ?? '',
-      donationType: json['donationTypeSnapshot'] as String? ?? json['donationType'] as String? ?? 'General',
-      issuedDate: json['issuedDate'] != null ? DateTime.parse(json['issuedDate'] as String) : (json['createdAt'] != null ? DateTime.parse(json['createdAt'] as String) : DateTime.now()),
-      mandalName: json['mandalNameSnapshot'] as String? ?? json['mandalName'] as String? ?? 'Mandal Trust',
+      contributorName: json['contributorNameSnapshot'] as String? ??
+          json['contributorName'] as String? ??
+          '',
+      donationType: json['donationTypeSnapshot'] as String? ??
+          json['donationType'] as String? ??
+          'General',
+      issuedDate: json['issuedDate'] != null
+          ? DateTime.parse(json['issuedDate'] as String)
+          : (json['createdAt'] != null
+              ? DateTime.parse(json['createdAt'] as String)
+              : DateTime.now()),
+      mandalName: json['mandalNameSnapshot'] as String? ??
+          json['mandalName'] as String? ??
+          'Mandal Trust',
       templateVersionId: json['templateVersionId'] as String?,
       status: parseStatus(json['status'] as String?),
-      whatsappDeliveryStatus: parseWhatsapp(json['whatsappDeliveryStatus'] as String?),
+      whatsappDeliveryStatus:
+          parseWhatsapp(json['whatsappDeliveryStatus'] as String?),
       whatsappRetryCount: json['whatsappRetryCount'] as int? ?? 0,
       voidReason: json['voidReason'] as String?,
     );
@@ -101,8 +114,14 @@ class ContributionReceipt {
       'issuedDate': issuedDate.toIso8601String(),
       'mandalNameSnapshot': mandalName,
       'templateVersionId': templateVersionId,
-      'status': status == ContributionReceiptStatus.voided ? 'VOIDED' : 'ACTIVE',
-      'whatsappDeliveryStatus': whatsappDeliveryStatus == ContributionReceiptWhatsappStatus.sent ? 'SENT' : (whatsappDeliveryStatus == ContributionReceiptWhatsappStatus.failed ? 'FAILED' : 'PENDING'),
+      'status':
+          status == ContributionReceiptStatus.voided ? 'VOIDED' : 'ACTIVE',
+      'whatsappDeliveryStatus': whatsappDeliveryStatus ==
+              ContributionReceiptWhatsappStatus.sent
+          ? 'SENT'
+          : (whatsappDeliveryStatus == ContributionReceiptWhatsappStatus.failed
+              ? 'FAILED'
+              : 'PENDING'),
       'whatsappRetryCount': whatsappRetryCount,
       'voidReason': voidReason,
     };
@@ -124,10 +143,10 @@ class ContributionReceipt {
       mandalName: mandalName,
       templateVersionId: templateVersionId,
       status: status ?? this.status,
-      whatsappDeliveryStatus: whatsappDeliveryStatus ?? this.whatsappDeliveryStatus,
+      whatsappDeliveryStatus:
+          whatsappDeliveryStatus ?? this.whatsappDeliveryStatus,
       whatsappRetryCount: whatsappRetryCount ?? this.whatsappRetryCount,
       voidReason: voidReason ?? this.voidReason,
     );
   }
 }
-

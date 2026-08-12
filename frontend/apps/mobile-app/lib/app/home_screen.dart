@@ -32,8 +32,9 @@ class HomeScreen extends ConsumerWidget {
     final currentRole = ref.watch(userRoleProvider);
     final theme = Theme.of(context);
 
-    final pendingMatchCount =
-        paymentsList.where((p) => p.status == PaymentStatus.pendingMatch).length;
+    final pendingMatchCount = paymentsList
+        .where((p) => p.status == PaymentStatus.pendingMatch)
+        .length;
     final pendingApprovalCount =
         bills.where((b) => b.status == BillStatus.pendingApproval).length;
 
@@ -170,7 +171,8 @@ class HomeScreen extends ConsumerWidget {
             icon: Icons.receipt_long_outlined,
             color: Colors.green,
             title: L10n.tr(ref, 'receipts'),
-            subtitle: '${receiptsList.length} receipts issued • PDF re-download',
+            subtitle:
+                '${receiptsList.length} receipts issued • PDF re-download',
             onTap: () => context.push('/receipts'),
           ),
           const SizedBox(height: 12),

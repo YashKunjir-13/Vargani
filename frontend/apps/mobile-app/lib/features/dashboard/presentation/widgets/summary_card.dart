@@ -30,7 +30,7 @@ class HeroOverviewCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    
+
     return Semantics(
       button: onTap != null,
       label: '$tagline, $mainAmount. $subtitle',
@@ -243,7 +243,8 @@ class GlassStatCard extends StatelessWidget {
                     ),
                     if (badgeText != null)
                       Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 6, vertical: 2),
                         decoration: BoxDecoration(
                           color: badgeColor ?? Colors.red,
                           borderRadius: BorderRadius.circular(10),

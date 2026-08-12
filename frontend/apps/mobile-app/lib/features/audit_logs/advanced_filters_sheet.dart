@@ -11,7 +11,8 @@ class AuditFiltersSheet extends StatefulWidget {
   const AuditFiltersSheet({super.key});
 
   static Future<void> show(BuildContext context) {
-    return AppBottomSheet.show<void>(context, builder: (_) => const AuditFiltersSheet());
+    return AppBottomSheet.show<void>(context,
+        builder: (_) => const AuditFiltersSheet());
   }
 
   @override
@@ -50,8 +51,10 @@ class _AuditFiltersSheetState extends State<AuditFiltersSheet> {
         child: const Text('Reset'),
       ),
       actions: [
-        SecondaryButton(label: 'Clear all', onPressed: () => Navigator.of(context).pop()),
-        PrimaryButton(label: 'Apply (3)', onPressed: () => Navigator.of(context).pop()),
+        SecondaryButton(
+            label: 'Clear all', onPressed: () => Navigator.of(context).pop()),
+        PrimaryButton(
+            label: 'Apply (3)', onPressed: () => Navigator.of(context).pop()),
       ],
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -65,7 +68,12 @@ class _AuditFiltersSheetState extends State<AuditFiltersSheet> {
           const SizedBox(height: 20),
           _MultiChipGroup(
             label: 'Category',
-            options: const ['Financial', 'Administrative', 'Security', 'System'],
+            options: const [
+              'Financial',
+              'Administrative',
+              'Security',
+              'System'
+            ],
             selected: _categories,
             onChanged: (v) => setState(() {}),
           ),
@@ -119,7 +127,10 @@ class _MultiChipGroup extends StatelessWidget {
       children: [
         Text(
           label.toUpperCase(),
-          style: Theme.of(context).textTheme.labelMedium?.copyWith(color: colorScheme.onSurfaceVariant),
+          style: Theme.of(context)
+              .textTheme
+              .labelMedium
+              ?.copyWith(color: colorScheme.onSurfaceVariant),
         ),
         const SizedBox(height: 8),
         Wrap(

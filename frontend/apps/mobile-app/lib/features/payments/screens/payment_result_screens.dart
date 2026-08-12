@@ -28,7 +28,8 @@ class PaymentResultScreen extends ConsumerWidget {
     }
   }
 
-  Widget _buildSuccessView(BuildContext context, WidgetRef ref, DonationFlowState flow) {
+  Widget _buildSuccessView(
+      BuildContext context, WidgetRef ref, DonationFlowState flow) {
     final theme = Theme.of(context);
     final dateFormat = DateFormat('dd MMM yyyy, hh:mm a');
     final formattedDate = dateFormat.format(DateTime.now());
@@ -37,11 +38,13 @@ class PaymentResultScreen extends ConsumerWidget {
     final donorName = flow.selectedDonor?['name'] ?? 'Walk-in Donor';
     final amount = flow.amount;
     final method = flow.paymentMethod;
-    final receiptNo = flow.receiptNumber ?? 'REC-${DateTime.now().millisecondsSinceEpoch.toString().substring(5)}';
-    final txnId = flow.paymentId ?? 'TXN-${DateTime.now().millisecondsSinceEpoch}';
+    final receiptNo = flow.receiptNumber ??
+        'REC-${DateTime.now().millisecondsSinceEpoch.toString().substring(5)}';
+    final txnId =
+        flow.paymentId ?? 'TXN-${DateTime.now().millisecondsSinceEpoch}';
 
     return Scaffold(
-      appBar: PautiAppBar(
+      appBar: const PautiAppBar(
         title: 'Donation Confirmation',
         subtitle: 'Step 9 of 10 • Success',
         showBackButton: false,
@@ -71,10 +74,10 @@ class PaymentResultScreen extends ConsumerWidget {
               const SizedBox(height: 6),
               Text(
                 'Official collection and receipt recorded in database',
-                style: theme.textTheme.bodyMedium?.copyWith(color: Colors.grey.shade700),
+                style: theme.textTheme.bodyMedium
+                    ?.copyWith(color: Colors.grey.shade700),
               ),
               const SizedBox(height: 24),
-
               AppCard(
                 child: Column(
                   children: [
@@ -82,14 +85,15 @@ class PaymentResultScreen extends ConsumerWidget {
                     _buildRow('Transaction ID', txnId),
                     _buildRow('Event / Festival', eventName),
                     _buildRow('Donor Name', donorName, isBold: true),
-                    _buildRow('Donation Amount', '₹${amount.toStringAsFixed(2)}', isBold: true),
+                    _buildRow(
+                        'Donation Amount', '₹${amount.toStringAsFixed(2)}',
+                        isBold: true),
                     _buildRow('Payment Method', method),
                     _buildRow('Date & Time', formattedDate),
                   ],
                 ),
               ),
               const SizedBox(height: 30),
-
               AppButton(
                 label: 'View Official Receipt',
                 onPressed: () => context.push('/donation/receipt'),
@@ -110,11 +114,12 @@ class PaymentResultScreen extends ConsumerWidget {
     );
   }
 
-  Widget _buildFailedView(BuildContext context, WidgetRef ref, DonationFlowState flow) {
+  Widget _buildFailedView(
+      BuildContext context, WidgetRef ref, DonationFlowState flow) {
     final theme = Theme.of(context);
 
     return Scaffold(
-      appBar: PautiAppBar(
+      appBar: const PautiAppBar(
         title: 'Payment Failed',
         subtitle: 'Step 9 of 10 • Failed',
         showBackButton: false,
@@ -136,16 +141,18 @@ class PaymentResultScreen extends ConsumerWidget {
               const SizedBox(height: 20),
               Text(
                 'Payment Failed',
-                style: theme.textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.bold, color: Colors.red.shade800),
+                style: theme.textTheme.headlineSmall?.copyWith(
+                    fontWeight: FontWeight.bold, color: Colors.red.shade800),
               ),
               const SizedBox(height: 10),
               Text(
-                flow.errorMessage ?? 'Simulated gateway payment failure. No collection record created.',
+                flow.errorMessage ??
+                    'Simulated gateway payment failure. No collection record created.',
                 textAlign: TextAlign.center,
-                style: theme.textTheme.bodyMedium?.copyWith(color: Colors.grey.shade800),
+                style: theme.textTheme.bodyMedium
+                    ?.copyWith(color: Colors.grey.shade800),
               ),
               const SizedBox(height: 32),
-
               AppButton(
                 label: 'Retry Payment',
                 onPressed: () async {
@@ -175,11 +182,12 @@ class PaymentResultScreen extends ConsumerWidget {
     );
   }
 
-  Widget _buildCancelledView(BuildContext context, WidgetRef ref, DonationFlowState flow) {
+  Widget _buildCancelledView(
+      BuildContext context, WidgetRef ref, DonationFlowState flow) {
     final theme = Theme.of(context);
 
     return Scaffold(
-      appBar: PautiAppBar(
+      appBar: const PautiAppBar(
         title: 'Payment Cancelled',
         subtitle: 'Step 9 of 10 • Cancelled',
         showBackButton: false,
@@ -201,16 +209,17 @@ class PaymentResultScreen extends ConsumerWidget {
               const SizedBox(height: 20),
               Text(
                 'Payment Cancelled',
-                style: theme.textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.bold, color: Colors.orange.shade900),
+                style: theme.textTheme.headlineSmall?.copyWith(
+                    fontWeight: FontWeight.bold, color: Colors.orange.shade900),
               ),
               const SizedBox(height: 10),
               Text(
                 'User cancelled the payment simulation. No collection record was generated.',
                 textAlign: TextAlign.center,
-                style: theme.textTheme.bodyMedium?.copyWith(color: Colors.grey.shade800),
+                style: theme.textTheme.bodyMedium
+                    ?.copyWith(color: Colors.grey.shade800),
               ),
               const SizedBox(height: 32),
-
               AppButton(
                 label: 'Return to Review',
                 onPressed: () => context.pop(),
@@ -231,11 +240,12 @@ class PaymentResultScreen extends ConsumerWidget {
     );
   }
 
-  Widget _buildPendingView(BuildContext context, WidgetRef ref, DonationFlowState flow) {
+  Widget _buildPendingView(
+      BuildContext context, WidgetRef ref, DonationFlowState flow) {
     final theme = Theme.of(context);
 
     return Scaffold(
-      appBar: PautiAppBar(
+      appBar: const PautiAppBar(
         title: 'Payment Pending',
         subtitle: 'Step 9 of 10 • Pending',
         showBackButton: false,
@@ -252,26 +262,30 @@ class PaymentResultScreen extends ConsumerWidget {
                   color: Colors.blue,
                   shape: BoxShape.circle,
                 ),
-                child: const Icon(Icons.hourglass_top, color: Colors.white, size: 48),
+                child: const Icon(Icons.hourglass_top,
+                    color: Colors.white, size: 48),
               ),
               const SizedBox(height: 20),
               Text(
                 'Payment Pending Verification',
-                style: theme.textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.bold, color: Colors.blue.shade900),
+                style: theme.textTheme.headlineSmall?.copyWith(
+                    fontWeight: FontWeight.bold, color: Colors.blue.shade900),
               ),
               const SizedBox(height: 10),
               Text(
                 'Payment order created. Awaiting bank statement or gateway webhook confirmation.',
                 textAlign: TextAlign.center,
-                style: theme.textTheme.bodyMedium?.copyWith(color: Colors.grey.shade800),
+                style: theme.textTheme.bodyMedium
+                    ?.copyWith(color: Colors.grey.shade800),
               ),
               const SizedBox(height: 32),
-
               AppButton(
                 label: 'Check Payment Status',
                 onPressed: () {
                   ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text('Checked status: Payment is PENDING_MATCH')),
+                    const SnackBar(
+                        content:
+                            Text('Checked status: Payment is PENDING_MATCH')),
                   );
                 },
               ),

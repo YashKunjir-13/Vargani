@@ -60,7 +60,8 @@ abstract class VolunteerRepository {
     required String id,
   });
 
-  Future<List<VolunteerAssignment>> getAssignmentsForVolunteer(String volunteerId);
+  Future<List<VolunteerAssignment>> getAssignmentsForVolunteer(
+      String volunteerId);
 
   Future<VolunteerAssignment> addAssignment({
     required String volunteerId,

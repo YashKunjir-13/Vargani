@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-
+import 'package:pauti_pustak_mobile/core/session/session_controller.dart';
 import 'package:pauti_pustak_mobile/features/authentication/presentation/widgets/auth_design_tokens.dart';
 
 import 'user_management_screen.dart';
@@ -67,17 +67,22 @@ class _AddUserScreenState extends ConsumerState<AddUserScreen> {
   @override
   void initState() {
     super.initState();
-    _nameController = TextEditingController(text: widget.editingUser?.name ?? '');
-    _contactController = TextEditingController(text: widget.editingUser?.contact ?? '');
+    _nameController =
+        TextEditingController(text: widget.editingUser?.name ?? '');
+    _contactController =
+        TextEditingController(text: widget.editingUser?.contact ?? '');
     _selectedRole = widget.editingUser?.role ?? MockRole.volunteer;
 
-    _customRoleNameController = TextEditingController(text: widget.editingUser?.customRoleName ?? '');
-    _customRoleDescController = TextEditingController(text: widget.editingUser?.customRoleDescription ?? '');
+    _customRoleNameController =
+        TextEditingController(text: widget.editingUser?.customRoleName ?? '');
+    _customRoleDescController = TextEditingController(
+        text: widget.editingUser?.customRoleDescription ?? '');
 
     if (widget.editingUser?.customPermissions != null) {
       _selectedPermissions.addAll(widget.editingUser!.customPermissions!);
     } else if (_selectedRole != MockRole.custom) {
-      _selectedPermissions.addAll(MockRbacNotifier.getDefaultPermissions(_selectedRole));
+      _selectedPermissions
+          .addAll(MockRbacNotifier.getDefaultPermissions(_selectedRole));
     }
   }
 
@@ -92,7 +97,8 @@ class _AddUserScreenState extends ConsumerState<AddUserScreen> {
 
   void _handleSave() {
     if (_formKey.currentState?.validate() ?? false) {
-      if (_selectedRole == MockRole.custom && _customRoleNameController.text.trim().isEmpty) {
+      if (_selectedRole == MockRole.custom &&
+          _customRoleNameController.text.trim().isEmpty) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('Please enter a Custom Role Name')),
         );
@@ -103,8 +109,10 @@ class _AddUserScreenState extends ConsumerState<AddUserScreen> {
 
       bool isOverridden = false;
       if (_selectedRole != MockRole.custom) {
-        final defaults = MockRbacNotifier.getDefaultPermissions(_selectedRole).toSet();
-        if (defaults.length != _selectedPermissions.length || !defaults.containsAll(_selectedPermissions)) {
+        final defaults =
+            MockRbacNotifier.getDefaultPermissions(_selectedRole).toSet();
+        if (defaults.length != _selectedPermissions.length ||
+            !defaults.containsAll(_selectedPermissions)) {
           isOverridden = true;
         }
       } else {
@@ -112,15 +120,23 @@ class _AddUserScreenState extends ConsumerState<AddUserScreen> {
       }
 
       final savedUser = MockUser(
-        id: isEdit ? widget.editingUser!.id : 'USR-${DateTime.now().millisecondsSinceEpoch}',
+        id: isEdit
+            ? widget.editingUser!.id
+            : 'USR-${DateTime.now().millisecondsSinceEpoch}',
         name: _nameController.text.trim(),
         contact: _contactController.text.trim(),
         role: _selectedRole,
         status: isEdit ? widget.editingUser!.status : 'Active',
         joinedDate: isEdit ? widget.editingUser!.joinedDate : 'Today',
-        appointedBy: isEdit ? widget.editingUser!.appointedBy : 'Trust President',
-        customRoleName: _selectedRole == MockRole.custom ? _customRoleNameController.text.trim() : null,
-        customRoleDescription: _selectedRole == MockRole.custom ? _customRoleDescController.text.trim() : null,
+        appointedBy: isEdit
+            ? widget.editingUser!.appointedBy
+            : '${ref.read(sessionControllerProvider).user?.displayName ?? 'Admin'} • President',
+        customRoleName: _selectedRole == MockRole.custom
+            ? _customRoleNameController.text.trim()
+            : null,
+        customRoleDescription: _selectedRole == MockRole.custom
+            ? _customRoleDescController.text.trim()
+            : null,
         customPermissions: isOverridden ? _selectedPermissions.toList() : null,
       );
 
@@ -132,7 +148,10 @@ class _AddUserScreenState extends ConsumerState<AddUserScreen> {
 
       Navigator.of(context).pop();
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(isEdit ? 'User updated successfully' : 'User added successfully')),
+        SnackBar(
+            content: Text(isEdit
+                ? 'User updated successfully'
+                : 'User added successfully')),
       );
     }
   }
@@ -169,36 +188,49 @@ class _AddUserScreenState extends ConsumerState<AddUserScreen> {
             children: [
               Text(
                 'User Details',
-                style: TextStyle(color: colors.text, fontSize: 18, fontWeight: FontWeight.bold),
+                style: TextStyle(
+                    color: colors.text,
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold),
               ),
               const SizedBox(height: 16),
               TextFormField(
                 controller: _nameController,
                 decoration: InputDecoration(
                   labelText: 'Full Name',
-                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                  border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12)),
                   prefixIcon: const Icon(Icons.person_outline),
                 ),
-                validator: (value) => value == null || value.isEmpty ? 'Please enter a name' : null,
+                validator: (value) => value == null || value.isEmpty
+                    ? 'Please enter a name'
+                    : null,
               ),
               const SizedBox(height: 16),
               TextFormField(
                 controller: _contactController,
                 decoration: InputDecoration(
                   labelText: 'Email or Mobile Number',
-                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                  border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12)),
                   prefixIcon: const Icon(Icons.contact_mail_outlined),
                 ),
-                validator: (value) => value == null || value.isEmpty ? 'Please enter contact info' : null,
+                validator: (value) => value == null || value.isEmpty
+                    ? 'Please enter contact info'
+                    : null,
               ),
               const SizedBox(height: 24),
               Text(
                 'Assign Role',
-                style: TextStyle(color: colors.text, fontSize: 18, fontWeight: FontWeight.bold),
+                style: TextStyle(
+                    color: colors.text,
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold),
               ),
               const SizedBox(height: 16),
               Container(
-                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
                 decoration: BoxDecoration(
                   border: Border.all(color: Colors.grey.shade400),
                   borderRadius: BorderRadius.circular(12),
@@ -211,7 +243,9 @@ class _AddUserScreenState extends ConsumerState<AddUserScreen> {
                     items: MockRole.values.map((role) {
                       return DropdownMenuItem(
                         value: role,
-                        child: Text(role.displayName, style: const TextStyle(fontWeight: FontWeight.w600)),
+                        child: Text(role.displayName,
+                            style:
+                                const TextStyle(fontWeight: FontWeight.w600)),
                       );
                     }).toList(),
                     onChanged: (val) {
@@ -220,7 +254,8 @@ class _AddUserScreenState extends ConsumerState<AddUserScreen> {
                           _selectedRole = val;
                           _selectedPermissions.clear();
                           if (val != MockRole.custom) {
-                            _selectedPermissions.addAll(MockRbacNotifier.getDefaultPermissions(val));
+                            _selectedPermissions.addAll(
+                                MockRbacNotifier.getDefaultPermissions(val));
                           }
                         });
                       }
@@ -228,19 +263,22 @@ class _AddUserScreenState extends ConsumerState<AddUserScreen> {
                   ),
                 ),
               ),
-
               if (_selectedRole == MockRole.custom) ...[
                 const SizedBox(height: 24),
                 Text(
                   'Custom Role Information',
-                  style: TextStyle(color: colors.text, fontSize: 18, fontWeight: FontWeight.bold),
+                  style: TextStyle(
+                      color: colors.text,
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold),
                 ),
                 const SizedBox(height: 16),
                 TextFormField(
                   controller: _customRoleNameController,
                   decoration: InputDecoration(
                     labelText: 'Role Name (e.g. Event Coordinator)',
-                    border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                    border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(12)),
                     prefixIcon: const Icon(Icons.badge_outlined),
                   ),
                 ),
@@ -249,17 +287,20 @@ class _AddUserScreenState extends ConsumerState<AddUserScreen> {
                   controller: _customRoleDescController,
                   decoration: InputDecoration(
                     labelText: 'Description (Optional)',
-                    border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                    border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(12)),
                     prefixIcon: const Icon(Icons.description_outlined),
                   ),
                   maxLines: 2,
                 ),
               ],
-
               const SizedBox(height: 24),
               Text(
                 'Access & Permissions',
-                style: TextStyle(color: colors.text, fontSize: 18, fontWeight: FontWeight.bold),
+                style: TextStyle(
+                    color: colors.text,
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold),
               ),
               const SizedBox(height: 16),
               ..._permissionGroups.entries.map((group) {
@@ -268,55 +309,57 @@ class _AddUserScreenState extends ConsumerState<AddUserScreen> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                        Text(
-                          group.key,
-                          style: TextStyle(
-                            color: colors.brandOrange,
-                            fontSize: 14,
-                            fontWeight: FontWeight.bold,
-                          ),
+                      Text(
+                        group.key,
+                        style: TextStyle(
+                          color: colors.brandOrange,
+                          fontSize: 14,
+                          fontWeight: FontWeight.bold,
                         ),
-                        const SizedBox(height: 8),
-                        Container(
-                          decoration: BoxDecoration(
-                            color: colors.card,
-                            borderRadius: BorderRadius.circular(12),
-                            border: Border.all(color: colors.border),
-                          ),
-                          child: Column(
-                            children: group.value.map((perm) {
-                              final isSelected = _selectedPermissions.contains(perm['id']!);
-                              return CheckboxListTile(
-                                title: Text(
-                                  perm['name']!,
-                                  style: TextStyle(
-                                    color: colors.text,
-                                    fontSize: 14,
-                                    fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
-                                  ),
+                      ),
+                      const SizedBox(height: 8),
+                      Container(
+                        decoration: BoxDecoration(
+                          color: colors.card,
+                          borderRadius: BorderRadius.circular(12),
+                          border: Border.all(color: colors.border),
+                        ),
+                        child: Column(
+                          children: group.value.map((perm) {
+                            final isSelected =
+                                _selectedPermissions.contains(perm['id']!);
+                            return CheckboxListTile(
+                              title: Text(
+                                perm['name']!,
+                                style: TextStyle(
+                                  color: colors.text,
+                                  fontSize: 14,
+                                  fontWeight: isSelected
+                                      ? FontWeight.bold
+                                      : FontWeight.normal,
                                 ),
-                                activeColor: colors.brandOrange,
-                                value: isSelected,
-                                onChanged: (val) {
-                                  setState(() {
-                                    if (val == true) {
-                                      _selectedPermissions.add(perm['id']!);
-                                    } else {
-                                      _selectedPermissions.remove(perm['id']!);
-                                    }
-                                  });
-                                },
-                                dense: true,
-                                controlAffinity: ListTileControlAffinity.leading,
-                              );
-                            }).toList(),
-                          ),
+                              ),
+                              activeColor: colors.brandOrange,
+                              value: isSelected,
+                              onChanged: (val) {
+                                setState(() {
+                                  if (val == true) {
+                                    _selectedPermissions.add(perm['id']!);
+                                  } else {
+                                    _selectedPermissions.remove(perm['id']!);
+                                  }
+                                });
+                              },
+                              dense: true,
+                              controlAffinity: ListTileControlAffinity.leading,
+                            );
+                          }).toList(),
                         ),
-                      ],
+                      ),
+                    ],
                   ),
                 );
               }),
-
               const SizedBox(height: 40),
               ElevatedButton(
                 onPressed: _handleSave,

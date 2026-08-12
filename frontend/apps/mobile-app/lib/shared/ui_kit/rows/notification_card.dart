@@ -63,7 +63,8 @@ class NotificationCard extends StatelessWidget {
         child: Container(
           width: 6,
           height: 6,
-          decoration: BoxDecoration(color: colorScheme.primary, shape: BoxShape.circle),
+          decoration:
+              BoxDecoration(color: colorScheme.primary, shape: BoxShape.circle),
         ),
       );
     } else {
@@ -78,23 +79,31 @@ class NotificationCard extends StatelessWidget {
           width: 32,
           height: 32,
           margin: const EdgeInsets.only(right: AppSpacing.space12),
-          decoration: BoxDecoration(color: iconBackground, borderRadius: BorderRadius.circular(9)),
+          decoration: BoxDecoration(
+              color: iconBackground, borderRadius: BorderRadius.circular(9)),
           child: Icon(icon, size: AppIconSize.small, color: iconColor),
         ),
         Expanded(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(title, style: textTheme.bodyLarge?.copyWith(fontWeight: FontWeight.w700)),
-              Text(description, style: textTheme.bodyMedium?.copyWith(color: colorScheme.onSurfaceVariant)),
+              Text(title,
+                  style: textTheme.bodyLarge
+                      ?.copyWith(fontWeight: FontWeight.w700)),
+              Text(description,
+                  style: textTheme.bodyMedium
+                      ?.copyWith(color: colorScheme.onSurfaceVariant)),
               if (primaryActionLabel != null) ...[
                 const SizedBox(height: AppSpacing.space8),
                 Row(
                   children: [
-                    PrimaryButton(label: primaryActionLabel!, onPressed: onPrimaryAction),
+                    PrimaryButton(
+                        label: primaryActionLabel!, onPressed: onPrimaryAction),
                     if (secondaryActionLabel != null) ...[
                       const SizedBox(width: AppSpacing.space8),
-                      TextButton(onPressed: onSecondaryAction, child: Text(secondaryActionLabel!)),
+                      TextButton(
+                          onPressed: onSecondaryAction,
+                          child: Text(secondaryActionLabel!)),
                     ],
                   ],
                 ),

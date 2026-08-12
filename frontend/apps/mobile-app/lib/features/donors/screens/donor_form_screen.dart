@@ -7,11 +7,13 @@ import 'package:intl/intl.dart';
 import 'package:printing/printing.dart';
 
 import '../../../core/core.dart';
+import '../../../core/session/session_controller.dart';
 import '../../../shared/shared.dart';
 import '../../../shared/utils/pdf_generator.dart';
 import '../../authentication/presentation/widgets/auth_design_tokens.dart';
 import '../../dashboard/presentation/providers/dashboard_providers.dart';
 import '../../payments/state/payments_notifier.dart';
+import '../../receipts/models/receipt.dart';
 import '../../receipts/state/receipts_notifier.dart';
 import '../models/donor.dart';
 import '../providers/donor_providers.dart';
@@ -116,7 +118,8 @@ class _DonorFormScreenState extends ConsumerState<DonorFormScreen> {
                     children: [
                       Row(
                         children: [
-                          Icon(Icons.volunteer_activism_outlined, color: colors.brandOrange, size: 22),
+                          Icon(Icons.volunteer_activism_outlined,
+                              color: colors.brandOrange, size: 22),
                           const SizedBox(width: 10),
                           Expanded(
                             child: Column(
@@ -132,7 +135,9 @@ class _DonorFormScreenState extends ConsumerState<DonorFormScreen> {
                                 ),
                                 Text(
                                   'Record a donation & issue receipt along with this donor profile',
-                                  style: TextStyle(color: colors.secondaryText, fontSize: 12),
+                                  style: TextStyle(
+                                      color: colors.secondaryText,
+                                      fontSize: 12),
                                 ),
                               ],
                             ),
@@ -140,7 +145,8 @@ class _DonorFormScreenState extends ConsumerState<DonorFormScreen> {
                           Switch(
                             value: _addDonationNow,
                             activeThumbColor: colors.brandOrange,
-                            onChanged: (val) => setState(() => _addDonationNow = val),
+                            onChanged: (val) =>
+                                setState(() => _addDonationNow = val),
                           ),
                         ],
                       ),
@@ -165,7 +171,8 @@ class _DonorFormScreenState extends ConsumerState<DonorFormScreen> {
                         const SizedBox(height: 8),
                         Wrap(
                           spacing: 8,
-                          children: ['Cash', 'UPI', 'Net Banking', 'Cheque'].map((method) {
+                          children: ['Cash', 'UPI', 'Net Banking', 'Cheque']
+                              .map((method) {
                             final selected = method == _selectedPaymentMethod;
                             return ChoiceChip(
                               label: Text(method),
@@ -175,7 +182,8 @@ class _DonorFormScreenState extends ConsumerState<DonorFormScreen> {
                                 color: selected ? Colors.white : colors.text,
                                 fontWeight: FontWeight.w800,
                               ),
-                              onSelected: (_) => setState(() => _selectedPaymentMethod = method),
+                              onSelected: (_) => setState(
+                                  () => _selectedPaymentMethod = method),
                             );
                           }).toList(),
                         ),
@@ -196,7 +204,9 @@ class _DonorFormScreenState extends ConsumerState<DonorFormScreen> {
                 const SizedBox(height: AppSpacing.space16),
                 Text(
                   _errorText!,
-                  style: TextStyle(color: Theme.of(context).colorScheme.error, fontWeight: FontWeight.bold),
+                  style: TextStyle(
+                      color: Theme.of(context).colorScheme.error,
+                      fontWeight: FontWeight.bold),
                 ),
               ],
 
@@ -205,7 +215,9 @@ class _DonorFormScreenState extends ConsumerState<DonorFormScreen> {
               AppButton(
                 label: isEditing
                     ? 'Save Donor Profile'
-                    : (_addDonationNow ? 'Continue to Payment' : 'Save Donor Only'),
+                    : (_addDonationNow
+                        ? 'Continue to Payment'
+                        : 'Save Donor Only'),
                 isLoading: _isSubmitting,
                 onPressed: _isSubmitting ? null : _handleSubmit,
               ),
@@ -230,11 +242,13 @@ class _DonorFormScreenState extends ConsumerState<DonorFormScreen> {
     if (mobile.isNotEmpty) {
       final digitsOnly = mobile.replaceAll(RegExp(r'\D'), '');
       if (digitsOnly.length != 10) {
-        setState(() => _errorText = 'Mobile number must contain exactly 10 digits.');
+        setState(
+            () => _errorText = 'Mobile number must contain exactly 10 digits.');
         return;
       }
     } else if (email.isEmpty) {
-      setState(() => _errorText = 'Please enter a mobile number (10 digits) or email address.');
+      setState(() => _errorText =
+          'Please enter a mobile number (10 digits) or email address.');
       return;
     }
 
@@ -277,7 +291,8 @@ class _DonorFormScreenState extends ConsumerState<DonorFormScreen> {
       ref.invalidate(donorListProvider);
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Donor saved successfully (No initial donation)')),
+        const SnackBar(
+            content: Text('Donor saved successfully (No initial donation)')),
       );
       Navigator.pop(context);
       return;
@@ -287,7 +302,8 @@ class _DonorFormScreenState extends ConsumerState<DonorFormScreen> {
     final amountText = _amountController.text.trim();
     final amountVal = double.tryParse(amountText) ?? 0.0;
     if (amountVal <= 0) {
-      setState(() => _errorText = 'Please enter a valid donation amount greater than ₹0.');
+      setState(() =>
+          _errorText = 'Please enter a valid donation amount greater than ₹0.');
       return;
     }
 
@@ -297,7 +313,9 @@ class _DonorFormScreenState extends ConsumerState<DonorFormScreen> {
     Donor? match;
     for (final d in existingDonors) {
       final cleanDMobile = d.mobile?.replaceAll(RegExp(r'\D'), '') ?? '';
-      final mobileMatches = cleanMobile.isNotEmpty && cleanDMobile.isNotEmpty && cleanDMobile.endsWith(cleanMobile);
+      final mobileMatches = cleanMobile.isNotEmpty &&
+          cleanDMobile.isNotEmpty &&
+          cleanDMobile.endsWith(cleanMobile);
       final nameMatches = d.fullName.toLowerCase() == fullName.toLowerCase();
       if (mobileMatches || nameMatches) {
         match = d;
@@ -341,14 +359,19 @@ class _DonorFormScreenState extends ConsumerState<DonorFormScreen> {
       builder: (confirmCtx) {
         return AlertDialog(
           backgroundColor: colors.card,
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+          shape:
+              RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
           title: Row(
             children: [
-              Icon(Icons.verified_user_outlined, color: colors.brandOrange, size: 24),
+              Icon(Icons.verified_user_outlined,
+                  color: colors.brandOrange, size: 24),
               const SizedBox(width: 8),
               Text(
                 'Confirm Donation',
-                style: TextStyle(color: colors.text, fontSize: 18, fontWeight: FontWeight.w900),
+                style: TextStyle(
+                    color: colors.text,
+                    fontSize: 18,
+                    fontWeight: FontWeight.w900),
               ),
             ],
           ),
@@ -371,11 +394,24 @@ class _DonorFormScreenState extends ConsumerState<DonorFormScreen> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text('Donor: $fullName', style: TextStyle(color: colors.text, fontWeight: FontWeight.bold)),
-                    if (mobile.isNotEmpty) Text('Mobile: $mobile', style: TextStyle(color: colors.secondaryText, fontSize: 12)),
-                    Text('Amount: ₹${amountVal.toStringAsFixed(0)}', style: TextStyle(color: colors.brandOrange, fontWeight: FontWeight.bold, fontSize: 16)),
-                    Text('Payment Method: $_selectedPaymentMethod', style: TextStyle(color: colors.secondaryText, fontSize: 12)),
-                    Text('Purpose: ${_purposeController.text.trim()}', style: TextStyle(color: colors.secondaryText, fontSize: 12)),
+                    Text('Donor: $fullName',
+                        style: TextStyle(
+                            color: colors.text, fontWeight: FontWeight.bold)),
+                    if (mobile.isNotEmpty)
+                      Text('Mobile: $mobile',
+                          style: TextStyle(
+                              color: colors.secondaryText, fontSize: 12)),
+                    Text('Amount: ₹${amountVal.toStringAsFixed(0)}',
+                        style: TextStyle(
+                            color: colors.brandOrange,
+                            fontWeight: FontWeight.bold,
+                            fontSize: 16)),
+                    Text('Payment Method: $_selectedPaymentMethod',
+                        style: TextStyle(
+                            color: colors.secondaryText, fontSize: 12)),
+                    Text('Purpose: ${_purposeController.text.trim()}',
+                        style: TextStyle(
+                            color: colors.secondaryText, fontSize: 12)),
                   ],
                 ),
               ),
@@ -385,11 +421,15 @@ class _DonorFormScreenState extends ConsumerState<DonorFormScreen> {
                 decoration: BoxDecoration(
                   color: Colors.amber.withValues(alpha: 0.1),
                   borderRadius: BorderRadius.circular(8),
-                  border: Border.all(color: Colors.amber.withValues(alpha: 0.3)),
+                  border:
+                      Border.all(color: Colors.amber.withValues(alpha: 0.3)),
                 ),
                 child: const Text(
                   '⚡ Direct confirmation mode (No Razorpay gateway required)',
-                  style: TextStyle(color: Colors.amber, fontSize: 11, fontWeight: FontWeight.w600),
+                  style: TextStyle(
+                      color: Colors.amber,
+                      fontSize: 11,
+                      fontWeight: FontWeight.w600),
                 ),
               ),
             ],
@@ -397,43 +437,96 @@ class _DonorFormScreenState extends ConsumerState<DonorFormScreen> {
           actions: [
             TextButton(
               onPressed: () => Navigator.pop(confirmCtx),
-              child: Text('Cancel', style: TextStyle(color: colors.secondaryText)),
+              child:
+                  Text('Cancel', style: TextStyle(color: colors.secondaryText)),
             ),
             ElevatedButton.icon(
               style: ElevatedButton.styleFrom(
                 backgroundColor: colors.brandOrange,
                 foregroundColor: Colors.white,
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(10)),
               ),
               onPressed: () async {
-                Navigator.pop(confirmCtx);
-
-                // Collect donation and generate receipt
-                final receipt = await ref.read(paymentsProvider.notifier).collectDonationAndGenerateReceipt(
-                  donorName: fullName,
-                  contact: mobile.isEmpty ? null : mobile,
-                  amount: amountVal,
-                  paymentMethod: _selectedPaymentMethod,
+                showDialog(
+                  context: confirmCtx,
+                  barrierDismissible: false,
+                  builder: (loadingCtx) => Center(
+                    child: Container(
+                      padding: const EdgeInsets.all(24),
+                      decoration: BoxDecoration(
+                        color: colors.card,
+                        borderRadius: BorderRadius.circular(16),
+                      ),
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          CircularProgressIndicator(color: colors.brandOrange),
+                          const SizedBox(height: 16),
+                          Text(
+                            'Issuing Official Receipt...',
+                            style: TextStyle(
+                                color: colors.text,
+                                fontSize: 14,
+                                fontWeight: FontWeight.w600,
+                                decoration: TextDecoration.none),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
                 );
 
-                // Record donation stats on donor repository
-                await repository.recordDonationForDonor(
-                  fullName: fullName,
-                  mobile: mobile.isEmpty ? null : mobile,
-                  amountPaise: amountPaise,
-                );
+                Receipt? receipt;
+                try {
+                  // Collect donation and generate receipt
+                  receipt = await ref
+                      .read(paymentsProvider.notifier)
+                      .collectDonationAndGenerateReceipt(
+                        donorName: fullName,
+                        contact: mobile.isEmpty ? null : mobile,
+                        amount: amountVal,
+                        paymentMethod: _selectedPaymentMethod,
+                      );
 
-                // Update dashboards & streams
-                ref.read(mandalDashboardProvider.notifier).addDonation(
-                  amountPaise: amountPaise,
-                  paymentMethod: _selectedPaymentMethod,
-                  donorName: fullName,
-                );
-                ref.read(mandalDashboardProvider.notifier).refresh();
-                ref.invalidate(donorListProvider);
-                ref.invalidate(receiptsProvider);
+                  // Record donation stats on donor repository
+                  await repository.recordDonationForDonor(
+                    fullName: fullName,
+                    mobile: mobile.isEmpty ? null : mobile,
+                    amountPaise: amountPaise,
+                  );
 
-                if (!context.mounted) return;
+                  // Update dashboards & streams
+                  ref.read(mandalDashboardProvider.notifier).addDonation(
+                        amountPaise: amountPaise,
+                        paymentMethod: _selectedPaymentMethod,
+                        donorName: fullName,
+                      );
+                  ref.read(mandalDashboardProvider.notifier).refresh();
+                  ref.invalidate(donorListProvider);
+                  ref.invalidate(receiptsProvider);
+
+                  if (confirmCtx.mounted) {
+                    Navigator.pop(confirmCtx); // Pop loading dialog
+                    Navigator.pop(confirmCtx); // Pop confirm dialog
+                  }
+                } catch (err) {
+                  if (confirmCtx.mounted) {
+                    Navigator.pop(confirmCtx); // Pop loading dialog
+                    Navigator.pop(confirmCtx); // Pop confirm dialog
+                  }
+                  if (mounted) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        content: Text('Failed to collect donation: $err'),
+                        backgroundColor: Colors.red.shade700,
+                      ),
+                    );
+                  }
+                  return;
+                }
+
+                if (!mounted) return;
 
                 final receiptNo = receipt?.receiptNumber ?? 'RCPT-2026-000001';
                 final receiptId = receipt?.id ?? '';
@@ -444,14 +537,19 @@ class _DonorFormScreenState extends ConsumerState<DonorFormScreen> {
                   builder: (successCtx) {
                     return AlertDialog(
                       backgroundColor: colors.card,
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
+                      shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(24)),
                       title: Row(
                         children: [
-                          const Icon(Icons.check_circle_rounded, color: Colors.green, size: 28),
+                          const Icon(Icons.check_circle_rounded,
+                              color: Colors.green, size: 28),
                           const SizedBox(width: 8),
                           Text(
                             'Donation Successful!',
-                            style: TextStyle(color: colors.text, fontSize: 18, fontWeight: FontWeight.w900),
+                            style: TextStyle(
+                                color: colors.text,
+                                fontSize: 18,
+                                fontWeight: FontWeight.w900),
                           ),
                         ],
                       ),
@@ -461,7 +559,8 @@ class _DonorFormScreenState extends ConsumerState<DonorFormScreen> {
                         children: [
                           Text(
                             'Official digital receipt generated successfully.',
-                            style: TextStyle(color: colors.secondaryText, fontSize: 13),
+                            style: TextStyle(
+                                color: colors.secondaryText, fontSize: 13),
                           ),
                           const SizedBox(height: 16),
                           Container(
@@ -476,32 +575,49 @@ class _DonorFormScreenState extends ConsumerState<DonorFormScreen> {
                               children: [
                                 Text(
                                   'RECEIPT NO',
-                                  style: TextStyle(color: colors.secondaryText, fontSize: 11, fontWeight: FontWeight.w700),
+                                  style: TextStyle(
+                                      color: colors.secondaryText,
+                                      fontSize: 11,
+                                      fontWeight: FontWeight.w700),
                                 ),
                                 const SizedBox(height: 2),
                                 Text(
                                   receiptNo,
-                                  style: TextStyle(color: colors.brandOrange, fontSize: 18, fontWeight: FontWeight.w900),
+                                  style: TextStyle(
+                                      color: colors.brandOrange,
+                                      fontSize: 18,
+                                      fontWeight: FontWeight.w900),
                                 ),
                                 const SizedBox(height: 8),
                                 Text(
                                   fullName,
-                                  style: TextStyle(color: colors.text, fontSize: 15, fontWeight: FontWeight.bold),
+                                  style: TextStyle(
+                                      color: colors.text,
+                                      fontSize: 15,
+                                      fontWeight: FontWeight.bold),
                                 ),
                                 if (mobile.isNotEmpty)
                                   Text(
                                     'Mobile: $mobile',
-                                    style: TextStyle(color: colors.secondaryText, fontSize: 12),
+                                    style: TextStyle(
+                                        color: colors.secondaryText,
+                                        fontSize: 12),
                                   ),
                                 const SizedBox(height: 4),
                                 Text(
                                   '₹${amountVal.toStringAsFixed(0)}',
-                                  style: TextStyle(color: colors.text, fontSize: 24, fontWeight: FontWeight.w900),
+                                  style: TextStyle(
+                                      color: colors.text,
+                                      fontSize: 24,
+                                      fontWeight: FontWeight.w900),
                                 ),
                                 const SizedBox(height: 6),
                                 Text(
                                   'Method: $_selectedPaymentMethod • Status: Confirmed',
-                                  style: const TextStyle(color: Colors.green, fontSize: 12, fontWeight: FontWeight.w700),
+                                  style: const TextStyle(
+                                      color: Colors.green,
+                                      fontSize: 12,
+                                      fontWeight: FontWeight.w700),
                                 ),
                               ],
                             ),
@@ -512,20 +628,22 @@ class _DonorFormScreenState extends ConsumerState<DonorFormScreen> {
                         TextButton(
                           onPressed: () {
                             Navigator.pop(successCtx);
-                            if (context.mounted) Navigator.pop(context);
+                            if (mounted) Navigator.pop(context);
                           },
-                          child: Text('Done', style: TextStyle(color: colors.secondaryText)),
+                          child: Text('Done',
+                              style: TextStyle(color: colors.secondaryText)),
                         ),
                         if (receiptId.isNotEmpty)
                           ElevatedButton.icon(
                             style: ElevatedButton.styleFrom(
                               backgroundColor: colors.brandOrange,
                               foregroundColor: Colors.white,
-                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                              shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(10)),
                             ),
                             onPressed: () {
                               Navigator.pop(successCtx);
-                              if (context.mounted) {
+                              if (mounted) {
                                 Navigator.pop(context);
                                 context.push('/receipts/$receiptId');
                               }
@@ -537,19 +655,31 @@ class _DonorFormScreenState extends ConsumerState<DonorFormScreen> {
                           style: ElevatedButton.styleFrom(
                             backgroundColor: Colors.blue.shade700,
                             foregroundColor: Colors.white,
-                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                            shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(10)),
                           ),
                           onPressed: () {
                             Printing.layoutPdf(
                               onLayout: (format) async {
-                                final currency = NumberFormat.currency(locale: 'en_IN', symbol: '₹', decimalDigits: 0);
+                                final currency = NumberFormat.currency(
+                                    locale: 'en_IN',
+                                    symbol: '₹',
+                                    decimalDigits: 0);
+                                final activeOrgName = ref
+                                        .read(sessionControllerProvider)
+                                        .user
+                                        ?.organization
+                                        ?.name ??
+                                    'My Mandal';
                                 return PdfReceiptGenerator.generateReceiptPdf(
                                   receiptNumber: receiptNo,
-                                  mandalName: 'Shree Siddhivinayak Ganpati Mandal',
+                                  mandalName: activeOrgName,
                                   donorName: fullName,
                                   amountText: currency.format(amountVal),
-                                  dateText: DateFormat('d MMM yyyy').format(DateTime.now()),
-                                  typeLabel: 'Festival Donation — ${_purposeController.text.trim()}',
+                                  dateText: DateFormat('d MMM yyyy')
+                                      .format(DateTime.now()),
+                                  typeLabel:
+                                      'Festival Donation — ${_purposeController.text.trim()}',
                                 );
                               },
                             );

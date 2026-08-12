@@ -99,15 +99,23 @@ class Bill {
     return Bill(
       id: json['id'] as String? ?? '',
       billNumber: json['billNumber'] as String? ?? '',
-      receiverName: json['receiverNameSnapshot'] as String? ?? json['receiverName'] as String? ?? '',
+      receiverName: json['receiverNameSnapshot'] as String? ??
+          json['receiverName'] as String? ??
+          '',
       contact: json['contactSnapshot'] as String? ?? json['contact'] as String?,
       amount: amountVal,
-      date: json['date'] != null ? DateTime.parse(json['date'] as String) : DateTime.now(),
+      date: json['date'] != null
+          ? DateTime.parse(json['date'] as String)
+          : DateTime.now(),
       taskOrField: json['taskOrField'] as String? ?? '',
-      isRegisteredVendor: json['vendorId'] != null || (json['isRegisteredVendor'] as bool? ?? false),
+      isRegisteredVendor: json['vendorId'] != null ||
+          (json['isRegisteredVendor'] as bool? ?? false),
       status: parseStatus(json['status'] as String?),
-      createdBy: json['createdByUserId'] as String? ?? json['createdBy'] as String? ?? '',
-      approvedBy: json['approvedByUserId'] as String? ?? json['approvedBy'] as String?,
+      createdBy: json['createdByUserId'] as String? ??
+          json['createdBy'] as String? ??
+          '',
+      approvedBy:
+          json['approvedByUserId'] as String? ?? json['approvedBy'] as String?,
       rejectionReason: json['rejectionReason'] as String?,
       paymentMode: parsePaymentMode(json['paymentMode'] as String?),
       cancelReason: json['cancelReason'] as String?,
@@ -189,4 +197,3 @@ class Bill {
     );
   }
 }
-

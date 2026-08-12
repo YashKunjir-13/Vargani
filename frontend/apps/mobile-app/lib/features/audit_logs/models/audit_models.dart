@@ -157,7 +157,8 @@ class RelatedEvent {
   final String timeAgoLabel;
   final IconData icon;
 
-  const RelatedEvent({required this.title, required this.timeAgoLabel, required this.icon});
+  const RelatedEvent(
+      {required this.title, required this.timeAgoLabel, required this.icon});
 }
 
 class AuditMetadata {

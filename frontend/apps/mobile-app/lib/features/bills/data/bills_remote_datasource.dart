@@ -9,7 +9,9 @@ class BillsRemoteDataSource {
   Future<List<Bill>> fetchBills() async {
     final response = await dio.get('/bills');
     final data = response.data as List<dynamic>;
-    return data.map((json) => Bill.fromJson(json as Map<String, dynamic>)).toList();
+    return data
+        .map((json) => Bill.fromJson(json as Map<String, dynamic>))
+        .toList();
   }
 
   Future<Bill> getBillById(String id) async {
@@ -39,7 +41,8 @@ class BillsRemoteDataSource {
     return Bill.fromJson(response.data as Map<String, dynamic>);
   }
 
-  Future<Bill> updateBill(String id, {double? amount, String? receiverName, String? taskOrField}) async {
+  Future<Bill> updateBill(String id,
+      {double? amount, String? receiverName, String? taskOrField}) async {
     final response = await dio.patch('/bills/$id', data: {
       if (amount != null) 'amount': amount,
       if (receiverName != null) 'receiverNameSnapshot': receiverName,
@@ -59,11 +62,13 @@ class BillsRemoteDataSource {
   }
 
   Future<Bill> rejectBill(String id, {required String reason}) async {
-    final response = await dio.patch('/bills/$id/reject', data: {'reason': reason});
+    final response =
+        await dio.patch('/bills/$id/reject', data: {'reason': reason});
     return Bill.fromJson(response.data as Map<String, dynamic>);
   }
 
-  Future<Bill> markPaidBill(String id, {required BillPaymentMode paymentMode}) async {
+  Future<Bill> markPaidBill(String id,
+      {required BillPaymentMode paymentMode}) async {
     String modeStr;
     switch (paymentMode) {
       case BillPaymentMode.cash:
@@ -79,12 +84,14 @@ class BillsRemoteDataSource {
         modeStr = 'CHEQUE';
         break;
     }
-    final response = await dio.patch('/bills/$id/mark-paid', data: {'paymentMode': modeStr});
+    final response =
+        await dio.patch('/bills/$id/mark-paid', data: {'paymentMode': modeStr});
     return Bill.fromJson(response.data as Map<String, dynamic>);
   }
 
   Future<Bill> cancelBill(String id, {required String reason}) async {
-    final response = await dio.post('/bills/$id/cancel', data: {'reason': reason});
+    final response =
+        await dio.post('/bills/$id/cancel', data: {'reason': reason});
     return Bill.fromJson(response.data as Map<String, dynamic>);
   }
 }

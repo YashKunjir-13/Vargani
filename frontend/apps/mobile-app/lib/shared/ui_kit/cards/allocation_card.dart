@@ -72,7 +72,8 @@ class AllocationCard extends StatelessWidget {
             color: colorScheme.surfaceContainer,
             borderRadius: BorderRadius.circular(AppRadius.small),
           ),
-          child: Icon(icon, size: AppIconSize.small, color: colorScheme.onSurfaceVariant),
+          child: Icon(icon,
+              size: AppIconSize.small, color: colorScheme.onSurfaceVariant),
         ),
         const SizedBox(width: AppSpacing.space12),
         Expanded(
@@ -85,7 +86,8 @@ class AllocationCard extends StatelessWidget {
                   Expanded(
                     child: Text(
                       name,
-                      style: textTheme.bodyLarge?.copyWith(fontWeight: FontWeight.w700),
+                      style: textTheme.bodyLarge
+                          ?.copyWith(fontWeight: FontWeight.w700),
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                     ),
@@ -110,7 +112,8 @@ class AllocationCard extends StatelessWidget {
                   Expanded(
                     child: Text(
                       '$spentLabel spent',
-                      style: textTheme.bodyMedium?.copyWith(color: colorScheme.onSurfaceVariant),
+                      style: textTheme.bodyMedium
+                          ?.copyWith(color: colorScheme.onSurfaceVariant),
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                     ),
@@ -120,7 +123,8 @@ class AllocationCard extends StatelessWidget {
                     child: Text(
                       'of $allocatedLabel${footnote != null ? ' · $footnote' : ''}',
                       textAlign: TextAlign.end,
-                      style: textTheme.bodyMedium?.copyWith(color: colorScheme.onSurfaceVariant),
+                      style: textTheme.bodyMedium
+                          ?.copyWith(color: colorScheme.onSurfaceVariant),
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                     ),

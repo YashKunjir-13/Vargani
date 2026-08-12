@@ -34,7 +34,8 @@ class DiffRow extends StatelessWidget {
         ),
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: AppSpacing.space8),
-          child: Icon(Icons.arrow_forward, size: AppIconSize.small, color: colorScheme.onSurfaceVariant),
+          child: Icon(Icons.arrow_forward,
+              size: AppIconSize.small, color: colorScheme.onSurfaceVariant),
         ),
         Expanded(
           child: _ValueBlock(
@@ -67,7 +68,8 @@ class _ValueBlock extends StatelessWidget {
     final textTheme = Theme.of(context).textTheme;
 
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: AppSpacing.space12, vertical: AppSpacing.space8),
+      padding: const EdgeInsets.symmetric(
+          horizontal: AppSpacing.space12, vertical: AppSpacing.space8),
       decoration: BoxDecoration(
         color: strikethrough ? background.withValues(alpha: 0.8) : background,
         borderRadius: BorderRadius.circular(AppRadius.small),

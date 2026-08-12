@@ -12,8 +12,9 @@ abstract final class AuthValidators {
   static final _pan = RegExp(r'^[A-Z]{5}\d{4}[A-Z]$');
 
   static FieldValidator required(AppLocalizations l10n) {
-    return (value) =>
-        (value == null || value.trim().isEmpty) ? l10n.errorRequiredField : null;
+    return (value) => (value == null || value.trim().isEmpty)
+        ? l10n.errorRequiredField
+        : null;
   }
 
   static FieldValidator phone(AppLocalizations l10n) {
@@ -58,7 +59,8 @@ abstract final class AuthValidators {
     };
   }
 
-  static FieldValidator confirmPassword(AppLocalizations l10n, TextEditingController password) {
+  static FieldValidator confirmPassword(
+      AppLocalizations l10n, TextEditingController password) {
     return (value) {
       final trimmed = value ?? '';
       if (trimmed.isEmpty) return l10n.errorRequiredField;

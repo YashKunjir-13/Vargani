@@ -24,7 +24,10 @@ class ReportsHubScreen extends StatelessWidget {
             padding: const EdgeInsets.all(AppSpacing.lg),
             decoration: BoxDecoration(
               gradient: LinearGradient(
-                colors: [AppColors.primaryLight, AppColors.primaryLight.withValues(alpha: 0.85)],
+                colors: [
+                  AppColors.primaryLight,
+                  AppColors.primaryLight.withValues(alpha: 0.85)
+                ],
                 begin: Alignment.topLeft,
                 end: Alignment.bottomRight,
               ),
@@ -42,7 +45,8 @@ class ReportsHubScreen extends StatelessWidget {
               children: [
                 Row(
                   children: [
-                    const Icon(Icons.verified_user, color: Colors.white, size: 28),
+                    const Icon(Icons.verified_user,
+                        color: Colors.white, size: 28),
                     const SizedBox(width: 10),
                     Text(
                       'One-Click Audit Package',
@@ -56,13 +60,16 @@ class ReportsHubScreen extends StatelessWidget {
                 const SizedBox(height: 8),
                 Text(
                   'Bundles day-wise ledger, receipts, vendor bills, and audit trail into a verified PDF / Excel zip package.',
-                  style: TextStyle(color: Colors.white.withValues(alpha: 0.9), fontSize: 13),
+                  style: TextStyle(
+                      color: Colors.white.withValues(alpha: 0.9), fontSize: 13),
                 ),
                 const SizedBox(height: 16),
                 ElevatedButton.icon(
                   onPressed: () => _showExportAuditDialog(context),
-                  icon: const Icon(Icons.download, color: AppColors.primaryLight),
-                  label: const Text('Export Complete Audit Package', style: TextStyle(fontWeight: FontWeight.bold)),
+                  icon:
+                      const Icon(Icons.download, color: AppColors.primaryLight),
+                  label: const Text('Export Complete Audit Package',
+                      style: TextStyle(fontWeight: FontWeight.bold)),
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.white,
                     foregroundColor: AppColors.primaryLight,
@@ -76,54 +83,72 @@ class ReportsHubScreen extends StatelessWidget {
 
           Text(
             'UML Financial Reports',
-            style: AppTypography.titleLarge(context).copyWith(fontWeight: FontWeight.bold),
+            style: AppTypography.titleLarge(context)
+                .copyWith(fontWeight: FontWeight.bold),
           ),
           const SizedBox(height: AppSpacing.md),
 
           // 1. Day-Wise Summary Report
           _ReportCard(
             title: '1. Day-Wise Financial Summary',
-            subtitle: 'Daily collections, Daan Peti cash counts, and expense payouts',
+            subtitle:
+                'Daily collections, Daan Peti cash counts, and expense payouts',
             icon: Icons.calendar_today_outlined,
             formatTag: 'PDF / CSV',
-            onTap: () => _showReportPreviewModal(context, 'Day-Wise Financial Summary', 'Daily collection trend: Day 1: ₹1.2L • Day 2: ₹1.8L • Day 3: ₹1.82L'),
+            onTap: () => _showReportPreviewModal(
+                context,
+                'Day-Wise Financial Summary',
+                'Daily collection trend: Day 1: ₹1.2L • Day 2: ₹1.8L • Day 3: ₹1.82L'),
           ),
           const SizedBox(height: AppSpacing.md),
 
           // 2. Category-Wise Expense Report
           _ReportCard(
             title: '2. Category-Wise Expense Report',
-            subtitle: 'Decoration, Catering, Sound, CCTV & Vendor Payout breakdown',
+            subtitle:
+                'Decoration, Catering, Sound, CCTV & Vendor Payout breakdown',
             icon: Icons.pie_chart_outline,
             formatTag: 'PDF / Excel',
-            onTap: () => _showReportPreviewModal(context, 'Category-Wise Expense Report', 'Decoration: ₹17.0L • Catering: ₹9.0L • Sound: ₹6.4L • Security: ₹2.0L'),
+            onTap: () => _showReportPreviewModal(
+                context,
+                'Category-Wise Expense Report',
+                'Decoration: ₹17.0L • Catering: ₹9.0L • Sound: ₹6.4L • Security: ₹2.0L'),
           ),
           const SizedBox(height: AppSpacing.md),
 
           // 3. Donor-Wise Contribution Report
           _ReportCard(
             title: '3. Donor-Wise Contribution Report',
-            subtitle: 'All 342 contributors sorted by amount, date & payment mode',
+            subtitle:
+                'All 342 contributors sorted by amount, date & payment mode',
             icon: Icons.groups_outlined,
             formatTag: 'PDF / Excel',
-            onTap: () => _showReportPreviewModal(context, 'Donor-Wise Contribution Report', 'Total Donors: 342 • Top Contributor: Ramesh Patil (₹25,00,000)'),
+            onTap: () => _showReportPreviewModal(
+                context,
+                'Donor-Wise Contribution Report',
+                'Total Donors: 342 • Top Contributor: Ramesh Patil (₹25,00,000)'),
           ),
           const SizedBox(height: AppSpacing.md),
 
           // 4. Final Accounts / Closure Report
           _ReportCard(
             title: '4. Final Accounts & Closure Report',
-            subtitle: 'Balance Sheet, P&L, Audit Cert, and Festival Closure Document',
+            subtitle:
+                'Balance Sheet, P&L, Audit Cert, and Festival Closure Document',
             icon: Icons.account_balance_wallet_outlined,
             formatTag: 'PDF (Certified)',
-            onTap: () => _showReportPreviewModal(context, 'Final Accounts & Closure Report', 'Total Revenue: ₹48.23L • Total Expenditure: ₹11.48L • Surplus: ₹36.75L'),
+            onTap: () => _showReportPreviewModal(
+                context,
+                'Final Accounts & Closure Report',
+                'Total Revenue: ₹48.23L • Total Expenditure: ₹11.48L • Surplus: ₹36.75L'),
           ),
         ],
       ),
     );
   }
 
-  void _showReportPreviewModal(BuildContext context, String title, String summaryText) {
+  void _showReportPreviewModal(
+      BuildContext context, String title, String summaryText) {
     showModalBottomSheet(
       context: context,
       builder: (context) => Padding(
@@ -134,12 +159,14 @@ class ReportsHubScreen extends StatelessWidget {
           children: [
             Row(
               children: [
-                const Icon(Icons.assessment_outlined, color: AppColors.primaryLight, size: 28),
+                const Icon(Icons.assessment_outlined,
+                    color: AppColors.primaryLight, size: 28),
                 const SizedBox(width: 12),
                 Expanded(
                   child: Text(
                     title,
-                    style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
+                    style: const TextStyle(
+                        fontWeight: FontWeight.bold, fontSize: 18),
                   ),
                 ),
               ],
@@ -151,7 +178,8 @@ class ReportsHubScreen extends StatelessWidget {
                 color: Colors.grey.shade100,
                 borderRadius: BorderRadius.circular(12),
               ),
-              child: Text(summaryText, style: const TextStyle(fontSize: 14, height: 1.4)),
+              child: Text(summaryText,
+                  style: const TextStyle(fontSize: 14, height: 1.4)),
             ),
             const SizedBox(height: 20),
             Row(
@@ -174,7 +202,9 @@ class ReportsHubScreen extends StatelessWidget {
                     onPressed: () {
                       Navigator.pop(context);
                       ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(content: Text('$title downloaded in PDF/Excel format.')),
+                        SnackBar(
+                            content:
+                                Text('$title downloaded in PDF/Excel format.')),
                       );
                     },
                     icon: const Icon(Icons.download),
@@ -217,13 +247,16 @@ class ReportsHubScreen extends StatelessWidget {
           ],
         ),
         actions: [
-          TextButton(onPressed: () => Navigator.pop(context), child: const Text('Cancel')),
+          TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text('Cancel')),
           ElevatedButton.icon(
             onPressed: () {
               Navigator.pop(context);
               ScaffoldMessenger.of(context).showSnackBar(
                 const SnackBar(
-                  content: Text('Audit Zip Package generated & ready for download!'),
+                  content:
+                      Text('Audit Zip Package generated & ready for download!'),
                   backgroundColor: AppColors.primaryLight,
                 ),
               );
@@ -268,9 +301,13 @@ class _ReportCard extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(title, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 15)),
+                Text(title,
+                    style: const TextStyle(
+                        fontWeight: FontWeight.bold, fontSize: 15)),
                 const SizedBox(height: 2),
-                Text(subtitle, style: TextStyle(color: AppColors.mutedTextFor(context), fontSize: 12)),
+                Text(subtitle,
+                    style: TextStyle(
+                        color: AppColors.mutedTextFor(context), fontSize: 12)),
               ],
             ),
           ),
@@ -282,7 +319,9 @@ class _ReportCard extends StatelessWidget {
               borderRadius: BorderRadius.circular(6),
               border: Border.all(color: Colors.grey.shade300),
             ),
-            child: Text(formatTag, style: const TextStyle(fontSize: 10, fontWeight: FontWeight.bold)),
+            child: Text(formatTag,
+                style:
+                    const TextStyle(fontSize: 10, fontWeight: FontWeight.bold)),
           ),
         ],
       ),

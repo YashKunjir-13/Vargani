@@ -47,7 +47,8 @@ void main() {
       expect(updated.mobile, '9123456780');
     });
 
-    test('records donation for donor and updates total count and amount', () async {
+    test('records donation for donor and updates total count and amount',
+        () async {
       final donor = await repository.recordDonationForDonor(
         fullName: 'Raj Sharma',
         mobile: '9999999999',

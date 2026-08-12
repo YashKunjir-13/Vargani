@@ -52,7 +52,8 @@ class _CreateBillScreenState extends ConsumerState<CreateBillScreen> {
 
     ScaffoldMessenger.of(context).showSnackBar(
       const SnackBar(
-        content: Text('OCR scanned! Extracted vendor name, amount (₹12,500), and task description.'),
+        content: Text(
+            'OCR scanned! Extracted vendor name, amount (₹12,500), and task description.'),
         backgroundColor: Colors.indigo,
       ),
     );
@@ -70,20 +71,24 @@ class _CreateBillScreenState extends ConsumerState<CreateBillScreen> {
     }
 
     final sessionUser = ref.read(sessionControllerProvider).user;
-    final currentUserId = sessionUser?.id ?? sessionUser?.displayName ?? 'user-treasurer-1';
+    final currentUserId =
+        sessionUser?.id ?? sessionUser?.displayName ?? 'user-treasurer-1';
 
     final bill = ref.read(billsProvider.notifier).create(
           receiverName: _receiverController.text.trim(),
           amount: amount,
           taskOrField: _taskController.text.trim(),
-          contact: _contactController.text.trim().isEmpty ? null : _contactController.text.trim(),
+          contact: _contactController.text.trim().isEmpty
+              ? null
+              : _contactController.text.trim(),
           isRegisteredVendor: _isRegisteredVendor,
           createdBy: currentUserId,
         );
 
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
-        content: Text('Bill drafted: ${bill.billNumber} (${bill.status.label})'),
+        content:
+            Text('Bill drafted: ${bill.billNumber} (${bill.status.label})'),
         backgroundColor: Colors.green,
       ),
     );
@@ -137,7 +142,10 @@ class _CreateBillScreenState extends ConsumerState<CreateBillScreen> {
                       Expanded(
                         child: Text(
                           'OCR Review Step: Form pre-filled from scanned invoice. Please review fields below before saving.',
-                          style: TextStyle(color: Colors.amber.shade900, fontSize: 12, fontWeight: FontWeight.w600),
+                          style: TextStyle(
+                              color: Colors.amber.shade900,
+                              fontSize: 12,
+                              fontWeight: FontWeight.w600),
                         ),
                       ),
                     ],
@@ -150,7 +158,8 @@ class _CreateBillScreenState extends ConsumerState<CreateBillScreen> {
                 child: SwitchListTile(
                   contentPadding: EdgeInsets.zero,
                   title: const Text('Registered Vendor'),
-                  subtitle: const Text('Off = ad-hoc receiver by name/contact only'),
+                  subtitle:
+                      const Text('Off = ad-hoc receiver by name/contact only'),
                   value: _isRegisteredVendor,
                   onChanged: (v) => setState(() => _isRegisteredVendor = v),
                 ),
@@ -161,16 +170,21 @@ class _CreateBillScreenState extends ConsumerState<CreateBillScreen> {
                 label: 'Receiver / Vendor Name *',
                 controller: _receiverController,
                 prefixIcon: Icons.storefront_outlined,
-                validator: (v) => (v == null || v.trim().isEmpty) ? 'Receiver name is required' : null,
+                validator: (v) => (v == null || v.trim().isEmpty)
+                    ? 'Receiver name is required'
+                    : null,
               ),
               const SizedBox(height: 16),
 
               AppTextField(
                 label: 'Amount (₹) *',
                 controller: _amountController,
-                keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                keyboardType:
+                    const TextInputType.numberWithOptions(decimal: true),
                 prefixIcon: Icons.currency_rupee,
-                validator: (v) => (v == null || v.trim().isEmpty) ? 'Amount is required' : null,
+                validator: (v) => (v == null || v.trim().isEmpty)
+                    ? 'Amount is required'
+                    : null,
               ),
               const SizedBox(height: 16),
 
@@ -179,7 +193,9 @@ class _CreateBillScreenState extends ConsumerState<CreateBillScreen> {
                 controller: _taskController,
                 prefixIcon: Icons.assignment_outlined,
                 hintText: 'e.g. Stage Decor, Sound System, Prasadam',
-                validator: (v) => (v == null || v.trim().isEmpty) ? 'Task/Field description is required' : null,
+                validator: (v) => (v == null || v.trim().isEmpty)
+                    ? 'Task/Field description is required'
+                    : null,
               ),
               const SizedBox(height: 16),
 

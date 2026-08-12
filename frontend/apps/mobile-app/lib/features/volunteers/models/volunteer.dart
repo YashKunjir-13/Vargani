@@ -79,7 +79,8 @@ class Volunteer {
   final int activeAssignmentCount;
   final String? currentAssignmentSummary;
 
-  bool get hasLinkedUser => linkedUserId != null && linkedUserId!.trim().isNotEmpty;
+  bool get hasLinkedUser =>
+      linkedUserId != null && linkedUserId!.trim().isNotEmpty;
 
   bool get collectionAuthorityGranted =>
       status == VolunteerStatus.active &&
@@ -120,8 +121,10 @@ class Volunteer {
       preferredLanguage: preferredLanguage ?? this.preferredLanguage,
       profileDocumentId: profileDocumentId ?? this.profileDocumentId,
       version: version ?? this.version,
-      activeAssignmentCount: activeAssignmentCount ?? this.activeAssignmentCount,
-      currentAssignmentSummary: currentAssignmentSummary ?? this.currentAssignmentSummary,
+      activeAssignmentCount:
+          activeAssignmentCount ?? this.activeAssignmentCount,
+      currentAssignmentSummary:
+          currentAssignmentSummary ?? this.currentAssignmentSummary,
     );
   }
 }

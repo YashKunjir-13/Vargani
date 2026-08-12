@@ -11,7 +11,8 @@ class DashboardFiltersSheet extends StatefulWidget {
 
   /// Presents this sheet modally.
   static Future<void> show(BuildContext context) {
-    return AppBottomSheet.show<void>(context, builder: (_) => const DashboardFiltersSheet());
+    return AppBottomSheet.show<void>(context,
+        builder: (_) => const DashboardFiltersSheet());
   }
 
   @override
@@ -40,7 +41,8 @@ class _DashboardFiltersSheetState extends State<DashboardFiltersSheet> {
       title: 'Filters',
       trailing: TextButton(onPressed: _reset, child: const Text('Reset')),
       actions: [
-        SecondaryButton(label: 'Clear all', onPressed: () => Navigator.of(context).pop()),
+        SecondaryButton(
+            label: 'Clear all', onPressed: () => Navigator.of(context).pop()),
         PrimaryButton(
           label: 'Apply (${_categories.length})',
           onPressed: () => Navigator.of(context).pop(),
@@ -54,7 +56,13 @@ class _DashboardFiltersSheetState extends State<DashboardFiltersSheet> {
             child: Wrap(
               spacing: 8,
               children: [
-                for (final range in ['Today', 'This Week', 'This Month', 'Festival Duration', 'Custom'])
+                for (final range in [
+                  'Today',
+                  'This Week',
+                  'This Month',
+                  'Festival Duration',
+                  'Custom'
+                ])
                   ChoiceChip(
                     label: Text(range),
                     selected: _dateRange == range,
@@ -69,7 +77,11 @@ class _DashboardFiltersSheetState extends State<DashboardFiltersSheet> {
             child: Wrap(
               spacing: 8,
               children: [
-                for (final category in ['Donations', 'Expenses', 'Sponsorships'])
+                for (final category in [
+                  'Donations',
+                  'Expenses',
+                  'Sponsorships'
+                ])
                   FilterChip(
                     label: Text(category),
                     selected: _categories.contains(category),
@@ -104,7 +116,10 @@ class _FilterGroup extends StatelessWidget {
       children: [
         Text(
           label.toUpperCase(),
-          style: Theme.of(context).textTheme.labelMedium?.copyWith(color: colorScheme.onSurfaceVariant),
+          style: Theme.of(context)
+              .textTheme
+              .labelMedium
+              ?.copyWith(color: colorScheme.onSurfaceVariant),
         ),
         const SizedBox(height: 8),
         child,

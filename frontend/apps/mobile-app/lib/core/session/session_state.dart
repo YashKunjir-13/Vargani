@@ -5,7 +5,8 @@ enum SessionStatus { authenticated, unauthenticated }
 class SessionState {
   const SessionState({required this.status, this.user, this.activeRole});
 
-  static const unauthenticated = SessionState(status: SessionStatus.unauthenticated);
+  static const unauthenticated =
+      SessionState(status: SessionStatus.unauthenticated);
 
   final SessionStatus status;
   final AuthUser? user;

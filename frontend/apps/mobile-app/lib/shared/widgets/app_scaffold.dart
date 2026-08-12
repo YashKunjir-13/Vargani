@@ -6,7 +6,6 @@ import '../../features/dashboard/presentation/providers/dashboard_providers.dart
 import 'app_bottom_nav.dart';
 import '../../core/core.dart';
 
-
 class AppScaffold extends ConsumerWidget {
   const AppScaffold({
     super.key,
@@ -89,7 +88,8 @@ class AppScaffold extends ConsumerWidget {
         leading: leading ??
             (showBackButton
                 ? IconButton(
-                    icon: Icon(Icons.arrow_back_ios_new_rounded, color: colors.text),
+                    icon: Icon(Icons.arrow_back_ios_new_rounded,
+                        color: colors.text),
                     onPressed: () => Navigator.of(context).maybePop(),
                   )
                 : null),

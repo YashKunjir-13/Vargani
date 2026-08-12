@@ -1,0 +1,479 @@
+import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+
+import '../../../core/core.dart';
+import '../../../shared/shared.dart';
+import '../../../shared/widgets/formatters.dart';
+import '../../authentication/presentation/widgets/auth_design_tokens.dart';
+import 'package:go_router/go_router.dart';
+import '../../receipts/models/receipt.dart';
+import '../../receipts/state/receipts_notifier.dart';
+import '../models/donor.dart';
+import '../providers/donor_providers.dart';
+import 'donor_form_screen.dart';
+
+class DonorDetailScreen extends ConsumerWidget {
+  const DonorDetailScreen({super.key, required this.donorId});
+
+  final String donorId;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    ref.watch(localeControllerProvider);
+    final donorAsync = ref.watch(donorDetailProvider(donorId));
+    final role = ref.watch(roleProvider);
+    final textTheme = Theme.of(context).textTheme;
+    final colors = context.authColors;
+
+    final canManageDonors = role == UserRole.trustPresident ||
+        role == UserRole.vicePresident ||
+        role == UserRole.treasurer ||
+        role == UserRole.volunteer;
+
+    return donorAsync.when(
+      data: (donor) {
+        if (donor == null) {
+          return const AppScaffold(
+            title: 'Donor Profile',
+            body: AppEmptyState(title: 'Donor not found'),
+          );
+        }
+
+        return AppScaffold(
+          title: donor.fullName,
+          body: SingleChildScrollView(
+            padding: const EdgeInsets.all(AppSpacing.space24),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // ── 1. Header Profile Card ─────────────────────────────────
+                AppCard(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        children: [
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(donor.fullName, style: textTheme.headlineMedium),
+                                const SizedBox(height: AppSpacing.space8),
+                                AppStatusBadge(
+                                  label: _statusLabel(donor.status),
+                                  status: _statusType(donor.status),
+                                ),
+                              ],
+                            ),
+                          ),
+                          if (donor.mobile != null)
+                            IconButton(
+                              icon: const Icon(Icons.call_outlined),
+                              onPressed: () {},
+                            ),
+                          if (donor.email != null)
+                            IconButton(
+                              icon: const Icon(Icons.email_outlined),
+                              onPressed: () {},
+                            ),
+                        ],
+                      ),
+                      const SizedBox(height: AppSpacing.space16),
+                      _infoRow(
+                        context,
+                        'Mobile Number',
+                        donor.mobile != null
+                            ? maskMobile(donor.mobile!, canViewSensitive: canManageDonors)
+                            : '—',
+                      ),
+                      _infoRow(context, 'Email Address', donor.email ?? '—'),
+                      _infoRow(
+                        context,
+                        'Registered On',
+                        donor.createdAt.toLocal().toString().split(' ').first,
+                      ),
+                      if (donor.claimedAt != null)
+                        _infoRow(
+                          context,
+                          'Identity Claimed On',
+                          donor.claimedAt!.toLocal().toString().split(' ').first,
+                        ),
+                    ],
+                  ),
+                ),
+                const SizedBox(height: AppSpacing.space16),
+
+                // ── 2. Offline / Unclaimed Status Banner ────────────────────
+                if (donor.status == DonorProfileStatus.unclaimed)
+                  Container(
+                    padding: const EdgeInsets.all(AppSpacing.space16),
+                    decoration: BoxDecoration(
+                      color: colors.brandOrange.withValues(alpha: 0.12),
+                      borderRadius: BorderRadius.circular(AppRadius.medium),
+                      border: Border.all(color: colors.brandOrange.withValues(alpha: 0.3)),
+                    ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Row(
+                          children: [
+                            Icon(Icons.person_add_disabled_rounded, color: colors.brandOrange, size: 22),
+                            const SizedBox(width: 8),
+                            Text(
+                              'Unclaimed Offline Donor Profile',
+                              style: TextStyle(
+                                color: colors.text,
+                                fontWeight: FontWeight.bold,
+                                fontSize: 14,
+                              ),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 6),
+                        Text(
+                          'Created during offline donation entry. Profile can be claimed once the donor verifies their identity.',
+                          style: TextStyle(color: colors.secondaryText, fontSize: 13),
+                        ),
+                        if (canManageDonors) ...[
+                          const SizedBox(height: 12),
+                          AppButton(
+                            label: 'Claim & Verify Profile',
+                            variant: AppButtonVariant.primary,
+                            onPressed: () async {
+                              await ref.read(donorRepositoryProvider).claimDonor(id: donor.id);
+                              ref.invalidate(donorDetailProvider(donor.id));
+                              ref.invalidate(donorListProvider);
+                            },
+                          ),
+                        ],
+                      ],
+                    ),
+                  ),
+                if (donor.status == DonorProfileStatus.unclaimed)
+                  const SizedBox(height: AppSpacing.space16),
+
+                // ── 3. Total Contribution Summary Cards ────────────────────
+                Row(
+                  children: [
+                    Expanded(
+                      child: AppSummaryStatCard(
+                        label: 'Total Donations',
+                        value: donor.totalContributionsCount.toString(),
+                      ),
+                    ),
+                    const SizedBox(width: AppSpacing.space8),
+                    Expanded(
+                      child: AppSummaryStatCard(
+                        label: 'Total Amount',
+                        value: formatPaiseAsRupees(donor.totalConfirmedAmountPaise),
+                        valueColor: donor.totalConfirmedAmountPaise > 0
+                            ? AppColors.lightSuccess
+                            : null,
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: AppSpacing.space24),
+
+                // ── 4. Donation & Receipt History Section ────────────────────
+                Text(
+                  'DONATION & RECEIPT HISTORY',
+                  style: TextStyle(
+                    color: colors.secondaryText,
+                    fontSize: 12,
+                    fontWeight: FontWeight.w900,
+                    letterSpacing: 1.2,
+                  ),
+                ),
+                const SizedBox(height: AppSpacing.space12),
+
+                Builder(
+                  builder: (context) {
+                    final asyncReceipts = ref.watch(receiptsProvider);
+                    final receipts = asyncReceipts.value ?? [];
+                    final donorReceipts = receipts.where((r) {
+                      final nameMatches = r.donorName.toLowerCase().contains(donor.fullName.toLowerCase()) ||
+                          donor.fullName.toLowerCase().contains(r.donorName.toLowerCase());
+                      final cleanDonorMobile = donor.mobile?.replaceAll(RegExp(r'\D'), '') ?? '';
+                      final cleanRcptMobile = r.contactNumber?.replaceAll(RegExp(r'\D'), '') ?? '';
+                      final phoneMatches = cleanDonorMobile.isNotEmpty && cleanRcptMobile.isNotEmpty && cleanRcptMobile.endsWith(cleanDonorMobile);
+                      return nameMatches || phoneMatches;
+                    }).toList();
+
+                    if (donorReceipts.isEmpty) {
+                      return Container(
+                        width: double.infinity,
+                        padding: const EdgeInsets.all(AppSpacing.space16),
+                        decoration: BoxDecoration(
+                          color: colors.surfaceMuted,
+                          borderRadius: BorderRadius.circular(AppRadius.medium),
+                          border: Border.all(color: colors.border),
+                        ),
+                        child: Text(
+                          'No donation receipts linked to this donor profile yet.',
+                          style: TextStyle(fontSize: 13, color: colors.secondaryText),
+                        ),
+                      );
+                    }
+
+                    return Column(
+                      children: donorReceipts.map((r) {
+                        return Container(
+                          margin: const EdgeInsets.only(bottom: AppSpacing.space8),
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(AppRadius.medium),
+                            border: Border.all(color: colors.border),
+                          ),
+                          child: Material(
+                            color: colors.card,
+                            borderRadius: BorderRadius.circular(AppRadius.medium),
+                            child: ListTile(
+                            leading: CircleAvatar(
+                              backgroundColor: colors.brandOrange.withValues(alpha: 0.15),
+                              child: Icon(Icons.receipt_long, color: colors.brandOrange, size: 20),
+                            ),
+                            title: Text(r.receiptNumber, style: TextStyle(fontWeight: FontWeight.bold, color: colors.text)),
+                            subtitle: Text(
+                              '${r.issuedDate.toString().split(' ').first} • ${r.status == ReceiptStatus.active ? "Confirmed" : "Voided"}',
+                              style: TextStyle(color: colors.secondaryText, fontSize: 12),
+                            ),
+                            trailing: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Text(
+                                  '₹${r.amount.toStringAsFixed(0)}',
+                                  style: TextStyle(fontWeight: FontWeight.w900, color: colors.text, fontSize: 15),
+                                ),
+                                const SizedBox(width: 4),
+                                Icon(Icons.chevron_right, color: colors.secondaryText),
+                              ],
+                            ),
+                            onTap: () => context.push('/receipts/${r.id}'),
+                          ),
+                        );
+                      }).toList(),
+                    );
+                  },
+                ),
+                const SizedBox(height: AppSpacing.space24),
+
+                // ── 5. Actions: Edit Profile & Merge Duplicate ────────────────
+                if (canManageDonors)
+                  Row(
+                    children: [
+                      Expanded(
+                        child: AppButton(
+                          label: 'Edit Profile',
+                          onPressed: () {
+                            Navigator.of(context).push(
+                              MaterialPageRoute(
+                                builder: (_) => DonorFormScreen(donorId: donor.id),
+                              ),
+                            );
+                          },
+                        ),
+                      ),
+                      const SizedBox(width: AppSpacing.space12),
+                      Expanded(
+                        child: AppButton(
+                          label: 'Merge Profile',
+                          variant: AppButtonVariant.secondary,
+                          onPressed: () async {
+                            final allDonors = await ref.read(donorListProvider.future);
+                            if (!context.mounted) return;
+                            final targetDonors = allDonors.where((d) => d.id != donor.id).toList();
+
+                            if (targetDonors.isEmpty) {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                const SnackBar(content: Text('No duplicate candidates found for merge.')),
+                              );
+                              return;
+                            }
+
+                            final result = await showDialog<bool>(
+                              context: context,
+                              builder: (ctx) => _MergeDonorDialog(
+                                donorToMerge: donor,
+                                candidates: targetDonors,
+                              ),
+                            );
+
+                            if (result == true && context.mounted) {
+                              ref.invalidate(donorDetailProvider(donor.id));
+                              ref.invalidate(donorListProvider);
+                              Navigator.of(context).pop();
+                            }
+                          },
+                        ),
+                      ),
+                    ],
+                  ),
+              ],
+            ),
+          ),
+        );
+      },
+      loading: () => const AppScaffold(
+        title: 'Donor Profile',
+        body: AppLoadingIndicator(label: 'Loading donor...'),
+      ),
+      error: (error, stackTrace) => AppScaffold(
+        title: 'Donor Profile',
+        body: AppErrorView(message: error.toString()),
+      ),
+    );
+  }
+
+  Widget _infoRow(BuildContext context, String label, String value) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: AppSpacing.space8),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          SizedBox(
+            width: 140,
+            child: Text(
+              label,
+              style: TextStyle(
+                color: Theme.of(context).colorScheme.onSurfaceVariant,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+          ),
+          Expanded(
+            child: Text(
+              value,
+              style: TextStyle(
+                color: Theme.of(context).colorScheme.onSurface,
+                fontWeight: FontWeight.w500,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  String _statusLabel(DonorProfileStatus status) {
+    return switch (status) {
+      DonorProfileStatus.active => 'ACTIVE',
+      DonorProfileStatus.unclaimed => 'UNCLAIMED',
+      DonorProfileStatus.deactivated => 'DEACTIVATED',
+      DonorProfileStatus.merged => 'MERGED',
+    };
+  }
+
+  AppStatus _statusType(DonorProfileStatus status) {
+    return switch (status) {
+      DonorProfileStatus.active => AppStatus.success,
+      DonorProfileStatus.unclaimed => AppStatus.warning,
+      DonorProfileStatus.deactivated => AppStatus.neutral,
+      DonorProfileStatus.merged => AppStatus.neutral,
+    };
+  }
+}
+
+class _MergeDonorDialog extends StatefulWidget {
+  const _MergeDonorDialog({
+    required this.donorToMerge,
+    required this.candidates,
+  });
+
+  final Donor donorToMerge;
+  final List<Donor> candidates;
+
+  @override
+  State<_MergeDonorDialog> createState() => _MergeDonorDialogState();
+}
+
+class _MergeDonorDialogState extends State<_MergeDonorDialog> {
+  late String _survivingDonorId;
+  final _reasonController = TextEditingController();
+
+  @override
+  void initState() {
+    super.initState();
+    _survivingDonorId = widget.candidates.first.id;
+  }
+
+  @override
+  void dispose() {
+    _reasonController.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Consumer(
+      builder: (context, ref, _) {
+        return AlertDialog(
+          title: const Text('Merge Duplicate Donor Profiles'),
+          content: SingleChildScrollView(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'Merging will combine total contribution references into the surviving profile and deactivate "${widget.donorToMerge.fullName}". Transaction monetary values are never altered (Requirements 23 & 25).',
+                  style: Theme.of(context).textTheme.bodyMedium,
+                ),
+                const SizedBox(height: 16),
+                DropdownButtonFormField<String>(
+                  initialValue: _survivingDonorId,
+                  decoration: const InputDecoration(labelText: 'Select Surviving Donor Account'),
+                  items: widget.candidates
+                      .map(
+                        (c) => DropdownMenuItem(
+                          value: c.id,
+                          child: Text('${c.fullName} (${c.mobile ?? 'No Mobile'})'),
+                        ),
+                      )
+                      .toList(),
+                  onChanged: (val) {
+                    if (val != null) setState(() => _survivingDonorId = val);
+                  },
+                ),
+                const SizedBox(height: 16),
+                TextField(
+                  controller: _reasonController,
+                  decoration: const InputDecoration(
+                    labelText: 'Mandatory Merge Reason (Audit Log)',
+                    hintText: 'e.g. Duplicate offline entry merged into primary account',
+                  ),
+                ),
+              ],
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context, false),
+              child: const Text('Cancel'),
+            ),
+            AppButton(
+              label: 'Perform Merge',
+              fullWidth: false,
+              onPressed: () async {
+                final reason = _reasonController.text.trim();
+                if (reason.isEmpty) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(content: Text('Audit merge reason is required.')),
+                  );
+                  return;
+                }
+
+                await ref.read(donorRepositoryProvider).mergeDonor(
+                      survivingDonorId: _survivingDonorId,
+                      mergedDonorId: widget.donorToMerge.id,
+                      reason: reason,
+                    );
+                if (context.mounted) {
+                  Navigator.pop(context, true);
+                }
+              },
+            ),
+          ],
+        );
+      },
+    );
+  }
+}

@@ -1,4 +1,5 @@
 import 'package:dio/dio.dart';
+import 'package:uuid/uuid.dart';
 import '../models/payment.dart';
 
 class PaymentsRemoteDataSource {
@@ -59,9 +60,13 @@ class PaymentsRemoteDataSource {
     String? address,
     required double amount,
     required String paymentMethod,
+    String? idempotencyKey,
   }) async {
     final response = await _dio.post(
       '/payments/collect',
+      options: Options(headers: {
+        'X-Idempotency-Key': idempotencyKey ?? const Uuid().v4(),
+      }),
       data: {
         'donorNameSnapshot': donorName,
         if (contact != null && contact.isNotEmpty) 'contactSnapshot': contact,
@@ -113,7 +118,8 @@ class PaymentsRemoteDataSource {
     return Map<String, dynamic>.from(response.data);
   }
 
-  Future<Map<String, dynamic>> cancelPayment(String paymentId, {String? reason}) async {
+  Future<Map<String, dynamic>> cancelPayment(String paymentId,
+      {String? reason}) async {
     final response = await _dio.post(
       '/payments/$paymentId/cancel',
       data: {
@@ -123,7 +129,8 @@ class PaymentsRemoteDataSource {
     return Map<String, dynamic>.from(response.data);
   }
 
-  Future<Map<String, dynamic>> retryPayment(String paymentId, {String? newPaymentMethod, String? idempotencyKey}) async {
+  Future<Map<String, dynamic>> retryPayment(String paymentId,
+      {String? newPaymentMethod, String? idempotencyKey}) async {
     final response = await _dio.post(
       '/payments/$paymentId/retry',
       data: {

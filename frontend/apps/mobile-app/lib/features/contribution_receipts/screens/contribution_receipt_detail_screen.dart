@@ -33,7 +33,10 @@ class ContributionReceiptDetailScreen extends ConsumerWidget {
 
     if (receipt == null) {
       return const Scaffold(
-        appBar: PautiAppBar(title: 'Contribution Receipt', subtitle: 'Contributor Portal', showBackButton: true),
+        appBar: PautiAppBar(
+            title: 'Contribution Receipt',
+            subtitle: 'Contributor Portal',
+            showBackButton: true),
         body: Center(child: Text('Contribution receipt not found')),
       );
     }
@@ -56,29 +59,36 @@ class ContributionReceiptDetailScreen extends ConsumerWidget {
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 8, vertical: 4),
                       decoration: BoxDecoration(
                         color: theme.colorScheme.secondary,
                         borderRadius: BorderRadius.circular(6),
                       ),
                       child: Text(
                         'Branding: ${activeTemplate.name}',
-                        style: const TextStyle(color: Colors.white, fontSize: 11, fontWeight: FontWeight.bold),
+                        style: const TextStyle(
+                            color: Colors.white,
+                            fontSize: 11,
+                            fontWeight: FontWeight.bold),
                       ),
                     ),
                     StatusChip(label: receipt.status.label),
                   ],
                 ),
                 const SizedBox(height: 16),
-                Icon(Icons.volunteer_activism, size: 44, color: theme.colorScheme.secondary),
+                Icon(Icons.volunteer_activism,
+                    size: 44, color: theme.colorScheme.secondary),
                 const SizedBox(height: 6),
                 Text(
                   receipt.mandalName,
-                  style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
+                  style: theme.textTheme.titleMedium
+                      ?.copyWith(fontWeight: FontWeight.bold),
                 ),
                 Text(
                   'OFFICIAL NON-MONETARY CONTRIBUTION PAUTI RECEIPT',
-                  style: theme.textTheme.bodySmall?.copyWith(letterSpacing: 1.1, fontWeight: FontWeight.w600),
+                  style: theme.textTheme.bodySmall?.copyWith(
+                      letterSpacing: 1.1, fontWeight: FontWeight.w600),
                 ),
                 const SizedBox(height: 16),
                 Text(
@@ -100,17 +110,31 @@ class ContributionReceiptDetailScreen extends ConsumerWidget {
               children: [
                 Text(
                   'Receipt Breakdown',
-                  style: theme.textTheme.titleSmall?.copyWith(fontWeight: FontWeight.bold),
+                  style: theme.textTheme.titleSmall
+                      ?.copyWith(fontWeight: FontWeight.bold),
                 ),
                 const Divider(height: 24),
-                _InfoRow(label: 'CRCPT Number', value: receipt.contributionReceiptNumber),
-                _InfoRow(label: 'Contributor Name', value: receipt.contributorName),
-                _InfoRow(label: 'Donation Category', value: receipt.donationType),
-                _InfoRow(label: 'Issued Date', value: dateFormat.format(receipt.issuedDate)),
-                _InfoRow(label: 'Linked Contribution ID', value: receipt.contributionId),
-                _InfoRow(label: 'Active Mandal Template', value: activeTemplate.name),
+                _InfoRow(
+                    label: 'CRCPT Number',
+                    value: receipt.contributionReceiptNumber),
+                _InfoRow(
+                    label: 'Contributor Name', value: receipt.contributorName),
+                _InfoRow(
+                    label: 'Donation Category', value: receipt.donationType),
+                _InfoRow(
+                    label: 'Issued Date',
+                    value: dateFormat.format(receipt.issuedDate)),
+                _InfoRow(
+                    label: 'Linked Contribution ID',
+                    value: receipt.contributionId),
+                _InfoRow(
+                    label: 'Active Mandal Template',
+                    value: activeTemplate.name),
                 if (receipt.voidReason != null)
-                  _InfoRow(label: 'Void Reason', value: receipt.voidReason!, isDanger: true),
+                  _InfoRow(
+                      label: 'Void Reason',
+                      value: receipt.voidReason!,
+                      isDanger: true),
               ],
             ),
           ),
@@ -128,7 +152,8 @@ class ContributionReceiptDetailScreen extends ConsumerWidget {
                     children: [
                       Text(
                         'WhatsApp Delivery Status',
-                        style: theme.textTheme.titleSmall?.copyWith(fontWeight: FontWeight.bold),
+                        style: theme.textTheme.titleSmall
+                            ?.copyWith(fontWeight: FontWeight.bold),
                       ),
                       Text(
                         'Status: ${receipt.whatsappDeliveryStatus.label} ${receipt.whatsappRetryCount > 0 ? "(${receipt.whatsappRetryCount} retries)" : ""}',
@@ -139,9 +164,13 @@ class ContributionReceiptDetailScreen extends ConsumerWidget {
                 ),
                 TextButton(
                   onPressed: () {
-                    ref.read(contributionReceiptsProvider.notifier).resendWhatsapp(receipt.id);
+                    ref
+                        .read(contributionReceiptsProvider.notifier)
+                        .resendWhatsapp(receipt.id);
                     ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(content: Text('WhatsApp resend request queued successfully.')),
+                      const SnackBar(
+                          content: Text(
+                              'WhatsApp resend request queued successfully.')),
                     );
                   },
                   child: const Text('Resend'),
@@ -176,7 +205,8 @@ class ContributionReceiptDetailScreen extends ConsumerWidget {
           if (receipt.status != ContributionReceiptStatus.voided)
             PermissionGuard(
               hasPermission: permissions.canVoidPayment,
-              fallbackTooltip: 'Auditor or Admin role required to void contribution receipt',
+              fallbackTooltip:
+                  'Auditor or Admin role required to void contribution receipt',
               child: AppButton(
                 label: 'Void Contribution Receipt',
                 variant: AppButtonVariant.danger,
@@ -189,7 +219,8 @@ class ContributionReceiptDetailScreen extends ConsumerWidget {
     );
   }
 
-  Future<void> _showVoidDialog(BuildContext context, WidgetRef ref, ContributionReceipt receipt) async {
+  Future<void> _showVoidDialog(
+      BuildContext context, WidgetRef ref, ContributionReceipt receipt) async {
     final controller = TextEditingController();
     final reason = await showDialog<String>(
       context: context,
@@ -198,18 +229,24 @@ class ContributionReceiptDetailScreen extends ConsumerWidget {
         content: TextField(
           controller: controller,
           autofocus: true,
-          decoration: const InputDecoration(labelText: 'Reason for voiding (mandatory)'),
+          decoration: const InputDecoration(
+              labelText: 'Reason for voiding (mandatory)'),
           maxLines: 2,
         ),
         actions: [
-          TextButton(onPressed: () => context.pop(), child: const Text('Cancel')),
-          FilledButton(onPressed: () => context.pop(controller.text.trim()), child: const Text('Confirm Void')),
+          TextButton(
+              onPressed: () => context.pop(), child: const Text('Cancel')),
+          FilledButton(
+              onPressed: () => context.pop(controller.text.trim()),
+              child: const Text('Confirm Void')),
         ],
       ),
     );
 
     if (reason != null && reason.isNotEmpty) {
-      ref.read(contributionReceiptsProvider.notifier).voidReceipt(receipt.id, reason: reason);
+      ref
+          .read(contributionReceiptsProvider.notifier)
+          .voidReceipt(receipt.id, reason: reason);
     }
   }
 }

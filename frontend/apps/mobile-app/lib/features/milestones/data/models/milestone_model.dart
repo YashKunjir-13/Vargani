@@ -66,7 +66,8 @@ class MockMilestone {
   final String priority; // 'High', 'Medium', 'Low'
   final DateTime? startDate;
   final DateTime? dueDate;
-  final String status; // 'Pending', 'In Progress', 'Completed', 'Delayed', 'Cancelled'
+  final String
+      status; // 'Pending', 'In Progress', 'Completed', 'Delayed', 'Cancelled'
   final int progressPercentage;
   final List<MockWorkItem> workItems;
 
@@ -82,8 +83,10 @@ class MockMilestone {
   final String? paymentResponsibleUserId;
   final String? paymentResponsibleUserName;
 
-  final String paymentStatus; // 'Not Paid', 'Partially Paid', 'Paid', 'Payment Pending Approval'
-  final String paymentRequestStatus; // 'Not Required', 'Pending', 'Requested', 'Approved', 'Initiated', 'Paid', 'Rejected'
+  final String
+      paymentStatus; // 'Not Paid', 'Partially Paid', 'Paid', 'Payment Pending Approval'
+  final String
+      paymentRequestStatus; // 'Not Required', 'Pending', 'Requested', 'Approved', 'Initiated', 'Paid', 'Rejected'
   final String? paymentMethod;
   final String? paymentReference;
   final DateTime? paymentDate;
@@ -207,8 +210,10 @@ class MockMilestone {
       assignedByUserName: assignedByUserName ?? this.assignedByUserName,
       estimatedCostPaise: estimatedCostPaise ?? this.estimatedCostPaise,
       actualCostPaise: actualCostPaise ?? this.actualCostPaise,
-      paymentResponsibleUserId: paymentResponsibleUserId ?? this.paymentResponsibleUserId,
-      paymentResponsibleUserName: paymentResponsibleUserName ?? this.paymentResponsibleUserName,
+      paymentResponsibleUserId:
+          paymentResponsibleUserId ?? this.paymentResponsibleUserId,
+      paymentResponsibleUserName:
+          paymentResponsibleUserName ?? this.paymentResponsibleUserName,
       paymentStatus: paymentStatus ?? this.paymentStatus,
       paymentRequestStatus: paymentRequestStatus ?? this.paymentRequestStatus,
       paymentMethod: paymentMethod ?? this.paymentMethod,
@@ -216,11 +221,14 @@ class MockMilestone {
       paymentDate: paymentDate ?? this.paymentDate,
       vendorId: vendorId ?? this.vendorId,
       vendorName: vendorName ?? this.vendorName,
-      paymentRequestedByUserId: paymentRequestedByUserId ?? this.paymentRequestedByUserId,
+      paymentRequestedByUserId:
+          paymentRequestedByUserId ?? this.paymentRequestedByUserId,
       paymentRequestedAt: paymentRequestedAt ?? this.paymentRequestedAt,
-      paymentApprovedByUserId: paymentApprovedByUserId ?? this.paymentApprovedByUserId,
+      paymentApprovedByUserId:
+          paymentApprovedByUserId ?? this.paymentApprovedByUserId,
       paymentApprovedAt: paymentApprovedAt ?? this.paymentApprovedAt,
-      paymentInitiatedByUserId: paymentInitiatedByUserId ?? this.paymentInitiatedByUserId,
+      paymentInitiatedByUserId:
+          paymentInitiatedByUserId ?? this.paymentInitiatedByUserId,
       paymentInitiatedAt: paymentInitiatedAt ?? this.paymentInitiatedAt,
       paymentPaidByUserId: paymentPaidByUserId ?? this.paymentPaidByUserId,
       paymentPaidAt: paymentPaidAt ?? this.paymentPaidAt,

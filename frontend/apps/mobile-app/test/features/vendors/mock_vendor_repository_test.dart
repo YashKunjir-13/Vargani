@@ -11,16 +11,18 @@ void main() {
 
   test('returns filtered vendors and computes derived totals', () async {
     await repository.createVendor(
-      name: 'Decor Vendor',
+      name: 'Mahalaxmi Mandap Decorators',
       category: 'Mandap & Decoration',
-      contractAmountPaise: 1000000,
-      paidAmountPaise: 500000,
+      contractAmountPaise: 45000000,
+      paidAmountPaise: 30000000,
       status: VendorStatus.active,
     );
+
     final vendors = await repository.getVendors(search: 'decor');
 
     expect(vendors, isNotEmpty);
-    expect(vendors.any((vendor) => vendor.category == 'Mandap & Decoration'), isTrue);
+    expect(vendors.any((vendor) => vendor.category == 'Mandap & Decoration'),
+        isTrue);
     expect(vendors.first.contractAmountPaise, greaterThan(0));
     expect(vendors.first.outstandingAmountPaise, greaterThanOrEqualTo(0));
   });

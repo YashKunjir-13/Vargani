@@ -14,7 +14,9 @@ class PaymentReviewScreen extends ConsumerWidget {
     final theme = Theme.of(context);
     final flow = ref.watch(donationFlowProvider);
 
-    final eventName = flow.selectedEvent?['name'] ?? flow.selectedEvent?['title'] ?? 'Ganesh Utsav 2026';
+    final eventName = flow.selectedEvent?['name'] ??
+        flow.selectedEvent?['title'] ??
+        'Ganesh Utsav 2026';
     final donorName = flow.selectedDonor?['name'] ?? 'Donor';
     final donorMobile = flow.selectedDonor?['mobile'] ?? 'N/A';
     final amount = flow.amount;
@@ -23,10 +25,13 @@ class PaymentReviewScreen extends ConsumerWidget {
     final is80G = flow.is80GRequired;
 
     Future<void> onConfirm() async {
-      final success = await ref.read(donationFlowProvider.notifier).createPaymentOrder();
+      final success =
+          await ref.read(donationFlowProvider.notifier).createPaymentOrder();
       if (!context.mounted) return;
       if (success) {
-        if (method == 'CASH' || method == 'CHEQUE' || method == 'BANK_TRANSFER') {
+        if (method == 'CASH' ||
+            method == 'CHEQUE' ||
+            method == 'BANK_TRANSFER') {
           // Offline payment completes immediately
           context.push('/donation/result');
         } else {
@@ -36,7 +41,8 @@ class PaymentReviewScreen extends ConsumerWidget {
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text(flow.errorMessage ?? 'Payment creation failed. Please retry.'),
+            content: Text(
+                flow.errorMessage ?? 'Payment creation failed. Please retry.'),
             backgroundColor: Colors.red,
           ),
         );
@@ -73,11 +79,14 @@ class PaymentReviewScreen extends ConsumerWidget {
 
               // Total Payable Box
               AppCard(
-                color: theme.colorScheme.primaryContainer.withValues(alpha: 0.5),
+                color:
+                    theme.colorScheme.primaryContainer.withValues(alpha: 0.5),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Text('Total Amount Payable', style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold)),
+                    Text('Total Amount Payable',
+                        style: theme.textTheme.titleMedium
+                            ?.copyWith(fontWeight: FontWeight.bold)),
                     Text(
                       '₹${amount.toStringAsFixed(2)}',
                       style: theme.textTheme.titleLarge?.copyWith(
@@ -92,7 +101,8 @@ class PaymentReviewScreen extends ConsumerWidget {
 
               Row(
                 children: [
-                  const Icon(Icons.shield_outlined, size: 16, color: Colors.grey),
+                  const Icon(Icons.shield_outlined,
+                      size: 16, color: Colors.grey),
                   const SizedBox(width: 6),
                   Text(
                     'Protected by Idempotency Key: ${flow.idempotencyKey?.substring(0, 14)}...',

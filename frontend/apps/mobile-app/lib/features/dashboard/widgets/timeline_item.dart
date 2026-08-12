@@ -14,9 +14,15 @@ class TimelineItem extends StatelessWidget {
         ActivityType.expense => (Icons.payments_outlined, scheme.error),
         ActivityType.contribution => (Icons.groups_outlined, Colors.purple),
         ActivityType.audit => (Icons.fact_check_outlined, Colors.teal),
-        ActivityType.notification => (Icons.notifications_outlined, Colors.amber.shade800),
+        ActivityType.notification => (
+            Icons.notifications_outlined,
+            Colors.amber.shade800
+          ),
         ActivityType.vendor => (Icons.storefront_outlined, Colors.indigo),
-        ActivityType.sponsor => (Icons.handshake_outlined, Colors.green.shade700),
+        ActivityType.sponsor => (
+            Icons.handshake_outlined,
+            Colors.green.shade700
+          ),
       };
 
   @override
@@ -42,7 +48,8 @@ class TimelineItem extends StatelessWidget {
               children: [
                 Text(
                   data.title,
-                  style: theme.textTheme.bodyMedium?.copyWith(fontWeight: FontWeight.w600),
+                  style: theme.textTheme.bodyMedium
+                      ?.copyWith(fontWeight: FontWeight.w600),
                 ),
                 const SizedBox(height: 2),
                 Text(
@@ -52,7 +59,8 @@ class TimelineItem extends StatelessWidget {
                 ),
                 if (data.statusLabel != null) ...[
                   const SizedBox(height: 6),
-                  StatusChip(label: data.statusLabel!, type: StatusChipType.neutral),
+                  StatusChip(
+                      label: data.statusLabel!, type: StatusChipType.neutral),
                 ],
               ],
             ),
@@ -66,7 +74,9 @@ class TimelineItem extends StatelessWidget {
                   amount,
                   style: theme.textTheme.bodyMedium?.copyWith(
                     fontWeight: FontWeight.w700,
-                    color: amount.startsWith('-') ? theme.colorScheme.error : Colors.green.shade700,
+                    color: amount.startsWith('-')
+                        ? theme.colorScheme.error
+                        : Colors.green.shade700,
                   ),
                 ),
               const SizedBox(height: 2),

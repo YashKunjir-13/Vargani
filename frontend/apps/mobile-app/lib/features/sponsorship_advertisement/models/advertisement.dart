@@ -1,4 +1,11 @@
-enum AdvertisementType { banner, flexBoard, programAd, fullPage, booklet, other }
+enum AdvertisementType {
+  banner,
+  flexBoard,
+  programAd,
+  fullPage,
+  booklet,
+  other
+}
 
 extension AdvertisementTypeDisplay on AdvertisementType {
   String get label {

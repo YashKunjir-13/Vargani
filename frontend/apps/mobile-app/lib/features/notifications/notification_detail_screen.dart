@@ -34,7 +34,8 @@ class NotificationDetailScreen extends StatelessWidget {
             Text(detail.title),
             Text(
               detail.priorityLabel,
-              style: textTheme.labelMedium?.copyWith(color: colorScheme.onSurfaceVariant),
+              style: textTheme.labelMedium
+                  ?.copyWith(color: colorScheme.onSurfaceVariant),
             ),
           ],
         ),
@@ -48,8 +49,11 @@ class NotificationDetailScreen extends StatelessWidget {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text('Status', style: textTheme.labelMedium?.copyWith(color: colorScheme.onSurfaceVariant)),
-              StatusChip(label: detail.statusLabel, type: StatusChipType.warning),
+              Text('Status',
+                  style: textTheme.labelMedium
+                      ?.copyWith(color: colorScheme.onSurfaceVariant)),
+              StatusChip(
+                  label: detail.statusLabel, type: StatusChipType.warning),
             ],
           ),
           const SizedBox(height: 16),
@@ -64,13 +68,18 @@ class NotificationDetailScreen extends StatelessWidget {
               children: [
                 Text(
                   detail.contextLabel,
-                  style: textTheme.labelMedium?.copyWith(color: colorScheme.onTertiaryContainer.withValues(alpha: 0.85)),
+                  style: textTheme.labelMedium?.copyWith(
+                      color: colorScheme.onTertiaryContainer
+                          .withValues(alpha: 0.85)),
                 ),
                 Text(
                   detail.contextValue,
-                  style: textTheme.headlineMedium?.copyWith(color: colorScheme.onTertiaryContainer),
+                  style: textTheme.headlineMedium
+                      ?.copyWith(color: colorScheme.onTertiaryContainer),
                 ),
-                Text(detail.contextSubtitle, style: textTheme.bodyMedium?.copyWith(color: colorScheme.onTertiaryContainer)),
+                Text(detail.contextSubtitle,
+                    style: textTheme.bodyMedium
+                        ?.copyWith(color: colorScheme.onTertiaryContainer)),
               ],
             ),
           ),
@@ -85,7 +94,9 @@ class NotificationDetailScreen extends StatelessWidget {
                 subtitle: const Text('Budget module →'),
                 trailing: detail.linkedBudgetStatus == null
                     ? null
-                    : StatusChip(label: detail.linkedBudgetStatus!, type: StatusChipType.error),
+                    : StatusChip(
+                        label: detail.linkedBudgetStatus!,
+                        type: StatusChipType.error),
                 onTap: onOpenLinkedRecord,
               ),
             ),
@@ -97,19 +108,29 @@ class NotificationDetailScreen extends StatelessWidget {
             for (final entry in detail.activityLog)
               Padding(
                 padding: const EdgeInsets.symmetric(vertical: 4),
-                child: Text(entry, style: textTheme.bodyMedium?.copyWith(color: colorScheme.onSurfaceVariant)),
+                child: Text(entry,
+                    style: textTheme.bodyMedium
+                        ?.copyWith(color: colorScheme.onSurfaceVariant)),
               ),
           ],
           if (detail.attachmentName != null) ...[
             const SizedBox(height: 16),
-            Chip(avatar: const Icon(Icons.attach_file, size: 16), label: Text(detail.attachmentName!)),
+            Chip(
+                avatar: const Icon(Icons.attach_file, size: 16),
+                label: Text(detail.attachmentName!)),
           ],
           const SizedBox(height: 24),
           Row(
             children: [
-              Expanded(child: SecondaryButton(label: 'Open Vendor Profile', onPressed: onOpenLinkedRecord)),
+              Expanded(
+                  child: SecondaryButton(
+                      label: 'Open Vendor Profile',
+                      onPressed: onOpenLinkedRecord)),
               const SizedBox(width: 8),
-              Expanded(child: PrimaryButton(label: detail.primaryActionLabel, onPressed: onPrimaryAction)),
+              Expanded(
+                  child: PrimaryButton(
+                      label: detail.primaryActionLabel,
+                      onPressed: onPrimaryAction)),
             ],
           ),
         ],
@@ -134,8 +155,12 @@ class _KeyValue extends StatelessWidget {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Text(label, style: textTheme.labelMedium?.copyWith(color: colorScheme.onSurfaceVariant)),
-          Text(value, style: textTheme.bodyLarge?.copyWith(fontWeight: FontWeight.w600)),
+          Text(label,
+              style: textTheme.labelMedium
+                  ?.copyWith(color: colorScheme.onSurfaceVariant)),
+          Text(value,
+              style:
+                  textTheme.bodyLarge?.copyWith(fontWeight: FontWeight.w600)),
         ],
       ),
     );

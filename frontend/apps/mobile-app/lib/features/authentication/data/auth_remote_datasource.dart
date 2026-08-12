@@ -29,7 +29,8 @@ class AuthRemoteDataSource {
           if (registrationNumber != null && registrationNumber.isNotEmpty)
             'registrationNumber': registrationNumber,
           'presidentHeadName': presidentHeadName,
-          if (addressLine1 != null && addressLine1.isNotEmpty) 'addressLine1': addressLine1,
+          if (addressLine1 != null && addressLine1.isNotEmpty)
+            'addressLine1': addressLine1,
           'city': city,
           'state': state,
           'postalCode': postalCode,
@@ -39,7 +40,8 @@ class AuthRemoteDataSource {
           'preferredLanguage': preferredLanguage,
         },
       );
-      return AuthSession.fromJson(response.data!['data'] as Map<String, dynamic>);
+      return AuthSession.fromJson(
+          response.data!['data'] as Map<String, dynamic>);
     });
   }
 
@@ -61,29 +63,41 @@ class AuthRemoteDataSource {
           'fullName': fullName,
           if (email != null && email.isNotEmpty) 'email': email,
           if (panNumber != null && panNumber.isNotEmpty) 'panNumber': panNumber,
-          if (addressLine1 != null && addressLine1.isNotEmpty) 'addressLine1': addressLine1,
+          if (addressLine1 != null && addressLine1.isNotEmpty)
+            'addressLine1': addressLine1,
           'city': city,
-          if (postalCode != null && postalCode.isNotEmpty) 'postalCode': postalCode,
+          if (postalCode != null && postalCode.isNotEmpty)
+            'postalCode': postalCode,
           'phoneNumber': phoneNumber,
           if (password != null && password.isNotEmpty) 'password': password,
           'preferredLanguage': preferredLanguage,
         },
       );
-      return AuthSession.fromJson(response.data!['data'] as Map<String, dynamic>);
+      return AuthSession.fromJson(
+          response.data!['data'] as Map<String, dynamic>);
     });
   }
 
-  Future<AuthSession> login({required String phoneNumber, required String password, required LoginRole role}) {
+  Future<AuthSession> login(
+      {required String phoneNumber,
+      required String password,
+      required LoginRole role}) {
     return guardApiCall(() async {
       final response = await _dio.post<Map<String, dynamic>>(
         '/auth/login',
-        data: {'phoneNumber': phoneNumber, 'password': password, 'role': role.name.toUpperCase()},
+        data: {
+          'phoneNumber': phoneNumber,
+          'password': password,
+          'role': role.name.toUpperCase()
+        },
       );
-      return AuthSession.fromJson(response.data!['data'] as Map<String, dynamic>);
+      return AuthSession.fromJson(
+          response.data!['data'] as Map<String, dynamic>);
     });
   }
 
-  Future<OtpRequestResult> requestOtp({required String phoneNumber, required OtpPurpose purpose}) {
+  Future<OtpRequestResult> requestOtp(
+      {required String phoneNumber, required OtpPurpose purpose}) {
     return guardApiCall(() async {
       final response = await _dio.post<Map<String, dynamic>>(
         '/auth/otp/request',
@@ -92,11 +106,15 @@ class AuthRemoteDataSource {
           'purpose': purpose.name,
         },
       );
-      return OtpRequestResult.fromJson(response.data!['data'] as Map<String, dynamic>);
+      return OtpRequestResult.fromJson(
+          response.data!['data'] as Map<String, dynamic>);
     });
   }
 
-  Future<AuthSession> verifyOtp({required String phoneNumber, required String otp, required OtpPurpose purpose}) {
+  Future<AuthSession> verifyOtp(
+      {required String phoneNumber,
+      required String otp,
+      required OtpPurpose purpose}) {
     return guardApiCall(() async {
       final response = await _dio.post<Map<String, dynamic>>(
         '/auth/otp/verify',
@@ -106,11 +124,17 @@ class AuthRemoteDataSource {
           'purpose': purpose.name,
         },
       );
-      return AuthSession.fromJson(response.data!['data'] as Map<String, dynamic>);
+      return AuthSession.fromJson(
+          response.data!['data'] as Map<String, dynamic>);
     });
   }
 
-  Future<({String accessToken, String refreshToken, DateTime accessTokenExpiresAt})> refresh(
+  Future<
+      ({
+        String accessToken,
+        String refreshToken,
+        DateTime accessTokenExpiresAt
+      })> refresh(
     String refreshToken,
   ) {
     return guardApiCall(() async {
@@ -122,7 +146,8 @@ class AuthRemoteDataSource {
       return (
         accessToken: data['accessToken'] as String,
         refreshToken: data['refreshToken'] as String,
-        accessTokenExpiresAt: DateTime.parse(data['accessTokenExpiresAt'] as String),
+        accessTokenExpiresAt:
+            DateTime.parse(data['accessTokenExpiresAt'] as String),
       );
     });
   }
@@ -166,7 +191,8 @@ class AuthRemoteDataSource {
           'role': role.name.toUpperCase(),
         },
       );
-      return AuthSession.fromJson(response.data!['data'] as Map<String, dynamic>);
+      return AuthSession.fromJson(
+          response.data!['data'] as Map<String, dynamic>);
     });
   }
 
@@ -176,7 +202,8 @@ class AuthRemoteDataSource {
         '/auth/mpin/forgot',
         data: {'phoneNumber': phoneNumber},
       );
-      return OtpRequestResult.fromJson(response.data!['data'] as Map<String, dynamic>);
+      return OtpRequestResult.fromJson(
+          response.data!['data'] as Map<String, dynamic>);
     });
   }
 
@@ -196,7 +223,8 @@ class AuthRemoteDataSource {
           'role': role.name.toUpperCase(),
         },
       );
-      return AuthSession.fromJson(response.data!['data'] as Map<String, dynamic>);
+      return AuthSession.fromJson(
+          response.data!['data'] as Map<String, dynamic>);
     });
   }
 }

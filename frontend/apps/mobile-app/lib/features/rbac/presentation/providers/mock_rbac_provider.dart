@@ -40,35 +40,52 @@ class MockRbacState {
     // Standardized permission alias mappings for backward compatibility & frontend-backend bridge:
     switch (permission) {
       case 'contribution.view':
-        return permissions.contains('collections.create') || permissions.contains('contribution.view');
+        return permissions.contains('collections.create') ||
+            permissions.contains('contribution.view');
       case 'donation_collection.view':
-        return permissions.contains('collections.create') || permissions.contains('donation_collection.view');
+        return permissions.contains('collections.create') ||
+            permissions.contains('donation_collection.view');
       case 'receipt.view':
-        return permissions.contains('receipts.create') || permissions.contains('receipt.view');
+        return permissions.contains('receipts.create') ||
+            permissions.contains('receipt.view');
       case 'bill.view':
-        return permissions.contains('bills.create') || permissions.contains('bills.approve') || permissions.contains('bill.view');
+        return permissions.contains('bills.create') ||
+            permissions.contains('bills.approve') ||
+            permissions.contains('bill.view');
       case 'vendor_payment.view':
-        return permissions.contains('bills.approve') || permissions.contains('expenses.create') || permissions.contains('vendor_payment.view');
+        return permissions.contains('bills.approve') ||
+            permissions.contains('expenses.create') ||
+            permissions.contains('vendor_payment.view');
       case 'donation_box.view':
-        return permissions.contains('kunda.manage') || permissions.contains('donation_box.view');
+        return permissions.contains('kunda.manage') ||
+            permissions.contains('donation_box.view');
       case 'sponsor.view':
-        return permissions.contains('sponsors.manage') || permissions.contains('sponsor.view');
+        return permissions.contains('sponsors.manage') ||
+            permissions.contains('sponsor.view');
       case 'advertisement.view':
-        return permissions.contains('sponsors.manage') || permissions.contains('advertisement.view');
+        return permissions.contains('sponsors.manage') ||
+            permissions.contains('advertisement.view');
       case 'volunteer.view':
-        return permissions.contains('volunteers.manage') || permissions.contains('volunteer.view');
+        return permissions.contains('volunteers.manage') ||
+            permissions.contains('volunteer.view');
       case 'member.view':
-        return permissions.contains('members.view') || permissions.contains('member.view');
+        return permissions.contains('members.view') ||
+            permissions.contains('member.view');
       case 'reports.view':
-        return permissions.contains('reports.view') || permissions.contains('analytics.view');
+        return permissions.contains('reports.view') ||
+            permissions.contains('analytics.view');
       case 'audit_logs.view':
-        return permissions.contains('audit.view') || permissions.contains('audit_logs.view');
+        return permissions.contains('audit.view') ||
+            permissions.contains('audit_logs.view');
       case 'budget.view':
-        return permissions.contains('budget.view') || permissions.contains('budget.manage');
+        return permissions.contains('budget.view') ||
+            permissions.contains('budget.manage');
       case 'milestones.view':
-        return permissions.contains('milestones.view') || permissions.contains('milestones.view_assigned');
+        return permissions.contains('milestones.view') ||
+            permissions.contains('milestones.view_assigned');
       case 'user.manage':
-        return permissions.contains('users.manage') || permissions.contains('user.manage');
+        return permissions.contains('users.manage') ||
+            permissions.contains('user.manage');
       case 'records.view':
         return permissions.contains('records.view');
       default:
@@ -185,7 +202,6 @@ class MockRbacNotifier extends Notifier<MockRbacState> {
 
   @override
   MockRbacState build() {
-    // Default session starts with Trust President (Super Admin)
     const defaultRole = MockRole.president;
     return MockRbacState(
       activeRole: defaultRole,
@@ -200,11 +216,13 @@ class MockRbacNotifier extends Notifier<MockRbacState> {
     return _rolePermissions[role] ?? [];
   }
 
-  static List<String> getEffectivePermissions(MockRole role, List<String>? customPermissions) {
+  static List<String> getEffectivePermissions(
+      MockRole role, List<String>? customPermissions) {
     return customPermissions ?? getDefaultPermissions(role);
   }
 
-  void switchRole(MockRole newRole, {List<String>? customPermissions, String? customRoleName}) {
+  void switchRole(MockRole newRole,
+      {List<String>? customPermissions, String? customRoleName}) {
     final isSuper = newRole == MockRole.president;
     state = MockRbacState(
       activeRole: newRole,

@@ -35,19 +35,22 @@ class AuthLanguageSelector extends ConsumerWidget {
               label: 'म',
               semanticsLabel: l10n.languageMarathi,
               selected: selectedLocale.languageCode == 'mr',
-              onSelected: () => unawaited(controller.selectLocale(const Locale('mr'))),
+              onSelected: () =>
+                  unawaited(controller.selectLocale(const Locale('mr'))),
             ),
             _LanguageOption(
               label: 'हि',
               semanticsLabel: l10n.languageHindi,
               selected: selectedLocale.languageCode == 'hi',
-              onSelected: () => unawaited(controller.selectLocale(const Locale('hi'))),
+              onSelected: () =>
+                  unawaited(controller.selectLocale(const Locale('hi'))),
             ),
             _LanguageOption(
               label: 'EN',
               semanticsLabel: l10n.languageEnglish,
               selected: selectedLocale.languageCode == 'en',
-              onSelected: () => unawaited(controller.selectLocale(const Locale('en'))),
+              onSelected: () =>
+                  unawaited(controller.selectLocale(const Locale('en'))),
             ),
           ],
         ),

@@ -25,7 +25,8 @@ class _BillsListScreenState extends ConsumerState<BillsListScreen> {
   Widget build(BuildContext context) {
     final bills = ref.watch(billsProvider);
     final theme = Theme.of(context);
-    final currency = NumberFormat.currency(locale: 'en_IN', symbol: '₹', decimalDigits: 0);
+    final currency =
+        NumberFormat.currency(locale: 'en_IN', symbol: '₹', decimalDigits: 0);
     final dateFormat = DateFormat('d MMM yyyy');
 
     final filtered = bills.where((b) {
@@ -38,9 +39,10 @@ class _BillsListScreenState extends ConsumerState<BillsListScreen> {
         _ => true,
       };
 
-      final matchesSearch = b.receiverName.toLowerCase().contains(_searchQuery.toLowerCase()) ||
-          b.billNumber.toLowerCase().contains(_searchQuery.toLowerCase()) ||
-          b.taskOrField.toLowerCase().contains(_searchQuery.toLowerCase());
+      final matchesSearch =
+          b.receiverName.toLowerCase().contains(_searchQuery.toLowerCase()) ||
+              b.billNumber.toLowerCase().contains(_searchQuery.toLowerCase()) ||
+              b.taskOrField.toLowerCase().contains(_searchQuery.toLowerCase());
 
       return matchesFilter && matchesSearch;
     }).toList();
@@ -69,8 +71,10 @@ class _BillsListScreenState extends ConsumerState<BillsListScreen> {
                     hintText: 'Search receiver, bill # or task...',
                     prefixIcon: const Icon(Icons.search),
                     isDense: true,
-                    contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
-                    border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
+                    contentPadding: const EdgeInsets.symmetric(
+                        horizontal: 14, vertical: 10),
+                    border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(10)),
                   ),
                 ),
                 const SizedBox(height: 10),
@@ -92,7 +96,9 @@ class _BillsListScreenState extends ConsumerState<BillsListScreen> {
                           label: Text(filter),
                           selected: isSelected,
                           onSelected: (selected) {
-                            if (selected) setState(() => _selectedFilter = filter);
+                            if (selected) {
+                              setState(() => _selectedFilter = filter);
+                            }
                           },
                         ),
                       );
@@ -109,9 +115,12 @@ class _BillsListScreenState extends ConsumerState<BillsListScreen> {
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        Icon(Icons.receipt_outlined, size: 48, color: theme.colorScheme.onSurfaceVariant),
+                        Icon(Icons.receipt_outlined,
+                            size: 48,
+                            color: theme.colorScheme.onSurfaceVariant),
                         const SizedBox(height: 12),
-                        Text('No bills found', style: theme.textTheme.titleMedium),
+                        Text('No bills found',
+                            style: theme.textTheme.titleMedium),
                       ],
                     ),
                   )
@@ -127,7 +136,8 @@ class _BillsListScreenState extends ConsumerState<BillsListScreen> {
                           children: [
                             CircleAvatar(
                               radius: 22,
-                              backgroundColor: theme.colorScheme.secondaryContainer,
+                              backgroundColor:
+                                  theme.colorScheme.secondaryContainer,
                               child: Icon(
                                 Icons.receipt_outlined,
                                 size: 20,
@@ -141,12 +151,14 @@ class _BillsListScreenState extends ConsumerState<BillsListScreen> {
                                 children: [
                                   Text(
                                     bill.billNumber,
-                                    style: theme.textTheme.titleSmall?.copyWith(fontWeight: FontWeight.bold),
+                                    style: theme.textTheme.titleSmall
+                                        ?.copyWith(fontWeight: FontWeight.bold),
                                   ),
                                   const SizedBox(height: 2),
                                   Text(
                                     '${bill.receiverName} • ${bill.taskOrField}',
-                                    style: theme.textTheme.bodyMedium?.copyWith(fontWeight: FontWeight.w500),
+                                    style: theme.textTheme.bodyMedium
+                                        ?.copyWith(fontWeight: FontWeight.w500),
                                   ),
                                   Text(
                                     'Date: ${dateFormat.format(bill.date)}',

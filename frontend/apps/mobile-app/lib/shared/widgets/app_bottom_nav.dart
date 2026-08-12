@@ -30,7 +30,8 @@ class AppBottomNav extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final colors = context.authColors;
-    final safeIndex = (currentIndex >= 0 && currentIndex < items.length) ? currentIndex : 0;
+    final safeIndex =
+        (currentIndex >= 0 && currentIndex < items.length) ? currentIndex : 0;
 
     return NavigationBarTheme(
       data: NavigationBarThemeData(
@@ -64,7 +65,8 @@ class AppBottomNav extends StatelessWidget {
             .map(
               (item) => NavigationDestination(
                 icon: Icon(item.icon),
-                selectedIcon: item.selectedIcon != null ? Icon(item.selectedIcon) : null,
+                selectedIcon:
+                    item.selectedIcon != null ? Icon(item.selectedIcon) : null,
                 label: item.label,
               ),
             )

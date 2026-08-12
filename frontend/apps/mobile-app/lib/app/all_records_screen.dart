@@ -45,7 +45,8 @@ class AllRecordsScreen extends ConsumerWidget {
             label: context.advertisements,
             description: context.advertisementsDesc,
             onTap: () => Navigator.of(context).push(
-              MaterialPageRoute(builder: (_) => const AdvertisementListScreen()),
+              MaterialPageRoute(
+                  builder: (_) => const AdvertisementListScreen()),
             ),
           ),
           const SizedBox(height: AppSpacing.space16),

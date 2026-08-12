@@ -41,7 +41,9 @@ class MockAnalyticsRepository implements AnalyticsRepository {
     bool isWithinRange(DateTime? date) {
       if (date == null) return true;
       if (startDate != null && date.isBefore(startDate)) return false;
-      if (endDate != null && date.isAfter(endDate.add(const Duration(days: 1)))) return false;
+      if (endDate != null && date.isAfter(endDate.add(const Duration(days: 1)))) {
+        return false;
+      }
       return true;
     }
 
@@ -66,13 +68,16 @@ class MockAnalyticsRepository implements AnalyticsRepository {
     );
 
     // 2. RECEIPTS
-    final filteredReceipts = receipts.where((r) => isWithinRange(r.issuedDate)).toList();
+    final filteredReceipts =
+        receipts.where((r) => isWithinRange(r.issuedDate)).toList();
     int totalReceiptAmountPaise = 0;
     int todaysReceipts = 0;
     final now = DateTime.now();
     for (var r in filteredReceipts) {
       totalReceiptAmountPaise += (r.amount * 100).toInt();
-      if (r.issuedDate.year == now.year && r.issuedDate.month == now.month && r.issuedDate.day == now.day) {
+      if (r.issuedDate.year == now.year &&
+          r.issuedDate.month == now.month &&
+          r.issuedDate.day == now.day) {
         todaysReceipts++;
       }
     }
@@ -83,7 +88,8 @@ class MockAnalyticsRepository implements AnalyticsRepository {
     );
 
     // 3. CONTRIBUTIONS
-    final filteredContributions = contributions.where((c) => isWithinRange(c.date)).toList();
+    final filteredContributions =
+        contributions.where((c) => isWithinRange(c.date)).toList();
     final Map<String, int> breakdown = {};
     for (var c in filteredContributions) {
       final t = c.donationType.name;
@@ -95,7 +101,8 @@ class MockAnalyticsRepository implements AnalyticsRepository {
     );
 
     // 4. AUDIT
-    final filteredAudits = audits.where((a) => isWithinRange(a.timestamp)).toList();
+    final filteredAudits =
+        audits.where((a) => isWithinRange(a.timestamp)).toList();
     int warnings = 0;
     int critical = 0;
     int passed = 0;
@@ -142,7 +149,8 @@ class MockAnalyticsRepository implements AnalyticsRepository {
     // 7. VENDORS
     final vendorSummary = VendorSummary(
       totalVendors: vendors.length,
-      activeVendors: vendors.where((v) => v.status == VendorStatus.active).length,
+      activeVendors:
+          vendors.where((v) => v.status == VendorStatus.active).length,
     );
 
     // 8. MILESTONES
@@ -163,7 +171,9 @@ class MockAnalyticsRepository implements AnalyticsRepository {
 
     // FINANCIAL METRICS
     final metrics = FinancialMetrics(
-      totalInflowPaise: receiptSummary.totalReceiptAmountPaise + sponsorshipSummary.totalSponsorshipAmountPaise + advertiserSummary.associatedRevenuePaise,
+      totalInflowPaise: receiptSummary.totalReceiptAmountPaise +
+          sponsorshipSummary.totalSponsorshipAmountPaise +
+          advertiserSummary.associatedRevenuePaise,
       totalOutflowPaise: billSummary.totalBilledPaise,
     );
 

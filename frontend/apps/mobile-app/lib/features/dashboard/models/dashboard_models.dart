@@ -72,7 +72,15 @@ class ChartTabData {
   });
 }
 
-enum ActivityType { receipt, expense, contribution, audit, notification, vendor, sponsor }
+enum ActivityType {
+  receipt,
+  expense,
+  contribution,
+  audit,
+  notification,
+  vendor,
+  sponsor
+}
 
 class ActivityItemData {
   final ActivityType type;

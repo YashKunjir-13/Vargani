@@ -48,9 +48,10 @@ class SponsorshipListScreen extends ConsumerWidget {
                       child: AppSummaryStatCard(
                         label: context.confirmedLabel,
                         value: formatPaiseAsRupees(confirmedTotal),
-                        valueColor: Theme.of(context).brightness == Brightness.dark
-                            ? AppColors.darkSuccess
-                            : AppColors.lightSuccess,
+                        valueColor:
+                            Theme.of(context).brightness == Brightness.dark
+                                ? AppColors.darkSuccess
+                                : AppColors.lightSuccess,
                       ),
                     ),
                     const SizedBox(width: AppSpacing.space8),
@@ -58,9 +59,10 @@ class SponsorshipListScreen extends ConsumerWidget {
                       child: AppSummaryStatCard(
                         label: context.pledgedLabel,
                         value: formatPaiseAsRupees(pledgedTotal),
-                        valueColor: Theme.of(context).brightness == Brightness.dark
-                            ? AppColors.darkWarning
-                            : AppColors.lightWarning,
+                        valueColor:
+                            Theme.of(context).brightness == Brightness.dark
+                                ? AppColors.darkWarning
+                                : AppColors.lightWarning,
                       ),
                     ),
                     const SizedBox(width: AppSpacing.space8),

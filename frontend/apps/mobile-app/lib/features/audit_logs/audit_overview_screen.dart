@@ -22,7 +22,8 @@ class AuditOverviewScreen extends ConsumerStatefulWidget {
   });
 
   @override
-  ConsumerState<AuditOverviewScreen> createState() => _AuditOverviewScreenState();
+  ConsumerState<AuditOverviewScreen> createState() =>
+      _AuditOverviewScreenState();
 }
 
 class _AuditOverviewScreenState extends ConsumerState<AuditOverviewScreen> {
@@ -46,8 +47,11 @@ class _AuditOverviewScreenState extends ConsumerState<AuditOverviewScreen> {
       appBar: AppBar(
         title: const Text('Audit Log'),
         actions: [
-          IconButton(onPressed: widget.onOpenSearch, icon: const Icon(Icons.search)),
-          IconButton(onPressed: widget.onOpenFilters, icon: const Icon(Icons.filter_list)),
+          IconButton(
+              onPressed: widget.onOpenSearch, icon: const Icon(Icons.search)),
+          IconButton(
+              onPressed: widget.onOpenFilters,
+              icon: const Icon(Icons.filter_list)),
         ],
       ),
       body: state.isLoading && events.isEmpty
@@ -59,21 +63,26 @@ class _AuditOverviewScreenState extends ConsumerState<AuditOverviewScreen> {
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        const Icon(Icons.error_outline, color: Colors.red, size: 48),
+                        const Icon(Icons.error_outline,
+                            color: Colors.red, size: 48),
                         const SizedBox(height: 12),
                         Text(
                           'Error loading audit logs',
-                          style: textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
+                          style: textTheme.titleMedium
+                              ?.copyWith(fontWeight: FontWeight.bold),
                         ),
                         const SizedBox(height: 6),
                         Text(
                           state.error!,
                           textAlign: TextAlign.center,
-                          style: textTheme.bodySmall?.copyWith(color: colorScheme.onSurfaceVariant),
+                          style: textTheme.bodySmall
+                              ?.copyWith(color: colorScheme.onSurfaceVariant),
                         ),
                         const SizedBox(height: 16),
                         ElevatedButton.icon(
-                          onPressed: () => ref.read(auditLogsNotifierProvider.notifier).loadAuditLogs(),
+                          onPressed: () => ref
+                              .read(auditLogsNotifierProvider.notifier)
+                              .loadAuditLogs(),
                           icon: const Icon(Icons.refresh),
                           label: const Text('Retry'),
                         ),
@@ -88,21 +97,26 @@ class _AuditOverviewScreenState extends ConsumerState<AuditOverviewScreen> {
                         child: Column(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
-                            Icon(Icons.history_toggle_off, color: colorScheme.onSurfaceVariant, size: 56),
+                            Icon(Icons.history_toggle_off,
+                                color: colorScheme.onSurfaceVariant, size: 56),
                             const SizedBox(height: 16),
                             Text(
                               'No audit activity yet',
-                              style: textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
+                              style: textTheme.titleLarge
+                                  ?.copyWith(fontWeight: FontWeight.bold),
                             ),
                             const SizedBox(height: 8),
                             Text(
                               'Audit events will automatically appear here as financial transactions, role updates, and system activities occur.',
                               textAlign: TextAlign.center,
-                              style: textTheme.bodyMedium?.copyWith(color: colorScheme.onSurfaceVariant),
+                              style: textTheme.bodyMedium?.copyWith(
+                                  color: colorScheme.onSurfaceVariant),
                             ),
                             const SizedBox(height: 20),
                             ElevatedButton.icon(
-                              onPressed: () => ref.read(auditLogsNotifierProvider.notifier).loadAuditLogs(),
+                              onPressed: () => ref
+                                  .read(auditLogsNotifierProvider.notifier)
+                                  .loadAuditLogs(),
                               icon: const Icon(Icons.refresh),
                               label: const Text('Refresh Logs'),
                             ),
@@ -111,119 +125,142 @@ class _AuditOverviewScreenState extends ConsumerState<AuditOverviewScreen> {
                       ),
                     )
                   : Column(
-                  children: [
-                    Padding(
-                      padding: const EdgeInsets.fromLTRB(16, 12, 16, 0),
-                      child: Row(
-                        children: [
-                          Expanded(child: _SummaryTile(value: '${summary.todayEventsCount}', label: 'Today')),
-                          Expanded(
-                            child: _SummaryTile(
-                              value: '${summary.criticalCount}',
-                              label: 'Critical',
-                              valueColor: colorScheme.error,
-                            ),
-                          ),
-                          Expanded(child: _SummaryTile(value: '${summary.financialCount}', label: 'Financial')),
-                          Expanded(
-                            child: _SummaryTile(
-                              value: '${summary.securityCount}',
-                              label: 'Security',
-                              valueColor: colorScheme.tertiary,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                    if (summary.criticalCount > 0)
-                      Padding(
-                        padding: const EdgeInsets.fromLTRB(16, 12, 16, 0),
-                        child: AlertCard(
-                          icon: Icons.report_problem_rounded,
-                          title: '${summary.criticalCount} Critical Events',
-                          subtitle: 'Immediate review required for critical security or financial actions.',
-                          tone: AlertTone.critical,
-                          actionLabel: 'Investigate →',
-                        ),
-                      ),
-                    Padding(
-                      padding: const EdgeInsets.all(16),
-                      child: SegmentedButton<int>(
-                        segments: const [
-                          ButtonSegment(value: 0, label: Text('Timeline')),
-                          ButtonSegment(value: 1, label: Text('Table')),
-                        ],
-                        selected: {_viewIndex},
-                        showSelectedIcon: false,
-                        onSelectionChanged: (selection) => setState(() => _viewIndex = selection.first),
-                      ),
-                    ),
-                    Expanded(
-                      child: IndexedStack(
-                        index: _viewIndex,
-                        children: [
-                          ListView(
-                            padding: const EdgeInsets.symmetric(horizontal: 16),
+                      children: [
+                        Padding(
+                          padding: const EdgeInsets.fromLTRB(16, 12, 16, 0),
+                          child: Row(
                             children: [
-                              for (final group in groups.entries) ...[
-                                Padding(
-                                  padding: const EdgeInsets.symmetric(vertical: 8),
-                                  child: Text(
-                                    group.key.toUpperCase(),
-                                    style: textTheme.labelMedium?.copyWith(
-                                      color: colorScheme.onSurfaceVariant,
-                                      fontWeight: FontWeight.w800,
-                                      letterSpacing: 0.5,
-                                    ),
-                                  ),
+                              Expanded(
+                                  child: _SummaryTile(
+                                      value: '${summary.todayEventsCount}',
+                                      label: 'Today')),
+                              Expanded(
+                                child: _SummaryTile(
+                                  value: '${summary.criticalCount}',
+                                  label: 'Critical',
+                                  valueColor: colorScheme.error,
                                 ),
-                                for (final event in group.value)
-                                  ListTile(
-                                    contentPadding: EdgeInsets.zero,
-                                    onTap: widget.onOpenEvent == null ? null : () => widget.onOpenEvent!(event),
-                                    leading: SeverityBadge(severity: event.severity),
-                                    title: Text(event.title, style: textTheme.bodyLarge?.copyWith(fontWeight: FontWeight.w700)),
-                                    subtitle: Text('${event.actorName} · ${event.moduleLabel}'),
-                                    trailing: Text(event.timeLabel, style: textTheme.labelSmall),
-                                  ),
-                              ],
-                            ],
-                          ),
-                          ListView(
-                            padding: const EdgeInsets.all(16),
-                            children: [
-                              SingleChildScrollView(
-                                scrollDirection: Axis.horizontal,
-                                child: DataTable(
-                                  columns: const [
-                                    DataColumn(label: Text('Time')),
-                                    DataColumn(label: Text('User')),
-                                    DataColumn(label: Text('Action')),
-                                    DataColumn(label: Text('Severity')),
-                                  ],
-                                  rows: [
-                                    for (final event in events)
-                                      DataRow(
-                                        onSelectChanged: widget.onOpenEvent == null
-                                            ? null
-                                            : (_) => widget.onOpenEvent!(event),
-                                        cells: [
-                                          DataCell(Text(event.timeLabel)),
-                                          DataCell(Text(event.actorName)),
-                                          DataCell(Text(event.title)),
-                                          DataCell(SeverityBadge(severity: event.severity)),
-                                        ],
-                                      ),
-                                  ],
+                              ),
+                              Expanded(
+                                  child: _SummaryTile(
+                                      value: '${summary.financialCount}',
+                                      label: 'Financial')),
+                              Expanded(
+                                child: _SummaryTile(
+                                  value: '${summary.securityCount}',
+                                  label: 'Security',
+                                  valueColor: colorScheme.tertiary,
                                 ),
                               ),
                             ],
                           ),
-                        ],
-                      ),
+                        ),
+                        if (summary.criticalCount > 0)
+                          Padding(
+                            padding: const EdgeInsets.fromLTRB(16, 12, 16, 0),
+                            child: AlertCard(
+                              icon: Icons.report_problem_rounded,
+                              title: '${summary.criticalCount} Critical Events',
+                              subtitle:
+                                  'Immediate review required for critical security or financial actions.',
+                              tone: AlertTone.critical,
+                              actionLabel: 'Investigate →',
+                            ),
+                          ),
+                        Padding(
+                          padding: const EdgeInsets.all(16),
+                          child: SegmentedButton<int>(
+                            segments: const [
+                              ButtonSegment(value: 0, label: Text('Timeline')),
+                              ButtonSegment(value: 1, label: Text('Table')),
+                            ],
+                            selected: {_viewIndex},
+                            showSelectedIcon: false,
+                            onSelectionChanged: (selection) =>
+                                setState(() => _viewIndex = selection.first),
+                          ),
+                        ),
+                        Expanded(
+                          child: IndexedStack(
+                            index: _viewIndex,
+                            children: [
+                              ListView(
+                                padding:
+                                    const EdgeInsets.symmetric(horizontal: 16),
+                                children: [
+                                  for (final group in groups.entries) ...[
+                                    Padding(
+                                      padding: const EdgeInsets.symmetric(
+                                          vertical: 8),
+                                      child: Text(
+                                        group.key.toUpperCase(),
+                                        style: textTheme.labelMedium?.copyWith(
+                                          color: colorScheme.onSurfaceVariant,
+                                          fontWeight: FontWeight.w800,
+                                          letterSpacing: 0.5,
+                                        ),
+                                      ),
+                                    ),
+                                    for (final event in group.value)
+                                      ListTile(
+                                        contentPadding: EdgeInsets.zero,
+                                        onTap: widget.onOpenEvent == null
+                                            ? null
+                                            : () => widget.onOpenEvent!(event),
+                                        leading: SeverityBadge(
+                                            severity: event.severity),
+                                        title: Text(event.title,
+                                            style: textTheme.bodyLarge
+                                                ?.copyWith(
+                                                    fontWeight:
+                                                        FontWeight.w700)),
+                                        subtitle: Text(
+                                            '${event.actorName} · ${event.moduleLabel}'),
+                                        trailing: Text(event.timeLabel,
+                                            style: textTheme.labelSmall),
+                                      ),
+                                  ],
+                                ],
+                              ),
+                              ListView(
+                                padding: const EdgeInsets.all(16),
+                                children: [
+                                  SingleChildScrollView(
+                                    scrollDirection: Axis.horizontal,
+                                    child: DataTable(
+                                      columns: const [
+                                        DataColumn(label: Text('Time')),
+                                        DataColumn(label: Text('User')),
+                                        DataColumn(label: Text('Action')),
+                                        DataColumn(label: Text('Severity')),
+                                      ],
+                                      rows: [
+                                        for (final event in events)
+                                          DataRow(
+                                            onSelectChanged: widget
+                                                        .onOpenEvent ==
+                                                    null
+                                                ? null
+                                                : (_) =>
+                                                    widget.onOpenEvent!(event),
+                                            cells: [
+                                              DataCell(Text(event.timeLabel)),
+                                              DataCell(Text(event.actorName)),
+                                              DataCell(Text(event.title)),
+                                              DataCell(SeverityBadge(
+                                                  severity: event.severity)),
+                                            ],
+                                          ),
+                                      ],
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
                     ),
-                  ],
-                ),
     );
   }
 }
@@ -233,7 +270,8 @@ class _SummaryTile extends StatelessWidget {
   final String label;
   final Color? valueColor;
 
-  const _SummaryTile({required this.value, required this.label, this.valueColor});
+  const _SummaryTile(
+      {required this.value, required this.label, this.valueColor});
 
   @override
   Widget build(BuildContext context) {
@@ -249,7 +287,9 @@ class _SummaryTile extends StatelessWidget {
             fontFeatures: const [FontFeature.tabularFigures()],
           ),
         ),
-        Text(label, style: textTheme.labelSmall?.copyWith(color: colorScheme.onSurfaceVariant)),
+        Text(label,
+            style: textTheme.labelSmall
+                ?.copyWith(color: colorScheme.onSurfaceVariant)),
       ],
     );
   }

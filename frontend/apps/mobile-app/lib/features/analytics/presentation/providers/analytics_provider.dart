@@ -97,14 +97,17 @@ class AnalyticsNotifier extends Notifier<AnalyticsState> {
 
     try {
       final repo = ref.read(mockAnalyticsRepositoryProvider);
-      final data = await repo.getDashboardData(startDate: startDate, endDate: endDate);
-      state = state.copyWith(isLoading: false, data: data, isUnauthorized: false);
+      final data =
+          await repo.getDashboardData(startDate: startDate, endDate: endDate);
+      state =
+          state.copyWith(isLoading: false, data: data, isUnauthorized: false);
     } catch (e) {
       state = state.copyWith(isLoading: false, error: e.toString());
     }
   }
 
-  void setFilter(DateRangeFilter filter, {DateTime? customStart, DateTime? customEnd}) {
+  void setFilter(DateRangeFilter filter,
+      {DateTime? customStart, DateTime? customEnd}) {
     state = state.copyWith(
       filter: filter,
       customStartDate: customStart ?? state.customStartDate,

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-
+import 'package:pauti_pustak_mobile/core/session/session_controller.dart';
 import 'package:pauti_pustak_mobile/features/authentication/presentation/widgets/auth_design_tokens.dart';
 
 import 'add_user_screen.dart';
@@ -87,8 +87,10 @@ class UserDetailsScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final colors = context.authColors;
     final users = ref.watch(mockUserListProvider);
-    final user = users.firstWhere((u) => u.id == userId, orElse: () => users.first);
-    final effectivePermissions = MockRbacNotifier.getEffectivePermissions(user.role, user.customPermissions);
+    final user =
+        users.firstWhere((u) => u.id == userId, orElse: () => users.first);
+    final effectivePermissions = MockRbacNotifier.getEffectivePermissions(
+        user.role, user.customPermissions);
 
     return Scaffold(
       backgroundColor: colors.background,
@@ -111,13 +113,17 @@ class UserDetailsScreen extends ConsumerWidget {
           Consumer(
             builder: (context, ref, child) {
               final rbac = ref.watch(mockRbacProvider);
-              final canRequestMoney = rbac.isSuperAdmin || rbac.hasPermission('collections.create') || rbac.hasPermission('contribution.create');
+              final canRequestMoney = rbac.isSuperAdmin ||
+                  rbac.hasPermission('collections.create') ||
+                  rbac.hasPermission('contribution.create');
               if (!canRequestMoney) return const SizedBox.shrink();
 
               return IconButton(
-                icon: Icon(Icons.request_quote_outlined, color: colors.brandOrange),
+                icon: Icon(Icons.request_quote_outlined,
+                    color: colors.brandOrange),
                 tooltip: 'Request Money',
-                onPressed: () => _showRequestMoneyDialog(context, ref, user, colors),
+                onPressed: () =>
+                    _showRequestMoneyDialog(context, ref, user, colors),
               );
             },
           ),
@@ -191,15 +197,20 @@ class UserDetailsScreen extends ConsumerWidget {
                   ),
                   const SizedBox(height: 12),
                   Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                     decoration: BoxDecoration(
-                      color: user.status == 'Active' ? Colors.green.shade100 : Colors.red.shade100,
+                      color: user.status == 'Active'
+                          ? Colors.green.shade100
+                          : Colors.red.shade100,
                       borderRadius: BorderRadius.circular(20),
                     ),
                     child: Text(
                       user.status,
                       style: TextStyle(
-                        color: user.status == 'Active' ? Colors.green.shade700 : Colors.red.shade700,
+                        color: user.status == 'Active'
+                            ? Colors.green.shade700
+                            : Colors.red.shade700,
                         fontSize: 12,
                         fontWeight: FontWeight.bold,
                       ),
@@ -221,7 +232,15 @@ class UserDetailsScreen extends ConsumerWidget {
               ),
               child: Column(
                 children: [
-                  _buildInfoRow('Mandal Name', 'Shree Siddhivinayak Ganpati Mandal', colors),
+                  _buildInfoRow(
+                      'Mandal Name',
+                      ref
+                              .watch(sessionControllerProvider)
+                              .user
+                              ?.organization
+                              ?.name ??
+                          'My Mandal',
+                      colors),
                   _buildInfoRow('Date Joined', user.joinedDate, colors),
                   _buildInfoRow('Appointed By', user.appointedBy, colors),
                 ],
@@ -243,32 +262,46 @@ class UserDetailsScreen extends ConsumerWidget {
                 children: [
                   _buildInfoRow(
                     'Role',
-                    user.role == MockRole.custom ? (user.customRoleName ?? 'Custom Role') : user.role.displayName,
+                    user.role == MockRole.custom
+                        ? (user.customRoleName ?? 'Custom Role')
+                        : user.role.displayName,
                     colors,
                   ),
-                  _buildInfoRow('Role Type', user.role == MockRole.custom ? 'Custom Role' : 'Predefined Role', colors),
-                  if (user.role == MockRole.custom && user.customRoleDescription != null) ...[
+                  _buildInfoRow(
+                      'Role Type',
+                      user.role == MockRole.custom
+                          ? 'Custom Role'
+                          : 'Predefined Role',
+                      colors),
+                  if (user.role == MockRole.custom &&
+                      user.customRoleDescription != null) ...[
                     const SizedBox(height: 8),
                     Text(
                       'Description',
-                      style: TextStyle(color: colors.secondaryText, fontSize: 14),
+                      style:
+                          TextStyle(color: colors.secondaryText, fontSize: 14),
                     ),
                     const SizedBox(height: 4),
                     Text(
                       user.customRoleDescription!,
-                      style: TextStyle(color: colors.text, fontSize: 14, fontWeight: FontWeight.w500),
+                      style: TextStyle(
+                          color: colors.text,
+                          fontSize: 14,
+                          fontWeight: FontWeight.w500),
                     ),
                   ],
                   if (effectivePermissions.isNotEmpty) ...[
                     const Divider(height: 32),
                     _buildInfoRow(
-                      'Access Type',
-                      user.role == MockRole.custom
-                        ? 'Customized Access'
-                        : (user.customPermissions != null ? 'Customized Access' : 'Default Role Access'),
-                      colors
-                    ),
-                    if (user.role != MockRole.custom && user.customPermissions != null) ...[
+                        'Access Type',
+                        user.role == MockRole.custom
+                            ? 'Customized Access'
+                            : (user.customPermissions != null
+                                ? 'Customized Access'
+                                : 'Default Role Access'),
+                        colors),
+                    if (user.role != MockRole.custom &&
+                        user.customPermissions != null) ...[
                       Text(
                         'Access customized from ${user.role.displayName} default',
                         style: TextStyle(
@@ -281,7 +314,8 @@ class UserDetailsScreen extends ConsumerWidget {
                     ],
                     Text(
                       'Access Permissions',
-                      style: TextStyle(color: colors.secondaryText, fontSize: 14),
+                      style:
+                          TextStyle(color: colors.secondaryText, fontSize: 14),
                     ),
                     const SizedBox(height: 12),
                     Wrap(
@@ -290,16 +324,20 @@ class UserDetailsScreen extends ConsumerWidget {
                       children: effectivePermissions.map((p) {
                         final label = _permissionLabels[p] ?? p;
                         return Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 12, vertical: 6),
                           decoration: BoxDecoration(
                             color: colors.brandOrange.withValues(alpha: 0.1),
                             borderRadius: BorderRadius.circular(8),
-                            border: Border.all(color: colors.brandOrange.withValues(alpha: 0.3)),
+                            border: Border.all(
+                                color:
+                                    colors.brandOrange.withValues(alpha: 0.3)),
                           ),
                           child: Row(
                             mainAxisSize: MainAxisSize.min,
                             children: [
-                              Icon(Icons.check_circle, size: 14, color: colors.brandOrange),
+                              Icon(Icons.check_circle,
+                                  size: 14, color: colors.brandOrange),
                               const SizedBox(width: 6),
                               Text(
                                 label,
@@ -329,7 +367,8 @@ class UserDetailsScreen extends ConsumerWidget {
     );
   }
 
-  Widget _buildMoneyRequestsSection(BuildContext context, WidgetRef ref, MockUser user, AuthColors colors) {
+  Widget _buildMoneyRequestsSection(
+      BuildContext context, WidgetRef ref, MockUser user, AuthColors colors) {
     // Seed sample money requests for user
     final requests = [
       {
@@ -365,17 +404,28 @@ class UserDetailsScreen extends ConsumerWidget {
             children: [
               Text(
                 'Request History (${requests.length})',
-                style: TextStyle(color: colors.text, fontWeight: FontWeight.bold, fontSize: 14),
+                style: TextStyle(
+                    color: colors.text,
+                    fontWeight: FontWeight.bold,
+                    fontSize: 14),
               ),
               ElevatedButton.icon(
                 style: ElevatedButton.styleFrom(
                   backgroundColor: colors.brandOrange,
-                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                  shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(8)),
                 ),
-                onPressed: () => _showRequestMoneyDialog(context, ref, user, colors),
-                icon: const Icon(Icons.send_outlined, size: 16, color: Colors.white),
-                label: const Text('Request Money', style: TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.bold)),
+                onPressed: () =>
+                    _showRequestMoneyDialog(context, ref, user, colors),
+                icon: const Icon(Icons.send_outlined,
+                    size: 16, color: Colors.white),
+                label: const Text('Request Money',
+                    style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 12,
+                        fontWeight: FontWeight.bold)),
               ),
             ],
           ),
@@ -384,7 +434,8 @@ class UserDetailsScreen extends ConsumerWidget {
             shrinkWrap: true,
             physics: const NeverScrollableScrollPhysics(),
             itemCount: requests.length,
-            separatorBuilder: (_, __) => Divider(color: colors.border, height: 20),
+            separatorBuilder: (_, __) =>
+                Divider(color: colors.border, height: 20),
             itemBuilder: (context, index) {
               final req = requests[index];
               final isPending = req['status'] == 'PENDING';
@@ -397,18 +448,26 @@ class UserDetailsScreen extends ConsumerWidget {
                     children: [
                       Text(
                         req['amount']!,
-                        style: TextStyle(color: colors.text, fontWeight: FontWeight.w900, fontSize: 16),
+                        style: TextStyle(
+                            color: colors.text,
+                            fontWeight: FontWeight.w900,
+                            fontSize: 16),
                       ),
                       Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 8, vertical: 3),
                         decoration: BoxDecoration(
-                          color: isPending ? Colors.orange.shade100 : Colors.green.shade100,
+                          color: isPending
+                              ? Colors.orange.shade100
+                              : Colors.green.shade100,
                           borderRadius: BorderRadius.circular(6),
                         ),
                         child: Text(
                           req['status']!,
                           style: TextStyle(
-                            color: isPending ? Colors.orange.shade900 : Colors.green.shade900,
+                            color: isPending
+                                ? Colors.orange.shade900
+                                : Colors.green.shade900,
                             fontSize: 10,
                             fontWeight: FontWeight.w900,
                           ),
@@ -427,11 +486,13 @@ class UserDetailsScreen extends ConsumerWidget {
                     children: [
                       Text(
                         'Requested by: ${req['requester']}',
-                        style: TextStyle(color: colors.secondaryText, fontSize: 11),
+                        style: TextStyle(
+                            color: colors.secondaryText, fontSize: 11),
                       ),
                       Text(
                         req['date']!,
-                        style: TextStyle(color: colors.secondaryText, fontSize: 11),
+                        style: TextStyle(
+                            color: colors.secondaryText, fontSize: 11),
                       ),
                     ],
                   ),
@@ -444,9 +505,11 @@ class UserDetailsScreen extends ConsumerWidget {
     );
   }
 
-  void _showRequestMoneyDialog(BuildContext context, WidgetRef ref, MockUser user, AuthColors colors) {
+  void _showRequestMoneyDialog(
+      BuildContext context, WidgetRef ref, MockUser user, AuthColors colors) {
     final amountController = TextEditingController(text: '5000');
-    final reasonController = TextEditingController(text: 'Ganpati decoration & floral expenses');
+    final reasonController =
+        TextEditingController(text: 'Ganpati decoration & floral expenses');
     final formKey = GlobalKey<FormState>();
 
     showDialog(
@@ -456,7 +519,8 @@ class UserDetailsScreen extends ConsumerWidget {
           backgroundColor: colors.card,
           title: Text(
             'Request Money from ${user.name}',
-            style: TextStyle(color: colors.text, fontWeight: FontWeight.bold, fontSize: 18),
+            style: TextStyle(
+                color: colors.text, fontWeight: FontWeight.bold, fontSize: 18),
           ),
           content: Form(
             key: formKey,
@@ -476,12 +540,15 @@ class UserDetailsScreen extends ConsumerWidget {
                   decoration: InputDecoration(
                     labelText: 'Amount (₹) *',
                     prefixIcon: const Icon(Icons.currency_rupee),
-                    border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
+                    border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(10)),
                   ),
                   validator: (v) {
                     if (v == null || v.trim().isEmpty) return 'Amount required';
                     final val = double.tryParse(v);
-                    if (val == null || val <= 0) return 'Enter valid positive amount';
+                    if (val == null || val <= 0) {
+                      return 'Enter valid positive amount';
+                    }
                     return null;
                   },
                 ),
@@ -493,9 +560,12 @@ class UserDetailsScreen extends ConsumerWidget {
                   decoration: InputDecoration(
                     labelText: 'Reason / Purpose *',
                     prefixIcon: const Icon(Icons.notes_outlined),
-                    border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
+                    border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(10)),
                   ),
-                  validator: (v) => (v == null || v.trim().isEmpty) ? 'Reason is required' : null,
+                  validator: (v) => (v == null || v.trim().isEmpty)
+                      ? 'Reason is required'
+                      : null,
                 ),
               ],
             ),
@@ -503,21 +573,26 @@ class UserDetailsScreen extends ConsumerWidget {
           actions: [
             TextButton(
               onPressed: () => Navigator.of(dialogContext).pop(),
-              child: Text('Cancel', style: TextStyle(color: colors.secondaryText)),
+              child:
+                  Text('Cancel', style: TextStyle(color: colors.secondaryText)),
             ),
             ElevatedButton(
-              style: ElevatedButton.styleFrom(backgroundColor: colors.brandOrange),
+              style:
+                  ElevatedButton.styleFrom(backgroundColor: colors.brandOrange),
               onPressed: () {
                 if (!formKey.currentState!.validate()) return;
                 Navigator.of(dialogContext).pop();
                 ScaffoldMessenger.of(context).showSnackBar(
                   SnackBar(
-                    content: Text('Money request of ₹${amountController.text} sent to ${user.name}. Notification dispatched.'),
+                    content: Text(
+                        'Money request of ₹${amountController.text} sent to ${user.name}. Notification dispatched.'),
                     backgroundColor: Colors.green,
                   ),
                 );
               },
-              child: const Text('Send Request', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+              child: const Text('Send Request',
+                  style: TextStyle(
+                      color: Colors.white, fontWeight: FontWeight.bold)),
             ),
           ],
         );

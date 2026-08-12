@@ -14,7 +14,8 @@ class MilestoneFormScreen extends ConsumerStatefulWidget {
   const MilestoneFormScreen({super.key, this.existingMilestone});
 
   @override
-  ConsumerState<MilestoneFormScreen> createState() => _MilestoneFormScreenState();
+  ConsumerState<MilestoneFormScreen> createState() =>
+      _MilestoneFormScreenState();
 }
 
 class _MilestoneFormScreenState extends ConsumerState<MilestoneFormScreen> {
@@ -64,7 +65,10 @@ class _MilestoneFormScreenState extends ConsumerState<MilestoneFormScreen> {
     final m = widget.existingMilestone;
     _titleController = TextEditingController(text: m?.title ?? '');
     _descriptionController = TextEditingController(text: m?.description ?? '');
-    _budgetController = TextEditingController(text: m?.estimatedCostPaise != null ? (m!.estimatedCostPaise! / 100).toStringAsFixed(0) : '');
+    _budgetController = TextEditingController(
+        text: m?.estimatedCostPaise != null
+            ? (m!.estimatedCostPaise! / 100).toStringAsFixed(0)
+            : '');
     _vendorController = TextEditingController(text: m?.vendorName ?? '');
 
     _selectedCategory = m?.category;
@@ -96,16 +100,19 @@ class _MilestoneFormScreenState extends ConsumerState<MilestoneFormScreen> {
     if (!_usersInitialized && widget.existingMilestone != null) {
       final m = widget.existingMilestone!;
       if (m.assignedToUserId != null) {
-        _selectedAssignedTo = users.where((u) => u.id == m.assignedToUserId).firstOrNull;
+        _selectedAssignedTo =
+            users.where((u) => u.id == m.assignedToUserId).firstOrNull;
       }
       if (m.paymentResponsibleUserId != null) {
-        _selectedPaymentResponsible = users.where((u) => u.id == m.paymentResponsibleUserId).firstOrNull;
+        _selectedPaymentResponsible =
+            users.where((u) => u.id == m.paymentResponsibleUserId).firstOrNull;
       }
       _usersInitialized = true;
     }
 
     final bool isEdit = widget.existingMilestone != null;
-    final bool canManageFinancials = rbacState.hasPermission('milestones.manage_financials');
+    final bool canManageFinancials =
+        rbacState.hasPermission('milestones.manage_financials');
 
     return Scaffold(
       backgroundColor: colors.background,
@@ -126,15 +133,29 @@ class _MilestoneFormScreenState extends ConsumerState<MilestoneFormScreen> {
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               _buildSectionHeader('BASIC DETAILS', colors),
-              _buildTextField('Work / Milestone Name *', colors, Icons.assignment, controller: _titleController),
+              _buildTextField(
+                  'Work / Milestone Name *', colors, Icons.assignment,
+                  controller: _titleController),
               const SizedBox(height: 16),
-              _buildTextField('Description', colors, Icons.description, maxLines: 3, controller: _descriptionController),
+              _buildTextField('Description', colors, Icons.description,
+                  maxLines: 3, controller: _descriptionController),
               const SizedBox(height: 16),
-              _buildDropdownSelector('Category *', colors, Icons.category, _selectedCategory, _categories, (val) => setState(() => _selectedCategory = val)),
+              _buildDropdownSelector(
+                  'Category *',
+                  colors,
+                  Icons.category,
+                  _selectedCategory,
+                  _categories,
+                  (val) => setState(() => _selectedCategory = val)),
               const SizedBox(height: 16),
-              _buildDropdownSelector('Priority *', colors, Icons.priority_high, _selectedPriority, _priorities, (val) => setState(() => _selectedPriority = val)),
+              _buildDropdownSelector(
+                  'Priority *',
+                  colors,
+                  Icons.priority_high,
+                  _selectedPriority,
+                  _priorities,
+                  (val) => setState(() => _selectedPriority = val)),
               const SizedBox(height: 24),
-
               _buildSectionHeader('TIMELINE', colors),
               Row(
                 children: [
@@ -161,54 +182,68 @@ class _MilestoneFormScreenState extends ConsumerState<MilestoneFormScreen> {
                 ],
               ),
               const SizedBox(height: 24),
-
               _buildSectionHeader('RESPONSIBILITY', colors),
-              _buildUserSelector('Assigned Coordinator *', colors, Icons.person, _selectedAssignedTo, users, (u) {
+              _buildUserSelector('Assigned Coordinator *', colors, Icons.person,
+                  _selectedAssignedTo, users, (u) {
                 setState(() => _selectedAssignedTo = u);
               }),
               const SizedBox(height: 24),
-
               _buildSectionHeader('WORK ITEMS', colors),
               ..._workItems.map((wi) => _buildWorkItemTile(wi, colors, users)),
               const SizedBox(height: 8),
               OutlinedButton.icon(
                 onPressed: () => _showAddWorkItemSheet(context, colors, users),
                 icon: Icon(Icons.add, color: colors.brandOrange),
-                label: Text('Add Work Item', style: TextStyle(color: colors.brandOrange)),
+                label: Text('Add Work Item',
+                    style: TextStyle(color: colors.brandOrange)),
                 style: OutlinedButton.styleFrom(
-                  side: BorderSide(color: colors.brandOrange.withValues(alpha: 0.5)),
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                  side: BorderSide(
+                      color: colors.brandOrange.withValues(alpha: 0.5)),
+                  shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12)),
                   padding: const EdgeInsets.symmetric(vertical: 12),
                 ),
               ),
               const SizedBox(height: 24),
-
               if (canManageFinancials) ...[
                 _buildSectionHeader('FINANCIAL DETAILS', colors),
-                _buildTextField('Estimated Budget', colors, Icons.currency_rupee, controller: _budgetController, keyboardType: TextInputType.number),
+                _buildTextField(
+                    'Estimated Budget', colors, Icons.currency_rupee,
+                    controller: _budgetController,
+                    keyboardType: TextInputType.number),
                 const SizedBox(height: 16),
-                _buildUserSelector('Payment Responsible', colors, Icons.account_balance_wallet, _selectedPaymentResponsible,
-                  users.where((u) => MockRbacNotifier.getEffectivePermissions(u.role, u.customPermissions).contains('milestones.manage_financials')).toList(),
-                (u) {
+                _buildUserSelector(
+                    'Payment Responsible',
+                    colors,
+                    Icons.account_balance_wallet,
+                    _selectedPaymentResponsible,
+                    users
+                        .where((u) => MockRbacNotifier.getEffectivePermissions(
+                                u.role, u.customPermissions)
+                            .contains('milestones.manage_financials'))
+                        .toList(), (u) {
                   setState(() => _selectedPaymentResponsible = u);
                 }),
                 const SizedBox(height: 24),
               ],
-
               _buildSectionHeader('VENDOR *', colors),
-              _buildTextField('Vendor Name *', colors, Icons.store, controller: _vendorController),
+              _buildTextField('Vendor Name *', colors, Icons.store,
+                  controller: _vendorController),
               const SizedBox(height: 40),
-
               ElevatedButton(
                 onPressed: _saveMilestone,
                 style: ElevatedButton.styleFrom(
                   backgroundColor: colors.brandOrange,
                   padding: const EdgeInsets.symmetric(vertical: 16),
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                  shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12)),
                 ),
                 child: Text(
                   isEdit ? 'Save Changes' : 'Create Milestone',
-                  style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.white),
+                  style: const TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.white),
                 ),
               ),
               const SizedBox(height: 40),
@@ -219,14 +254,9 @@ class _MilestoneFormScreenState extends ConsumerState<MilestoneFormScreen> {
     );
   }
 
-  Widget _buildDatePicker(
-    String label,
-    AuthColors colors,
-    IconData icon,
-    DateTime? selectedDate,
-    Function(DateTime) onSelected,
-    {DateTime? minDate}
-  ) {
+  Widget _buildDatePicker(String label, AuthColors colors, IconData icon,
+      DateTime? selectedDate, Function(DateTime) onSelected,
+      {DateTime? minDate}) {
     return InkWell(
       onTap: () async {
         final date = await showDatePicker(
@@ -256,29 +286,42 @@ class _MilestoneFormScreenState extends ConsumerState<MilestoneFormScreen> {
         decoration: InputDecoration(
           labelText: label,
           labelStyle: TextStyle(color: colors.secondaryText),
-          border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide(color: colors.border)),
-          enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide(color: colors.border)),
+          border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(12),
+              borderSide: BorderSide(color: colors.border)),
+          enabledBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(12),
+              borderSide: BorderSide(color: colors.border)),
           prefixIcon: Icon(icon, color: colors.secondaryText),
         ),
         child: Text(
-          selectedDate != null ? DateFormat('dd MMM yyyy').format(selectedDate) : 'Select Date',
-          style: TextStyle(color: selectedDate != null ? colors.text : colors.secondaryText),
+          selectedDate != null
+              ? DateFormat('dd MMM yyyy').format(selectedDate)
+              : 'Select Date',
+          style: TextStyle(
+              color: selectedDate != null ? colors.text : colors.secondaryText),
         ),
       ),
     );
   }
 
-  Widget _buildWorkItemTile(MockWorkItem wi, AuthColors colors, List<MockUser> users) {
-    final assignee = users.where((u) => u.id == wi.assignedToUserId).firstOrNull;
+  Widget _buildWorkItemTile(
+      MockWorkItem wi, AuthColors colors, List<MockUser> users) {
+    final assignee =
+        users.where((u) => u.id == wi.assignedToUserId).firstOrNull;
     return Card(
       color: colors.card,
       margin: const EdgeInsets.only(bottom: 8),
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12), side: BorderSide(color: colors.border)),
+      shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(12),
+          side: BorderSide(color: colors.border)),
       child: ListTile(
-        title: Text(wi.title, style: TextStyle(color: colors.text, fontWeight: FontWeight.bold)),
-        subtitle: Text(assignee?.name ?? 'Unknown', style: TextStyle(color: colors.secondaryText, fontSize: 12)),
+        title: Text(wi.title,
+            style: TextStyle(color: colors.text, fontWeight: FontWeight.bold)),
+        subtitle: Text(assignee?.name ?? 'Unknown',
+            style: TextStyle(color: colors.secondaryText, fontSize: 12)),
         trailing: IconButton(
-          icon: Icon(Icons.delete_outline, color: Colors.red),
+          icon: const Icon(Icons.delete_outline, color: Colors.red),
           onPressed: () {
             setState(() {
               _workItems.removeWhere((w) => w.id == wi.id);
@@ -289,7 +332,8 @@ class _MilestoneFormScreenState extends ConsumerState<MilestoneFormScreen> {
     );
   }
 
-  void _showAddWorkItemSheet(BuildContext context, AuthColors colors, List<MockUser> users) {
+  void _showAddWorkItemSheet(
+      BuildContext context, AuthColors colors, List<MockUser> users) {
     final titleCtrl = TextEditingController();
     final descCtrl = TextEditingController();
     MockUser? selectedUser;
@@ -300,206 +344,298 @@ class _MilestoneFormScreenState extends ConsumerState<MilestoneFormScreen> {
     double progress = 0.0;
 
     showModalBottomSheet(
-      context: context,
-      isScrollControlled: true,
-      backgroundColor: colors.card,
-      shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(20))),
-      builder: (ctx) {
-        return StatefulBuilder(
-          builder: (ctx, setSheetState) {
+        context: context,
+        isScrollControlled: true,
+        backgroundColor: colors.card,
+        shape: const RoundedRectangleBorder(
+            borderRadius: BorderRadius.vertical(top: Radius.circular(20))),
+        builder: (ctx) {
+          return StatefulBuilder(builder: (ctx, setSheetState) {
             return DraggableScrollableSheet(
-              initialChildSize: 0.9,
-              minChildSize: 0.5,
-              maxChildSize: 0.95,
-              expand: false,
-              builder: (context, scrollController) {
-                return Padding(
-                  padding: EdgeInsets.only(
-                    bottom: MediaQuery.of(ctx).viewInsets.bottom,
-                    left: 24,
-                    right: 24,
-                    top: 24,
-                  ),
-                  child: ListView(
-                    controller: scrollController,
-                    children: [
-                      Text('WORK ITEM DETAILS', style: TextStyle(color: colors.brandOrange, fontSize: 12, fontWeight: FontWeight.w900, letterSpacing: 1.2)),
-                      const SizedBox(height: 16),
-
-                      TextField(
-                        controller: titleCtrl,
-                        style: TextStyle(color: colors.text),
-                        decoration: InputDecoration(
-                          labelText: 'Work Item Title *',
-                          labelStyle: TextStyle(color: colors.secondaryText),
-                          border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide(color: colors.border)),
-                          enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide(color: colors.border)),
-                          focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide(color: colors.brandOrange)),
-                          prefixIcon: Icon(Icons.assignment, color: colors.secondaryText),
-                        ),
-                      ),
-                      const SizedBox(height: 16),
-
-                      TextField(
-                        controller: descCtrl,
-                        style: TextStyle(color: colors.text),
-                        maxLines: 2,
-                        decoration: InputDecoration(
-                          labelText: 'Description (optional)',
-                          labelStyle: TextStyle(color: colors.secondaryText),
-                          border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide(color: colors.border)),
-                          enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide(color: colors.border)),
-                          focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide(color: colors.brandOrange)),
-                          prefixIcon: Icon(Icons.description, color: colors.secondaryText),
-                        ),
-                      ),
-                      const SizedBox(height: 24),
-
-                      Text('ASSIGNED TO *', style: TextStyle(color: colors.brandOrange, fontSize: 12, fontWeight: FontWeight.w900, letterSpacing: 1.2)),
-                      const SizedBox(height: 16),
-                      _buildUserSelector('Select User', colors, Icons.person, selectedUser, users, (u) {
-                        setSheetState(() => selectedUser = u);
-                      }),
-                      const SizedBox(height: 24),
-
-                      Row(
-                        children: [
-                          Expanded(
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text('START DATE', style: TextStyle(color: colors.brandOrange, fontSize: 12, fontWeight: FontWeight.w900, letterSpacing: 1.2)),
-                                const SizedBox(height: 16),
-                                _buildDatePicker('Select Date', colors, Icons.calendar_today, wiStartDate, (date) {
-                                  setSheetState(() => wiStartDate = date);
-                                }),
-                              ],
-                            ),
+                initialChildSize: 0.9,
+                minChildSize: 0.5,
+                maxChildSize: 0.95,
+                expand: false,
+                builder: (context, scrollController) {
+                  return Padding(
+                    padding: EdgeInsets.only(
+                      bottom: MediaQuery.of(ctx).viewInsets.bottom,
+                      left: 24,
+                      right: 24,
+                      top: 24,
+                    ),
+                    child: ListView(
+                      controller: scrollController,
+                      children: [
+                        Text('WORK ITEM DETAILS',
+                            style: TextStyle(
+                                color: colors.brandOrange,
+                                fontSize: 12,
+                                fontWeight: FontWeight.w900,
+                                letterSpacing: 1.2)),
+                        const SizedBox(height: 16),
+                        TextField(
+                          controller: titleCtrl,
+                          style: TextStyle(color: colors.text),
+                          decoration: InputDecoration(
+                            labelText: 'Work Item Title *',
+                            labelStyle: TextStyle(color: colors.secondaryText),
+                            border: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(12),
+                                borderSide: BorderSide(color: colors.border)),
+                            enabledBorder: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(12),
+                                borderSide: BorderSide(color: colors.border)),
+                            focusedBorder: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(12),
+                                borderSide:
+                                    BorderSide(color: colors.brandOrange)),
+                            prefixIcon: Icon(Icons.assignment,
+                                color: colors.secondaryText),
                           ),
-                          const SizedBox(width: 16),
-                          Expanded(
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text('DUE DATE', style: TextStyle(color: colors.brandOrange, fontSize: 12, fontWeight: FontWeight.w900, letterSpacing: 1.2)),
-                                const SizedBox(height: 16),
-                                _buildDatePicker('Select Date', colors, Icons.event, wiDueDate, (date) {
-                                  setSheetState(() => wiDueDate = date);
-                                }, minDate: wiStartDate),
-                              ],
-                            ),
+                        ),
+                        const SizedBox(height: 16),
+                        TextField(
+                          controller: descCtrl,
+                          style: TextStyle(color: colors.text),
+                          maxLines: 2,
+                          decoration: InputDecoration(
+                            labelText: 'Description (optional)',
+                            labelStyle: TextStyle(color: colors.secondaryText),
+                            border: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(12),
+                                borderSide: BorderSide(color: colors.border)),
+                            enabledBorder: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(12),
+                                borderSide: BorderSide(color: colors.border)),
+                            focusedBorder: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(12),
+                                borderSide:
+                                    BorderSide(color: colors.brandOrange)),
+                            prefixIcon: Icon(Icons.description,
+                                color: colors.secondaryText),
                           ),
-                        ],
-                      ),
-                      const SizedBox(height: 24),
-
-                      Text('PRIORITY', style: TextStyle(color: colors.brandOrange, fontSize: 12, fontWeight: FontWeight.w900, letterSpacing: 1.2)),
-                      const SizedBox(height: 16),
-                      DropdownButtonFormField<String>(
-                        value: priority,
-                        decoration: InputDecoration(
-                          labelText: 'Priority',
-                          labelStyle: TextStyle(color: colors.secondaryText),
-                          border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide(color: colors.border)),
-                          enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide(color: colors.border)),
-                          focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide(color: colors.brandOrange)),
-                          prefixIcon: Icon(Icons.priority_high, color: colors.secondaryText),
                         ),
-                        dropdownColor: colors.background,
-                        items: ['Low', 'Medium', 'High', 'Critical'].map((p) => DropdownMenuItem(value: p, child: Text(p, style: TextStyle(color: colors.text)))).toList(),
-                        onChanged: (val) {
-                          if (val != null) setSheetState(() => priority = val);
-                        },
-                      ),
-                      const SizedBox(height: 24),
-
-                      Text('STATUS', style: TextStyle(color: colors.brandOrange, fontSize: 12, fontWeight: FontWeight.w900, letterSpacing: 1.2)),
-                      const SizedBox(height: 16),
-                      DropdownButtonFormField<String>(
-                        value: status,
-                        decoration: InputDecoration(
-                          labelText: 'Status',
-                          labelStyle: TextStyle(color: colors.secondaryText),
-                          border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide(color: colors.border)),
-                          enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide(color: colors.border)),
-                          focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide(color: colors.brandOrange)),
-                          prefixIcon: Icon(Icons.info_outline, color: colors.secondaryText),
+                        const SizedBox(height: 24),
+                        Text('ASSIGNED TO *',
+                            style: TextStyle(
+                                color: colors.brandOrange,
+                                fontSize: 12,
+                                fontWeight: FontWeight.w900,
+                                letterSpacing: 1.2)),
+                        const SizedBox(height: 16),
+                        _buildUserSelector('Select User', colors, Icons.person,
+                            selectedUser, users, (u) {
+                          setSheetState(() => selectedUser = u);
+                        }),
+                        const SizedBox(height: 24),
+                        Row(
+                          children: [
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text('START DATE',
+                                      style: TextStyle(
+                                          color: colors.brandOrange,
+                                          fontSize: 12,
+                                          fontWeight: FontWeight.w900,
+                                          letterSpacing: 1.2)),
+                                  const SizedBox(height: 16),
+                                  _buildDatePicker(
+                                      'Select Date',
+                                      colors,
+                                      Icons.calendar_today,
+                                      wiStartDate, (date) {
+                                    setSheetState(() => wiStartDate = date);
+                                  }),
+                                ],
+                              ),
+                            ),
+                            const SizedBox(width: 16),
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text('DUE DATE',
+                                      style: TextStyle(
+                                          color: colors.brandOrange,
+                                          fontSize: 12,
+                                          fontWeight: FontWeight.w900,
+                                          letterSpacing: 1.2)),
+                                  const SizedBox(height: 16),
+                                  _buildDatePicker('Select Date', colors,
+                                      Icons.event, wiDueDate, (date) {
+                                    setSheetState(() => wiDueDate = date);
+                                  }, minDate: wiStartDate),
+                                ],
+                              ),
+                            ),
+                          ],
                         ),
-                        dropdownColor: colors.background,
-                        items: ['Pending', 'In Progress', 'Completed'].map((s) => DropdownMenuItem(value: s, child: Text(s, style: TextStyle(color: colors.text)))).toList(),
-                        onChanged: (val) {
-                          if (val != null) {
+                        const SizedBox(height: 24),
+                        Text('PRIORITY',
+                            style: TextStyle(
+                                color: colors.brandOrange,
+                                fontSize: 12,
+                                fontWeight: FontWeight.w900,
+                                letterSpacing: 1.2)),
+                        const SizedBox(height: 16),
+                        DropdownButtonFormField<String>(
+                          initialValue: priority,
+                          decoration: InputDecoration(
+                            labelText: 'Priority',
+                            labelStyle: TextStyle(color: colors.secondaryText),
+                            border: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(12),
+                                borderSide: BorderSide(color: colors.border)),
+                            enabledBorder: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(12),
+                                borderSide: BorderSide(color: colors.border)),
+                            focusedBorder: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(12),
+                                borderSide:
+                                    BorderSide(color: colors.brandOrange)),
+                            prefixIcon: Icon(Icons.priority_high,
+                                color: colors.secondaryText),
+                          ),
+                          dropdownColor: colors.background,
+                          items: ['Low', 'Medium', 'High', 'Critical']
+                              .map((p) => DropdownMenuItem(
+                                  value: p,
+                                  child: Text(p,
+                                      style: TextStyle(color: colors.text))))
+                              .toList(),
+                          onChanged: (val) {
+                            if (val != null) {
+                              setSheetState(() => priority = val);
+                            }
+                          },
+                        ),
+                        const SizedBox(height: 24),
+                        Text('STATUS',
+                            style: TextStyle(
+                                color: colors.brandOrange,
+                                fontSize: 12,
+                                fontWeight: FontWeight.w900,
+                                letterSpacing: 1.2)),
+                        const SizedBox(height: 16),
+                        DropdownButtonFormField<String>(
+                          initialValue: status,
+                          decoration: InputDecoration(
+                            labelText: 'Status',
+                            labelStyle: TextStyle(color: colors.secondaryText),
+                            border: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(12),
+                                borderSide: BorderSide(color: colors.border)),
+                            enabledBorder: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(12),
+                                borderSide: BorderSide(color: colors.border)),
+                            focusedBorder: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(12),
+                                borderSide:
+                                    BorderSide(color: colors.brandOrange)),
+                            prefixIcon: Icon(Icons.info_outline,
+                                color: colors.secondaryText),
+                          ),
+                          dropdownColor: colors.background,
+                          items: ['Pending', 'In Progress', 'Completed']
+                              .map((s) => DropdownMenuItem(
+                                  value: s,
+                                  child: Text(s,
+                                      style: TextStyle(color: colors.text))))
+                              .toList(),
+                          onChanged: (val) {
+                            if (val != null) {
+                              setSheetState(() {
+                                status = val;
+                                if (status == 'Completed') progress = 100.0;
+                                if (status == 'Pending') progress = 0.0;
+                              });
+                            }
+                          },
+                        ),
+                        const SizedBox(height: 24),
+                        Text('PROGRESS: ${progress.toInt()}%',
+                            style: TextStyle(
+                                color: colors.brandOrange,
+                                fontSize: 12,
+                                fontWeight: FontWeight.w900,
+                                letterSpacing: 1.2)),
+                        Slider(
+                          value: progress,
+                          min: 0,
+                          max: 100,
+                          divisions: 20,
+                          activeColor: colors.brandOrange,
+                          label: '${progress.toInt()}%',
+                          onChanged: (val) {
                             setSheetState(() {
-                              status = val;
-                              if (status == 'Completed') progress = 100.0;
-                              if (status == 'Pending') progress = 0.0;
+                              progress = val;
+                              if (progress == 100) {
+                                status = 'Completed';
+                              } else if (progress > 0 && status == 'Pending') {
+                                status = 'In Progress';
+                              }
                             });
-                          }
-                        },
-                      ),
-                      const SizedBox(height: 24),
-
-                      Text('PROGRESS: ${progress.toInt()}%', style: TextStyle(color: colors.brandOrange, fontSize: 12, fontWeight: FontWeight.w900, letterSpacing: 1.2)),
-                      Slider(
-                        value: progress,
-                        min: 0,
-                        max: 100,
-                        divisions: 20,
-                        activeColor: colors.brandOrange,
-                        label: '${progress.toInt()}%',
-                        onChanged: (val) {
-                          setSheetState(() {
-                            progress = val;
-                            if (progress == 100) status = 'Completed';
-                            else if (progress > 0 && status == 'Pending') status = 'In Progress';
-                          });
-                        },
-                      ),
-                      const SizedBox(height: 32),
-
-                      ElevatedButton(
-                        onPressed: () {
-                          if (titleCtrl.text.isEmpty || selectedUser == null) {
-                            ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Please fill all required fields')));
-                            return;
-                          }
-                          if (wiDueDate != null && wiStartDate != null && wiDueDate!.isBefore(wiStartDate!)) {
-                            ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Due Date cannot be before Start Date')));
-                            return;
-                          }
-
-                          setState(() {
-                            _workItems.add(MockWorkItem(
-                              id: 'WI-${DateTime.now().millisecondsSinceEpoch}',
-                              milestoneId: widget.existingMilestone?.id ?? '', // Temporary if new
-                              title: titleCtrl.text,
-                              description: descCtrl.text,
-                              assignedToUserId: selectedUser!.id,
-                              status: status,
-                              progress: progress.toInt(),
-                              startDate: wiStartDate,
-                              dueDate: wiDueDate,
-                            ));
-                          });
-                          Navigator.pop(ctx);
-                        },
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: colors.brandOrange,
-                          padding: const EdgeInsets.symmetric(vertical: 16),
-                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                          },
                         ),
-                        child: const Text('Add Work Item', style: TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold)),
-                      ),
-                      const SizedBox(height: 32),
-                    ],
-                  ),
-                );
-              }
-            );
-          }
-        );
-      }
-    );
+                        const SizedBox(height: 32),
+                        ElevatedButton(
+                          onPressed: () {
+                            if (titleCtrl.text.isEmpty ||
+                                selectedUser == null) {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                  const SnackBar(
+                                      content: Text(
+                                          'Please fill all required fields')));
+                              return;
+                            }
+                            if (wiDueDate != null &&
+                                wiStartDate != null &&
+                                wiDueDate!.isBefore(wiStartDate!)) {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                  const SnackBar(
+                                      content: Text(
+                                          'Due Date cannot be before Start Date')));
+                              return;
+                            }
+
+                            setState(() {
+                              _workItems.add(MockWorkItem(
+                                id: 'WI-${DateTime.now().millisecondsSinceEpoch}',
+                                milestoneId: widget.existingMilestone?.id ??
+                                    '', // Temporary if new
+                                title: titleCtrl.text,
+                                description: descCtrl.text,
+                                assignedToUserId: selectedUser!.id,
+                                status: status,
+                                progress: progress.toInt(),
+                                startDate: wiStartDate,
+                                dueDate: wiDueDate,
+                              ));
+                            });
+                            Navigator.pop(ctx);
+                          },
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: colors.brandOrange,
+                            padding: const EdgeInsets.symmetric(vertical: 16),
+                            shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(12)),
+                          ),
+                          child: const Text('Add Work Item',
+                              style: TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.bold)),
+                        ),
+                        const SizedBox(height: 32),
+                      ],
+                    ),
+                  );
+                });
+          });
+        });
   }
 
   Widget _buildSectionHeader(String title, AuthColors colors) {
@@ -517,7 +653,10 @@ class _MilestoneFormScreenState extends ConsumerState<MilestoneFormScreen> {
     );
   }
 
-  Widget _buildTextField(String label, AuthColors colors, IconData icon, {int maxLines = 1, TextEditingController? controller, TextInputType? keyboardType}) {
+  Widget _buildTextField(String label, AuthColors colors, IconData icon,
+      {int maxLines = 1,
+      TextEditingController? controller,
+      TextInputType? keyboardType}) {
     return TextFormField(
       controller: controller,
       maxLines: maxLines,
@@ -526,9 +665,15 @@ class _MilestoneFormScreenState extends ConsumerState<MilestoneFormScreen> {
       decoration: InputDecoration(
         labelText: label,
         labelStyle: TextStyle(color: colors.secondaryText),
-        border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide(color: colors.border)),
-        enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide(color: colors.border)),
-        focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide(color: colors.brandOrange)),
+        border: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(12),
+            borderSide: BorderSide(color: colors.border)),
+        enabledBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(12),
+            borderSide: BorderSide(color: colors.border)),
+        focusedBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(12),
+            borderSide: BorderSide(color: colors.brandOrange)),
         prefixIcon: Icon(icon, color: colors.secondaryText),
       ),
       validator: (value) {
@@ -553,9 +698,15 @@ class _MilestoneFormScreenState extends ConsumerState<MilestoneFormScreen> {
       decoration: InputDecoration(
         labelText: label,
         labelStyle: TextStyle(color: colors.secondaryText),
-        border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide(color: colors.border)),
-        enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide(color: colors.border)),
-        focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide(color: colors.brandOrange)),
+        border: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(12),
+            borderSide: BorderSide(color: colors.border)),
+        enabledBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(12),
+            borderSide: BorderSide(color: colors.border)),
+        focusedBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(12),
+            borderSide: BorderSide(color: colors.brandOrange)),
         prefixIcon: Icon(icon, color: colors.secondaryText),
       ),
       dropdownColor: colors.background,
@@ -593,8 +744,12 @@ class _MilestoneFormScreenState extends ConsumerState<MilestoneFormScreen> {
         decoration: InputDecoration(
           labelText: label,
           labelStyle: TextStyle(color: colors.secondaryText),
-          border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide(color: colors.border)),
-          enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide(color: colors.border)),
+          border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(12),
+              borderSide: BorderSide(color: colors.border)),
+          enabledBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(12),
+              borderSide: BorderSide(color: colors.border)),
           prefixIcon: Icon(icon, color: colors.secondaryText),
         ),
         child: Row(
@@ -605,7 +760,10 @@ class _MilestoneFormScreenState extends ConsumerState<MilestoneFormScreen> {
                 selectedUser != null
                     ? '${selectedUser.name} (${selectedUser.role.displayName})'
                     : 'Select User',
-                style: TextStyle(color: selectedUser != null ? colors.text : colors.secondaryText),
+                style: TextStyle(
+                    color: selectedUser != null
+                        ? colors.text
+                        : colors.secondaryText),
                 overflow: TextOverflow.ellipsis,
               ),
             ),
@@ -616,11 +774,13 @@ class _MilestoneFormScreenState extends ConsumerState<MilestoneFormScreen> {
     );
   }
 
-  void _showUserSelectionSheet(String title, AuthColors colors, List<MockUser> users, Function(MockUser) onSelected) {
+  void _showUserSelectionSheet(String title, AuthColors colors,
+      List<MockUser> users, Function(MockUser) onSelected) {
     showModalBottomSheet(
       context: context,
       backgroundColor: colors.card,
-      shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(20))),
+      shape: const RoundedRectangleBorder(
+          borderRadius: BorderRadius.vertical(top: Radius.circular(20))),
       builder: (ctx) {
         return Column(
           mainAxisSize: MainAxisSize.min,
@@ -629,7 +789,10 @@ class _MilestoneFormScreenState extends ConsumerState<MilestoneFormScreen> {
               padding: const EdgeInsets.all(16.0),
               child: Text(
                 title,
-                style: TextStyle(color: colors.text, fontSize: 18, fontWeight: FontWeight.bold),
+                style: TextStyle(
+                    color: colors.text,
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold),
               ),
             ),
             Divider(color: colors.border),
@@ -641,11 +804,17 @@ class _MilestoneFormScreenState extends ConsumerState<MilestoneFormScreen> {
                   final user = users[index];
                   return ListTile(
                     leading: CircleAvatar(
-                      backgroundColor: colors.brandOrange.withValues(alpha: 0.1),
-                      child: Text(user.name.substring(0, 1), style: TextStyle(color: colors.brandOrange)),
+                      backgroundColor:
+                          colors.brandOrange.withValues(alpha: 0.1),
+                      child: Text(user.name.substring(0, 1),
+                          style: TextStyle(color: colors.brandOrange)),
                     ),
-                    title: Text(user.name, style: TextStyle(color: colors.text, fontWeight: FontWeight.bold)),
-                    subtitle: Text(user.role.displayName, style: TextStyle(color: colors.secondaryText, fontSize: 12)),
+                    title: Text(user.name,
+                        style: TextStyle(
+                            color: colors.text, fontWeight: FontWeight.bold)),
+                    subtitle: Text(user.role.displayName,
+                        style: TextStyle(
+                            color: colors.secondaryText, fontSize: 12)),
                     onTap: () {
                       onSelected(user);
                       Navigator.pop(ctx);
@@ -664,16 +833,24 @@ class _MilestoneFormScreenState extends ConsumerState<MilestoneFormScreen> {
     if (!_formKey.currentState!.validate()) return;
 
     if (_vendorController.text.trim().isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Vendor Name is required')));
+      ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Vendor Name is required')));
       return;
     }
-    if (_titleController.text.trim().isEmpty || _selectedCategory == null || _selectedPriority == null || _selectedAssignedTo == null) {
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Please fill all required basic details')));
+    if (_titleController.text.trim().isEmpty ||
+        _selectedCategory == null ||
+        _selectedPriority == null ||
+        _selectedAssignedTo == null) {
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+          content: Text('Please fill all required basic details')));
       return;
     }
 
-    if (_dueDate != null && _startDate != null && _dueDate!.isBefore(_startDate!)) {
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Due Date cannot be before Start Date')));
+    if (_dueDate != null &&
+        _startDate != null &&
+        _dueDate!.isBefore(_startDate!)) {
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+          content: Text('Due Date cannot be before Start Date')));
       return;
     }
 
@@ -683,10 +860,12 @@ class _MilestoneFormScreenState extends ConsumerState<MilestoneFormScreen> {
         parsedBudget = (int.tryParse(_budgetController.text) ?? 0) * 100;
       }
 
-      final mId = widget.existingMilestone?.id ?? 'MS-${DateTime.now().millisecondsSinceEpoch}';
+      final mId = widget.existingMilestone?.id ??
+          'MS-${DateTime.now().millisecondsSinceEpoch}';
 
       // Ensure all work items have the correct milestoneId
-      final finalWorkItems = _workItems.map((w) => w.copyWith(milestoneId: mId)).toList();
+      final finalWorkItems =
+          _workItems.map((w) => w.copyWith(milestoneId: mId)).toList();
 
       final newMilestone = MockMilestone(
         id: mId,
@@ -702,14 +881,23 @@ class _MilestoneFormScreenState extends ConsumerState<MilestoneFormScreen> {
         lastUpdatedAt: DateTime.now(),
         assignedToUserId: _selectedAssignedTo!.id,
         assignedToUserName: _selectedAssignedTo!.name,
-        assignedByUserId: widget.existingMilestone?.assignedByUserId ?? ref.read(mockRbacProvider).testingUserId ?? 'USR-001',
-        assignedByUserName: widget.existingMilestone?.assignedByUserName ?? ref.read(mockRbacProvider).testingUserName ?? 'Admin',
-        paymentResponsibleUserId: _selectedPaymentResponsible?.id ?? widget.existingMilestone?.paymentResponsibleUserId,
-        paymentResponsibleUserName: _selectedPaymentResponsible?.name ?? widget.existingMilestone?.paymentResponsibleUserName,
-        estimatedCostPaise: parsedBudget > 0 ? parsedBudget : widget.existingMilestone?.estimatedCostPaise,
+        assignedByUserId: widget.existingMilestone?.assignedByUserId ??
+            ref.read(mockRbacProvider).testingUserId ??
+            'USR-001',
+        assignedByUserName: widget.existingMilestone?.assignedByUserName ??
+            ref.read(mockRbacProvider).testingUserName ??
+            'Admin',
+        paymentResponsibleUserId: _selectedPaymentResponsible?.id ??
+            widget.existingMilestone?.paymentResponsibleUserId,
+        paymentResponsibleUserName: _selectedPaymentResponsible?.name ??
+            widget.existingMilestone?.paymentResponsibleUserName,
+        estimatedCostPaise: parsedBudget > 0
+            ? parsedBudget
+            : widget.existingMilestone?.estimatedCostPaise,
         actualCostPaise: widget.existingMilestone?.actualCostPaise ?? 0,
         paymentStatus: widget.existingMilestone?.paymentStatus ?? 'Not Paid',
-        paymentRequestStatus: widget.existingMilestone?.paymentRequestStatus ?? 'Not Required',
+        paymentRequestStatus:
+            widget.existingMilestone?.paymentRequestStatus ?? 'Not Required',
         progressPercentage: widget.existingMilestone?.progressPercentage ?? 0,
         vendorName: _vendorController.text.trim(),
         workItems: finalWorkItems,
@@ -717,10 +905,12 @@ class _MilestoneFormScreenState extends ConsumerState<MilestoneFormScreen> {
 
       if (widget.existingMilestone != null) {
         ref.read(milestoneListProvider.notifier).updateMilestone(newMilestone);
-        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Milestone Updated')));
+        ScaffoldMessenger.of(context)
+            .showSnackBar(const SnackBar(content: Text('Milestone Updated')));
       } else {
         ref.read(milestoneListProvider.notifier).addMilestone(newMilestone);
-        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Milestone Created')));
+        ScaffoldMessenger.of(context)
+            .showSnackBar(const SnackBar(content: Text('Milestone Created')));
       }
 
       Navigator.pop(context);

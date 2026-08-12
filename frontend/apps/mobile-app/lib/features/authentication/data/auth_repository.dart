@@ -5,7 +5,9 @@ import 'models/auth_models.dart';
 /// Coordinates the auth remote data source with secure token persistence so
 /// callers only ever deal in [AuthUser]/[AuthSession], never raw tokens.
 class AuthRepository {
-  AuthRepository({required AuthRemoteDataSource remoteDataSource, required TokenStorage tokenStorage})
+  AuthRepository(
+      {required AuthRemoteDataSource remoteDataSource,
+      required TokenStorage tokenStorage})
       : _remote = remoteDataSource,
         _tokenStorage = tokenStorage;
 
@@ -70,19 +72,29 @@ class AuthRepository {
     return session.user;
   }
 
-  Future<AuthUser> login({required String phoneNumber, required String password, required LoginRole role}) async {
-    final session = await _remote.login(phoneNumber: phoneNumber, password: password, role: role);
+  Future<AuthUser> login(
+      {required String phoneNumber,
+      required String password,
+      required LoginRole role}) async {
+    final session = await _remote.login(
+        phoneNumber: phoneNumber, password: password, role: role);
     await _persist(session);
     await _tokenStorage.saveRole(role.name);
     return session.user;
   }
 
-  Future<OtpRequestResult> requestOtp({required String phoneNumber, required OtpPurpose purpose}) {
+  Future<OtpRequestResult> requestOtp(
+      {required String phoneNumber, required OtpPurpose purpose}) {
     return _remote.requestOtp(phoneNumber: phoneNumber, purpose: purpose);
   }
 
-  Future<AuthUser> verifyOtp({required String phoneNumber, required String otp, required OtpPurpose purpose, required LoginRole role}) async {
-    final session = await _remote.verifyOtp(phoneNumber: phoneNumber, otp: otp, purpose: purpose);
+  Future<AuthUser> verifyOtp(
+      {required String phoneNumber,
+      required String otp,
+      required OtpPurpose purpose,
+      required LoginRole role}) async {
+    final session = await _remote.verifyOtp(
+        phoneNumber: phoneNumber, otp: otp, purpose: purpose);
     await _persist(session);
     await _tokenStorage.saveRole(role.name);
     return session.user;
@@ -95,8 +107,11 @@ class AuthRepository {
     if (refreshToken == null) return null;
 
     final roleStr = await _tokenStorage.readRole();
-    if (roleStr == null) return null; // If role is missing, session is invalid for our dashboards
-    final role = LoginRole.values.firstWhere((e) => e.name == roleStr, orElse: () => LoginRole.mandal);
+    if (roleStr == null) {
+      return null; // If role is missing, session is invalid for our dashboards
+    }
+    final role = LoginRole.values
+        .firstWhere((e) => e.name == roleStr, orElse: () => LoginRole.mandal);
 
     final refreshed = await _remote.refresh(refreshToken);
     await _tokenStorage.saveTokens(
@@ -129,6 +144,7 @@ class AuthRepository {
     final orgId = session.user.organization?.id;
     if (orgId != null && orgId.isNotEmpty) {
       await _tokenStorage.saveActiveTenantId(orgId);
+      await _tokenStorage.saveOrganizationId(orgId);
     }
   }
 
@@ -141,7 +157,8 @@ class AuthRepository {
     required String mpin,
     required LoginRole role,
   }) async {
-    final session = await _remote.loginMpin(phoneNumber: phoneNumber, mpin: mpin, role: role);
+    final session = await _remote.loginMpin(
+        phoneNumber: phoneNumber, mpin: mpin, role: role);
     await _persist(session);
     await _tokenStorage.saveRole(role.name);
     return session.user;

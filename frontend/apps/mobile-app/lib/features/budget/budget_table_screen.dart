@@ -27,12 +27,16 @@ class _BudgetTableScreenState extends ConsumerState<BudgetTableScreen> {
   List<MockBudgetCategory> _getFiltered(List<MockBudgetCategory> categories) {
     final list = _query.isEmpty
         ? categories
-        : categories.where((c) => c.name.toLowerCase().contains(_query.toLowerCase())).toList();
+        : categories
+            .where((c) => c.name.toLowerCase().contains(_query.toLowerCase()))
+            .toList();
     if (_sortColumnIndex == null) return list;
     final sorted = [...list];
     sorted.sort((a, b) {
-      final aProgress = a.allocatedPaise > 0 ? (a.utilizedPaise / a.allocatedPaise) : 0.0;
-      final bProgress = b.allocatedPaise > 0 ? (b.utilizedPaise / b.allocatedPaise) : 0.0;
+      final aProgress =
+          a.allocatedPaise > 0 ? (a.utilizedPaise / a.allocatedPaise) : 0.0;
+      final bProgress =
+          b.allocatedPaise > 0 ? (b.utilizedPaise / b.allocatedPaise) : 0.0;
       final result = switch (_sortColumnIndex) {
         0 => a.name.compareTo(b.name),
         3 => aProgress.compareTo(bProgress),
@@ -59,7 +63,8 @@ class _BudgetTableScreenState extends ConsumerState<BudgetTableScreen> {
       appBar: AppBar(
         title: Text('Budget Details · ${budget.categories.length} categories'),
         actions: [
-          IconButton(onPressed: () {}, icon: const Icon(Icons.view_column_outlined)),
+          IconButton(
+              onPressed: () {}, icon: const Icon(Icons.view_column_outlined)),
         ],
       ),
       body: Column(
@@ -107,8 +112,11 @@ class _BudgetTableScreenState extends ConsumerState<BudgetTableScreen> {
                   rows: [
                     for (final category in rows) ...[
                       () {
-                        final progress = category.allocatedPaise > 0 ? (category.utilizedPaise / category.allocatedPaise) : 0.0;
-                        final percentLabel = '${(progress * 100).toStringAsFixed(0)}%';
+                        final progress = category.allocatedPaise > 0
+                            ? (category.utilizedPaise / category.allocatedPaise)
+                            : 0.0;
+                        final percentLabel =
+                            '${(progress * 100).toStringAsFixed(0)}%';
                         return DataRow(
                           selected: _selected.contains(category.id),
                           onSelectChanged: (selected) => setState(() {
@@ -120,15 +128,19 @@ class _BudgetTableScreenState extends ConsumerState<BudgetTableScreen> {
                           }),
                           cells: [
                             DataCell(Text(category.name)),
-                            DataCell(Text(_formatCurrency(category.allocatedPaise))),
-                            DataCell(Text(_formatCurrency(category.utilizedPaise))),
+                            DataCell(
+                                Text(_formatCurrency(category.allocatedPaise))),
+                            DataCell(
+                                Text(_formatCurrency(category.utilizedPaise))),
                             DataCell(Text(percentLabel)),
                             DataCell(
                               StatusChip(
                                 label: percentLabel,
                                 type: progress >= 1.0
                                     ? StatusChipType.error
-                                    : (progress >= 0.8 ? StatusChipType.warning : StatusChipType.success),
+                                    : (progress >= 0.8
+                                        ? StatusChipType.warning
+                                        : StatusChipType.success),
                               ),
                             ),
                           ],
@@ -145,11 +157,15 @@ class _BudgetTableScreenState extends ConsumerState<BudgetTableScreen> {
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Text('1-${rows.length} of ${budget.categories.length} categories'),
+                Text(
+                    '1-${rows.length} of ${budget.categories.length} categories'),
                 Row(
                   children: [
-                    IconButton(onPressed: () {}, icon: const Icon(Icons.chevron_left)),
-                    IconButton(onPressed: () {}, icon: const Icon(Icons.chevron_right)),
+                    IconButton(
+                        onPressed: () {}, icon: const Icon(Icons.chevron_left)),
+                    IconButton(
+                        onPressed: () {},
+                        icon: const Icon(Icons.chevron_right)),
                   ],
                 ),
               ],

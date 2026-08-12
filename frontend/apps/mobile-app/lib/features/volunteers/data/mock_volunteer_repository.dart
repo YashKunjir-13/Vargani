@@ -22,7 +22,8 @@ class MockVolunteerRepository implements VolunteerRepository {
     return _volunteers.where((volunteer) {
       final matchesStatus = status == null || volunteer.status == status;
       final matchesType = type == null || volunteer.type == type;
-      final haystack = '${volunteer.fullName} ${volunteer.volunteerCode}'.toLowerCase();
+      final haystack =
+          '${volunteer.fullName} ${volunteer.volunteerCode}'.toLowerCase();
       final matchesQuery = query.isEmpty || haystack.contains(query);
       return matchesStatus && matchesType && matchesQuery;
     }).toList();
@@ -157,7 +158,8 @@ class MockVolunteerRepository implements VolunteerRepository {
   }
 
   @override
-  Future<List<VolunteerAssignment>> getAssignmentsForVolunteer(String volunteerId) async {
+  Future<List<VolunteerAssignment>> getAssignmentsForVolunteer(
+      String volunteerId) async {
     return [...(_assignments[volunteerId] ?? [])];
   }
 
@@ -189,7 +191,8 @@ class MockVolunteerRepository implements VolunteerRepository {
     final index = _volunteers.indexWhere((v) => v.id == volunteerId);
     if (index != -1) {
       final existing = _volunteers[index];
-      final newCount = existing.activeAssignmentCount + (status == VolunteerAssignmentStatus.active ? 1 : 0);
+      final newCount = existing.activeAssignmentCount +
+          (status == VolunteerAssignmentStatus.active ? 1 : 0);
       _volunteers[index] = existing.copyWith(
         activeAssignmentCount: newCount,
         currentAssignmentSummary: '$roleCode — ${scopeType.label}: $scopeLabel',

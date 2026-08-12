@@ -6,11 +6,14 @@ class AppColors {
   AppColors._();
 
   // Primary Brand Colors - Saffron, Terracotta & Warm Gold
-  static const Color primaryLight = Color(0xFFE05300); // Deep Vibrant Saffron / Orange
+  static const Color primaryLight =
+      Color(0xFFE05300); // Deep Vibrant Saffron / Orange
   static const Color primaryDark = Color(0xFFF97316);
 
-  static const Color terracottaBanner = Color(0xFF782506); // Rich Terracotta Header Banner
-  static const Color amountTerracotta = Color(0xFF9A3412); // Terracotta Amount Text
+  static const Color terracottaBanner =
+      Color(0xFF782506); // Rich Terracotta Header Banner
+  static const Color amountTerracotta =
+      Color(0xFF9A3412); // Terracotta Amount Text
 
   static const Color secondaryLight = Color(0xFF1E3A8A); // Royal Navy
   static const Color secondaryDark = Color(0xFF60A5FA);
@@ -23,14 +26,16 @@ class AppColors {
   static const Color surfaceLight = Color(0xFFFFFFFF);
   static const Color surfaceVariantLight = Color(0xFFF4EFE6);
   static const Color borderLight = Color(0xFFF0E8DD);
-  static const Color navIndicatorLight = Color(0xFFFFEAD5); // Soft Saffron Highlight
+  static const Color navIndicatorLight =
+      Color(0xFFFFEAD5); // Soft Saffron Highlight
 
   // Background & Surface - Dark Mode
   static const Color bgDark = Color(0xFF0B0F19); // Rich Deep Slate
   static const Color surfaceDark = Color(0xFF151E2E);
   static const Color surfaceVariantDark = Color(0xFF1E293B);
   static const Color borderDark = Color(0xFF27354A);
-  static const Color navIndicatorDark = Color(0xFF431407); // Dark Warm Saffron Container
+  static const Color navIndicatorDark =
+      Color(0xFF431407); // Dark Warm Saffron Container
 
   // Text Colors
   static const Color textPrimaryLight = Color(0xFF1F2937);
@@ -99,17 +104,28 @@ class AppColors {
 
   // Dynamic Theme Helpers
   static Color surfaceFor(BuildContext context) =>
-      Theme.of(context).brightness == Brightness.dark ? surfaceDark : surfaceLight;
+      Theme.of(context).brightness == Brightness.dark
+          ? surfaceDark
+          : surfaceLight;
   static Color cardFor(BuildContext context) =>
-      Theme.of(context).brightness == Brightness.dark ? surfaceDark : surfaceLight;
+      Theme.of(context).brightness == Brightness.dark
+          ? surfaceDark
+          : surfaceLight;
   static Color borderFor(BuildContext context) =>
-      Theme.of(context).brightness == Brightness.dark ? borderDark : borderLight;
+      Theme.of(context).brightness == Brightness.dark
+          ? borderDark
+          : borderLight;
   static Color mutedTextFor(BuildContext context) =>
-      Theme.of(context).brightness == Brightness.dark ? textMutedDark : textMutedLight;
+      Theme.of(context).brightness == Brightness.dark
+          ? textMutedDark
+          : textMutedLight;
   static Color shadowFor(BuildContext context) =>
-      Theme.of(context).brightness == Brightness.dark ? darkShadow : lightShadow;
+      Theme.of(context).brightness == Brightness.dark
+          ? darkShadow
+          : lightShadow;
 
-  static Color statusColor(BuildContext context, {bool isSurface = false, required Color fallback}) {
+  static Color statusColor(BuildContext context,
+      {bool isSurface = false, required Color fallback}) {
     final brightness = Theme.of(context).brightness;
     return brightness == Brightness.dark
         ? fallback.withValues(alpha: 0.2)
@@ -138,4 +154,3 @@ class AppColors {
     ),
   ];
 }
-

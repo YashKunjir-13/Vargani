@@ -1,6 +1,16 @@
 /// Mirrors backend DonationType (src/contributions) -- default categories
 /// plus an org-configurable custom category with an Other fallback.
-enum DonationType { gold, silver, electronicGoods, decoration, food, musicBand, dholPathak, dj, other }
+enum DonationType {
+  gold,
+  silver,
+  electronicGoods,
+  decoration,
+  food,
+  musicBand,
+  dholPathak,
+  dj,
+  other
+}
 
 /// Mirrors backend ContributionStatus.
 enum ContributionStatus { recorded, receipted }
@@ -19,7 +29,8 @@ extension DonationTypeLabel on DonationType {
       };
 
   /// Gold/Silver specifically support the extra precious-metal fields.
-  bool get isPreciousMetal => this == DonationType.gold || this == DonationType.silver;
+  bool get isPreciousMetal =>
+      this == DonationType.gold || this == DonationType.silver;
 }
 
 extension ContributionStatusLabel on ContributionStatus {
@@ -101,19 +112,35 @@ class Contribution {
     }
 
     final rawWeight = json['weight'] ?? json['weightGrams'];
-    final double? weightVal = rawWeight != null ? (rawWeight is num ? rawWeight.toDouble() : double.tryParse(rawWeight.toString())) : null;
+    final double? weightVal = rawWeight != null
+        ? (rawWeight is num
+            ? rawWeight.toDouble()
+            : double.tryParse(rawWeight.toString()))
+        : null;
 
     final rawQty = json['quantity'];
-    final double? qtyVal = rawQty != null ? (rawQty is num ? rawQty.toDouble() : double.tryParse(rawQty.toString())) : null;
+    final double? qtyVal = rawQty != null
+        ? (rawQty is num
+            ? rawQty.toDouble()
+            : double.tryParse(rawQty.toString()))
+        : null;
 
     final rawEst = json['estimatedValue'];
-    final double? estVal = rawEst != null ? (rawEst is num ? rawEst.toDouble() : double.tryParse(rawEst.toString())) : null;
+    final double? estVal = rawEst != null
+        ? (rawEst is num
+            ? rawEst.toDouble()
+            : double.tryParse(rawEst.toString()))
+        : null;
 
     return Contribution(
       id: json['id'] as String? ?? '',
-      contributorName: json['contributorNameSnapshot'] as String? ?? json['contributorName'] as String? ?? '',
+      contributorName: json['contributorNameSnapshot'] as String? ??
+          json['contributorName'] as String? ??
+          '',
       contact: json['contactSnapshot'] as String? ?? json['contact'] as String?,
-      date: json['date'] != null ? DateTime.parse(json['date'] as String) : DateTime.now(),
+      date: json['date'] != null
+          ? DateTime.parse(json['date'] as String)
+          : DateTime.now(),
       donationType: parseDonationType(json['donationType'] as String?),
       itemDescription: json['itemDescription'] as String?,
       weightGrams: weightVal,
@@ -164,7 +191,8 @@ class Contribution {
       'estimatedValue': estimatedValue,
       'notes': notes,
       'certificatePhotoUrl': certificatePhotoUrl,
-      'status': status == ContributionStatus.recorded ? 'RECORDED' : 'RECEIPTED',
+      'status':
+          status == ContributionStatus.recorded ? 'RECORDED' : 'RECEIPTED',
     };
   }
 
@@ -199,4 +227,3 @@ class Contribution {
     );
   }
 }
-

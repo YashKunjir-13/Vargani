@@ -12,7 +12,8 @@ class VolunteerFormScreen extends ConsumerStatefulWidget {
   final String? volunteerId;
 
   @override
-  ConsumerState<VolunteerFormScreen> createState() => _VolunteerFormScreenState();
+  ConsumerState<VolunteerFormScreen> createState() =>
+      _VolunteerFormScreenState();
 }
 
 class _VolunteerFormScreenState extends ConsumerState<VolunteerFormScreen> {
@@ -32,7 +33,8 @@ class _VolunteerFormScreenState extends ConsumerState<VolunteerFormScreen> {
   @override
   void initState() {
     super.initState();
-    final volunteerAsync = ref.read(volunteerDetailProvider(widget.volunteerId ?? ''));
+    final volunteerAsync =
+        ref.read(volunteerDetailProvider(widget.volunteerId ?? ''));
     volunteerAsync.whenData((volunteer) {
       if (volunteer != null) {
         _fullNameController.text = volunteer.fullName;
@@ -72,7 +74,8 @@ class _VolunteerFormScreenState extends ConsumerState<VolunteerFormScreen> {
     if (!canManageVolunteers) {
       return const AppScaffold(
         title: 'Volunteer Form',
-        body: AppEmptyState(title: 'You do not have access to manage volunteers'),
+        body:
+            AppEmptyState(title: 'You do not have access to manage volunteers'),
       );
     }
 
@@ -86,14 +89,16 @@ class _VolunteerFormScreenState extends ConsumerState<VolunteerFormScreen> {
             TextFormField(
               controller: _fullNameController,
               decoration: const InputDecoration(labelText: 'Full name'),
-              validator: (value) => value == null || value.trim().isEmpty ? 'Required' : null,
+              validator: (value) =>
+                  value == null || value.trim().isEmpty ? 'Required' : null,
             ),
             const SizedBox(height: AppSpacing.space16),
             TextFormField(
               controller: _mobileController,
               decoration: const InputDecoration(labelText: 'Mobile number'),
               keyboardType: TextInputType.phone,
-              validator: (value) => value == null || value.trim().isEmpty ? 'Required' : null,
+              validator: (value) =>
+                  value == null || value.trim().isEmpty ? 'Required' : null,
             ),
             const SizedBox(height: AppSpacing.space16),
             TextFormField(
@@ -104,13 +109,15 @@ class _VolunteerFormScreenState extends ConsumerState<VolunteerFormScreen> {
             const SizedBox(height: AppSpacing.space16),
             TextFormField(
               controller: _emergencyContactController,
-              decoration: const InputDecoration(labelText: 'Emergency contact (optional)'),
+              decoration: const InputDecoration(
+                  labelText: 'Emergency contact (optional)'),
               keyboardType: TextInputType.phone,
             ),
             const SizedBox(height: AppSpacing.space16),
             TextFormField(
               controller: _addressController,
-              decoration: const InputDecoration(labelText: 'Address (optional)'),
+              decoration:
+                  const InputDecoration(labelText: 'Address (optional)'),
               maxLines: 2,
             ),
             const SizedBox(height: AppSpacing.space16),
@@ -127,18 +134,22 @@ class _VolunteerFormScreenState extends ConsumerState<VolunteerFormScreen> {
             if (_type == VolunteerType.custom)
               TextFormField(
                 controller: _customTypeController,
-                decoration: const InputDecoration(labelText: 'Custom type label'),
+                decoration:
+                    const InputDecoration(labelText: 'Custom type label'),
               ),
-            if (_type == VolunteerType.custom) const SizedBox(height: AppSpacing.space16),
+            if (_type == VolunteerType.custom)
+              const SizedBox(height: AppSpacing.space16),
             DropdownButtonFormField<String>(
               initialValue: _preferredLanguage,
-              decoration: const InputDecoration(labelText: 'Preferred language'),
+              decoration:
+                  const InputDecoration(labelText: 'Preferred language'),
               items: const [
                 DropdownMenuItem(value: 'mr', child: Text('Marathi (मराठी)')),
                 DropdownMenuItem(value: 'hi', child: Text('Hindi (हिंदी)')),
                 DropdownMenuItem(value: 'en', child: Text('English')),
               ],
-              onChanged: (value) => setState(() => _preferredLanguage = value ?? 'mr'),
+              onChanged: (value) =>
+                  setState(() => _preferredLanguage = value ?? 'mr'),
             ),
             const SizedBox(height: AppSpacing.space16),
             DropdownButtonFormField<VolunteerStatus>(
@@ -154,7 +165,9 @@ class _VolunteerFormScreenState extends ConsumerState<VolunteerFormScreen> {
             ListTile(
               contentPadding: EdgeInsets.zero,
               title: const Text('Joined on'),
-              subtitle: Text(_joinedOn == null ? 'Select date' : _joinedOn!.toLocal().toString().split(' ').first),
+              subtitle: Text(_joinedOn == null
+                  ? 'Select date'
+                  : _joinedOn!.toLocal().toString().split(' ').first),
               trailing: const Icon(Icons.calendar_today),
               onTap: () async {
                 final picked = await showDatePicker(
@@ -187,11 +200,19 @@ class _VolunteerFormScreenState extends ConsumerState<VolunteerFormScreen> {
       await repository.createVolunteer(
         fullName: _fullNameController.text.trim(),
         type: _type ?? VolunteerType.general,
-        customTypeLabel: _customTypeController.text.trim().isEmpty ? null : _customTypeController.text.trim(),
+        customTypeLabel: _customTypeController.text.trim().isEmpty
+            ? null
+            : _customTypeController.text.trim(),
         mobile: _mobileController.text.trim(),
-        email: _emailController.text.trim().isEmpty ? null : _emailController.text.trim(),
-        address: _addressController.text.trim().isEmpty ? null : _addressController.text.trim(),
-        emergencyContact: _emergencyContactController.text.trim().isEmpty ? null : _emergencyContactController.text.trim(),
+        email: _emailController.text.trim().isEmpty
+            ? null
+            : _emailController.text.trim(),
+        address: _addressController.text.trim().isEmpty
+            ? null
+            : _addressController.text.trim(),
+        emergencyContact: _emergencyContactController.text.trim().isEmpty
+            ? null
+            : _emergencyContactController.text.trim(),
         preferredLanguage: _preferredLanguage,
         joinedOn: _joinedOn,
       );
@@ -200,11 +221,19 @@ class _VolunteerFormScreenState extends ConsumerState<VolunteerFormScreen> {
         id: widget.volunteerId!,
         fullName: _fullNameController.text.trim(),
         type: _type,
-        customTypeLabel: _customTypeController.text.trim().isEmpty ? null : _customTypeController.text.trim(),
+        customTypeLabel: _customTypeController.text.trim().isEmpty
+            ? null
+            : _customTypeController.text.trim(),
         mobile: _mobileController.text.trim(),
-        email: _emailController.text.trim().isEmpty ? null : _emailController.text.trim(),
-        address: _addressController.text.trim().isEmpty ? null : _addressController.text.trim(),
-        emergencyContact: _emergencyContactController.text.trim().isEmpty ? null : _emergencyContactController.text.trim(),
+        email: _emailController.text.trim().isEmpty
+            ? null
+            : _emailController.text.trim(),
+        address: _addressController.text.trim().isEmpty
+            ? null
+            : _addressController.text.trim(),
+        emergencyContact: _emergencyContactController.text.trim().isEmpty
+            ? null
+            : _emergencyContactController.text.trim(),
         preferredLanguage: _preferredLanguage,
         joinedOn: _joinedOn,
         status: _status,

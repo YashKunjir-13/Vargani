@@ -9,6 +9,16 @@ export class UpdateUserProfileDto {
   @MaxLength(150)
   displayName?: string;
 
+  @ApiPropertyOptional({ example: "9876543210" })
+  @IsOptional()
+  @IsString()
+  primaryMobile?: string;
+
+  @ApiPropertyOptional({ example: "kuldeep@example.com" })
+  @IsOptional()
+  @IsString()
+  primaryEmail?: string;
+
   @ApiPropertyOptional({ enum: PreferredLanguage, example: PreferredLanguage.EN })
   @IsOptional()
   @IsEnum(PreferredLanguage)

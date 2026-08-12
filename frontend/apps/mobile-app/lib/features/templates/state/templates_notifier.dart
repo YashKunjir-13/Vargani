@@ -5,7 +5,8 @@ import 'package:pauti_pustak_mobile/core/session/session_controller.dart';
 import '../data/templates_remote_datasource.dart';
 import '../models/receipt_template.dart';
 
-final templatesRemoteDataSourceProvider = Provider<TemplatesRemoteDataSource>((ref) {
+final templatesRemoteDataSourceProvider =
+    Provider<TemplatesRemoteDataSource>((ref) {
   return TemplatesRemoteDataSource(ref.watch(dioProvider));
 });
 
@@ -35,7 +36,8 @@ class TemplatesNotifier extends Notifier<AsyncValue<List<ReceiptTemplate>>> {
   }) async {
     try {
       final dataSource = ref.read(templatesRemoteDataSourceProvider);
-      final uploaded = await dataSource.uploadTemplate(filename: filename, bytes: bytes);
+      final uploaded =
+          await dataSource.uploadTemplate(filename: filename, bytes: bytes);
       final activated = await dataSource.activateTemplate(uploaded.id);
       await loadTemplates();
       return activated;
@@ -50,7 +52,8 @@ class TemplatesNotifier extends Notifier<AsyncValue<List<ReceiptTemplate>>> {
     Offset newNormalizedPosition,
   ) async {
     final currentList = state.value ?? [];
-    final template = currentList.firstWhere((t) => t.id == templateId, orElse: () => currentList.first);
+    final template = currentList.firstWhere((t) => t.id == templateId,
+        orElse: () => currentList.first);
 
     final updatedMarkers = [
       for (final m in template.markers)
@@ -59,7 +62,8 @@ class TemplatesNotifier extends Notifier<AsyncValue<List<ReceiptTemplate>>> {
 
     try {
       final dataSource = ref.read(templatesRemoteDataSourceProvider);
-      await dataSource.updateFieldMap(templateId: templateId, markers: updatedMarkers);
+      await dataSource.updateFieldMap(
+          templateId: templateId, markers: updatedMarkers);
       await loadTemplates();
     } catch (_) {
       // Retain local optimistic state update if server patch throws fallback
@@ -78,7 +82,8 @@ class TemplatesNotifier extends Notifier<AsyncValue<List<ReceiptTemplate>>> {
   }
 }
 
-final templatesProvider = NotifierProvider<TemplatesNotifier, AsyncValue<List<ReceiptTemplate>>>(
+final templatesProvider =
+    NotifierProvider<TemplatesNotifier, AsyncValue<List<ReceiptTemplate>>>(
   TemplatesNotifier.new,
 );
 
@@ -97,7 +102,8 @@ final activeTemplateProvider = Provider<ReceiptTemplate>((ref) {
   return asyncState.when(
     data: (templates) {
       if (templates.isEmpty) return defaultFallbackTemplate;
-      return templates.firstWhere((t) => t.isActive, orElse: () => templates.first);
+      return templates.firstWhere((t) => t.isActive,
+          orElse: () => templates.first);
     },
     loading: () => defaultFallbackTemplate,
     error: (_, __) => defaultFallbackTemplate,

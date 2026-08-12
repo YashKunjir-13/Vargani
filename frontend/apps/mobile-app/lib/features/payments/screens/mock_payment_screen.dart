@@ -20,14 +20,17 @@ class MockPaymentScreen extends ConsumerWidget {
     final razorpayOrderId = flow.razorpayOrderId ?? 'order_mock_1001';
 
     Future<void> triggerOutcome(String outcome, {String? reason}) async {
-      final success = await ref.read(donationFlowProvider.notifier).processMockOutcome(outcome, reason: reason);
+      final success = await ref
+          .read(donationFlowProvider.notifier)
+          .processMockOutcome(outcome, reason: reason);
       if (!context.mounted) return;
       if (success) {
         context.pushReplacement('/donation/result');
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text(flow.errorMessage ?? 'Failed to process mock payment outcome.'),
+            content: Text(
+                flow.errorMessage ?? 'Failed to process mock payment outcome.'),
             backgroundColor: Colors.red,
           ),
         );
@@ -36,7 +39,7 @@ class MockPaymentScreen extends ConsumerWidget {
 
     return Scaffold(
       backgroundColor: Colors.grey.shade100,
-      appBar: PautiAppBar(
+      appBar: const PautiAppBar(
         title: 'Mock Payment Gateway',
         subtitle: 'Step 8 of 10 • Presentation Simulator',
         showBackButton: false,
@@ -59,11 +62,15 @@ class MockPaymentScreen extends ConsumerWidget {
                     Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        Icon(Icons.developer_mode, color: Colors.white, size: 20),
+                        Icon(Icons.developer_mode,
+                            color: Colors.white, size: 20),
                         SizedBox(width: 8),
                         Text(
                           'DEMO / PRESENTATION PAYMENT GATEWAY',
-                          style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 13),
+                          style: TextStyle(
+                              color: Colors.white,
+                              fontWeight: FontWeight.bold,
+                              fontSize: 13),
                         ),
                       ],
                     ),
@@ -87,22 +94,32 @@ class MockPaymentScreen extends ConsumerWidget {
                       children: [
                         Row(
                           children: [
-                            Icon(Icons.lock, color: theme.colorScheme.primary, size: 24),
+                            Icon(Icons.lock,
+                                color: theme.colorScheme.primary, size: 24),
                             const SizedBox(width: 8),
-                            const Text('Pauti Pustak Gateway', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+                            const Text('Pauti Pustak Gateway',
+                                style: TextStyle(
+                                    fontWeight: FontWeight.bold, fontSize: 16)),
                           ],
                         ),
-                        Text('INR ₹${amount.toStringAsFixed(2)}', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18, color: theme.colorScheme.primary)),
+                        Text('INR ₹${amount.toStringAsFixed(2)}',
+                            style: TextStyle(
+                                fontWeight: FontWeight.bold,
+                                fontSize: 18,
+                                color: theme.colorScheme.primary)),
                       ],
                     ),
                     const Divider(height: 24),
                     _buildDetailRow('Payment Order ID', razorpayOrderId),
                     _buildDetailRow('Internal Payment ID', paymentId),
                     _buildDetailRow('Selected Method', method),
-                    _buildDetailRow('Status', 'Awaiting Action', isHighlighted: true),
+                    _buildDetailRow('Status', 'Awaiting Action',
+                        isHighlighted: true),
                     const SizedBox(height: 20),
 
-                    Text('Select Simulated Gateway Outcome:', style: theme.textTheme.titleSmall?.copyWith(fontWeight: FontWeight.bold)),
+                    Text('Select Simulated Gateway Outcome:',
+                        style: theme.textTheme.titleSmall
+                            ?.copyWith(fontWeight: FontWeight.bold)),
                     const SizedBox(height: 14),
 
                     // 1. Success
@@ -110,7 +127,9 @@ class MockPaymentScreen extends ConsumerWidget {
                       label: '✓ Simulate SUCCESS',
                       variant: AppButtonVariant.primary,
                       isLoading: flow.isLoading,
-                      onPressed: flow.isLoading ? null : () => triggerOutcome('SUCCESS'),
+                      onPressed: flow.isLoading
+                          ? null
+                          : () => triggerOutcome('SUCCESS'),
                     ),
                     const SizedBox(height: 10),
 
@@ -119,7 +138,11 @@ class MockPaymentScreen extends ConsumerWidget {
                       label: '✕ Simulate FAILURE',
                       variant: AppButtonVariant.danger,
                       isLoading: flow.isLoading,
-                      onPressed: flow.isLoading ? null : () => triggerOutcome('FAILED', reason: 'Insufficient funds / Bank server timeout'),
+                      onPressed: flow.isLoading
+                          ? null
+                          : () => triggerOutcome('FAILED',
+                              reason:
+                                  'Insufficient funds / Bank server timeout'),
                     ),
                     const SizedBox(height: 10),
 
@@ -128,7 +151,10 @@ class MockPaymentScreen extends ConsumerWidget {
                       label: '⊘ Simulate CANCEL',
                       variant: AppButtonVariant.secondary,
                       isLoading: flow.isLoading,
-                      onPressed: flow.isLoading ? null : () => triggerOutcome('CANCELLED', reason: 'User cancelled on checkout page'),
+                      onPressed: flow.isLoading
+                          ? null
+                          : () => triggerOutcome('CANCELLED',
+                              reason: 'User cancelled on checkout page'),
                     ),
                     const SizedBox(height: 10),
 
@@ -137,7 +163,9 @@ class MockPaymentScreen extends ConsumerWidget {
                       label: '⏳ Simulate PENDING',
                       variant: AppButtonVariant.outlined,
                       isLoading: flow.isLoading,
-                      onPressed: flow.isLoading ? null : () => triggerOutcome('PENDING'),
+                      onPressed: flow.isLoading
+                          ? null
+                          : () => triggerOutcome('PENDING'),
                     ),
                   ],
                 ),
@@ -149,7 +177,8 @@ class MockPaymentScreen extends ConsumerWidget {
     );
   }
 
-  Widget _buildDetailRow(String label, String value, {bool isHighlighted = false}) {
+  Widget _buildDetailRow(String label, String value,
+      {bool isHighlighted = false}) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 4),
       child: Row(

@@ -18,12 +18,25 @@ class SeverityBadge extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final (StatusChipType type, IconData icon, String label) = switch (severity) {
+    final (StatusChipType type, IconData icon, String label) =
+        switch (severity) {
       Severity.info => (StatusChipType.neutral, Icons.info_outline, 'Info'),
-      Severity.low => (StatusChipType.success, Icons.check_circle_outline, 'Low'),
+      Severity.low => (
+          StatusChipType.success,
+          Icons.check_circle_outline,
+          'Low'
+        ),
       Severity.medium => (StatusChipType.info, Icons.info_outline, 'Medium'),
-      Severity.high => (StatusChipType.warning, Icons.warning_amber_rounded, 'High'),
-      Severity.critical => (StatusChipType.error, Icons.report_problem_rounded, 'Critical'),
+      Severity.high => (
+          StatusChipType.warning,
+          Icons.warning_amber_rounded,
+          'High'
+        ),
+      Severity.critical => (
+          StatusChipType.error,
+          Icons.report_problem_rounded,
+          'Critical'
+        ),
     };
 
     return StatusChip(label: label, type: type, icon: icon);

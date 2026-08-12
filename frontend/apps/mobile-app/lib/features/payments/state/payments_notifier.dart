@@ -6,10 +6,10 @@ import '../models/payment.dart';
 import '../../receipts/models/receipt.dart';
 import '../../receipts/state/receipts_notifier.dart';
 
-import '../data/payments_mock_data.dart';
 import '../../donors/providers/donor_providers.dart';
 
-final paymentsRemoteDataSourceProvider = Provider<PaymentsRemoteDataSource>((ref) {
+final paymentsRemoteDataSourceProvider =
+    Provider<PaymentsRemoteDataSource>((ref) {
   return PaymentsRemoteDataSource(ref.watch(dioProvider));
 });
 
@@ -17,7 +17,7 @@ class PaymentsNotifier extends Notifier<AsyncValue<List<Payment>>> {
   @override
   AsyncValue<List<Payment>> build() {
     loadPayments();
-    return AsyncValue.data(buildMockPayments());
+    return const AsyncValue.data([]);
   }
 
   Future<void> loadPayments() async {
@@ -25,13 +25,11 @@ class PaymentsNotifier extends Notifier<AsyncValue<List<Payment>>> {
       final dataSource = ref.read(paymentsRemoteDataSourceProvider);
       final list = await dataSource.fetchPayments();
       if (!ref.mounted) return;
-      if (list.isNotEmpty) {
-        state = AsyncValue.data(list);
-      }
-    } catch (_) {
+      state = AsyncValue.data(list);
+    } catch (err, stack) {
       if (!ref.mounted) return;
       if (state.value == null || state.value!.isEmpty) {
-        state = AsyncValue.data(buildMockPayments());
+        state = AsyncValue.error(err, stack);
       }
     }
   }
@@ -81,7 +79,7 @@ class PaymentsNotifier extends Notifier<AsyncValue<List<Payment>>> {
     } catch (e) {
       final currentList = state.value ?? [];
       final matchPayment = currentList.firstWhere((p) => p.id == id);
-      
+
       // Update local payment state
       state = AsyncValue.data([
         for (final p in currentList)
@@ -105,16 +103,20 @@ class PaymentsNotifier extends Notifier<AsyncValue<List<Payment>>> {
       final currentReceipts = receiptsNotifier.state.value ?? [];
       final offlineReceipt = Receipt(
         id: 'rcpt-${DateTime.now().microsecondsSinceEpoch}',
-        receiptNumber: 'RCPT-2026-${(currentReceipts.length + 1).toString().padLeft(6, '0')}',
+        receiptNumber:
+            'RCPT-2026-${(currentReceipts.length + 1).toString().padLeft(6, '0')}',
         paymentId: id,
         donorName: matchPayment.donorName,
         amount: matchPayment.amount,
         issuedDate: DateTime.now(),
-        mandalName: 'Shree Siddhivinayak Ganpati Mandal',
+        mandalName:
+            ref.read(sessionControllerProvider).user?.organization?.name ??
+                'My Mandal',
         status: ReceiptStatus.active,
         whatsappDeliveryStatus: WhatsappDeliveryStatus.sent,
       );
-      receiptsNotifier.state = AsyncValue.data([...currentReceipts, offlineReceipt]);
+      receiptsNotifier.state =
+          AsyncValue.data([...currentReceipts, offlineReceipt]);
       return true;
     }
   }
@@ -153,7 +155,8 @@ class PaymentsNotifier extends Notifier<AsyncValue<List<Payment>>> {
       await receiptsNotifier.loadReceipts();
 
       if (result['receipt'] != null) {
-        final receipt = Receipt.fromJson(Map<String, dynamic>.from(result['receipt']));
+        final receipt =
+            Receipt.fromJson(Map<String, dynamic>.from(result['receipt']));
         return receipt;
       }
     } catch (_) {
@@ -161,7 +164,8 @@ class PaymentsNotifier extends Notifier<AsyncValue<List<Payment>>> {
     }
 
     final paymentId = 'pay-${DateTime.now().microsecondsSinceEpoch}';
-    final channel = paymentMethod == 'UPI' ? PaymentChannel.inApp : PaymentChannel.qrCode;
+    final channel =
+        paymentMethod == 'UPI' ? PaymentChannel.inApp : PaymentChannel.qrCode;
     final offlinePayment = Payment(
       id: paymentId,
       donorName: donorName,
@@ -188,12 +192,15 @@ class PaymentsNotifier extends Notifier<AsyncValue<List<Payment>>> {
       contactNumber: contact,
       amount: amount,
       issuedDate: DateTime.now(),
-      mandalName: 'Shree Siddhivinayak Ganpati Mandal',
+      mandalName:
+          ref.read(sessionControllerProvider).user?.organization?.name ??
+              'My Mandal',
       status: ReceiptStatus.active,
       whatsappDeliveryStatus: WhatsappDeliveryStatus.sent,
     );
 
-    receiptsNotifier.state = AsyncValue.data([offlineReceipt, ...currentReceipts]);
+    receiptsNotifier.state =
+        AsyncValue.data([offlineReceipt, ...currentReceipts]);
 
     try {
       final amountPaise = (amount * 100).round();
@@ -210,4 +217,6 @@ class PaymentsNotifier extends Notifier<AsyncValue<List<Payment>>> {
   }
 }
 
-final paymentsProvider = NotifierProvider<PaymentsNotifier, AsyncValue<List<Payment>>>(PaymentsNotifier.new);
+final paymentsProvider =
+    NotifierProvider<PaymentsNotifier, AsyncValue<List<Payment>>>(
+        PaymentsNotifier.new);

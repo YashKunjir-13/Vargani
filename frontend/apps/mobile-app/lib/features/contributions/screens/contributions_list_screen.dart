@@ -15,10 +15,12 @@ class ContributionsListScreen extends ConsumerStatefulWidget {
   const ContributionsListScreen({super.key});
 
   @override
-  ConsumerState<ContributionsListScreen> createState() => _ContributionsListScreenState();
+  ConsumerState<ContributionsListScreen> createState() =>
+      _ContributionsListScreenState();
 }
 
-class _ContributionsListScreenState extends ConsumerState<ContributionsListScreen> {
+class _ContributionsListScreenState
+    extends ConsumerState<ContributionsListScreen> {
   String _searchQuery = '';
   DonationType? _selectedCategory;
 
@@ -26,15 +28,24 @@ class _ContributionsListScreenState extends ConsumerState<ContributionsListScree
   Widget build(BuildContext context) {
     final contributions = ref.watch(contributionsProvider);
     final rbacState = ref.watch(mockRbacProvider);
-    final canCreate = rbacState.hasPermission('contribution.create') || rbacState.hasPermission('collections.create');
+    final canCreate = rbacState.hasPermission('contribution.create') ||
+        rbacState.hasPermission('collections.create');
     final theme = Theme.of(context);
     final dateFormat = DateFormat('d MMM yyyy');
 
     final filtered = contributions.where((c) {
-      final matchesSearch = c.contributorName.toLowerCase().contains(_searchQuery.toLowerCase()) ||
-          c.donationType.label.toLowerCase().contains(_searchQuery.toLowerCase()) ||
-          (c.itemDescription?.toLowerCase().contains(_searchQuery.toLowerCase()) ?? false);
-      final matchesCategory = _selectedCategory == null || c.donationType == _selectedCategory;
+      final matchesSearch = c.contributorName
+              .toLowerCase()
+              .contains(_searchQuery.toLowerCase()) ||
+          c.donationType.label
+              .toLowerCase()
+              .contains(_searchQuery.toLowerCase()) ||
+          (c.itemDescription
+                  ?.toLowerCase()
+                  .contains(_searchQuery.toLowerCase()) ??
+              false);
+      final matchesCategory =
+          _selectedCategory == null || c.donationType == _selectedCategory;
       return matchesSearch && matchesCategory;
     }).toList();
 
@@ -63,7 +74,8 @@ class _ContributionsListScreenState extends ConsumerState<ContributionsListScree
                 hintText: 'Search contributor or item description...',
                 prefixIcon: Icon(Icons.search, size: 20),
                 isDense: true,
-                contentPadding: EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+                contentPadding:
+                    EdgeInsets.symmetric(horizontal: 14, vertical: 10),
               ),
             ),
           ),
@@ -89,7 +101,8 @@ class _ContributionsListScreenState extends ConsumerState<ContributionsListScree
                       label: Text(type.label),
                       selected: _selectedCategory == type,
                       onSelected: (selected) {
-                        setState(() => _selectedCategory = selected ? type : null);
+                        setState(
+                            () => _selectedCategory = selected ? type : null);
                       },
                     ),
                   );
@@ -126,24 +139,31 @@ class _ContributionsListScreenState extends ConsumerState<ContributionsListScree
                               children: [
                                 Expanded(
                                   child: Column(
-                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
                                     children: [
                                       Text(
                                         item.contributorName,
-                                        style: theme.textTheme.titleMedium?.copyWith(
+                                        style: theme.textTheme.titleMedium
+                                            ?.copyWith(
                                           fontWeight: FontWeight.bold,
                                         ),
                                       ),
                                       const SizedBox(height: 2),
                                       Container(
-                                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                                        padding: const EdgeInsets.symmetric(
+                                            horizontal: 8, vertical: 2),
                                         decoration: BoxDecoration(
-                                          color: theme.colorScheme.primaryContainer.withValues(alpha: 0.6),
-                                          borderRadius: BorderRadius.circular(6),
+                                          color: theme
+                                              .colorScheme.primaryContainer
+                                              .withValues(alpha: 0.6),
+                                          borderRadius:
+                                              BorderRadius.circular(6),
                                         ),
                                         child: Text(
                                           item.donationType.label,
-                                          style: theme.textTheme.bodySmall?.copyWith(
+                                          style: theme.textTheme.bodySmall
+                                              ?.copyWith(
                                             color: theme.colorScheme.primary,
                                             fontWeight: FontWeight.w700,
                                           ),
@@ -159,7 +179,9 @@ class _ContributionsListScreenState extends ConsumerState<ContributionsListScree
                                     const SizedBox(height: 4),
                                     Text(
                                       dateFormat.format(item.date),
-                                      style: theme.textTheme.bodySmall?.copyWith(color: Colors.grey.shade600),
+                                      style: theme.textTheme.bodySmall
+                                          ?.copyWith(
+                                              color: Colors.grey.shade600),
                                     ),
                                   ],
                                 ),
@@ -169,7 +191,8 @@ class _ContributionsListScreenState extends ConsumerState<ContributionsListScree
                               const SizedBox(height: 10),
                               Text(
                                 item.itemDescription!,
-                                style: theme.textTheme.bodySmall?.copyWith(fontWeight: FontWeight.w600),
+                                style: theme.textTheme.bodySmall
+                                    ?.copyWith(fontWeight: FontWeight.w600),
                               ),
                             ],
                             const Divider(height: 20),

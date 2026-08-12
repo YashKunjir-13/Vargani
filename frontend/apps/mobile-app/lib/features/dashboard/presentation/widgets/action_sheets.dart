@@ -1,10 +1,11 @@
+import "package:flutter_riverpod/flutter_riverpod.dart";
+import "package:pauti_pustak_mobile/core/session/session_controller.dart";
+import "package:pauti_pustak_mobile/shared/utils/pdf_download_utils.dart";
 import 'package:flutter/material.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 import 'package:printing/printing.dart';
 
-import 'package:pauti_pustak_mobile/core/session/session_controller.dart';
 import 'package:pauti_pustak_mobile/features/authentication/presentation/widgets/auth_buttons.dart';
 import 'package:pauti_pustak_mobile/features/authentication/presentation/widgets/auth_design_tokens.dart';
 import 'package:pauti_pustak_mobile/features/authentication/presentation/widgets/auth_text_fields.dart';
@@ -14,7 +15,8 @@ import 'package:pauti_pustak_mobile/features/receipts/models/receipt.dart';
 import 'package:pauti_pustak_mobile/shared/utils/pdf_generator.dart';
 
 class DashboardActionSheets {
-  static void showCollectDonationSheet(BuildContext context, {WidgetRef? ref, String? mandalName}) {
+  static void showCollectDonationSheet(BuildContext context,
+      {WidgetRef? ref, String? mandalName}) {
     final colors = context.authColors;
 
     String? currentUserName;
@@ -26,7 +28,8 @@ class DashboardActionSheets {
     }
 
     final nameController = TextEditingController(text: currentUserName ?? '');
-    final mobileController = TextEditingController(text: currentUserPhone ?? '');
+    final mobileController =
+        TextEditingController(text: currentUserPhone ?? '');
     final amountController = TextEditingController();
     String selectedMethod = 'Cash';
 
@@ -100,7 +103,8 @@ class DashboardActionSheets {
                   const SizedBox(height: 8),
                   Wrap(
                     spacing: 8,
-                    children: ['Cash', 'UPI', 'Net Banking', 'Cheque'].map((method) {
+                    children:
+                        ['Cash', 'UPI', 'Net Banking', 'Cheque'].map((method) {
                       final selected = method == selectedMethod;
                       return ChoiceChip(
                         label: Text(method),
@@ -110,7 +114,8 @@ class DashboardActionSheets {
                           color: selected ? Colors.white : colors.text,
                           fontWeight: FontWeight.w800,
                         ),
-                        onSelected: (_) => setState(() => selectedMethod = method),
+                        onSelected: (_) =>
+                            setState(() => selectedMethod = method),
                       );
                     }).toList(),
                   ),
@@ -119,9 +124,13 @@ class DashboardActionSheets {
                     label: 'Proceed to Payment',
                     icon: Icons.receipt_long,
                     onPressed: () {
-                      final donorName = nameController.text.trim().isEmpty ? 'Anonymous Donor' : nameController.text.trim();
+                      final donorName = nameController.text.trim().isEmpty
+                          ? 'Authenticated Donor'
+                          : nameController.text.trim();
                       final mobile = mobileController.text.trim();
-                      final amountText = amountController.text.trim().isEmpty ? '5001' : amountController.text.trim();
+                      final amountText = amountController.text.trim().isEmpty
+                          ? '5001'
+                          : amountController.text.trim();
                       final amountVal = double.tryParse(amountText) ?? 5001.0;
                       final amountPaise = (amountVal * 100).round();
 
@@ -133,14 +142,19 @@ class DashboardActionSheets {
                         builder: (confirmCtx) {
                           return AlertDialog(
                             backgroundColor: colors.card,
-                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+                            shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(20)),
                             title: Row(
                               children: [
-                                Icon(Icons.verified_user_outlined, color: colors.brandOrange, size: 24),
+                                Icon(Icons.verified_user_outlined,
+                                    color: colors.brandOrange, size: 24),
                                 const SizedBox(width: 8),
                                 Text(
                                   'Confirm Donation',
-                                  style: TextStyle(color: colors.text, fontSize: 18, fontWeight: FontWeight.w900),
+                                  style: TextStyle(
+                                      color: colors.text,
+                                      fontSize: 18,
+                                      fontWeight: FontWeight.w900),
                                 ),
                               ],
                             ),
@@ -150,7 +164,9 @@ class DashboardActionSheets {
                               children: [
                                 Text(
                                   'Review donation details before issuing official receipt:',
-                                  style: TextStyle(color: colors.secondaryText, fontSize: 13),
+                                  style: TextStyle(
+                                      color: colors.secondaryText,
+                                      fontSize: 13),
                                 ),
                                 const SizedBox(height: 12),
                                 Container(
@@ -161,12 +177,28 @@ class DashboardActionSheets {
                                     border: Border.all(color: colors.border),
                                   ),
                                   child: Column(
-                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
                                     children: [
-                                      Text('Donor: $donorName', style: TextStyle(color: colors.text, fontWeight: FontWeight.bold)),
-                                      if (mobile.isNotEmpty) Text('Mobile: $mobile', style: TextStyle(color: colors.secondaryText, fontSize: 12)),
-                                      Text('Amount: ₹${amountVal.toStringAsFixed(0)}', style: TextStyle(color: colors.brandOrange, fontWeight: FontWeight.bold, fontSize: 16)),
-                                      Text('Payment Method: $selectedMethod', style: TextStyle(color: colors.secondaryText, fontSize: 12)),
+                                      Text('Donor: $donorName',
+                                          style: TextStyle(
+                                              color: colors.text,
+                                              fontWeight: FontWeight.bold)),
+                                      if (mobile.isNotEmpty)
+                                        Text('Mobile: $mobile',
+                                            style: TextStyle(
+                                                color: colors.secondaryText,
+                                                fontSize: 12)),
+                                      Text(
+                                          'Amount: ₹${amountVal.toStringAsFixed(0)}',
+                                          style: TextStyle(
+                                              color: colors.brandOrange,
+                                              fontWeight: FontWeight.bold,
+                                              fontSize: 16)),
+                                      Text('Payment Method: $selectedMethod',
+                                          style: TextStyle(
+                                              color: colors.secondaryText,
+                                              fontSize: 12)),
                                     ],
                                   ),
                                 ),
@@ -176,11 +208,16 @@ class DashboardActionSheets {
                                   decoration: BoxDecoration(
                                     color: Colors.amber.withValues(alpha: 0.1),
                                     borderRadius: BorderRadius.circular(8),
-                                    border: Border.all(color: Colors.amber.withValues(alpha: 0.3)),
+                                    border: Border.all(
+                                        color: Colors.amber
+                                            .withValues(alpha: 0.3)),
                                   ),
                                   child: const Text(
                                     '⚡ Direct confirmation mode (No Razorpay gateway required)',
-                                    style: TextStyle(color: Colors.amber, fontSize: 11, fontWeight: FontWeight.w600),
+                                    style: TextStyle(
+                                        color: Colors.amber,
+                                        fontSize: 11,
+                                        fontWeight: FontWeight.w600),
                                   ),
                                 ),
                               ],
@@ -188,45 +225,134 @@ class DashboardActionSheets {
                             actions: [
                               TextButton(
                                 onPressed: () => Navigator.pop(confirmCtx),
-                                child: Text('Cancel', style: TextStyle(color: colors.secondaryText)),
+                                child: Text('Cancel',
+                                    style:
+                                        TextStyle(color: colors.secondaryText)),
                               ),
                               ElevatedButton.icon(
                                 style: ElevatedButton.styleFrom(
                                   backgroundColor: colors.brandOrange,
                                   foregroundColor: Colors.white,
-                                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                                  shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(10)),
                                 ),
                                 onPressed: () async {
-                                  Navigator.pop(confirmCtx);
+                                  showDialog(
+                                    context: confirmCtx,
+                                    barrierDismissible: false,
+                                    builder: (loadingCtx) => Center(
+                                      child: Container(
+                                        padding: const EdgeInsets.all(24),
+                                        decoration: BoxDecoration(
+                                          color: colors.card,
+                                          borderRadius:
+                                              BorderRadius.circular(16),
+                                        ),
+                                        child: Column(
+                                          mainAxisSize: MainAxisSize.min,
+                                          children: [
+                                            CircularProgressIndicator(
+                                                color: colors.brandOrange),
+                                            const SizedBox(height: 16),
+                                            Text(
+                                              'Issuing Official Receipt...',
+                                              style: TextStyle(
+                                                  color: colors.text,
+                                                  fontSize: 14,
+                                                  fontWeight: FontWeight.w600,
+                                                  decoration:
+                                                      TextDecoration.none),
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                    ),
+                                  );
 
                                   Receipt? receipt;
-                                  if (ref != null) {
-                                    receipt = await ref.read(paymentsProvider.notifier).collectDonationAndGenerateReceipt(
-                                      donorName: donorName,
-                                      contact: mobile.isEmpty ? null : mobile,
-                                      amount: amountVal,
-                                      paymentMethod: selectedMethod,
-                                    );
+                                  try {
+                                    if (ref != null) {
+                                      final r = ref;
+                                      receipt = await r
+                                          .read(paymentsProvider.notifier)
+                                          .collectDonationAndGenerateReceipt(
+                                            donorName: donorName,
+                                            contact:
+                                                mobile.isEmpty ? null : mobile,
+                                            amount: amountVal,
+                                            paymentMethod: selectedMethod,
+                                          );
 
-                                    ref.read(donorDashboardProvider.notifier).addDonation(
-                                      amountPaise: amountPaise,
-                                      paymentMethod: selectedMethod,
-                                      mandalName: mandalName ?? 'Shree Siddhivinayak Ganpati Mandal',
-                                    );
+                                      final activeOrgName = r
+                                              .read(sessionControllerProvider)
+                                              .user
+                                              ?.organization
+                                              ?.name ??
+                                          'My Mandal';
 
-                                    ref.read(mandalDashboardProvider.notifier).addDonation(
-                                      amountPaise: amountPaise,
-                                      paymentMethod: selectedMethod,
-                                      donorName: donorName,
-                                    );
-                                    ref.read(mandalDashboardProvider.notifier).refresh();
+                                      r
+                                          .read(donorDashboardProvider.notifier)
+                                          .addDonation(
+                                            amountPaise: amountPaise,
+                                            paymentMethod: selectedMethod,
+                                            mandalName:
+                                                mandalName ?? activeOrgName,
+                                          );
+
+                                      r
+                                          .read(
+                                              mandalDashboardProvider.notifier)
+                                          .addDonation(
+                                            amountPaise: amountPaise,
+                                            paymentMethod: selectedMethod,
+                                            donorName: donorName,
+                                          );
+                                      ref
+                                          .read(
+                                              mandalDashboardProvider.notifier)
+                                          .refresh();
+                                    }
+
+                                    if (confirmCtx.mounted) {
+                                      Navigator.pop(
+                                          confirmCtx); // Pop loading dialog
+                                      Navigator.pop(
+                                          confirmCtx); // Pop confirm dialog
+                                    }
+                                  } catch (err) {
+                                    if (confirmCtx.mounted) {
+                                      Navigator.pop(
+                                          confirmCtx); // Pop loading dialog
+                                      Navigator.pop(
+                                          confirmCtx); // Pop confirm dialog
+                                    }
+                                    if (context.mounted) {
+                                      ScaffoldMessenger.of(context)
+                                          .showSnackBar(
+                                        SnackBar(
+                                          content: Text(
+                                              'Failed to collect donation: $err'),
+                                          backgroundColor: Colors.red.shade700,
+                                        ),
+                                      );
+                                    }
+                                    return;
                                   }
 
                                   if (!context.mounted) return;
 
-                                  final receiptNo = receipt?.receiptNumber ?? 'RCPT-2026-000001';
+                                  final activeOrgName = ref
+                                          ?.read(sessionControllerProvider)
+                                          .user
+                                          ?.organization
+                                          ?.name ??
+                                      'My Mandal';
+                                  final receiptNo = receipt?.receiptNumber ??
+                                      'RCPT-2026-000001';
                                   final receiptId = receipt?.id ?? '';
-                                  final mName = receipt?.mandalName ?? mandalName ?? 'Shree Siddhivinayak Ganpati Mandal';
+                                  final mName = receipt?.mandalName ??
+                                      mandalName ??
+                                      activeOrgName;
 
                                   // Show Receipt Success Dialog
                                   showDialog(
@@ -234,24 +360,35 @@ class DashboardActionSheets {
                                     builder: (successCtx) {
                                       return AlertDialog(
                                         backgroundColor: colors.card,
-                                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
+                                        shape: RoundedRectangleBorder(
+                                            borderRadius:
+                                                BorderRadius.circular(24)),
                                         title: Row(
                                           children: [
-                                            const Icon(Icons.check_circle_rounded, color: Colors.green, size: 28),
+                                            const Icon(
+                                                Icons.check_circle_rounded,
+                                                color: Colors.green,
+                                                size: 28),
                                             const SizedBox(width: 8),
                                             Text(
                                               'Donation Successful!',
-                                              style: TextStyle(color: colors.text, fontSize: 18, fontWeight: FontWeight.w900),
+                                              style: TextStyle(
+                                                  color: colors.text,
+                                                  fontSize: 18,
+                                                  fontWeight: FontWeight.w900),
                                             ),
                                           ],
                                         ),
                                         content: Column(
                                           mainAxisSize: MainAxisSize.min,
-                                          crossAxisAlignment: CrossAxisAlignment.start,
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.start,
                                           children: [
                                             Text(
                                               'Official digital receipt generated successfully.',
-                                              style: TextStyle(color: colors.secondaryText, fontSize: 13),
+                                              style: TextStyle(
+                                                  color: colors.secondaryText,
+                                                  fontSize: 13),
                                             ),
                                             const SizedBox(height: 16),
                                             Container(
@@ -259,39 +396,66 @@ class DashboardActionSheets {
                                               padding: const EdgeInsets.all(16),
                                               decoration: BoxDecoration(
                                                 color: colors.surfaceMuted,
-                                                borderRadius: BorderRadius.circular(16),
-                                                border: Border.all(color: colors.border),
+                                                borderRadius:
+                                                    BorderRadius.circular(16),
+                                                border: Border.all(
+                                                    color: colors.border),
                                               ),
                                               child: Column(
                                                 children: [
                                                   Text(
                                                     'RECEIPT NO',
-                                                    style: TextStyle(color: colors.secondaryText, fontSize: 11, fontWeight: FontWeight.w700),
+                                                    style: TextStyle(
+                                                        color: colors
+                                                            .secondaryText,
+                                                        fontSize: 11,
+                                                        fontWeight:
+                                                            FontWeight.w700),
                                                   ),
                                                   const SizedBox(height: 2),
                                                   Text(
                                                     receiptNo,
-                                                    style: TextStyle(color: colors.brandOrange, fontSize: 18, fontWeight: FontWeight.w900),
+                                                    style: TextStyle(
+                                                        color:
+                                                            colors.brandOrange,
+                                                        fontSize: 18,
+                                                        fontWeight:
+                                                            FontWeight.w900),
                                                   ),
                                                   const SizedBox(height: 8),
                                                   Text(
                                                     donorName,
-                                                    style: TextStyle(color: colors.text, fontSize: 15, fontWeight: FontWeight.bold),
+                                                    style: TextStyle(
+                                                        color: colors.text,
+                                                        fontSize: 15,
+                                                        fontWeight:
+                                                            FontWeight.bold),
                                                   ),
                                                   if (mobile.isNotEmpty)
                                                     Text(
                                                       'Mobile: $mobile',
-                                                      style: TextStyle(color: colors.secondaryText, fontSize: 12),
+                                                      style: TextStyle(
+                                                          color: colors
+                                                              .secondaryText,
+                                                          fontSize: 12),
                                                     ),
                                                   const SizedBox(height: 4),
                                                   Text(
                                                     '₹${amountVal.toStringAsFixed(0)}',
-                                                    style: TextStyle(color: colors.text, fontSize: 24, fontWeight: FontWeight.w900),
+                                                    style: TextStyle(
+                                                        color: colors.text,
+                                                        fontSize: 24,
+                                                        fontWeight:
+                                                            FontWeight.w900),
                                                   ),
                                                   const SizedBox(height: 6),
                                                   Text(
                                                     'Method: $selectedMethod • Status: Confirmed',
-                                                    style: const TextStyle(color: Colors.green, fontSize: 12, fontWeight: FontWeight.w700),
+                                                    style: const TextStyle(
+                                                        color: Colors.green,
+                                                        fontSize: 12,
+                                                        fontWeight:
+                                                            FontWeight.w700),
                                                   ),
                                                 ],
                                               ),
@@ -300,45 +464,69 @@ class DashboardActionSheets {
                                         ),
                                         actions: [
                                           TextButton(
-                                            onPressed: () => Navigator.pop(successCtx),
-                                            child: Text('Done', style: TextStyle(color: colors.secondaryText)),
+                                            onPressed: () =>
+                                                Navigator.pop(successCtx),
+                                            child: Text('Done',
+                                                style: TextStyle(
+                                                    color:
+                                                        colors.secondaryText)),
                                           ),
                                           if (receiptId.isNotEmpty)
                                             ElevatedButton.icon(
                                               style: ElevatedButton.styleFrom(
-                                                backgroundColor: colors.brandOrange,
+                                                backgroundColor:
+                                                    colors.brandOrange,
                                                 foregroundColor: Colors.white,
-                                                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                                                shape: RoundedRectangleBorder(
+                                                    borderRadius:
+                                                        BorderRadius.circular(
+                                                            10)),
                                               ),
                                               onPressed: () {
                                                 Navigator.pop(successCtx);
-                                                context.push('/receipts/$receiptId');
+                                                context.push(
+                                                    '/receipts/$receiptId');
                                               },
-                                              icon: const Icon(Icons.receipt, size: 16),
+                                              icon: const Icon(Icons.receipt,
+                                                  size: 16),
                                               label: const Text('View Receipt'),
                                             ),
                                           ElevatedButton.icon(
                                             style: ElevatedButton.styleFrom(
-                                              backgroundColor: Colors.blue.shade700,
+                                              backgroundColor:
+                                                  Colors.blue.shade700,
                                               foregroundColor: Colors.white,
-                                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                                              shape: RoundedRectangleBorder(
+                                                  borderRadius:
+                                                      BorderRadius.circular(
+                                                          10)),
                                             ),
                                             onPressed: () {
                                               Printing.layoutPdf(
                                                 onLayout: (format) async {
-                                                  final currency = NumberFormat.currency(locale: 'en_IN', symbol: '₹', decimalDigits: 0);
-                                                  return PdfReceiptGenerator.generateReceiptPdf(
+                                                  final currency =
+                                                      NumberFormat.currency(
+                                                          locale: 'en_IN',
+                                                          symbol: '₹',
+                                                          decimalDigits: 0);
+                                                  return PdfReceiptGenerator
+                                                      .generateReceiptPdf(
                                                     receiptNumber: receiptNo,
                                                     mandalName: mName,
                                                     donorName: donorName,
-                                                    amountText: currency.format(amountVal),
-                                                    dateText: DateFormat('d MMM yyyy').format(DateTime.now()),
-                                                    typeLabel: 'Festival Donation — Ganpati Utsav 2026',
+                                                    amountText: currency
+                                                        .format(amountVal),
+                                                    dateText: DateFormat(
+                                                            'd MMM yyyy')
+                                                        .format(DateTime.now()),
+                                                    typeLabel:
+                                                        'Festival Donation — Ganpati Utsav 2026',
                                                   );
                                                 },
                                               );
                                             },
-                                            icon: const Icon(Icons.download, size: 16),
+                                            icon: const Icon(Icons.download,
+                                                size: 16),
                                             label: const Text('PDF'),
                                           ),
                                         ],
@@ -426,7 +614,8 @@ class DashboardActionSheets {
                   Navigator.pop(ctx);
                   ScaffoldMessenger.of(context).showSnackBar(
                     const SnackBar(
-                      content: Text('Expense submitted successfully for approval!'),
+                      content:
+                          Text('Expense submitted successfully for approval!'),
                       backgroundColor: Colors.green,
                     ),
                   );
@@ -439,7 +628,8 @@ class DashboardActionSheets {
     );
   }
 
-  static void showReceiptDetailModal(BuildContext context, String receiptNo, String donor, String amount) {
+  static void showReceiptDetailModal(BuildContext context, String receiptId,
+      String receiptNo, String donor, String amount) {
     final colors = context.authColors;
 
     showDialog(
@@ -447,14 +637,18 @@ class DashboardActionSheets {
       builder: (ctx) {
         return AlertDialog(
           backgroundColor: colors.card,
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+          shape:
+              RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
           title: Row(
             children: [
               Icon(Icons.verified, color: colors.brandOrange, size: 28),
               const SizedBox(width: 10),
               Text(
                 'Official Digital Receipt',
-                style: TextStyle(color: colors.text, fontSize: 18, fontWeight: FontWeight.w900),
+                style: TextStyle(
+                    color: colors.text,
+                    fontSize: 18,
+                    fontWeight: FontWeight.w900),
               ),
             ],
           ),
@@ -472,13 +666,28 @@ class DashboardActionSheets {
                 ),
                 child: Column(
                   children: [
-                    Text('RECEIPT NO: $receiptNo', style: TextStyle(color: colors.brandOrange, fontWeight: FontWeight.w900)),
+                    Text('RECEIPT NO: $receiptNo',
+                        style: TextStyle(
+                            color: colors.brandOrange,
+                            fontWeight: FontWeight.w900)),
                     const SizedBox(height: 8),
-                    Text(donor, style: TextStyle(color: colors.text, fontSize: 16, fontWeight: FontWeight.w800)),
+                    Text(donor,
+                        style: TextStyle(
+                            color: colors.text,
+                            fontSize: 16,
+                            fontWeight: FontWeight.w800)),
                     const SizedBox(height: 4),
-                    Text(amount, style: TextStyle(color: colors.text, fontSize: 24, fontWeight: FontWeight.w900)),
+                    Text(amount,
+                        style: TextStyle(
+                            color: colors.text,
+                            fontSize: 24,
+                            fontWeight: FontWeight.w900)),
                     const SizedBox(height: 8),
-                    const Text('Status: Confirmed • 80G Tax Exempted', style: TextStyle(color: Colors.green, fontSize: 12, fontWeight: FontWeight.w700)),
+                    const Text('Status: Confirmed • 80G Tax Exempted',
+                        style: TextStyle(
+                            color: Colors.green,
+                            fontSize: 12,
+                            fontWeight: FontWeight.w700)),
                   ],
                 ),
               ),
@@ -487,22 +696,22 @@ class DashboardActionSheets {
           actions: [
             TextButton(
               onPressed: () => Navigator.pop(ctx),
-              child: Text('Close', style: TextStyle(color: colors.secondaryText)),
+              child:
+                  Text('Close', style: TextStyle(color: colors.secondaryText)),
             ),
             ElevatedButton.icon(
               style: ElevatedButton.styleFrom(
                 backgroundColor: colors.brandOrange,
                 foregroundColor: Colors.white,
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12)),
               ),
               onPressed: () {
                 Navigator.pop(ctx);
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(
-                    content: Text('Receipt $receiptNo PDF downloaded successfully!'),
-                    backgroundColor: Colors.green,
-                  ),
-                );
+                final dio =
+                    ProviderScope.containerOf(context).read(dioProvider);
+                PdfDownloadUtils.downloadReceiptPdf(
+                    context, dio, receiptId, receiptNo);
               },
               icon: const Icon(Icons.download, size: 18),
               label: const Text('Download PDF'),

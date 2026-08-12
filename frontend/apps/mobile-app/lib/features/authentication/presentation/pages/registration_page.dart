@@ -58,7 +58,8 @@ class _RegistrationTypeSelector extends StatefulWidget {
   final VoidCallback? onLoginRequested;
 
   @override
-  State<_RegistrationTypeSelector> createState() => _RegistrationTypeSelectorState();
+  State<_RegistrationTypeSelector> createState() =>
+      _RegistrationTypeSelectorState();
 }
 
 class _RegistrationTypeSelectorState extends State<_RegistrationTypeSelector> {
@@ -147,16 +148,20 @@ class _RegistrationTypeSelectorState extends State<_RegistrationTypeSelector> {
                               title: l10n.trustRegistration,
                               description: l10n.trustRegistrationDescription,
                               icon: Icons.account_balance_outlined,
-                              isSelected: _selectedType == _RegistrationType.trust,
-                              onTap: () => _handleSelection(_RegistrationType.trust),
+                              isSelected:
+                                  _selectedType == _RegistrationType.trust,
+                              onTap: () =>
+                                  _handleSelection(_RegistrationType.trust),
                             ),
                             const SizedBox(height: 18),
                             RegistrationTypeCard(
                               title: l10n.donorRegistration,
                               description: l10n.donorRegistrationDescription,
                               icon: Icons.favorite_border,
-                              isSelected: _selectedType == _RegistrationType.donor,
-                              onTap: () => _handleSelection(_RegistrationType.donor),
+                              isSelected:
+                                  _selectedType == _RegistrationType.donor,
+                              onTap: () =>
+                                  _handleSelection(_RegistrationType.donor),
                             ),
                             const SizedBox(height: 28),
                             Row(
@@ -204,12 +209,14 @@ class _TrustRegistrationForm extends ConsumerStatefulWidget {
   final VoidCallback onBack;
 
   @override
-  ConsumerState<_TrustRegistrationForm> createState() => _TrustRegistrationFormState();
+  ConsumerState<_TrustRegistrationForm> createState() =>
+      _TrustRegistrationFormState();
 }
 
 enum _RegistrationStep { mobile, otp, details, mpin }
 
-class _TrustRegistrationFormState extends ConsumerState<_TrustRegistrationForm> {
+class _TrustRegistrationFormState
+    extends ConsumerState<_TrustRegistrationForm> {
   final _formKey = GlobalKey<FormState>();
   final _mandalName = TextEditingController();
   final _registrationNumber = TextEditingController();
@@ -362,7 +369,9 @@ class _TrustRegistrationFormState extends ConsumerState<_TrustRegistrationForm> 
       await ref.read(authRepositoryProvider).createMpin(mpin: mpin);
       if (!mounted) return;
       if (_registeredUser != null) {
-        ref.read(sessionControllerProvider.notifier).setAuthenticated(_registeredUser!, LoginRole.mandal);
+        ref
+            .read(sessionControllerProvider.notifier)
+            .setAuthenticated(_registeredUser!, LoginRole.mandal);
       }
     } on ApiException catch (error) {
       if (!mounted) return;
@@ -446,11 +455,14 @@ class _TrustRegistrationFormState extends ConsumerState<_TrustRegistrationForm> 
                 ),
                 const SizedBox(height: AuthSpacing.section),
                 if (_errorMessage != null)
-                  AuthErrorBanner(message: _errorMessage!, onRetry: _handleRequestOtp),
+                  AuthErrorBanner(
+                      message: _errorMessage!, onRetry: _handleRequestOtp),
                 AuthPrimaryButton(
                   label: l10n.sendOtp,
                   icon: Icons.arrow_forward,
-                  onPressed: (_canContinue && !_isSubmitting) ? _handleRequestOtp : null,
+                  onPressed: (_canContinue && !_isSubmitting)
+                      ? _handleRequestOtp
+                      : null,
                 ),
                 if (_isSubmitting) ...[
                   const SizedBox(height: 16),
@@ -527,11 +539,13 @@ class _TrustRegistrationFormState extends ConsumerState<_TrustRegistrationForm> 
         ),
         const SizedBox(height: AuthSpacing.section),
         if (_errorMessage != null)
-          AuthErrorBanner(message: _errorMessage!, onRetry: _handleSubmitDetails),
+          AuthErrorBanner(
+              message: _errorMessage!, onRetry: _handleSubmitDetails),
         AuthPrimaryButton(
           label: l10n.continueToVerification,
           icon: Icons.arrow_forward,
-          onPressed: (_canContinue && !_isSubmitting) ? _handleSubmitDetails : null,
+          onPressed:
+              (_canContinue && !_isSubmitting) ? _handleSubmitDetails : null,
         ),
         if (_isSubmitting) ...[
           const SizedBox(height: 16),
@@ -548,10 +562,12 @@ class _DonorRegistrationForm extends ConsumerStatefulWidget {
   final VoidCallback onBack;
 
   @override
-  ConsumerState<_DonorRegistrationForm> createState() => _DonorRegistrationFormState();
+  ConsumerState<_DonorRegistrationForm> createState() =>
+      _DonorRegistrationFormState();
 }
 
-class _DonorRegistrationFormState extends ConsumerState<_DonorRegistrationForm> {
+class _DonorRegistrationFormState
+    extends ConsumerState<_DonorRegistrationForm> {
   final _formKey = GlobalKey<FormState>();
   final _fullName = TextEditingController();
   final _email = TextEditingController();
@@ -692,7 +708,9 @@ class _DonorRegistrationFormState extends ConsumerState<_DonorRegistrationForm> 
       await ref.read(authRepositoryProvider).createMpin(mpin: mpin);
       if (!mounted) return;
       if (_registeredUser != null) {
-        ref.read(sessionControllerProvider.notifier).setAuthenticated(_registeredUser!, LoginRole.donor);
+        ref
+            .read(sessionControllerProvider.notifier)
+            .setAuthenticated(_registeredUser!, LoginRole.donor);
       }
     } on ApiException catch (error) {
       if (!mounted) return;
@@ -776,11 +794,14 @@ class _DonorRegistrationFormState extends ConsumerState<_DonorRegistrationForm> 
                 ),
                 const SizedBox(height: AuthSpacing.section),
                 if (_errorMessage != null)
-                  AuthErrorBanner(message: _errorMessage!, onRetry: _handleRequestOtp),
+                  AuthErrorBanner(
+                      message: _errorMessage!, onRetry: _handleRequestOtp),
                 AuthPrimaryButton(
                   label: l10n.sendOtp,
                   icon: Icons.arrow_forward,
-                  onPressed: (_canContinue && !_isSubmitting) ? _handleRequestOtp : null,
+                  onPressed: (_canContinue && !_isSubmitting)
+                      ? _handleRequestOtp
+                      : null,
                 ),
                 if (_isSubmitting) ...[
                   const SizedBox(height: 16),
@@ -843,11 +864,13 @@ class _DonorRegistrationFormState extends ConsumerState<_DonorRegistrationForm> 
         ),
         const SizedBox(height: AuthSpacing.section),
         if (_errorMessage != null)
-          AuthErrorBanner(message: _errorMessage!, onRetry: _handleSubmitDetails),
+          AuthErrorBanner(
+              message: _errorMessage!, onRetry: _handleSubmitDetails),
         AuthPrimaryButton(
           label: l10n.continueToVerification,
           icon: Icons.arrow_forward,
-          onPressed: (_canContinue && !_isSubmitting) ? _handleSubmitDetails : null,
+          onPressed:
+              (_canContinue && !_isSubmitting) ? _handleSubmitDetails : null,
         ),
         if (_isSubmitting) ...[
           const SizedBox(height: 16),

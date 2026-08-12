@@ -94,7 +94,8 @@ class _SparklinePainter extends CustomPainter {
     if (style == SparklineStyle.bar) {
       final barCount = values.length;
       final barWidth = size.width / (barCount * 1.6);
-      final gap = (size.width - barWidth * barCount) / (barCount - 1).clamp(1, double.infinity);
+      final gap = (size.width - barWidth * barCount) /
+          (barCount - 1).clamp(1, double.infinity);
       final paint = Paint()..color = color;
 
       for (var i = 0; i < barCount; i++) {
@@ -116,7 +117,8 @@ class _SparklinePainter extends CustomPainter {
 
     final path = Path();
     final stepX = size.width / (values.length - 1).clamp(1, double.infinity);
-    final visiblePoints = (values.length * progress).ceil().clamp(1, values.length);
+    final visiblePoints =
+        (values.length * progress).ceil().clamp(1, values.length);
 
     for (var i = 0; i < visiblePoints; i++) {
       final x = i * stepX;

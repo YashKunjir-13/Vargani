@@ -10,7 +10,8 @@ class PaymentMethodScreen extends ConsumerStatefulWidget {
   const PaymentMethodScreen({super.key});
 
   @override
-  ConsumerState<PaymentMethodScreen> createState() => _PaymentMethodScreenState();
+  ConsumerState<PaymentMethodScreen> createState() =>
+      _PaymentMethodScreenState();
 }
 
 class _PaymentMethodScreenState extends ConsumerState<PaymentMethodScreen> {
@@ -89,11 +90,22 @@ class _PaymentMethodScreenState extends ConsumerState<PaymentMethodScreen> {
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Text('ONLINE PAYMENT', style: theme.textTheme.titleSmall?.copyWith(fontWeight: FontWeight.bold, letterSpacing: 1.2, color: theme.colorScheme.primary)),
+                  Text('ONLINE PAYMENT',
+                      style: theme.textTheme.titleSmall?.copyWith(
+                          fontWeight: FontWeight.bold,
+                          letterSpacing: 1.2,
+                          color: theme.colorScheme.primary)),
                   Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
-                    decoration: BoxDecoration(color: Colors.amber.shade100, borderRadius: BorderRadius.circular(4)),
-                    child: Text('MOCK GATEWAY ACTIVE', style: TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: Colors.amber.shade900)),
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                    decoration: BoxDecoration(
+                        color: Colors.amber.shade100,
+                        borderRadius: BorderRadius.circular(4)),
+                    child: Text('MOCK GATEWAY ACTIVE',
+                        style: TextStyle(
+                            fontSize: 10,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.amber.shade900)),
                   ),
                 ],
               ),
@@ -103,7 +115,11 @@ class _PaymentMethodScreenState extends ConsumerState<PaymentMethodScreen> {
               const SizedBox(height: 24),
 
               // Offline Section Header
-              Text('OFFLINE COLLECTION', style: theme.textTheme.titleSmall?.copyWith(fontWeight: FontWeight.bold, letterSpacing: 1.2, color: Colors.green.shade800)),
+              Text('OFFLINE COLLECTION',
+                  style: theme.textTheme.titleSmall?.copyWith(
+                      fontWeight: FontWeight.bold,
+                      letterSpacing: 1.2,
+                      color: Colors.green.shade800)),
               const SizedBox(height: 10),
               ..._offlineMethods.map((m) => _buildMethodTile(m)),
 
@@ -126,7 +142,9 @@ class _PaymentMethodScreenState extends ConsumerState<PaymentMethodScreen> {
     return Padding(
       padding: const EdgeInsets.only(bottom: 10),
       child: AppCard(
-        border: isSelected ? Border.all(color: theme.colorScheme.primary, width: 2) : null,
+        border: isSelected
+            ? Border.all(color: theme.colorScheme.primary, width: 2)
+            : null,
         onTap: () => setState(() => _selectedMethod = method['id']),
         child: Row(
           children: [
@@ -137,14 +155,22 @@ class _PaymentMethodScreenState extends ConsumerState<PaymentMethodScreen> {
                 if (val != null) setState(() => _selectedMethod = val);
               },
             ),
-            Icon(method['icon'] as IconData, color: isSelected ? theme.colorScheme.primary : Colors.grey.shade700, size: 28),
+            Icon(method['icon'] as IconData,
+                color: isSelected
+                    ? theme.colorScheme.primary
+                    : Colors.grey.shade700,
+                size: 28),
             const SizedBox(width: 14),
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(method['title'], style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
-                  Text(method['subtitle'], style: TextStyle(color: Colors.grey.shade700, fontSize: 12)),
+                  Text(method['title'],
+                      style: const TextStyle(
+                          fontWeight: FontWeight.bold, fontSize: 14)),
+                  Text(method['subtitle'],
+                      style:
+                          TextStyle(color: Colors.grey.shade700, fontSize: 12)),
                 ],
               ),
             ),

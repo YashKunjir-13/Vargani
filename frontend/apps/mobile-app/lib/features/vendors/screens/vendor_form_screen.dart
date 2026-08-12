@@ -173,7 +173,8 @@ class _VendorFormScreenState extends ConsumerState<VendorFormScreen> {
                         setState(() => _errorText = null);
                         final name = _nameController.text.trim();
                         final category = _categoryController.text.trim();
-                        final contactPerson = _contactPersonController.text.trim();
+                        final contactPerson =
+                            _contactPersonController.text.trim();
                         final mobile = _mobileController.text.trim();
                         final email = _emailController.text.trim();
                         final address = _addressController.text.trim();
@@ -183,11 +184,14 @@ class _VendorFormScreenState extends ConsumerState<VendorFormScreen> {
                         final bankIfsc = _bankIfscController.text.trim();
 
                         if (name.isEmpty) {
-                          setState(() => _errorText = 'Vendor name is required.');
+                          setState(
+                              () => _errorText = 'Vendor name is required.');
                           return;
                         }
-                        if (mobile.isNotEmpty && !RegExp(r'^\d+$').hasMatch(mobile)) {
-                          setState(() => _errorText = 'Mobile number must contain digits only.');
+                        if (mobile.isNotEmpty &&
+                            !RegExp(r'^\d+$').hasMatch(mobile)) {
+                          setState(() => _errorText =
+                              'Mobile number must contain digits only.');
                           return;
                         }
 
@@ -199,26 +203,30 @@ class _VendorFormScreenState extends ConsumerState<VendorFormScreen> {
                           await repository.updateVendor(
                             id: widget.vendorId!,
                             name: name,
-                            contactPerson: contactPerson.isEmpty ? null : contactPerson,
+                            contactPerson:
+                                contactPerson.isEmpty ? null : contactPerson,
                             mobile: mobile.isEmpty ? null : mobile,
                             email: email.isEmpty ? null : email,
                             address: address.isEmpty ? null : address,
                             gstin: gstin.isEmpty ? null : gstin,
                             pan: pan.isEmpty ? null : pan,
-                            bankAccount: bankAccount.isEmpty ? null : bankAccount,
+                            bankAccount:
+                                bankAccount.isEmpty ? null : bankAccount,
                             bankIfsc: bankIfsc.isEmpty ? null : bankIfsc,
                             category: category.isEmpty ? null : category,
                           );
                         } else {
                           await repository.createVendor(
                             name: name,
-                            contactPerson: contactPerson.isEmpty ? null : contactPerson,
+                            contactPerson:
+                                contactPerson.isEmpty ? null : contactPerson,
                             mobile: mobile.isEmpty ? null : mobile,
                             email: email.isEmpty ? null : email,
                             address: address.isEmpty ? null : address,
                             gstin: gstin.isEmpty ? null : gstin,
                             pan: pan.isEmpty ? null : pan,
-                            bankAccount: bankAccount.isEmpty ? null : bankAccount,
+                            bankAccount:
+                                bankAccount.isEmpty ? null : bankAccount,
                             bankIfsc: bankIfsc.isEmpty ? null : bankIfsc,
                             category: category.isEmpty ? null : category,
                           );
@@ -227,7 +235,8 @@ class _VendorFormScreenState extends ConsumerState<VendorFormScreen> {
                         if (!mounted) return;
                         ref.invalidate(vendorListProvider);
                         if (widget.vendorId != null) {
-                          ref.invalidate(vendorDetailProvider(widget.vendorId!));
+                          ref.invalidate(
+                              vendorDetailProvider(widget.vendorId!));
                         }
                         setState(() => _isSubmitting = false);
                         messenger.showSnackBar(

@@ -14,15 +14,96 @@ class MockDonorRepository implements DonorRepository {
   void _seedDonors() {
     final now = DateTime.now();
     final seedData = [
-      {'fullName': 'Aarav Mehta', 'mobile': '9876543210', 'email': 'aarav@example.com', 'status': DonorProfileStatus.active, 'claimedAt': now.subtract(const Duration(days: 5)), 'createdAt': now.subtract(const Duration(days: 21)), 'count': 12, 'amount': 1250000},
-      {'fullName': 'Meera Shah', 'mobile': '9123456780', 'email': 'meera@example.com', 'status': DonorProfileStatus.unclaimed, 'claimedAt': null, 'createdAt': now.subtract(const Duration(days: 18)), 'count': 4, 'amount': 460000},
-      {'fullName': 'Rohan Desai', 'mobile': '9812345678', 'email': 'rohan@example.com', 'status': DonorProfileStatus.active, 'claimedAt': now.subtract(const Duration(days: 3)), 'createdAt': now.subtract(const Duration(days: 30)), 'count': 9, 'amount': 875000},
-      {'fullName': 'Naina Rao', 'mobile': '9765432109', 'email': 'naina@example.com', 'status': DonorProfileStatus.deactivated, 'claimedAt': null, 'createdAt': now.subtract(const Duration(days: 40)), 'count': 2, 'amount': 230000},
-      {'fullName': 'Vikram Kumar', 'mobile': '9654321098', 'email': 'vikram@example.com', 'status': DonorProfileStatus.active, 'claimedAt': now.subtract(const Duration(days: 1)), 'createdAt': now.subtract(const Duration(days: 12)), 'count': 15, 'amount': 1500000},
-      {'fullName': 'Sana Patil', 'mobile': '9543210987', 'email': 'sana@example.com', 'status': DonorProfileStatus.merged, 'claimedAt': null, 'createdAt': now.subtract(const Duration(days: 60)), 'count': 1, 'amount': 100000},
-      {'fullName': 'Kiran Joshi', 'mobile': '9432109876', 'email': 'kiran@example.com', 'status': DonorProfileStatus.unclaimed, 'claimedAt': null, 'createdAt': now.subtract(const Duration(days: 22)), 'count': 6, 'amount': 720000},
-      {'fullName': 'Pooja Bhatia', 'mobile': '9321098765', 'email': 'pooja@example.com', 'status': DonorProfileStatus.active, 'claimedAt': now.subtract(const Duration(days: 6)), 'createdAt': now.subtract(const Duration(days: 9)), 'count': 8, 'amount': 990000},
-      {'fullName': 'Aniket Sharma', 'mobile': '9210987654', 'email': 'aniket@example.com', 'status': DonorProfileStatus.active, 'claimedAt': now.subtract(const Duration(days: 10)), 'createdAt': now.subtract(const Duration(days: 25)), 'count': 10, 'amount': 1120000},
+      {
+        'fullName': 'Aarav Mehta',
+        'mobile': '9876543210',
+        'email': 'aarav@example.com',
+        'status': DonorProfileStatus.active,
+        'claimedAt': now.subtract(const Duration(days: 5)),
+        'createdAt': now.subtract(const Duration(days: 21)),
+        'count': 12,
+        'amount': 1250000
+      },
+      {
+        'fullName': 'Meera Shah',
+        'mobile': '9123456780',
+        'email': 'meera@example.com',
+        'status': DonorProfileStatus.unclaimed,
+        'claimedAt': null,
+        'createdAt': now.subtract(const Duration(days: 18)),
+        'count': 4,
+        'amount': 460000
+      },
+      {
+        'fullName': 'Rohan Desai',
+        'mobile': '9812345678',
+        'email': 'rohan@example.com',
+        'status': DonorProfileStatus.active,
+        'claimedAt': now.subtract(const Duration(days: 3)),
+        'createdAt': now.subtract(const Duration(days: 30)),
+        'count': 9,
+        'amount': 875000
+      },
+      {
+        'fullName': 'Naina Rao',
+        'mobile': '9765432109',
+        'email': 'naina@example.com',
+        'status': DonorProfileStatus.deactivated,
+        'claimedAt': null,
+        'createdAt': now.subtract(const Duration(days: 40)),
+        'count': 2,
+        'amount': 230000
+      },
+      {
+        'fullName': 'Vikram Kumar',
+        'mobile': '9654321098',
+        'email': 'vikram@example.com',
+        'status': DonorProfileStatus.active,
+        'claimedAt': now.subtract(const Duration(days: 1)),
+        'createdAt': now.subtract(const Duration(days: 12)),
+        'count': 15,
+        'amount': 1500000
+      },
+      {
+        'fullName': 'Sana Patil',
+        'mobile': '9543210987',
+        'email': 'sana@example.com',
+        'status': DonorProfileStatus.merged,
+        'claimedAt': null,
+        'createdAt': now.subtract(const Duration(days: 60)),
+        'count': 1,
+        'amount': 100000
+      },
+      {
+        'fullName': 'Kiran Joshi',
+        'mobile': '9432109876',
+        'email': 'kiran@example.com',
+        'status': DonorProfileStatus.unclaimed,
+        'claimedAt': null,
+        'createdAt': now.subtract(const Duration(days: 22)),
+        'count': 6,
+        'amount': 720000
+      },
+      {
+        'fullName': 'Pooja Bhatia',
+        'mobile': '9321098765',
+        'email': 'pooja@example.com',
+        'status': DonorProfileStatus.active,
+        'claimedAt': now.subtract(const Duration(days: 6)),
+        'createdAt': now.subtract(const Duration(days: 9)),
+        'count': 8,
+        'amount': 990000
+      },
+      {
+        'fullName': 'Aniket Sharma',
+        'mobile': '9210987654',
+        'email': 'aniket@example.com',
+        'status': DonorProfileStatus.active,
+        'claimedAt': now.subtract(const Duration(days: 10)),
+        'createdAt': now.subtract(const Duration(days: 25)),
+        'count': 10,
+        'amount': 1120000
+      },
     ];
 
     for (final item in seedData) {
@@ -43,7 +124,8 @@ class MockDonorRepository implements DonorRepository {
   }
 
   @override
-  Future<List<Donor>> getDonors({String? search, DonorProfileStatus? status}) async {
+  Future<List<Donor>> getDonors(
+      {String? search, DonorProfileStatus? status}) async {
     final normalizedSearch = search?.toLowerCase().trim() ?? '';
     final filtered = _donors.where((donor) {
       final matchesSearch = normalizedSearch.isEmpty ||
@@ -54,7 +136,9 @@ class MockDonorRepository implements DonorRepository {
       return matchesSearch && matchesStatus;
     }).toList();
 
-    return filtered.where((donor) => donor.status != DonorProfileStatus.merged).toList();
+    return filtered
+        .where((donor) => donor.status != DonorProfileStatus.merged)
+        .toList();
   }
 
   @override
@@ -130,8 +214,10 @@ class MockDonorRepository implements DonorRepository {
 
     // Combine stats without altering historical donation values
     final updatedSurviving = surviving.copyWith(
-      totalContributionsCount: surviving.totalContributionsCount + merged.totalContributionsCount,
-      totalConfirmedAmountPaise: surviving.totalConfirmedAmountPaise + merged.totalConfirmedAmountPaise,
+      totalContributionsCount:
+          surviving.totalContributionsCount + merged.totalContributionsCount,
+      totalConfirmedAmountPaise: surviving.totalConfirmedAmountPaise +
+          merged.totalConfirmedAmountPaise,
     );
     _donors[sIndex] = updatedSurviving;
 
@@ -150,7 +236,9 @@ class MockDonorRepository implements DonorRepository {
     final existingIndex = _donors.indexWhere((d) {
       final nameMatches = d.fullName.toLowerCase() == fullName.toLowerCase();
       final cleanDMobile = d.mobile?.replaceAll(RegExp(r'\D'), '') ?? '';
-      final mobileMatches = cleanMobile.isNotEmpty && cleanDMobile.isNotEmpty && cleanDMobile.endsWith(cleanMobile);
+      final mobileMatches = cleanMobile.isNotEmpty &&
+          cleanDMobile.isNotEmpty &&
+          cleanDMobile.endsWith(cleanMobile);
       return nameMatches || mobileMatches;
     });
 
@@ -158,7 +246,8 @@ class MockDonorRepository implements DonorRepository {
       final existing = _donors[existingIndex];
       final updated = existing.copyWith(
         totalContributionsCount: existing.totalContributionsCount + 1,
-        totalConfirmedAmountPaise: existing.totalConfirmedAmountPaise + amountPaise,
+        totalConfirmedAmountPaise:
+            existing.totalConfirmedAmountPaise + amountPaise,
       );
       _donors[existingIndex] = updated;
       return updated;

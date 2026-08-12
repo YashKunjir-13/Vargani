@@ -19,7 +19,9 @@ class LocaleNotifier extends Notifier<AppLanguage> {
   }
 
   void setLanguage(AppLanguage language) {
-    ref.read(localeControllerProvider.notifier).selectLocale(Locale(language.name));
+    ref
+        .read(localeControllerProvider.notifier)
+        .selectLocale(Locale(language.name));
   }
 }
 

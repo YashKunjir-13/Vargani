@@ -81,7 +81,10 @@ final auditSummaryProvider = Provider<AuditSummaryData>((ref) {
   final state = ref.watch(auditLogsNotifierProvider);
   if (state.isLoading || state.events.isEmpty) {
     return const AuditSummaryData(
-        todayEventsCount: 0, criticalCount: 0, financialCount: 0, securityCount: 0);
+        todayEventsCount: 0,
+        criticalCount: 0,
+        financialCount: 0,
+        securityCount: 0);
   }
 
   final now = DateTime.now();
@@ -131,7 +134,8 @@ final auditEventListProvider = Provider<List<AuditEventData>>((ref) {
       groupLabel = 'Earlier this month';
     }
 
-    String timeLabel = '${evt.timestamp.hour}:${evt.timestamp.minute.toString().padLeft(2, '0')}';
+    String timeLabel =
+        '${evt.timestamp.hour}:${evt.timestamp.minute.toString().padLeft(2, '0')}';
 
     return AuditEventData(
       id: evt.id,

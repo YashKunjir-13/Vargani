@@ -4,7 +4,8 @@ import 'package:go_router/go_router.dart';
 
 import '../core/session/session_controller.dart';
 import '../shared/screens/access_restricted_screen.dart';
-import '../features/analytics/presentation/pages/analytical_dashboard_screen.dart' as pauti_analytics;
+import '../features/analytics/presentation/pages/analytical_dashboard_screen.dart'
+    as pauti_analytics;
 import '../features/audit_logs/advanced_filters_sheet.dart';
 import '../features/audit_logs/audit_detail_screen.dart';
 import '../features/audit_logs/audit_overview_screen.dart';
@@ -44,7 +45,7 @@ import '../features/notifications/models/notification_models.dart';
 import '../features/notifications/notification_center_screen.dart';
 import '../features/notifications/notification_detail_screen.dart';
 import '../features/notifications/notification_settings_screen.dart';
-import '../features/payments/screens/create_payment_screen.dart';
+
 import '../features/payments/screens/payment_detail_screen.dart';
 import '../features/payments/screens/payments_list_screen.dart';
 import '../features/payments/screens/select_event_screen.dart';
@@ -425,7 +426,8 @@ final appRouterProvider = Provider.family<GoRouter, String>((ref, environment) {
           onCreateRevision: () => context.pushNamed('budget-revision'),
           onOpenCategory: (category) =>
               context.pushNamed('budget-details', extra: category.id),
-          onOpenRevision: (revision) => context.pushNamed('budget-approval', extra: revision.id),
+          onOpenRevision: (revision) =>
+              context.pushNamed('budget-approval', extra: revision.id),
         ),
         routes: [
           GoRoute(
@@ -495,8 +497,8 @@ final appRouterProvider = Provider.family<GoRouter, String>((ref, environment) {
           return null;
         },
         builder: (context, state) => AuditOverviewScreen(
-          onOpenEvent: (event) =>
-              context.pushNamed('audit-detail', pathParameters: {'id': event.id}),
+          onOpenEvent: (event) => context
+              .pushNamed('audit-detail', pathParameters: {'id': event.id}),
           onOpenSearch: () => context.pushNamed('audit-search'),
           onOpenFilters: () => AuditFiltersSheet.show(context),
         ),
@@ -505,8 +507,8 @@ final appRouterProvider = Provider.family<GoRouter, String>((ref, environment) {
             path: 'timeline',
             name: 'audit-timeline',
             builder: (context, state) => AuditTimelineScreen(
-              onOpenEvent: (event) =>
-                  context.pushNamed('audit-detail', pathParameters: {'id': event.id}),
+              onOpenEvent: (event) => context
+                  .pushNamed('audit-detail', pathParameters: {'id': event.id}),
             ),
           ),
           GoRoute(
@@ -704,7 +706,8 @@ final appRouterProvider = Provider.family<GoRouter, String>((ref, environment) {
           }
           return null;
         },
-        builder: (context, state) => const pauti_analytics.AnalyticalDashboardScreen(),
+        builder: (context, state) =>
+            const pauti_analytics.AnalyticalDashboardScreen(),
       ),
       GoRoute(
         path: '/reports-hub',
@@ -755,47 +758,13 @@ const _mockSearchResults = <AuditSearchResult>[
 ];
 
 const _mockNotificationSummary = NotificationSummaryData(
-  unreadCount: 9,
-  criticalCount: 2,
-  approvalsCount: 3,
-  paymentsDueCount: 4,
+  unreadCount: 0,
+  criticalCount: 0,
+  approvalsCount: 0,
+  paymentsDueCount: 0,
 );
 
-final _mockNotificationItems = <NotificationItemData>[
-  NotificationItemData(
-    id: 'ntf-1',
-    icon: Icons.payments_outlined,
-    iconBackground: Colors.orange.shade50,
-    iconColor: Colors.orange.shade800,
-    title: 'Vendor payment due tomorrow',
-    description: 'Sai Decorators · ₹85,000',
-    isUnread: true,
-    primaryActionLabel: 'Pay Now',
-    secondaryActionLabel: 'Snooze',
-    groupLabel: 'Today',
-  ),
-  NotificationItemData(
-    id: 'ntf-2',
-    icon: Icons.volunteer_activism_outlined,
-    iconBackground: Colors.green.shade50,
-    iconColor: Colors.green.shade800,
-    title: 'Donation received',
-    description: '₹5,000 · Sharma family',
-    isUnread: true,
-    primaryActionLabel: 'View Receipt',
-    groupLabel: 'Today',
-  ),
-  NotificationItemData(
-    id: 'ntf-3',
-    icon: Icons.check_circle_outline,
-    iconBackground: Colors.grey.shade200,
-    iconColor: Colors.grey.shade700,
-    title: 'Expense approved',
-    description: 'Fireworks vendor · ₹12,400',
-    isUnread: false,
-    groupLabel: 'Today',
-  ),
-];
+final _mockNotificationItems = <NotificationItemData>[];
 
 const _mockNotificationDetail = NotificationDetailData(
   id: 'NTF-40213',
