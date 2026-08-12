@@ -121,10 +121,15 @@ class AuthRepository {
     }
   }
 
-  Future<void> _persist(AuthSession session) => _tokenStorage.saveTokens(
-        accessToken: session.accessToken,
-        refreshToken: session.refreshToken,
-      );
+  Future<void> _persist(AuthSession session) async {
+    await _tokenStorage.saveTokens(
+      accessToken: session.accessToken,
+      refreshToken: session.refreshToken,
+    );
+    if (session.user.organization?.id != null) {
+      await _tokenStorage.saveOrganizationId(session.user.organization!.id);
+    }
+  }
 
   Future<void> createMpin({required String mpin}) {
     return _remote.createMpin(mpin: mpin);

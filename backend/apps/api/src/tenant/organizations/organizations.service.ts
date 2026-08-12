@@ -17,6 +17,72 @@ export class OrganizationsService {
     private readonly panEncryptionService: PanEncryptionService,
   ) {}
 
+  async searchPublicOrganizations(params: { q?: string; city?: string; limit?: number }) {
+    const { q, city, limit = 50 } = params;
+    const where: any = {
+      status: OrganizationStatus.ACTIVE,
+    };
+
+    if (q) {
+      const searchTerm = q.trim();
+      where.OR = [
+        { name: { contains: searchTerm, mode: "insensitive" } },
+        { city: { contains: searchTerm, mode: "insensitive" } },
+        { code: { contains: searchTerm, mode: "insensitive" } },
+      ];
+    } else if (city) {
+      where.city = { contains: city.trim(), mode: "insensitive" };
+    }
+
+    return this.prisma.organization.findMany({
+      where,
+      select: {
+        id: true,
+        code: true,
+        name: true,
+        city: true,
+        state: true,
+        logoDocumentId: true,
+        primaryMobile: true,
+        primaryEmail: true,
+      },
+      orderBy: { name: "asc" },
+      take: limit,
+    });
+  }
+
+  async getPublicOrganizationDetails(organizationId: string) {
+    const org = await this.prisma.organization.findUnique({
+      where: { id: organizationId, status: OrganizationStatus.ACTIVE },
+      select: {
+        id: true,
+        code: true,
+        name: true,
+        addressLine1: true,
+        addressLine2: true,
+        city: true,
+        state: true,
+        postalCode: true,
+        registrationNumber: true,
+        presidentName: true,
+        primaryMobile: true,
+        primaryEmail: true,
+        bankAccountName: true,
+        bankName: true,
+        accountNumber: true,
+        ifscCode: true,
+        branchName: true,
+        vpa: true,
+        bankAccountConfigured: true,
+        upiConfigured: true,
+      },
+    });
+    if (!org) {
+      throw new NotFoundException("Organization not found or inactive");
+    }
+    return org;
+  }
+
   async getCurrent(organizationId: string) {
     const org = await this.prisma.organization.findUnique({
       where: { id: organizationId },

@@ -14,6 +14,16 @@ export class HealthController {
     private prisma: PrismaService,
   ) {}
 
+  @Get()
+  @HealthCheck()
+  check() {
+    return {
+      status: "ok",
+      timestamp: new Date().toISOString(),
+      service: "api-gateway",
+    };
+  }
+
   @Get("live")
   @HealthCheck()
   checkLive() {

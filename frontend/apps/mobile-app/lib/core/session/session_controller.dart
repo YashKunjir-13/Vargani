@@ -42,6 +42,22 @@ class SessionController extends Notifier<SessionState> {
     state = SessionState(status: SessionStatus.authenticated, user: user, activeRole: activeRole);
   }
 
+  void updateUserProfile({required String displayName, required String primaryMobile, String? primaryEmail}) {
+    if (state.user != null) {
+      final updatedUser = state.user!.copyWith(
+        displayName: displayName,
+        primaryMobile: primaryMobile,
+        primaryEmail: primaryEmail,
+        donorProfile: state.user!.donorProfile?.copyWith(fullName: displayName),
+      );
+      state = SessionState(
+        status: state.status,
+        user: updatedUser,
+        activeRole: state.activeRole,
+      );
+    }
+  }
+
   /// Always ends the local session, even if revoking it on the server
   /// fails (e.g. offline) -- the user's intent to sign out of this device
   /// takes priority over that network call succeeding.

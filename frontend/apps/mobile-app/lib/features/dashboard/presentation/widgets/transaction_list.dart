@@ -18,7 +18,20 @@ class TransactionListItem extends StatelessWidget {
   }
 
   String _formatDate(DateTime dt) {
-    const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+    const months = [
+      'Jan',
+      'Feb',
+      'Mar',
+      'Apr',
+      'May',
+      'Jun',
+      'Jul',
+      'Aug',
+      'Sep',
+      'Oct',
+      'Nov',
+      'Dec'
+    ];
     final hour = dt.hour > 12 ? dt.hour - 12 : (dt.hour == 0 ? 12 : dt.hour);
     final period = dt.hour >= 12 ? 'PM' : 'AM';
     final minute = dt.minute.toString().padLeft(2, '0');
@@ -32,7 +45,6 @@ class TransactionListItem extends StatelessWidget {
     return Container(
       margin: const EdgeInsets.only(bottom: 10),
       decoration: BoxDecoration(
-        color: colors.card,
         borderRadius: BorderRadius.circular(16),
         border: Border.all(color: colors.border),
         boxShadow: [
@@ -44,7 +56,7 @@ class TransactionListItem extends StatelessWidget {
         ],
       ),
       child: Material(
-        color: Colors.transparent,
+        color: colors.card,
         borderRadius: BorderRadius.circular(16),
         child: InkWell(
           onTap: onTap,
@@ -91,20 +103,24 @@ class TransactionListItem extends StatelessWidget {
                       const SizedBox(height: 4),
                       Row(
                         children: [
-                          Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-                            decoration: BoxDecoration(
-                              color: colors.brandOrange.withValues(alpha: 0.12),
-                              borderRadius: BorderRadius.circular(6),
-                            ),
-                            child: Text(
-                              item.receiptNumber,
-                              style: TextStyle(
-                                color: colors.brandOrange,
-                                fontSize: 11,
-                                fontWeight: FontWeight.w800,
+                          Flexible(
+                            child: Container(
+                              padding: const EdgeInsets.symmetric(
+                                  horizontal: 6, vertical: 2),
+                              decoration: BoxDecoration(
+                                color:
+                                    colors.brandOrange.withValues(alpha: 0.12),
+                                borderRadius: BorderRadius.circular(6),
                               ),
-                              overflow: TextOverflow.ellipsis,
+                              child: Text(
+                                item.receiptNumber,
+                                style: TextStyle(
+                                  color: colors.brandOrange,
+                                  fontSize: 11,
+                                  fontWeight: FontWeight.w800,
+                                ),
+                                overflow: TextOverflow.ellipsis,
+                              ),
                             ),
                           ),
                           const SizedBox(width: 8),
@@ -149,11 +165,13 @@ class TransactionListItem extends StatelessWidget {
                     ),
                     const SizedBox(height: 6),
                     Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 8, vertical: 3),
                       decoration: BoxDecoration(
                         color: Colors.green.withValues(alpha: 0.15),
                         borderRadius: BorderRadius.circular(8),
-                        border: Border.all(color: Colors.green.withValues(alpha: 0.3)),
+                        border: Border.all(
+                            color: Colors.green.withValues(alpha: 0.3)),
                       ),
                       child: Text(
                         item.status.toUpperCase(),

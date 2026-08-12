@@ -221,11 +221,13 @@ class DonorDetailScreen extends ConsumerWidget {
                         return Container(
                           margin: const EdgeInsets.only(bottom: AppSpacing.space8),
                           decoration: BoxDecoration(
-                            color: colors.card,
                             borderRadius: BorderRadius.circular(AppRadius.medium),
                             border: Border.all(color: colors.border),
                           ),
-                          child: ListTile(
+                          child: Material(
+                            color: colors.card,
+                            borderRadius: BorderRadius.circular(AppRadius.medium),
+                            child: ListTile(
                             leading: CircleAvatar(
                               backgroundColor: colors.brandOrange.withValues(alpha: 0.15),
                               child: Icon(Icons.receipt_long, color: colors.brandOrange, size: 20),
@@ -247,6 +249,7 @@ class DonorDetailScreen extends ConsumerWidget {
                               ],
                             ),
                             onTap: () => context.push('/receipts/${r.id}'),
+                          ),
                           ),
                         );
                       }).toList(),

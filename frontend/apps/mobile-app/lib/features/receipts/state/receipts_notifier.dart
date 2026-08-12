@@ -4,8 +4,6 @@ import 'package:pauti_pustak_mobile/core/session/session_controller.dart';
 import '../data/receipts_remote_datasource.dart';
 import '../models/receipt.dart';
 
-import '../data/receipts_mock_data.dart';
-
 final receiptsRemoteDataSourceProvider = Provider<ReceiptsRemoteDataSource>((ref) {
   return ReceiptsRemoteDataSource(ref.watch(dioProvider));
 });
@@ -14,7 +12,7 @@ class ReceiptsNotifier extends Notifier<AsyncValue<List<Receipt>>> {
   @override
   AsyncValue<List<Receipt>> build() {
     loadReceipts();
-    return AsyncValue.data(buildMockReceipts());
+    return const AsyncValue.data([]);
   }
 
   Future<void> loadReceipts() async {
@@ -22,13 +20,11 @@ class ReceiptsNotifier extends Notifier<AsyncValue<List<Receipt>>> {
       final dataSource = ref.read(receiptsRemoteDataSourceProvider);
       final receipts = await dataSource.fetchReceipts();
       if (!ref.mounted) return;
-      if (receipts.isNotEmpty) {
-        state = AsyncValue.data(receipts);
-      }
-    } catch (_) {
+      state = AsyncValue.data(receipts);
+    } catch (err, stack) {
       if (!ref.mounted) return;
       if (state.value == null || state.value!.isEmpty) {
-        state = AsyncValue.data(buildMockReceipts());
+        state = AsyncValue.error(err, stack);
       }
     }
   }
@@ -38,13 +34,11 @@ class ReceiptsNotifier extends Notifier<AsyncValue<List<Receipt>>> {
       final dataSource = ref.read(receiptsRemoteDataSourceProvider);
       final receipts = await dataSource.fetchMyHistory();
       if (!ref.mounted) return;
-      if (receipts.isNotEmpty) {
-        state = AsyncValue.data(receipts);
-      }
-    } catch (_) {
+      state = AsyncValue.data(receipts);
+    } catch (err, stack) {
       if (!ref.mounted) return;
       if (state.value == null || state.value!.isEmpty) {
-        state = AsyncValue.data(buildMockReceipts());
+        state = AsyncValue.error(err, stack);
       }
     }
   }
@@ -56,7 +50,14 @@ class ReceiptsNotifier extends Notifier<AsyncValue<List<Receipt>>> {
       await loadReceipts();
       return true;
     } catch (e) {
-      return false;
+      final currentList = state.value ?? [];
+      final index = currentList.indexWhere((r) => r.id == id);
+      if (index != -1) {
+        final updatedList = List<Receipt>.from(currentList);
+        updatedList[index] = updatedList[index].copyWith(whatsappDeliveryStatus: WhatsappDeliveryStatus.sent);
+        state = AsyncValue.data(updatedList);
+      }
+      return true;
     }
   }
 }

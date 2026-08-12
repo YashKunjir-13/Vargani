@@ -460,6 +460,7 @@ class _MandalDashboardScreenState extends ConsumerState<MandalDashboardScreen> {
               onTap: () {
                 DashboardActionSheets.showReceiptDetailModal(
                   context,
+                  tx.id,
                   tx.receiptNumber,
                   tx.donorName,
                   _formatAmount(tx.amountPaise),

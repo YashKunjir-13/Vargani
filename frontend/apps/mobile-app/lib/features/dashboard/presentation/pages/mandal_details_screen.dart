@@ -1,0 +1,1001 @@
+import 'dart:io';
+import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:path_provider/path_provider.dart';
+import 'package:share_plus/share_plus.dart';
+import 'package:dio/dio.dart';
+import 'package:pauti_pustak_mobile/core/session/session_controller.dart';
+import 'package:pauti_pustak_mobile/features/authentication/presentation/widgets/auth_design_tokens.dart';
+import 'package:pauti_pustak_mobile/features/dashboard/models/organization_details_model.dart';
+import 'package:pauti_pustak_mobile/features/dashboard/models/organization_search_model.dart';
+import 'package:pauti_pustak_mobile/features/dashboard/presentation/providers/dashboard_providers.dart';
+import 'package:pauti_pustak_mobile/features/dashboard/presentation/providers/mandal_details_providers.dart';
+import 'package:pauti_pustak_mobile/features/receipts/state/receipts_notifier.dart';
+import 'package:pauti_pustak_mobile/features/contribution_receipts/state/contribution_receipts_notifier.dart';
+
+class MandalDetailsScreen extends ConsumerStatefulWidget {
+  final PublicOrganization organization;
+
+  const MandalDetailsScreen({super.key, required this.organization});
+
+  @override
+  ConsumerState<MandalDetailsScreen> createState() =>
+      _MandalDetailsScreenState();
+}
+
+class _MandalDetailsScreenState extends ConsumerState<MandalDetailsScreen> {
+  final _formKey = GlobalKey<FormState>();
+
+  late TextEditingController _donorNameController;
+  late TextEditingController _donorMobileController;
+  late TextEditingController _donorEmailController;
+  final TextEditingController _customAmountController = TextEditingController();
+  final TextEditingController _notesController = TextEditingController();
+
+  int _selectedAmount = 1000;
+  String _donationPurpose = 'Ganesh Festival Donation';
+  bool _is80gRequired = false;
+  String _paymentMethod = 'ONLINE'; // 'ONLINE' or 'BANK_TRANSFER'
+
+  bool _isSubmitting = false;
+  Map<String, dynamic>? _donationResult;
+
+  final List<int> _quickAmounts = [500, 1000, 2500, 5000, 10000];
+  final List<String> _purposes = [
+    'Ganesh Festival Donation',
+    'Vargani Contribution',
+    'General Donation',
+    'Annadana / Mahaprasad',
+    'Decoration & Idol',
+  ];
+
+  @override
+  void initState() {
+    super.initState();
+    final user = ref.read(sessionControllerProvider).user;
+    _donorNameController = TextEditingController(
+      text: user?.donorProfile?.fullName ?? user?.displayName ?? '',
+    );
+    _donorMobileController = TextEditingController(
+      text: user?.primaryMobile ?? '',
+    );
+    _donorEmailController = TextEditingController(
+      text: user?.primaryEmail ?? '',
+    );
+    _customAmountController.text = '1000';
+  }
+
+  @override
+  void dispose() {
+    _donorNameController.dispose();
+    _donorMobileController.dispose();
+    _donorEmailController.dispose();
+    _customAmountController.dispose();
+    _notesController.dispose();
+    super.dispose();
+  }
+
+  void _onAmountChipSelected(int amount) {
+    setState(() {
+      _selectedAmount = amount;
+      _customAmountController.text = amount.toString();
+    });
+  }
+
+  void _copyToClipboard(String text, String label) {
+    Clipboard.setData(ClipboardData(text: text));
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text('$label copied to clipboard'),
+        duration: const Duration(seconds: 2),
+        behavior: SnackBarBehavior.floating,
+      ),
+    );
+  }
+
+  int _getFinalAmount() {
+    final customVal = int.tryParse(_customAmountController.text.trim());
+    return (customVal != null && customVal > 0) ? customVal : _selectedAmount;
+  }
+
+  Future<void> _processDonation(PublicOrganizationDetails details) async {
+    if (_formKey.currentState != null && !_formKey.currentState!.validate()) {
+      return;
+    }
+
+    final amount = _getFinalAmount();
+    if (amount <= 0) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Please enter a valid donation amount')),
+      );
+      return;
+    }
+
+    setState(() {
+      _isSubmitting = true;
+    });
+
+    final donorName = _donorNameController.text.trim();
+    final donorMobile = _donorMobileController.text.trim();
+    final donorEmail = _donorEmailController.text.trim().isEmpty
+        ? null
+        : _donorEmailController.text.trim();
+
+    try {
+      final dio = ref.read(dioProvider);
+
+      if (_paymentMethod == 'ONLINE') {
+        final response = await dio.post('/donor/payments/checkout', data: {
+          'organizationId': details.id,
+          'amountPaise': (amount * 100).toString(),
+          'mode': 'UPI',
+          'paymentReference':
+              '$_donationPurpose | ${_notesController.text.trim()}',
+        });
+
+        final resData = response.data?['data'] ?? response.data;
+        final recNum = resData?['receiptNumber'] ??
+            resData?['receiptId'] ??
+            'RCPT-${DateTime.now().millisecondsSinceEpoch}';
+        final recId = resData?['receiptId'] ??
+            resData?['collectionRecordId'] ??
+            resData?['id'] ??
+            '';
+
+        setState(() {
+          _donationResult = {
+            'status': 'SUCCESS',
+            'transactionId': resData?['collectionRecordId'] ??
+                resData?['id'] ??
+                'TXN-${DateTime.now().millisecondsSinceEpoch}',
+            'amount': amount,
+            'mandalName': details.name,
+            'donorName': donorName,
+            'donorMobile': donorMobile,
+            'donorEmail': donorEmail,
+            'receiptNumber': recNum,
+            'receiptId': recId,
+          };
+        });
+
+        // Immediately update donor dashboard from PostgreSQL backend
+        ref.invalidate(donorDashboardProvider);
+        ref.invalidate(receiptsProvider);
+        ref.invalidate(contributionReceiptsProvider);
+      } else {
+        await dio.post('/donor/payments/checkout', data: {
+          'organizationId': details.id,
+          'amountPaise': (amount * 100).toString(),
+          'mode': 'BANK_TRANSFER',
+          'paymentReference':
+              'Bank Transfer Pending Verification | $_donationPurpose',
+        });
+
+        setState(() {
+          _donationResult = {
+            'status': 'PENDING_VERIFICATION',
+            'transactionId':
+                'TRANSFER-${DateTime.now().millisecondsSinceEpoch}',
+            'amount': amount,
+            'mandalName': details.name,
+            'donorName': donorName,
+            'donorMobile': donorMobile,
+            'donorEmail': donorEmail,
+          };
+        });
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Donation failed: ${e.toString()}'),
+            backgroundColor: Colors.red,
+            behavior: SnackBarBehavior.floating,
+          ),
+        );
+      }
+    } finally {
+      if (mounted) {
+        setState(() {
+          _isSubmitting = false;
+        });
+      }
+    }
+  }
+
+  Future<void> _downloadReceiptPdf(
+      String receiptId, String receiptNumber) async {
+    try {
+      final dio = ref.read(dioProvider);
+
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Downloading receipt PDF from backend server...'),
+            duration: Duration(seconds: 2),
+          ),
+        );
+      }
+
+      final url = '/donor/receipts/$receiptId/pdf';
+      print("==================================================");
+      print("1. Call GET /api/v1/donor/receipts/:id/pdf");
+      print("2. EXACT URL: ${dio.options.baseUrl}$url");
+      print("   RECEIPT ID: $receiptId");
+      print("==================================================");
+
+      final response = await dio.get(
+        url,
+        options: Options(
+          responseType: ResponseType.bytes,
+          validateStatus: (status) => status != null && status <= 500,
+        ),
+      );
+
+      final contentType = response.headers.value('content-type') ?? 'unknown';
+      final List<int> bytes = response.data is List<int> ? response.data : [];
+
+      print("3. HTTP STATUS CODE: ${response.statusCode}");
+      print("4. CONTENT-TYPE: $contentType");
+      print("5. RESPONSE BYTE LENGTH: ${bytes.length}");
+
+      if (response.statusCode != 200) {
+        String errorMsg = 'Server returned status ${response.statusCode}';
+        if (contentType.contains('application/json')) {
+          try {
+            // Basic ASCII string conversion without dart:convert
+            final decoded = String.fromCharCodes(bytes);
+            errorMsg = 'Backend Error: $decoded';
+          } catch (_) {}
+        }
+        print("12. BACKEND ERROR: $errorMsg");
+        throw Exception(errorMsg);
+      }
+
+      if (contentType != 'application/pdf') {
+        throw Exception('Invalid content type: $contentType');
+      }
+
+      if (bytes.isEmpty) {
+        throw Exception('Received empty file data');
+      }
+
+      final headerStr = bytes.length >= 4
+          ? String.fromCharCodes(bytes.sublist(0, 4))
+          : 'invalid';
+      print("6. RESPONSE BYTES BEGIN WITH: $headerStr");
+      if (headerStr != '%PDF') {
+        throw Exception(
+            'File does not appear to be a valid PDF. Header: $headerStr');
+      }
+
+      final directory = Directory('/storage/emulated/0/Download');
+      if (!directory.existsSync()) {
+        directory.createSync(recursive: true);
+      }
+
+      final file =
+          File('${directory.path}/Pauti_Pustak_Receipt_$receiptNumber.pdf');
+      await file.writeAsBytes(bytes);
+
+      final exists = file.existsSync();
+      final length = exists ? file.lengthSync() : 0;
+
+      print("7. SAVE DIR: ${directory.path}");
+      print("8. FILENAME: Pauti_Pustak_Receipt_$receiptNumber.pdf");
+      print("9. VERIFY: exists=$exists, length=$length > 0");
+      print("10. EXACT FINAL PATH: ${file.path}");
+      print("10. EXACT FILE SIZE: $length");
+
+      if (!exists || length == 0) {
+        throw Exception('Verification failed: File was not written correctly.');
+      }
+
+      print("11. VERIFICATION CHECKS PASSED. SHOWING SUCCESS.");
+
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Receipt downloaded successfully to ${file.path}'),
+            backgroundColor: Colors.green,
+            behavior: SnackBarBehavior.floating,
+            action: SnackBarAction(
+              label: 'Share',
+              textColor: Colors.white,
+              onPressed: () {
+                Share.shareXFiles([XFile(file.path)],
+                    text: 'Receipt for $receiptNumber');
+              },
+            ),
+          ),
+        );
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Failed to download PDF: $e'),
+            backgroundColor: Colors.red,
+            behavior: SnackBarBehavior.floating,
+          ),
+        );
+      }
+    }
+  }
+
+  Future<void> _shareReceipt(String receiptId, String receiptNumber) async {
+    final text =
+        'Pauti Pustak Official Receipt: $receiptNumber\nMandal: ${widget.organization.name}\nAmount: ₹${_donationResult!['amount']}\nStatus: Confirmed';
+
+    final directory = Platform.isAndroid
+        ? Directory('/storage/emulated/0/Download')
+        : await getApplicationDocumentsDirectory();
+    final file =
+        File('${directory.path}/Pauti_Pustak_Receipt_$receiptNumber.pdf');
+
+    if (file.existsSync()) {
+      await Share.shareXFiles([XFile(file.path)], text: text);
+    } else {
+      await Share.share(text);
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final colors = context.authColors;
+    final detailsAsync =
+        ref.watch(mandalDetailsProvider(widget.organization.id));
+
+    return Scaffold(
+      backgroundColor: colors.background,
+      appBar: AppBar(
+        backgroundColor: colors.card,
+        elevation: 0,
+        iconTheme: IconThemeData(color: colors.text),
+        title: Text(
+          widget.organization.name,
+          style: TextStyle(
+              color: colors.text, fontSize: 18, fontWeight: FontWeight.bold),
+        ),
+      ),
+      body: detailsAsync.when(
+        loading: () =>
+            Center(child: CircularProgressIndicator(color: colors.brandOrange)),
+        error: (err, stack) => _buildErrorState(colors),
+        data: (details) => _donationResult != null
+            ? _buildResultScreen(colors, details)
+            : _buildDonationForm(colors, details),
+      ),
+    );
+  }
+
+  Widget _buildErrorState(AuthColors colors) {
+    return Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Icon(Icons.error_outline, size: 48, color: colors.secondaryText),
+          const SizedBox(height: 16),
+          Text(
+            'Unable to load mandal details',
+            style: TextStyle(
+                color: colors.text, fontSize: 16, fontWeight: FontWeight.bold),
+          ),
+          const SizedBox(height: 16),
+          ElevatedButton(
+            style:
+                ElevatedButton.styleFrom(backgroundColor: colors.brandOrange),
+            onPressed: () =>
+                ref.refresh(mandalDetailsProvider(widget.organization.id)),
+            child: const Text('Retry', style: TextStyle(color: Colors.white)),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildDonationForm(
+      AuthColors colors, PublicOrganizationDetails details) {
+    return SingleChildScrollView(
+      padding: const EdgeInsets.all(16.0),
+      child: Form(
+        key: _formKey,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            _buildMandalProfileHeader(colors, details),
+            const SizedBox(height: 16),
+
+            _buildBankDetailsCard(colors, details),
+            const SizedBox(height: 24),
+
+            // Editable Donor Information
+            Text('Donor Information',
+                style: TextStyle(
+                    color: colors.text,
+                    fontSize: 16,
+                    fontWeight: FontWeight.bold)),
+            const SizedBox(height: 12),
+            Container(
+              padding: const EdgeInsets.all(16),
+              decoration: BoxDecoration(
+                color: colors.card,
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: Column(
+                children: [
+                  TextFormField(
+                    controller: _donorNameController,
+                    style: TextStyle(color: colors.text),
+                    decoration: InputDecoration(
+                      labelText: 'Full Name *',
+                      labelStyle: TextStyle(color: colors.secondaryText),
+                      prefixIcon:
+                          Icon(Icons.person_outline, color: colors.brandOrange),
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(8),
+                        borderSide: BorderSide(color: colors.border),
+                      ),
+                      enabledBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(8),
+                        borderSide: BorderSide(color: colors.border),
+                      ),
+                      focusedBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(8),
+                        borderSide: BorderSide(color: colors.brandOrange, width: 2),
+                      ),
+                      contentPadding: const EdgeInsets.symmetric(vertical: 16, horizontal: 16),
+                    ),
+                    validator: (val) {
+                      if (val == null || val.trim().isEmpty) {
+                        return 'Full Name is required';
+                      }
+                      return null;
+                    },
+                  ),
+                  const SizedBox(height: 16),
+                  TextFormField(
+                    controller: _donorMobileController,
+                    keyboardType: TextInputType.phone,
+                    style: TextStyle(color: colors.text),
+                    decoration: InputDecoration(
+                      labelText: 'Mobile Number *',
+                      labelStyle: TextStyle(color: colors.secondaryText),
+                      prefixIcon:
+                          Icon(Icons.phone_outlined, color: colors.brandOrange),
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(8),
+                        borderSide: BorderSide(color: colors.border),
+                      ),
+                      enabledBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(8),
+                        borderSide: BorderSide(color: colors.border),
+                      ),
+                      focusedBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(8),
+                        borderSide: BorderSide(color: colors.brandOrange, width: 2),
+                      ),
+                      contentPadding: const EdgeInsets.symmetric(vertical: 16, horizontal: 16),
+                    ),
+                    validator: (val) {
+                      if (val == null || val.trim().isEmpty) {
+                        return 'Mobile Number is required';
+                      }
+                      final trimmed = val.trim();
+                      if (!RegExp(r'^[6-9]\d{9}$').hasMatch(trimmed)) {
+                        return 'Enter a valid 10-digit mobile number';
+                      }
+                      return null;
+                    },
+                  ),
+                  const SizedBox(height: 16),
+                  TextFormField(
+                    controller: _donorEmailController,
+                    keyboardType: TextInputType.emailAddress,
+                    style: TextStyle(color: colors.text),
+                    decoration: InputDecoration(
+                      labelText: 'Email Address (Optional)',
+                      labelStyle: TextStyle(color: colors.secondaryText),
+                      prefixIcon:
+                          Icon(Icons.email_outlined, color: colors.brandOrange),
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(8),
+                        borderSide: BorderSide(color: colors.border),
+                      ),
+                      enabledBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(8),
+                        borderSide: BorderSide(color: colors.border),
+                      ),
+                      focusedBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(8),
+                        borderSide: BorderSide(color: colors.brandOrange, width: 2),
+                      ),
+                      contentPadding: const EdgeInsets.symmetric(vertical: 16, horizontal: 16),
+                    ),
+                    validator: (val) {
+                      if (val != null && val.trim().isNotEmpty) {
+                        final trimmed = val.trim();
+                        if (!RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$')
+                            .hasMatch(trimmed)) {
+                          return 'Enter a valid email address';
+                        }
+                      }
+                      return null;
+                    },
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(height: 24),
+
+            // Select Donation Amount
+            Text('Select Donation Amount',
+                style: TextStyle(
+                    color: colors.text,
+                    fontSize: 16,
+                    fontWeight: FontWeight.bold)),
+            const SizedBox(height: 12),
+            Wrap(
+              spacing: 8,
+              runSpacing: 8,
+              children: _quickAmounts.map((amt) {
+                final isSelected = _selectedAmount == amt;
+                return ChoiceChip(
+                  label: Text('₹$amt'),
+                  selected: isSelected,
+                  selectedColor: colors.brandOrange,
+                  backgroundColor: colors.surfaceMuted,
+                  labelStyle: TextStyle(
+                    color: isSelected ? Colors.white : colors.text,
+                    fontWeight: FontWeight.bold,
+                  ),
+                  onSelected: (_) => _onAmountChipSelected(amt),
+                );
+              }).toList(),
+            ),
+            const SizedBox(height: 12),
+            TextField(
+              controller: _customAmountController,
+              keyboardType: TextInputType.number,
+              style: TextStyle(color: colors.text),
+              decoration: InputDecoration(
+                prefixText: '₹ ',
+                prefixStyle: TextStyle(
+                    color: colors.brandOrange,
+                    fontWeight: FontWeight.bold,
+                    fontSize: 16),
+                labelText: 'Custom Amount',
+                labelStyle: TextStyle(color: colors.secondaryText),
+                filled: true,
+                fillColor: colors.surfaceMuted,
+                border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12),
+                    borderSide: BorderSide.none),
+              ),
+            ),
+            const SizedBox(height: 24),
+
+            // Donation Details
+            Text('Donation Details',
+                style: TextStyle(
+                    color: colors.text,
+                    fontSize: 16,
+                    fontWeight: FontWeight.bold)),
+            const SizedBox(height: 12),
+            Container(
+              padding: const EdgeInsets.all(16),
+              decoration: BoxDecoration(
+                color: colors.card,
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  DropdownButtonFormField<String>(
+                    initialValue: _donationPurpose,
+                    dropdownColor: colors.card,
+                    style: TextStyle(color: colors.text),
+                    decoration: InputDecoration(
+                      labelText: 'Donation Purpose',
+                      labelStyle: TextStyle(color: colors.secondaryText),
+                      border: InputBorder.none, contentPadding: const EdgeInsets.symmetric(vertical: 16, horizontal: 8),
+                    ),
+                    items: _purposes
+                        .map((p) => DropdownMenuItem(value: p, child: Text(p)))
+                        .toList(),
+                    onChanged: (val) {
+                      if (val != null) setState(() => _donationPurpose = val);
+                    },
+                  ),
+                  const Divider(),
+                  SwitchListTile(
+                    contentPadding: EdgeInsets.zero,
+                    title: Text('Require 80G Tax Exemption Certificate',
+                        style: TextStyle(
+                            color: colors.text,
+                            fontSize: 14,
+                            fontWeight: FontWeight.w600)),
+                    subtitle: Text(
+                        'Generates official 80G receipt for tax deduction.',
+                        style: TextStyle(
+                            color: colors.secondaryText, fontSize: 12)),
+                    value: _is80gRequired,
+                    onChanged: (val) => setState(() => _is80gRequired = val),
+                  ),
+                  const Divider(),
+                  TextField(
+                    controller: _notesController,
+                    style: TextStyle(color: colors.text),
+                    decoration: InputDecoration(
+                      labelText: 'Special Notes / Dedicated To',
+                      hintText: 'e.g. In memory of late Shri S. Deshmukh',
+                      hintStyle: TextStyle(
+                          color: colors.secondaryText.withValues(alpha: 0.6),
+                          fontSize: 13),
+                      labelStyle: TextStyle(color: colors.secondaryText),
+                      border: InputBorder.none, contentPadding: const EdgeInsets.symmetric(vertical: 16, horizontal: 8),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(height: 24),
+
+            // Payment Method Selection
+            Text('Payment Method',
+                style: TextStyle(
+                    color: colors.text,
+                    fontSize: 16,
+                    fontWeight: FontWeight.bold)),
+            const SizedBox(height: 12),
+            RadioListTile<String>(
+              value: 'ONLINE',
+              groupValue: _paymentMethod,
+              title: Text('Online Payment (UPI / Card / NetBanking)',
+                  style: TextStyle(
+                      color: colors.text, fontWeight: FontWeight.w600)),
+              subtitle: Text('Instant confirmation & official receipt',
+                  style: TextStyle(color: colors.secondaryText, fontSize: 12)),
+              onChanged: (val) => setState(() => _paymentMethod = val!),
+            ),
+            RadioListTile<String>(
+              value: 'BANK_TRANSFER',
+              groupValue: _paymentMethod,
+              title: Text('Bank Transfer (IMPS / NEFT / RTGS)',
+                  style: TextStyle(
+                      color: colors.text, fontWeight: FontWeight.w600)),
+              subtitle: Text('Requires mandal treasurer verification',
+                  style: TextStyle(color: colors.secondaryText, fontSize: 12)),
+              onChanged: (val) => setState(() => _paymentMethod = val!),
+            ),
+            const SizedBox(height: 24),
+
+            SizedBox(
+              width: double.infinity,
+              height: 52,
+              child: ElevatedButton(
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: colors.brandOrange,
+                  shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12)),
+                ),
+                onPressed:
+                    _isSubmitting ? null : () => _processDonation(details),
+                child: _isSubmitting
+                    ? const CircularProgressIndicator(color: Colors.white)
+                    : Text(
+                        _paymentMethod == 'ONLINE'
+                            ? 'Confirm & Pay ₹${_getFinalAmount()}'
+                            : 'I Have Made The Bank Transfer',
+                        style: const TextStyle(
+                            color: Colors.white,
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold),
+                      ),
+              ),
+            ),
+            const SizedBox(height: 32),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildMandalProfileHeader(
+      AuthColors colors, PublicOrganizationDetails details) {
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: colors.card,
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              CircleAvatar(
+                radius: 24,
+                backgroundColor: colors.brandOrange.withValues(alpha: 0.15),
+                child: Icon(Icons.account_balance,
+                    color: colors.brandOrange, size: 28),
+              ),
+              const SizedBox(width: 14),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      details.name,
+                      style: TextStyle(
+                          color: colors.text,
+                          fontSize: 18,
+                          fontWeight: FontWeight.w900),
+                    ),
+                    Text(
+                      'Code: ${details.code} • ${details.city}, ${details.state}',
+                      style:
+                          TextStyle(color: colors.secondaryText, fontSize: 12),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+          if (details.presidentName != null &&
+              details.presidentName!.isNotEmpty) ...[
+            const SizedBox(height: 12),
+            Text('President: ${details.presidentName}',
+                style: TextStyle(color: colors.secondaryText, fontSize: 13)),
+          ],
+        ],
+      ),
+    );
+  }
+
+  Widget _buildBankDetailsCard(
+      AuthColors colors, PublicOrganizationDetails details) {
+    final hasBank = details.bankAccountConfigured &&
+        details.accountNumber != null &&
+        details.accountNumber!.isNotEmpty;
+    final hasUpi =
+        details.upiConfigured && details.vpa != null && details.vpa!.isNotEmpty;
+
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: colors.card,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: colors.brandOrange.withValues(alpha: 0.3)),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Icon(Icons.account_balance_wallet,
+                  color: colors.brandOrange, size: 20),
+              const SizedBox(width: 8),
+              Text(
+                'Mandal Bank & UPI Details',
+                style: TextStyle(
+                    color: colors.text,
+                    fontSize: 15,
+                    fontWeight: FontWeight.bold),
+              ),
+            ],
+          ),
+          const SizedBox(height: 12),
+          if (hasBank) ...[
+            _buildDetailRow(colors, 'Account Name',
+                details.bankAccountName ?? details.name),
+            _buildDetailRow(
+                colors, 'Bank Name', details.bankName ?? 'Not specified'),
+            _buildDetailRow(
+              colors,
+              'Account Number',
+              details.accountNumber!,
+              onCopy: () =>
+                  _copyToClipboard(details.accountNumber!, 'Account Number'),
+            ),
+            _buildDetailRow(
+              colors,
+              'IFSC Code',
+              details.ifscCode ?? 'N/A',
+              onCopy: details.ifscCode != null
+                  ? () => _copyToClipboard(details.ifscCode!, 'IFSC Code')
+                  : null,
+            ),
+            if (details.branchName != null)
+              _buildDetailRow(colors, 'Branch', details.branchName!),
+          ],
+          if (hasUpi) ...[
+            if (hasBank) const Divider(),
+            _buildDetailRow(
+              colors,
+              'UPI ID (VPA)',
+              details.vpa!,
+              onCopy: () => _copyToClipboard(details.vpa!, 'UPI ID'),
+            ),
+          ],
+          if (!hasBank && !hasUpi)
+            Text(
+              'Bank details are not configured for this Mandal.',
+              style: TextStyle(
+                  color: colors.secondaryText,
+                  fontSize: 13,
+                  fontStyle: FontStyle.italic),
+            ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildDetailRow(AuthColors colors, String label, String value,
+      {VoidCallback? onCopy}) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 4.0),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Expanded(
+            flex: 2,
+            child: Text(label,
+                style: TextStyle(color: colors.secondaryText, fontSize: 13)),
+          ),
+          const SizedBox(width: 8),
+          Expanded(
+            flex: 3,
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.end,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Flexible(
+                  child: Text(value,
+                      textAlign: TextAlign.right,
+                      style: TextStyle(
+                          color: colors.text,
+                          fontWeight: FontWeight.bold,
+                          fontSize: 13)),
+                ),
+                if (onCopy != null) ...[
+                  const SizedBox(width: 6),
+                  InkWell(
+                    onTap: onCopy,
+                    child: Icon(Icons.copy, size: 14, color: colors.brandOrange),
+                  ),
+                ],
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildResultScreen(
+      AuthColors colors, PublicOrganizationDetails details) {
+    final isSuccess = _donationResult!['status'] == 'SUCCESS';
+    final receiptNum = _donationResult!['receiptNumber'] ?? '';
+    final receiptId = _donationResult!['receiptId'] ?? '';
+
+    return Padding(
+      padding: const EdgeInsets.all(24.0),
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Icon(
+            isSuccess ? Icons.check_circle : Icons.hourglass_top,
+            size: 64,
+            color: isSuccess ? Colors.green : Colors.amber,
+          ),
+          const SizedBox(height: 16),
+          Text(
+            isSuccess
+                ? 'Donation Successful!'
+                : 'Donation Verification Pending',
+            style: TextStyle(
+                color: colors.text, fontSize: 20, fontWeight: FontWeight.bold),
+          ),
+          const SizedBox(height: 8),
+          Text(
+            isSuccess
+                ? 'Thank you ${_donationResult!['donorName']} for your generous contribution of ₹${_donationResult!['amount']} to ${details.name}.'
+                : 'Your bank transfer of ₹${_donationResult!['amount']} to ${details.name} has been submitted for verification.',
+            textAlign: TextAlign.center,
+            style: TextStyle(color: colors.secondaryText, fontSize: 14),
+          ),
+          const SizedBox(height: 24),
+          Container(
+            padding: const EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              color: colors.card,
+              borderRadius: BorderRadius.circular(12),
+            ),
+            child: Column(
+              children: [
+                _buildDetailRow(
+                    colors, 'Donor Name', _donationResult!['donorName']),
+                _buildDetailRow(
+                    colors, 'Contact', _donationResult!['donorMobile']),
+                _buildDetailRow(colors, 'Transaction Reference',
+                    _donationResult!['transactionId']),
+                if (isSuccess)
+                  _buildDetailRow(colors, 'Receipt Number', receiptNum),
+                _buildDetailRow(colors, 'Mandal', details.name),
+                _buildDetailRow(colors, 'Purpose', _donationPurpose),
+                _buildDetailRow(
+                    colors, '80G Certificate', _is80gRequired ? 'Yes' : 'No'),
+                _buildDetailRow(
+                    colors,
+                    'Payment Method',
+                    _paymentMethod == 'ONLINE'
+                        ? 'UPI / Online'
+                        : 'Bank Transfer'),
+                _buildDetailRow(
+                    colors, 'Amount Paid', '₹${_donationResult!['amount']}'),
+              ],
+            ),
+          ),
+          const SizedBox(height: 24),
+          if (isSuccess) ...[
+            Row(
+              children: [
+                Expanded(
+                  child: ElevatedButton.icon(
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: colors.brandOrange,
+                      padding: const EdgeInsets.symmetric(vertical: 12),
+                      shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(10)),
+                    ),
+                    onPressed: () => _downloadReceiptPdf(receiptId, receiptNum),
+                    icon: const Icon(Icons.download,
+                        color: Colors.white, size: 18),
+                    label: const Text('Download PDF',
+                        style: TextStyle(
+                            color: Colors.white, fontWeight: FontWeight.bold)),
+                  ),
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: OutlinedButton.icon(
+                    style: OutlinedButton.styleFrom(
+                      foregroundColor: colors.brandOrange,
+                      side: BorderSide(color: colors.brandOrange),
+                      padding: const EdgeInsets.symmetric(vertical: 12),
+                      shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(10)),
+                    ),
+                    onPressed: () => _shareReceipt(receiptId, receiptNum),
+                    icon:
+                        Icon(Icons.share, color: colors.brandOrange, size: 18),
+                    label: Text('Share Receipt',
+                        style: TextStyle(
+                            color: colors.brandOrange,
+                            fontWeight: FontWeight.bold)),
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 16),
+          ],
+          SizedBox(
+            width: double.infinity,
+            height: 48,
+            child: ElevatedButton(
+              style:
+                  ElevatedButton.styleFrom(backgroundColor: colors.brandOrange),
+              onPressed: () => Navigator.of(context).pop(),
+              child: const Text('Back to Mandals',
+                  style: TextStyle(
+                      color: Colors.white, fontWeight: FontWeight.bold)),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}

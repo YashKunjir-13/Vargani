@@ -7,8 +7,8 @@ class ContributionReceiptsRemoteDataSource {
   ContributionReceiptsRemoteDataSource(this.dio);
 
   Future<List<ContributionReceipt>> fetchMyHistory() async {
-    final response = await dio.get('/contribution-receipts/my-history');
-    final data = response.data as List<dynamic>;
+    final response = await dio.get('/donors/me/history');
+    final data = response.data['data'] as List<dynamic>? ?? response.data as List<dynamic>;
     return data.map((json) => ContributionReceipt.fromJson(json as Map<String, dynamic>)).toList();
   }
 

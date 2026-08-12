@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-
+import 'package:pauti_pustak_mobile/core/session/session_controller.dart';
 import 'package:pauti_pustak_mobile/features/authentication/presentation/widgets/auth_design_tokens.dart';
 
 import 'add_user_screen.dart';
@@ -75,73 +75,17 @@ class MockUser {
 class MockUserListNotifier extends Notifier<List<MockUser>> {
   @override
   List<MockUser> build() {
+    final session = ref.watch(sessionControllerProvider);
+    final user = session.user;
+    if (user == null) return const [];
+
     return [
       MockUser(
-        id: 'USR-001',
-        name: 'Ujwal Pandey',
-        contact: 'ujwal@example.com',
+        id: user.id,
+        name: user.displayName,
+        contact: user.primaryMobile ?? user.primaryEmail ?? '',
         role: MockRole.president,
         isSuperAdmin: true,
-      ),
-      MockUser(
-        id: 'USR-VP-A',
-        name: 'Suresh Patil (VP - Restricted)',
-        contact: 'suresh.vp1@example.com',
-        role: MockRole.vicePresident,
-        isSuperAdmin: false,
-        customPermissions: const [
-          'contribution.view',
-          'collections.create',
-          'reports.view',
-          'analytics.view',
-          'member.view',
-          'members.view',
-        ],
-        appointedBy: 'Ujwal Pandey • Trust President (Adhyaksha)',
-      ),
-      MockUser(
-        id: 'USR-VP-B',
-        name: 'Anil Deshmukh (VP - Extended)',
-        contact: 'anil.vp2@example.com',
-        role: MockRole.vicePresident,
-        isSuperAdmin: false,
-        customPermissions: const [
-          'contribution.view',
-          'collections.create',
-          'reports.view',
-          'analytics.view',
-          'member.view',
-          'members.view',
-          'bill.view',
-          'bills.create',
-          'vendor_payment.view',
-          'bills.approve',
-        ],
-        appointedBy: 'Ujwal Pandey • Trust President (Adhyaksha)',
-      ),
-      MockUser(
-        id: 'USR-002',
-        name: 'Rahul Sharma',
-        contact: '+91 9876543210',
-        role: MockRole.treasurer,
-        isSuperAdmin: false,
-        appointedBy: 'Ujwal Pandey • Trust President (Adhyaksha)',
-      ),
-      MockUser(
-        id: 'USR-003',
-        name: 'Amit Patil',
-        contact: 'amit@example.com',
-        role: MockRole.secretary,
-        isSuperAdmin: false,
-        appointedBy: 'Ujwal Pandey • Trust President (Adhyaksha)',
-      ),
-      MockUser(
-        id: 'USR-004',
-        name: 'Rohit Joshi',
-        contact: '+91 9876543211',
-        role: MockRole.volunteer,
-        isSuperAdmin: false,
-        appointedBy: 'Rahul Sharma • Treasurer (Khajindar)',
       ),
     ];
   }

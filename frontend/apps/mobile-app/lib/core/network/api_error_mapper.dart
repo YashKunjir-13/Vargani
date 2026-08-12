@@ -9,6 +9,38 @@ Future<T> guardApiCall<T>(Future<T> Function() call) async {
   try {
     return await call();
   } on DioException catch (error) {
+    // Debug logging added for login/connection troubleshooting
+    // ignore: avoid_print
+    print('--- DIO EXCEPTION CAUGHT ---');
+    // ignore: avoid_print
+    print('REQUEST URL: ${error.requestOptions.uri}');
+    // ignore: avoid_print
+    print('REQUEST METHOD: ${error.requestOptions.method}');
+    
+    // Sanitize request body if it contains sensitive info
+    final data = error.requestOptions.data;
+    if (data is Map) {
+      final safeData = Map<String, dynamic>.from(data);
+      safeData.remove('password');
+      safeData.remove('mpin');
+      // ignore: avoid_print
+      print('REQUEST BODY: $safeData');
+    } else {
+      // ignore: avoid_print
+      print('REQUEST BODY: $data');
+    }
+    
+    // ignore: avoid_print
+    print('STATUS CODE: ${error.response?.statusCode}');
+    // ignore: avoid_print
+    print('RESPONSE DATA: ${error.response?.data}');
+    // ignore: avoid_print
+    print('DioException type: ${error.type}');
+    // ignore: avoid_print
+    print('DioException error message: ${error.message}');
+    // ignore: avoid_print
+    print('----------------------------');
+    
     throw _mapDioException(error);
   }
 }

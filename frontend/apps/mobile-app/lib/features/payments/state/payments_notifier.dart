@@ -6,7 +6,6 @@ import '../models/payment.dart';
 import '../../receipts/models/receipt.dart';
 import '../../receipts/state/receipts_notifier.dart';
 
-import '../data/payments_mock_data.dart';
 import '../../donors/providers/donor_providers.dart';
 
 final paymentsRemoteDataSourceProvider = Provider<PaymentsRemoteDataSource>((ref) {
@@ -17,7 +16,7 @@ class PaymentsNotifier extends Notifier<AsyncValue<List<Payment>>> {
   @override
   AsyncValue<List<Payment>> build() {
     loadPayments();
-    return AsyncValue.data(buildMockPayments());
+    return const AsyncValue.data([]);
   }
 
   Future<void> loadPayments() async {
@@ -25,13 +24,11 @@ class PaymentsNotifier extends Notifier<AsyncValue<List<Payment>>> {
       final dataSource = ref.read(paymentsRemoteDataSourceProvider);
       final list = await dataSource.fetchPayments();
       if (!ref.mounted) return;
-      if (list.isNotEmpty) {
-        state = AsyncValue.data(list);
-      }
-    } catch (_) {
+      state = AsyncValue.data(list);
+    } catch (err, stack) {
       if (!ref.mounted) return;
       if (state.value == null || state.value!.isEmpty) {
-        state = AsyncValue.data(buildMockPayments());
+        state = AsyncValue.error(err, stack);
       }
     }
   }
@@ -110,7 +107,7 @@ class PaymentsNotifier extends Notifier<AsyncValue<List<Payment>>> {
         donorName: matchPayment.donorName,
         amount: matchPayment.amount,
         issuedDate: DateTime.now(),
-        mandalName: 'Shree Siddhivinayak Ganpati Mandal',
+        mandalName: ref.read(sessionControllerProvider).user?.organization?.name ?? 'My Mandal',
         status: ReceiptStatus.active,
         whatsappDeliveryStatus: WhatsappDeliveryStatus.sent,
       );
@@ -188,7 +185,7 @@ class PaymentsNotifier extends Notifier<AsyncValue<List<Payment>>> {
       contactNumber: contact,
       amount: amount,
       issuedDate: DateTime.now(),
-      mandalName: 'Shree Siddhivinayak Ganpati Mandal',
+      mandalName: ref.read(sessionControllerProvider).user?.organization?.name ?? 'My Mandal',
       status: ReceiptStatus.active,
       whatsappDeliveryStatus: WhatsappDeliveryStatus.sent,
     );

@@ -654,47 +654,13 @@ const _mockSearchResults = <AuditSearchResult>[
 ];
 
 const _mockNotificationSummary = NotificationSummaryData(
-  unreadCount: 9,
-  criticalCount: 2,
-  approvalsCount: 3,
-  paymentsDueCount: 4,
+  unreadCount: 0,
+  criticalCount: 0,
+  approvalsCount: 0,
+  paymentsDueCount: 0,
 );
 
-final _mockNotificationItems = <NotificationItemData>[
-  NotificationItemData(
-    id: 'ntf-1',
-    icon: Icons.payments_outlined,
-    iconBackground: Colors.orange.shade50,
-    iconColor: Colors.orange.shade800,
-    title: 'Vendor payment due tomorrow',
-    description: 'Sai Decorators · ₹85,000',
-    isUnread: true,
-    primaryActionLabel: 'Pay Now',
-    secondaryActionLabel: 'Snooze',
-    groupLabel: 'Today',
-  ),
-  NotificationItemData(
-    id: 'ntf-2',
-    icon: Icons.volunteer_activism_outlined,
-    iconBackground: Colors.green.shade50,
-    iconColor: Colors.green.shade800,
-    title: 'Donation received',
-    description: '₹5,000 · Sharma family',
-    isUnread: true,
-    primaryActionLabel: 'View Receipt',
-    groupLabel: 'Today',
-  ),
-  NotificationItemData(
-    id: 'ntf-3',
-    icon: Icons.check_circle_outline,
-    iconBackground: Colors.grey.shade200,
-    iconColor: Colors.grey.shade700,
-    title: 'Expense approved',
-    description: 'Fireworks vendor · ₹12,400',
-    isUnread: false,
-    groupLabel: 'Today',
-  ),
-];
+final _mockNotificationItems = <NotificationItemData>[];
 
 const _mockNotificationDetail = NotificationDetailData(
   id: 'NTF-40213',

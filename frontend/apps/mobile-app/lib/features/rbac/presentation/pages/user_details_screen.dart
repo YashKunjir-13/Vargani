@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-
+import 'package:pauti_pustak_mobile/core/session/session_controller.dart';
 import 'package:pauti_pustak_mobile/features/authentication/presentation/widgets/auth_design_tokens.dart';
 
 import 'add_user_screen.dart';
@@ -221,7 +221,7 @@ class UserDetailsScreen extends ConsumerWidget {
               ),
               child: Column(
                 children: [
-                  _buildInfoRow('Mandal Name', 'Shree Siddhivinayak Ganpati Mandal', colors),
+                  _buildInfoRow('Mandal Name', ref.watch(sessionControllerProvider).user?.organization?.name ?? 'My Mandal', colors),
                   _buildInfoRow('Date Joined', user.joinedDate, colors),
                   _buildInfoRow('Appointed By', user.appointedBy, colors),
                 ],

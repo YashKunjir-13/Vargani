@@ -1,5 +1,5 @@
 import { Module } from "@nestjs/common";
-import { APP_GUARD } from "@nestjs/core";
+import { APP_GUARD, Reflector } from "@nestjs/core";
 import { PermissionGuard, TenantGuard } from "@pauti-pustak/backend-security";
 import { FestivalYearModule } from "./festival-year/festival-year.module";
 import { RbacModule } from "./rbac/rbac.module";
@@ -27,6 +27,7 @@ import { JwtAuthGuard } from "../auth/jwt-auth.guard";
     StorageModule,
   ],
   providers: [
+    Reflector,
     { provide: APP_GUARD, useClass: JwtAuthGuard },
     { provide: APP_GUARD, useClass: TenantGuard },
     { provide: APP_GUARD, useClass: PermissionGuard },

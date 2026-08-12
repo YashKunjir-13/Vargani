@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-
+import 'package:pauti_pustak_mobile/core/session/session_controller.dart';
 import 'package:pauti_pustak_mobile/features/authentication/presentation/widgets/auth_design_tokens.dart';
 
 import 'user_management_screen.dart';
@@ -118,7 +118,7 @@ class _AddUserScreenState extends ConsumerState<AddUserScreen> {
         role: _selectedRole,
         status: isEdit ? widget.editingUser!.status : 'Active',
         joinedDate: isEdit ? widget.editingUser!.joinedDate : 'Today',
-        appointedBy: isEdit ? widget.editingUser!.appointedBy : 'Ujwal Pandey • Trust President',
+        appointedBy: isEdit ? widget.editingUser!.appointedBy : '${ref.read(sessionControllerProvider).user?.displayName ?? 'Admin'} • President',
         customRoleName: _selectedRole == MockRole.custom ? _customRoleNameController.text.trim() : null,
         customRoleDescription: _selectedRole == MockRole.custom ? _customRoleDescController.text.trim() : null,
         customPermissions: isOverridden ? _selectedPermissions.toList() : null,

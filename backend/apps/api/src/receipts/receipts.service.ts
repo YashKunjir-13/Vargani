@@ -310,8 +310,23 @@ export class ReceiptsService implements ReceiptGenerationPort {
   }
 
   private async requireOwnedReceipt(organizationId: string, id: string): Promise<PaymentReceipt> {
+    console.log("[requireOwnedReceipt] CALLED WITH:", { organizationId, requestedReceiptId: id });
     const receipt = await this.prisma.paymentReceipt.findUnique({ where: { id } });
+    
+    console.log("[requireOwnedReceipt] DB LOOKUP RESULT:", receipt ? {
+      id: receipt.id,
+      organizationId: receipt.organizationId,
+      donorId: receipt.donorId,
+      paymentId: receipt.paymentId,
+      receiptNumber: receipt.receiptNumber
+    } : "null");
+
     if (!receipt || receipt.organizationId !== organizationId) {
+      if (receipt) {
+        console.log("[requireOwnedReceipt] FAILED: receipt.organizationId !== organizationId", { receiptOrg: receipt.organizationId, expectedOrg: organizationId });
+      } else {
+        console.log("[requireOwnedReceipt] FAILED: receipt is null in DB for ID:", id);
+      }
       throw new NotFoundException("Receipt not found");
     }
     return receipt;
@@ -330,6 +345,7 @@ export class ReceiptsService implements ReceiptGenerationPort {
   }
 
   async getPdfDocument(organizationId: string, id: string) {
+    console.log("[getPdfDocument] CALLED WITH:", { organizationId, id });
     const receipt = await this.requireOwnedReceipt(organizationId, id);
 
     const [stampAssetUrl, signatureAssetUrl] = await Promise.all([

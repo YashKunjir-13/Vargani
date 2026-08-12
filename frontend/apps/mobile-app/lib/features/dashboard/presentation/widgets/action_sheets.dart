@@ -1,10 +1,11 @@
+import "package:flutter_riverpod/flutter_riverpod.dart";
+import "package:pauti_pustak_mobile/core/session/session_controller.dart";
+import "package:pauti_pustak_mobile/shared/utils/pdf_download_utils.dart";
 import 'package:flutter/material.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 import 'package:printing/printing.dart';
 
-import 'package:pauti_pustak_mobile/core/session/session_controller.dart';
 import 'package:pauti_pustak_mobile/features/authentication/presentation/widgets/auth_buttons.dart';
 import 'package:pauti_pustak_mobile/features/authentication/presentation/widgets/auth_design_tokens.dart';
 import 'package:pauti_pustak_mobile/features/authentication/presentation/widgets/auth_text_fields.dart';
@@ -119,7 +120,7 @@ class DashboardActionSheets {
                     label: 'Proceed to Payment',
                     icon: Icons.receipt_long,
                     onPressed: () {
-                      final donorName = nameController.text.trim().isEmpty ? 'Anonymous Donor' : nameController.text.trim();
+                      final donorName = nameController.text.trim().isEmpty ? 'Authenticated Donor' : nameController.text.trim();
                       final mobile = mobileController.text.trim();
                       final amountText = amountController.text.trim().isEmpty ? '5001' : amountController.text.trim();
                       final amountVal = double.tryParse(amountText) ?? 5001.0;
@@ -197,35 +198,83 @@ class DashboardActionSheets {
                                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
                                 ),
                                 onPressed: () async {
-                                  Navigator.pop(confirmCtx);
+                                  showDialog(
+                                    context: confirmCtx,
+                                    barrierDismissible: false,
+                                    builder: (loadingCtx) => Center(
+                                      child: Container(
+                                        padding: const EdgeInsets.all(24),
+                                        decoration: BoxDecoration(
+                                          color: colors.card,
+                                          borderRadius: BorderRadius.circular(16),
+                                        ),
+                                        child: Column(
+                                          mainAxisSize: MainAxisSize.min,
+                                          children: [
+                                            CircularProgressIndicator(color: colors.brandOrange),
+                                            const SizedBox(height: 16),
+                                            Text(
+                                              'Issuing Official Receipt...',
+                                              style: TextStyle(color: colors.text, fontSize: 14, fontWeight: FontWeight.w600, decoration: TextDecoration.none),
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                    ),
+                                  );
 
                                   Receipt? receipt;
-                                  if (ref != null) {
-                                    receipt = await ref.read(paymentsProvider.notifier).collectDonationAndGenerateReceipt(
-                                      donorName: donorName,
-                                      contact: mobile.isEmpty ? null : mobile,
-                                      amount: amountVal,
-                                      paymentMethod: selectedMethod,
-                                    );
+                                  try {
+                                    if (ref != null) {
+                                      final r = ref;
+                                      receipt = await r.read(paymentsProvider.notifier).collectDonationAndGenerateReceipt(
+                                        donorName: donorName,
+                                        contact: mobile.isEmpty ? null : mobile,
+                                        amount: amountVal,
+                                        paymentMethod: selectedMethod,
+                                      );
 
-                                    ref.read(donorDashboardProvider.notifier).addDonation(
-                                      amountPaise: amountPaise,
-                                      paymentMethod: selectedMethod,
-                                      mandalName: mandalName ?? 'Shree Siddhivinayak Ganpati Mandal',
-                                    );
+                                      final activeOrgName = r.read(sessionControllerProvider).user?.organization?.name ?? 'My Mandal';
 
-                                    ref.read(mandalDashboardProvider.notifier).addDonation(
-                                      amountPaise: amountPaise,
-                                      paymentMethod: selectedMethod,
-                                      donorName: donorName,
-                                    );
+                                      r.read(donorDashboardProvider.notifier).addDonation(
+                                        amountPaise: amountPaise,
+                                        paymentMethod: selectedMethod,
+                                        mandalName: mandalName ?? activeOrgName,
+                                      );
+
+                                      r.read(mandalDashboardProvider.notifier).addDonation(
+                                        amountPaise: amountPaise,
+                                        paymentMethod: selectedMethod,
+                                        donorName: donorName,
+                                      );
+                                    }
+
+                                    if (confirmCtx.mounted) {
+                                      Navigator.pop(confirmCtx); // Pop loading dialog
+                                      Navigator.pop(confirmCtx); // Pop confirm dialog
+                                    }
+                                  } catch (err) {
+                                    if (confirmCtx.mounted) {
+                                      Navigator.pop(confirmCtx); // Pop loading dialog
+                                      Navigator.pop(confirmCtx); // Pop confirm dialog
+                                    }
+                                    if (context.mounted) {
+                                      ScaffoldMessenger.of(context).showSnackBar(
+                                        SnackBar(
+                                          content: Text('Failed to collect donation: $err'),
+                                          backgroundColor: Colors.red.shade700,
+                                        ),
+                                      );
+                                    }
+                                    return;
                                   }
 
                                   if (!context.mounted) return;
 
+                                  final activeOrgName = ref?.read(sessionControllerProvider).user?.organization?.name ?? 'My Mandal';
                                   final receiptNo = receipt?.receiptNumber ?? 'RCPT-2026-000001';
                                   final receiptId = receipt?.id ?? '';
-                                  final mName = receipt?.mandalName ?? mandalName ?? 'Shree Siddhivinayak Ganpati Mandal';
+                                  final mName = receipt?.mandalName ?? mandalName ?? activeOrgName;
 
                                   // Show Receipt Success Dialog
                                   showDialog(
@@ -438,7 +487,7 @@ class DashboardActionSheets {
     );
   }
 
-  static void showReceiptDetailModal(BuildContext context, String receiptNo, String donor, String amount) {
+  static void showReceiptDetailModal(BuildContext context, String receiptId, String receiptNo, String donor, String amount) {
     final colors = context.authColors;
 
     showDialog(
@@ -496,12 +545,8 @@ class DashboardActionSheets {
               ),
               onPressed: () {
                 Navigator.pop(ctx);
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(
-                    content: Text('Receipt $receiptNo PDF downloaded successfully!'),
-                    backgroundColor: Colors.green,
-                  ),
-                );
+                final dio = ProviderScope.containerOf(context).read(dioProvider);
+                PdfDownloadUtils.downloadReceiptPdf(context, dio, receiptId, receiptNo);
               },
               icon: const Icon(Icons.download, size: 18),
               label: const Text('Download PDF'),

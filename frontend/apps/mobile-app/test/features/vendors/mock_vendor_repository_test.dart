@@ -10,6 +10,14 @@ void main() {
   });
 
   test('returns filtered vendors and computes derived totals', () async {
+    await repository.createVendor(
+      name: 'Mahalaxmi Mandap Decorators',
+      category: 'Mandap & Decoration',
+      contractAmountPaise: 45000000,
+      paidAmountPaise: 30000000,
+      status: VendorStatus.active,
+    );
+
     final vendors = await repository.getVendors(search: 'decor');
 
     expect(vendors, isNotEmpty);

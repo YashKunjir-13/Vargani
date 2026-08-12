@@ -1,4 +1,5 @@
 import 'package:dio/dio.dart';
+import 'package:uuid/uuid.dart';
 import '../models/payment.dart';
 
 class PaymentsRemoteDataSource {
@@ -59,9 +60,13 @@ class PaymentsRemoteDataSource {
     String? address,
     required double amount,
     required String paymentMethod,
+    String? idempotencyKey,
   }) async {
     final response = await _dio.post(
       '/payments/collect',
+      options: Options(headers: {
+        'X-Idempotency-Key': idempotencyKey ?? const Uuid().v4(),
+      }),
       data: {
         'donorNameSnapshot': donorName,
         if (contact != null && contact.isNotEmpty) 'contactSnapshot': contact,

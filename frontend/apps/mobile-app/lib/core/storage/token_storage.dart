@@ -12,6 +12,7 @@ class TokenStorage {
   static const _accessTokenKey = 'auth.access_token';
   static const _refreshTokenKey = 'auth.refresh_token';
   static const _roleKey = 'auth.role';
+  static const _orgKey = 'auth.organization_id';
 
   Future<void> saveTokens({required String accessToken, required String refreshToken}) async {
     await _storage.write(key: _accessTokenKey, value: accessToken);
@@ -26,9 +27,14 @@ class TokenStorage {
 
   Future<String?> readRole() => _storage.read(key: _roleKey);
 
+  Future<void> saveOrganizationId(String orgId) => _storage.write(key: _orgKey, value: orgId);
+
+  Future<String?> readOrganizationId() => _storage.read(key: _orgKey);
+
   Future<void> clear() async {
     await _storage.delete(key: _accessTokenKey);
     await _storage.delete(key: _refreshTokenKey);
     await _storage.delete(key: _roleKey);
+    await _storage.delete(key: _orgKey);
   }
 }

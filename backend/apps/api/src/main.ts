@@ -77,8 +77,8 @@ async function bootstrap() {
   }
 
   const port = process.env.PORT || 3000;
-  await app.listen(port);
-  logger.log(`API Gateway running on port ${port} in ${nodeEnv} mode`, "Bootstrap");
+  await app.listen(port, "0.0.0.0");
+  logger.log(`API Gateway running on port ${port} (0.0.0.0) in ${nodeEnv} mode`, "Bootstrap");
 }
 
 bootstrap();

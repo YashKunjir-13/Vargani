@@ -10,6 +10,13 @@ void main() {
   });
 
   test('filters volunteers by search, status, and type', () async {
+    final created = await repository.createVolunteer(
+      fullName: 'Sanjay Patil',
+      type: VolunteerType.donationCollector,
+      mobile: '9876543210',
+    );
+    await repository.updateVolunteer(id: created.id, status: VolunteerStatus.active);
+
     final volunteers = await repository.getVolunteers(
       search: 'san',
       status: VolunteerStatus.active,

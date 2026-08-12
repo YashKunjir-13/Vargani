@@ -7,11 +7,13 @@ import 'package:intl/intl.dart';
 import 'package:printing/printing.dart';
 
 import '../../../core/core.dart';
+import '../../../core/session/session_controller.dart';
 import '../../../shared/shared.dart';
 import '../../../shared/utils/pdf_generator.dart';
 import '../../authentication/presentation/widgets/auth_design_tokens.dart';
 import '../../dashboard/presentation/providers/dashboard_providers.dart';
 import '../../payments/state/payments_notifier.dart';
+import '../../receipts/models/receipt.dart';
 import '../../receipts/state/receipts_notifier.dart';
 import '../models/donor.dart';
 import '../providers/donor_providers.dart';
@@ -406,31 +408,76 @@ class _DonorFormScreenState extends ConsumerState<DonorFormScreen> {
                 shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
               ),
               onPressed: () async {
-                Navigator.pop(confirmCtx);
-
-                // Collect donation and generate receipt
-                final receipt = await ref.read(paymentsProvider.notifier).collectDonationAndGenerateReceipt(
-                  donorName: fullName,
-                  contact: mobile.isEmpty ? null : mobile,
-                  amount: amountVal,
-                  paymentMethod: _selectedPaymentMethod,
+                showDialog(
+                  context: confirmCtx,
+                  barrierDismissible: false,
+                  builder: (loadingCtx) => Center(
+                    child: Container(
+                      padding: const EdgeInsets.all(24),
+                      decoration: BoxDecoration(
+                        color: colors.card,
+                        borderRadius: BorderRadius.circular(16),
+                      ),
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          CircularProgressIndicator(color: colors.brandOrange),
+                          const SizedBox(height: 16),
+                          Text(
+                            'Issuing Official Receipt...',
+                            style: TextStyle(color: colors.text, fontSize: 14, fontWeight: FontWeight.w600, decoration: TextDecoration.none),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
                 );
 
-                // Record donation stats on donor repository
-                await repository.recordDonationForDonor(
-                  fullName: fullName,
-                  mobile: mobile.isEmpty ? null : mobile,
-                  amountPaise: amountPaise,
-                );
+                Receipt? receipt;
+                try {
+                  // Collect donation and generate receipt
+                  receipt = await ref.read(paymentsProvider.notifier).collectDonationAndGenerateReceipt(
+                    donorName: fullName,
+                    contact: mobile.isEmpty ? null : mobile,
+                    amount: amountVal,
+                    paymentMethod: _selectedPaymentMethod,
+                  );
 
-                // Update dashboards & streams
-                ref.read(mandalDashboardProvider.notifier).addDonation(
-                  amountPaise: amountPaise,
-                  paymentMethod: _selectedPaymentMethod,
-                  donorName: fullName,
-                );
-                ref.invalidate(donorListProvider);
-                ref.invalidate(receiptsProvider);
+                  // Record donation stats on donor repository
+                  await repository.recordDonationForDonor(
+                    fullName: fullName,
+                    mobile: mobile.isEmpty ? null : mobile,
+                    amountPaise: amountPaise,
+                  );
+
+                  // Update dashboards & streams
+                  ref.read(mandalDashboardProvider.notifier).addDonation(
+                    amountPaise: amountPaise,
+                    paymentMethod: _selectedPaymentMethod,
+                    donorName: fullName,
+                  );
+                  ref.invalidate(donorListProvider);
+                  ref.invalidate(receiptsProvider);
+
+                  if (confirmCtx.mounted) {
+                    Navigator.pop(confirmCtx); // Pop loading dialog
+                    Navigator.pop(confirmCtx); // Pop confirm dialog
+                  }
+                } catch (err) {
+                  if (confirmCtx.mounted) {
+                    Navigator.pop(confirmCtx); // Pop loading dialog
+                    Navigator.pop(confirmCtx); // Pop confirm dialog
+                  }
+                  if (context.mounted) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        content: Text('Failed to collect donation: $err'),
+                        backgroundColor: Colors.red.shade700,
+                      ),
+                    );
+                  }
+                  return;
+                }
 
                 if (!context.mounted) return;
 
@@ -542,9 +589,10 @@ class _DonorFormScreenState extends ConsumerState<DonorFormScreen> {
                             Printing.layoutPdf(
                               onLayout: (format) async {
                                 final currency = NumberFormat.currency(locale: 'en_IN', symbol: '₹', decimalDigits: 0);
+                                final activeOrgName = ref.read(sessionControllerProvider).user?.organization?.name ?? 'My Mandal';
                                 return PdfReceiptGenerator.generateReceiptPdf(
                                   receiptNumber: receiptNo,
-                                  mandalName: 'Shree Siddhivinayak Ganpati Mandal',
+                                  mandalName: activeOrgName,
                                   donorName: fullName,
                                   amountText: currency.format(amountVal),
                                   dateText: DateFormat('d MMM yyyy').format(DateTime.now()),

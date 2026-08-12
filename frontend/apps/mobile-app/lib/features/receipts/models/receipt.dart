@@ -76,10 +76,15 @@ class Receipt {
   }
 
   factory Receipt.fromJson(Map<String, dynamic> json) {
-    final rawAmount = json['amountSnapshot'] ?? json['amount'];
-    final parsedAmount = (rawAmount is num)
-        ? rawAmount.toDouble()
-        : (double.tryParse(rawAmount?.toString() ?? '0') ?? 0.0);
+    double parsedAmount = 0.0;
+    if (json.containsKey('amountPaise') && json['amountPaise'] != null) {
+      parsedAmount = (double.tryParse(json['amountPaise'].toString()) ?? 0.0) / 100.0;
+    } else {
+      final rawAmount = json['amountSnapshot'] ?? json['amount'];
+      parsedAmount = (rawAmount is num)
+          ? rawAmount.toDouble()
+          : (double.tryParse(rawAmount?.toString() ?? '0') ?? 0.0);
+    }
 
     final rawStatus = json['status'] as String? ?? 'ACTIVE';
     final status = rawStatus == 'VOIDED' ? ReceiptStatus.voided : ReceiptStatus.active;
@@ -99,17 +104,17 @@ class Receipt {
         break;
     }
 
-    final rawIssued = json['issuedDate'] as String?;
+    final rawIssued = json['issuedDate'] as String? ?? json['collectedAt'] as String?;
 
     return Receipt(
       id: json['id'] as String? ?? '',
       receiptNumber: json['receiptNumber'] as String? ?? '',
       paymentId: json['paymentId'] as String? ?? '',
-      donorName: json['donorNameSnapshot'] as String? ?? json['donorName'] as String? ?? 'Anonymous Donor',
+      donorName: json['donorNameSnapshot'] as String? ?? json['donorName'] as String? ?? 'Authenticated Donor',
       contactNumber: json['contactSnapshot'] as String? ?? json['contactNumber'] as String? ?? json['contact'] as String?,
       amount: parsedAmount,
-      issuedDate: rawIssued != null ? DateTime.parse(rawIssued) : DateTime.now(),
-      mandalName: json['mandalNameSnapshot'] as String? ?? json['mandalName'] as String? ?? 'Shree Ganesh Mandal',
+      issuedDate: rawIssued != null ? (DateTime.tryParse(rawIssued) ?? DateTime.now()) : DateTime.now(),
+      mandalName: json['mandalNameSnapshot'] as String? ?? json['mandalName'] as String? ?? json['organizationName'] as String? ?? 'Mandal Trust',
       status: status,
       whatsappDeliveryStatus: whatsappDeliveryStatus,
       whatsappRetryCount: json['whatsappRetryCount'] as int? ?? 0,
