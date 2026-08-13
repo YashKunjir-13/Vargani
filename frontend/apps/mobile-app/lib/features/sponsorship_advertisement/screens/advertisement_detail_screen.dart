@@ -93,7 +93,8 @@ class AdvertisementDetailScreen extends ConsumerWidget {
                       UserRole.treasurer,
                     ],
                     child: Padding(
-                      padding: const EdgeInsets.only(bottom: AppSpacing.space16),
+                      padding:
+                          const EdgeInsets.only(bottom: AppSpacing.space16),
                       child: AppButton(
                         label: 'Mark as Active',
                         icon: Icons.check_circle_outline,

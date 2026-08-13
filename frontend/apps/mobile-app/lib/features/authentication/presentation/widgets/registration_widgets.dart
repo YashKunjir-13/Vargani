@@ -33,7 +33,8 @@ class AuthAppBar extends StatelessWidget implements PreferredSizeWidget {
           ? null
           : IconButton(
               onPressed: onBack,
-              icon: Icon(Icons.arrow_back_ios_new, color: colors.text, size: 20),
+              icon:
+                  Icon(Icons.arrow_back_ios_new, color: colors.text, size: 20),
               tooltip: context.l10n.back,
             ),
       titleSpacing: onBack == null ? AuthSpacing.page : 0,
@@ -41,7 +42,8 @@ class AuthAppBar extends StatelessWidget implements PreferredSizeWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(title,
-              style: TextStyle(color: colors.text, fontWeight: FontWeight.w800)),
+              style:
+                  TextStyle(color: colors.text, fontWeight: FontWeight.w800)),
           if (step != null) ...[
             const SizedBox(height: 8),
             Row(
@@ -92,8 +94,7 @@ class RegistrationIntroCard extends StatelessWidget {
       decoration: BoxDecoration(
         color: colors.introCardBackground,
         borderRadius: BorderRadius.circular(22),
-        border: Border.all(
-            color: colors.introCardBorder),
+        border: Border.all(color: colors.introCardBorder),
       ),
       child: Row(
         children: [
@@ -125,7 +126,9 @@ class RegistrationIntroCard extends StatelessWidget {
                 const SizedBox(height: 5),
                 Text(description,
                     style: TextStyle(
-                        color: colors.secondaryText, fontSize: 16, height: 1.3)),
+                        color: colors.secondaryText,
+                        fontSize: 16,
+                        height: 1.3)),
               ],
             ),
           ),
@@ -173,7 +176,12 @@ class RegistrationTypeCard extends StatelessWidget {
                   color: isSelected ? colors.brandOrange : colors.border,
                   width: isSelected ? 2 : 1),
               boxShadow: isSelected
-                  ? [BoxShadow(color: colors.cardShadow, blurRadius: 8, offset: const Offset(0, 4))]
+                  ? [
+                      BoxShadow(
+                          color: colors.cardShadow,
+                          blurRadius: 8,
+                          offset: const Offset(0, 4))
+                    ]
                   : [],
             ),
             child: Row(children: [
@@ -182,9 +190,12 @@ class RegistrationTypeCard extends StatelessWidget {
                 width: 64,
                 height: 64,
                 decoration: BoxDecoration(
-                    color: isSelected ? colors.brandOrange : colors.surfaceMuted,
+                    color:
+                        isSelected ? colors.brandOrange : colors.surfaceMuted,
                     borderRadius: BorderRadius.circular(14)),
-                child: Icon(icon, color: isSelected ? Colors.white : colors.secondaryText, size: 32),
+                child: Icon(icon,
+                    color: isSelected ? Colors.white : colors.secondaryText,
+                    size: 32),
               ),
               const SizedBox(width: 14),
               Expanded(
@@ -205,7 +216,8 @@ class RegistrationTypeCard extends StatelessWidget {
                   ])),
               const SizedBox(width: 8),
               Icon(Icons.chevron_right,
-                  color: isSelected ? colors.brandOrange : colors.border, size: 24),
+                  color: isSelected ? colors.brandOrange : colors.border,
+                  size: 24),
             ]),
           ),
         ),
@@ -231,7 +243,9 @@ class FormSectionCard extends StatelessWidget {
         border: Border.all(color: colors.border),
         boxShadow: [
           BoxShadow(
-              color: colors.cardShadow, blurRadius: 8, offset: const Offset(0, 3))
+              color: colors.cardShadow,
+              blurRadius: 8,
+              offset: const Offset(0, 3))
         ],
       ),
       child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
@@ -319,7 +333,9 @@ class LocationFormSection extends StatelessWidget {
         FilteringTextInputFormatter.digitsOnly,
         LengthLimitingTextInputFormatter(6),
       ],
-      validator: pinCodeOptional ? AuthValidators.pinCode(l10n) : AuthValidators.pinCodeRequired(l10n),
+      validator: pinCodeOptional
+          ? AuthValidators.pinCode(l10n)
+          : AuthValidators.pinCodeRequired(l10n),
     );
     return FormSectionCard(
       title: l10n.location,

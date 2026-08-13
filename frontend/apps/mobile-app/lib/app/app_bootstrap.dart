@@ -34,7 +34,10 @@ Future<void> runPautiPustakApp({required String environment}) async {
     final result = await authRepository.restoreSession();
     initialSessionState = result == null
         ? SessionState.unauthenticated
-        : SessionState(status: SessionStatus.authenticated, user: result.user, activeRole: result.role);
+        : SessionState(
+            status: SessionStatus.authenticated,
+            user: result.user,
+            activeRole: result.role);
   } catch (_) {
     await tokenStorage.clear();
     initialSessionState = SessionState.unauthenticated;

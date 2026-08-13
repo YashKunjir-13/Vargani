@@ -31,7 +31,8 @@ class SponsorshipTierBadge extends StatelessWidget {
     final borderColor = color.withValues(alpha: isDark ? 0.5 : 0.4);
 
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: AppSpacing.space8, vertical: 3),
+      padding: const EdgeInsets.symmetric(
+          horizontal: AppSpacing.space8, vertical: 3),
       decoration: BoxDecoration(
         color: backgroundColor,
         borderRadius: BorderRadius.circular(6),

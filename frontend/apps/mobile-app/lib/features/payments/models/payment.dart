@@ -80,7 +80,8 @@ class Payment {
         : (double.tryParse(rawAmount?.toString() ?? '0') ?? 0.0);
 
     final rawChannel = json['channel'] as String? ?? 'QR_CODE';
-    final channel = rawChannel == 'IN_APP' ? PaymentChannel.inApp : PaymentChannel.qrCode;
+    final channel =
+        rawChannel == 'IN_APP' ? PaymentChannel.inApp : PaymentChannel.qrCode;
 
     final rawStatus = json['status'] as String? ?? 'PENDING_MATCH';
     PaymentStatus status;
@@ -104,15 +105,22 @@ class Payment {
 
     return Payment(
       id: json['id'] as String? ?? '',
-      donorName: json['donorNameSnapshot'] as String? ?? json['donorName'] as String? ?? 'Anonymous Donor',
+      donorName: json['donorNameSnapshot'] as String? ??
+          json['donorName'] as String? ??
+          'Anonymous Donor',
       address: json['addressSnapshot'] as String? ?? json['address'] as String?,
       contact: json['contactSnapshot'] as String? ?? json['contact'] as String?,
       amount: parsedAmount,
-      paymentDateTime: rawDateTime != null ? DateTime.parse(rawDateTime) : DateTime.now(),
+      paymentDateTime:
+          rawDateTime != null ? DateTime.parse(rawDateTime) : DateTime.now(),
       channel: channel,
       status: status,
-      collectedBy: json['collectedByUserId'] != null ? 'User: ${json['collectedByUserId']}' : json['collectedBy'] as String?,
-      matchedBy: json['matchedByUserId'] != null ? 'User: ${json['matchedByUserId']}' : json['matchedBy'] as String?,
+      collectedBy: json['collectedByUserId'] != null
+          ? 'User: ${json['collectedByUserId']}'
+          : json['collectedBy'] as String?,
+      matchedBy: json['matchedByUserId'] != null
+          ? 'User: ${json['matchedByUserId']}'
+          : json['matchedBy'] as String?,
       voidReason: json['voidReason'] as String?,
     );
   }

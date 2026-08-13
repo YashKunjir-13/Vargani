@@ -65,7 +65,9 @@ class _QuickActionButton extends StatelessWidget {
       color: action.primary ? colors.brandOrange : colors.card,
       borderRadius: BorderRadius.circular(16),
       elevation: action.primary ? 4 : 0,
-      shadowColor: action.primary ? colors.brandOrange.withValues(alpha: 0.4) : Colors.transparent,
+      shadowColor: action.primary
+          ? colors.brandOrange.withValues(alpha: 0.4)
+          : Colors.transparent,
       child: InkWell(
         onTap: onTap,
         borderRadius: BorderRadius.circular(16),

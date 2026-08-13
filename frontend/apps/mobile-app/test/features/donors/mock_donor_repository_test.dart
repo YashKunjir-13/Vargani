@@ -46,5 +46,28 @@ void main() {
       expect(updated!.fullName, 'Updated Donor');
       expect(updated.mobile, '9123456780');
     });
+
+    test('records donation for donor and updates total count and amount',
+        () async {
+      final donor = await repository.recordDonationForDonor(
+        fullName: 'Raj Sharma',
+        mobile: '9999999999',
+        amountPaise: 500000,
+      );
+
+      expect(donor.fullName, 'Raj Sharma');
+      expect(donor.mobile, '9999999999');
+      expect(donor.totalContributionsCount, 1);
+      expect(donor.totalConfirmedAmountPaise, 500000);
+
+      final updatedDonor = await repository.recordDonationForDonor(
+        fullName: 'Raj Sharma',
+        mobile: '9999999999',
+        amountPaise: 200000,
+      );
+
+      expect(updatedDonor.totalContributionsCount, 2);
+      expect(updatedDonor.totalConfirmedAmountPaise, 700000);
+    });
   });
 }

@@ -28,4 +28,10 @@ abstract class DonorRepository {
     required String mergedDonorId,
     required String reason,
   });
+
+  Future<Donor> recordDonationForDonor({
+    required String fullName,
+    String? mobile,
+    required int amountPaise,
+  });
 }

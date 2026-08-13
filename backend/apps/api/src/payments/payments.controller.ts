@@ -19,9 +19,13 @@ import { AuthenticatedUser, CurrentUser, Public, RequirePermission } from "@paut
 import { PaymentChannel } from "@pauti-pustak/backend-database";
 import type { Request } from "express";
 import { TenantContext } from "../common/tenancy/tenant-context";
+import { CollectDonationDto } from "./dto/collect-donation.dto";
 import { CreatePaymentDto } from "./dto/create-payment.dto";
 import { CreatePaymentOrderDto } from "./dto/create-payment-order.dto";
 import { ListPaymentsQueryDto } from "./dto/list-payments-query.dto";
+import { ProcessMockPaymentDto } from "./dto/process-mock-payment.dto";
+import { CancelPaymentDto } from "./dto/cancel-payment.dto";
+import { RetryPaymentDto } from "./dto/retry-payment.dto";
 import { RefundPaymentDto } from "./dto/refund-payment.dto";
 import { UpdatePaymentDto } from "./dto/update-payment.dto";
 import { VerifyPaymentSignatureDto } from "./dto/verify-payment-signature.dto";
@@ -92,6 +96,17 @@ export class PaymentsController {
     return { ...payment, razorpayKeyId: process.env.RAZORPAY_KEY_ID };
   }
 
+  @Post("collect")
+  @RequirePermission("payment.create")
+  @HttpCode(HttpStatus.CREATED)
+  @ApiOperation({
+    summary:
+      "Collect direct donation (Cash/UPI/Net Banking/Cheque) and auto-generate official digital receipt",
+  })
+  async collectDonation(@Body() dto: CollectDonationDto, @CurrentUser() user: AuthenticatedUser) {
+    return this.paymentsService.collectDonation(this.tenantContext.organizationId, user.userId, dto);
+  }
+
   @Get("stats")
   @RequirePermission("report.view")
   @ApiOperation({ summary: "Get payment volume, success rate, and status statistics" })
@@ -151,4 +166,44 @@ export class PaymentsController {
   ) {
     return this.paymentsService.refundPayment(this.tenantContext.organizationId, id, user.userId, dto);
   }
+
+  @Post("mock/process")
+  @RequirePermission("payment.create")
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: "Presentation/Demo Mode: Process mock payment outcome (SUCCESS, FAILED, CANCELLED, PENDING)" })
+  async processMockPayment(@Body() dto: ProcessMockPaymentDto, @CurrentUser() user: AuthenticatedUser) {
+    return this.paymentsService.processMockPayment(this.tenantContext.organizationId, user.userId, dto);
+  }
+
+  @Post(":id/cancel")
+  @RequirePermission("payment.create")
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: "Cancel a pending payment order" })
+  async cancelPayment(
+    @Param("id") id: string,
+    @Body() dto: CancelPaymentDto,
+    @CurrentUser() user: AuthenticatedUser,
+  ) {
+    return this.paymentsService.cancelPayment(this.tenantContext.organizationId, id, user.userId, dto);
+  }
+
+  @Post(":id/retry")
+  @RequirePermission("payment.create")
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: "Retry a failed or cancelled payment order" })
+  async retryPayment(
+    @Param("id") id: string,
+    @Body() dto: RetryPaymentDto,
+    @CurrentUser() user: AuthenticatedUser,
+  ) {
+    return this.paymentsService.retryPayment(this.tenantContext.organizationId, id, user.userId, dto);
+  }
+
+  @Get(":id/status")
+  @RequirePermission("payment.view")
+  @ApiOperation({ summary: "Get real-time payment status and receipt details" })
+  async getPaymentStatus(@Param("id") id: string) {
+    return this.paymentsService.getPaymentStatus(this.tenantContext.organizationId, id);
+  }
 }
+

@@ -31,7 +31,8 @@ class AppImagePicker extends StatelessWidget {
       children: [
         Text(
           label,
-          style: theme.textTheme.titleSmall?.copyWith(fontWeight: FontWeight.w600),
+          style:
+              theme.textTheme.titleSmall?.copyWith(fontWeight: FontWeight.w600),
         ),
         const SizedBox(height: 6),
         InkWell(
@@ -43,10 +44,13 @@ class AppImagePicker extends StatelessWidget {
             decoration: BoxDecoration(
               color: hasImage
                   ? theme.colorScheme.primaryContainer.withValues(alpha: 0.2)
-                  : theme.colorScheme.surfaceContainerHighest.withValues(alpha: 0.5),
+                  : theme.colorScheme.surfaceContainerHighest
+                      .withValues(alpha: 0.5),
               borderRadius: BorderRadius.circular(12),
               border: Border.all(
-                color: hasImage ? theme.colorScheme.primary : AppColors.borderLight,
+                color: hasImage
+                    ? theme.colorScheme.primary
+                    : AppColors.borderLight,
                 width: hasImage ? 1.5 : 1,
                 style: BorderStyle.solid,
               ),
@@ -58,10 +62,12 @@ class AppImagePicker extends StatelessWidget {
                         width: 50,
                         height: 50,
                         decoration: BoxDecoration(
-                          color: theme.colorScheme.primary.withValues(alpha: 0.1),
+                          color:
+                              theme.colorScheme.primary.withValues(alpha: 0.1),
                           borderRadius: BorderRadius.circular(8),
                         ),
-                        child: Icon(Icons.description, color: theme.colorScheme.primary),
+                        child: Icon(Icons.description,
+                            color: theme.colorScheme.primary),
                       ),
                       const SizedBox(width: 12),
                       Expanded(
@@ -70,7 +76,8 @@ class AppImagePicker extends StatelessWidget {
                           children: [
                             Text(
                               'Attachment Attached',
-                              style: theme.textTheme.titleSmall?.copyWith(fontWeight: FontWeight.bold),
+                              style: theme.textTheme.titleSmall
+                                  ?.copyWith(fontWeight: FontWeight.bold),
                             ),
                             Text(
                               imagePath!,

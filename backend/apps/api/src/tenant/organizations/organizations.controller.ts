@@ -1,5 +1,5 @@
-import { Body, Controller, Get, HttpCode, HttpStatus, Patch, Post, UseGuards } from "@nestjs/common";
-import { ApiBearerAuth, ApiOperation, ApiTags } from "@nestjs/swagger";
+import { Body, Controller, Get, HttpCode, HttpStatus, Param, Patch, Post, Query, UseGuards } from "@nestjs/common";
+import { ApiBearerAuth, ApiOperation, ApiQuery, ApiTags } from "@nestjs/swagger";
 import { createApiResponse } from "@pauti-pustak/backend-contracts";
 import { AuthenticatedUser, Public } from "@pauti-pustak/backend-security";
 import { CurrentUser } from "../../auth/current-user.decorator";
@@ -18,6 +18,52 @@ export class OrganizationsController {
     private readonly organizationsService: OrganizationsService,
     private readonly authService: AuthService,
   ) {}
+
+  @Get(":id/public")
+  @Public()
+  @ApiOperation({ summary: "Get public organization details and bank setup by ID" })
+  async getPublicOrganizationDetails(@Param("id") id: string) {
+    const result = await this.organizationsService.getPublicOrganizationDetails(id);
+    return createApiResponse(result, HttpStatus.OK);
+  }
+
+  @Get("search")
+  @Public()
+  @ApiOperation({ summary: "Search discoverable active organizations by name or city" })
+  @ApiQuery({ name: "q", required: false })
+  @ApiQuery({ name: "city", required: false })
+  @ApiQuery({ name: "limit", required: false })
+  async searchPublicOrganizations(
+    @Query("q") q?: string,
+    @Query("city") city?: string,
+    @Query("limit") limit?: number,
+  ) {
+    const result = await this.organizationsService.searchPublicOrganizations({
+      q,
+      city,
+      limit: limit ? Number(limit) : 50,
+    });
+    return createApiResponse(result, HttpStatus.OK);
+  }
+
+  @Get("public")
+  @Public()
+  @ApiOperation({ summary: "List discoverable active organizations" })
+  @ApiQuery({ name: "q", required: false })
+  @ApiQuery({ name: "city", required: false })
+  @ApiQuery({ name: "limit", required: false })
+  async listPublicOrganizations(
+    @Query("q") q?: string,
+    @Query("city") city?: string,
+    @Query("limit") limit?: number,
+  ) {
+    const result = await this.organizationsService.searchPublicOrganizations({
+      q,
+      city,
+      limit: limit ? Number(limit) : 50,
+    });
+    return createApiResponse(result, HttpStatus.OK);
+  }
 
   @Post("register")
   @Public()

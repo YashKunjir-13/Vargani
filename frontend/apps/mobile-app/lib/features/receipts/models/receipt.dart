@@ -24,6 +24,7 @@ class Receipt {
   final String receiptNumber;
   final String paymentId;
   final String donorName;
+  final String? contactNumber;
   final double amount;
   final DateTime issuedDate;
   final String mandalName;
@@ -38,6 +39,7 @@ class Receipt {
     required this.receiptNumber,
     required this.paymentId,
     required this.donorName,
+    this.contactNumber,
     required this.amount,
     required this.issuedDate,
     required this.mandalName,
@@ -54,17 +56,20 @@ class Receipt {
     int? whatsappRetryCount,
     String? voidReason,
     String? pdfUrl,
+    String? contactNumber,
   }) {
     return Receipt(
       id: id,
       receiptNumber: receiptNumber,
       paymentId: paymentId,
       donorName: donorName,
+      contactNumber: contactNumber ?? this.contactNumber,
       amount: amount,
       issuedDate: issuedDate,
       mandalName: mandalName,
       status: status ?? this.status,
-      whatsappDeliveryStatus: whatsappDeliveryStatus ?? this.whatsappDeliveryStatus,
+      whatsappDeliveryStatus:
+          whatsappDeliveryStatus ?? this.whatsappDeliveryStatus,
       whatsappRetryCount: whatsappRetryCount ?? this.whatsappRetryCount,
       voidReason: voidReason ?? this.voidReason,
       pdfUrl: pdfUrl ?? this.pdfUrl,
@@ -72,13 +77,20 @@ class Receipt {
   }
 
   factory Receipt.fromJson(Map<String, dynamic> json) {
-    final rawAmount = json['amountSnapshot'] ?? json['amount'];
-    final parsedAmount = (rawAmount is num)
-        ? rawAmount.toDouble()
-        : (double.tryParse(rawAmount?.toString() ?? '0') ?? 0.0);
+    double parsedAmount = 0.0;
+    if (json.containsKey('amountPaise') && json['amountPaise'] != null) {
+      parsedAmount =
+          (double.tryParse(json['amountPaise'].toString()) ?? 0.0) / 100.0;
+    } else {
+      final rawAmount = json['amountSnapshot'] ?? json['amount'];
+      parsedAmount = (rawAmount is num)
+          ? rawAmount.toDouble()
+          : (double.tryParse(rawAmount?.toString() ?? '0') ?? 0.0);
+    }
 
     final rawStatus = json['status'] as String? ?? 'ACTIVE';
-    final status = rawStatus == 'VOIDED' ? ReceiptStatus.voided : ReceiptStatus.active;
+    final status =
+        rawStatus == 'VOIDED' ? ReceiptStatus.voided : ReceiptStatus.active;
 
     final rawWaStatus = json['whatsappDeliveryStatus'] as String? ?? 'PENDING';
     WhatsappDeliveryStatus whatsappDeliveryStatus;
@@ -95,16 +107,27 @@ class Receipt {
         break;
     }
 
-    final rawIssued = json['issuedDate'] as String?;
+    final rawIssued =
+        json['issuedDate'] as String? ?? json['collectedAt'] as String?;
 
     return Receipt(
       id: json['id'] as String? ?? '',
       receiptNumber: json['receiptNumber'] as String? ?? '',
       paymentId: json['paymentId'] as String? ?? '',
-      donorName: json['donorNameSnapshot'] as String? ?? json['donorName'] as String? ?? 'Anonymous Donor',
+      donorName: json['donorNameSnapshot'] as String? ??
+          json['donorName'] as String? ??
+          'Authenticated Donor',
+      contactNumber: json['contactSnapshot'] as String? ??
+          json['contactNumber'] as String? ??
+          json['contact'] as String?,
       amount: parsedAmount,
-      issuedDate: rawIssued != null ? DateTime.parse(rawIssued) : DateTime.now(),
-      mandalName: json['mandalNameSnapshot'] as String? ?? json['mandalName'] as String? ?? 'Shree Ganesh Mandal',
+      issuedDate: rawIssued != null
+          ? (DateTime.tryParse(rawIssued) ?? DateTime.now())
+          : DateTime.now(),
+      mandalName: json['mandalNameSnapshot'] as String? ??
+          json['mandalName'] as String? ??
+          json['organizationName'] as String? ??
+          'Mandal Trust',
       status: status,
       whatsappDeliveryStatus: whatsappDeliveryStatus,
       whatsappRetryCount: json['whatsappRetryCount'] as int? ?? 0,

@@ -154,7 +154,8 @@ class _AdvertisementFormScreenState
     final paise = rupees * 100;
 
     final advertisement = Advertisement(
-      id: widget.advertisementId ?? 'ad-${DateTime.now().millisecondsSinceEpoch}',
+      id: widget.advertisementId ??
+          'ad-${DateTime.now().millisecondsSinceEpoch}',
       advertiserName: _advertiserNameController.text.trim(),
       type: _selectedType,
       placementDetail: _placementDetailController.text.trim().isEmpty

@@ -35,7 +35,8 @@ class _SponsorshipAdvertisementScreenState
     super.initState();
     final savedTab = ref.read(selectedSponsorshipTabProvider);
     final startTab = widget.initialTab != 0 ? widget.initialTab : savedTab;
-    _tabController = TabController(length: 2, vsync: this, initialIndex: startTab);
+    _tabController =
+        TabController(length: 2, vsync: this, initialIndex: startTab);
     _tabController.addListener(() {
       if (!_tabController.indexIsChanging) {
         ref.read(selectedSponsorshipTabProvider.notifier).value =
@@ -133,9 +134,10 @@ class _SponsorshipAdvertisementScreenState
                         value: formatPaiseAsRupees(confirmedTotal),
                         lightBg: const Color(0xFFE8F5E9),
                         darkBg: const Color(0xFF064E3B).withValues(alpha: 0.35),
-                        textColor: Theme.of(context).brightness == Brightness.dark
-                            ? AppColors.darkSuccess
-                            : AppColors.lightSuccess,
+                        textColor:
+                            Theme.of(context).brightness == Brightness.dark
+                                ? AppColors.darkSuccess
+                                : AppColors.lightSuccess,
                       ),
                     ),
                     const SizedBox(width: AppSpacing.space8),
@@ -146,9 +148,10 @@ class _SponsorshipAdvertisementScreenState
                         value: formatPaiseAsRupees(pledgedTotal),
                         lightBg: const Color(0xFFFFF3E0),
                         darkBg: const Color(0xFF78350F).withValues(alpha: 0.35),
-                        textColor: Theme.of(context).brightness == Brightness.dark
-                            ? AppColors.darkWarning
-                            : AppColors.lightWarning,
+                        textColor:
+                            Theme.of(context).brightness == Brightness.dark
+                                ? AppColors.darkWarning
+                                : AppColors.lightWarning,
                       ),
                     ),
                     const SizedBox(width: AppSpacing.space8),
@@ -159,9 +162,10 @@ class _SponsorshipAdvertisementScreenState
                         value: formatPaiseAsRupees(pendingTotal),
                         lightBg: const Color(0xFFE3F2FD),
                         darkBg: const Color(0xFF1E3A8A).withValues(alpha: 0.35),
-                        textColor: Theme.of(context).brightness == Brightness.dark
-                            ? AppColors.darkInfo
-                            : AppColors.lightInfo,
+                        textColor:
+                            Theme.of(context).brightness == Brightness.dark
+                                ? AppColors.darkInfo
+                                : AppColors.lightInfo,
                       ),
                     ),
                   ],
@@ -303,7 +307,8 @@ class _SponsorshipAdvertisementScreenState
           ),
         );
       },
-      loading: () => const AppLoadingIndicator(label: 'Loading advertisements...'),
+      loading: () =>
+          const AppLoadingIndicator(label: 'Loading advertisements...'),
       error: (error, stack) => AppErrorView(message: error.toString()),
     );
   }

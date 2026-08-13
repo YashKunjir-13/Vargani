@@ -1,7 +1,7 @@
 import { Body, Controller, Get, HttpCode, HttpStatus, Param, Patch, Post, UseGuards } from "@nestjs/common";
 import { ApiBearerAuth, ApiOperation, ApiTags } from "@nestjs/swagger";
 import { createApiResponse } from "@pauti-pustak/backend-contracts";
-import { AuthenticatedUser, PlatformRole } from "@pauti-pustak/backend-security";
+import { AuthenticatedUser, PlatformRole, TenantOptional } from "@pauti-pustak/backend-security";
 import { JwtAuthGuard } from "../auth/jwt-auth.guard";
 import { CurrentUser } from "../auth/current-user.decorator";
 import { ChangeContactDto } from "./dto/change-contact.dto";
@@ -12,6 +12,7 @@ import { UsersService } from "./users.service";
 @ApiTags("User Accounts")
 @Controller()
 @UseGuards(JwtAuthGuard)
+@TenantOptional()
 @ApiBearerAuth()
 export class UsersController {
   constructor(private readonly usersService: UsersService) {}

@@ -15,15 +15,18 @@ class TemplateCalibrationScreen extends ConsumerStatefulWidget {
   const TemplateCalibrationScreen({super.key});
 
   @override
-  ConsumerState<TemplateCalibrationScreen> createState() => _TemplateCalibrationScreenState();
+  ConsumerState<TemplateCalibrationScreen> createState() =>
+      _TemplateCalibrationScreenState();
 }
 
-class _TemplateCalibrationScreenState extends ConsumerState<TemplateCalibrationScreen> {
+class _TemplateCalibrationScreenState
+    extends ConsumerState<TemplateCalibrationScreen> {
   String? selectedTemplateId;
   String? selectedMarkerId;
 
   void _showUploadTemplateModal(BuildContext context) {
-    final nameController = TextEditingController(text: 'Shree Ganesh Utsav Receipt Template');
+    final nameController =
+        TextEditingController(text: 'Shree Ganesh Utsav Receipt Template');
     final mandalController = TextEditingController(text: 'Shree Ganesh Mandal');
     String? attachedFileName;
 
@@ -58,7 +61,8 @@ class _TemplateCalibrationScreenState extends ConsumerState<TemplateCalibrationS
                           Container(
                             padding: const EdgeInsets.all(8),
                             decoration: BoxDecoration(
-                              color: AppColors.primaryLight.withValues(alpha: 0.15),
+                              color: AppColors.primaryLight
+                                  .withValues(alpha: 0.15),
                               borderRadius: BorderRadius.circular(10),
                             ),
                             child: const Icon(
@@ -103,7 +107,8 @@ class _TemplateCalibrationScreenState extends ConsumerState<TemplateCalibrationS
                   const SizedBox(height: 16),
                   Text(
                     'Template Background Image',
-                    style: theme.textTheme.bodyMedium?.copyWith(fontWeight: FontWeight.w600),
+                    style: theme.textTheme.bodyMedium
+                        ?.copyWith(fontWeight: FontWeight.w600),
                   ),
                   const SizedBox(height: 8),
                   AppImagePicker(
@@ -113,7 +118,8 @@ class _TemplateCalibrationScreenState extends ConsumerState<TemplateCalibrationS
                     icon: Icons.add_photo_alternate_outlined,
                     onPickImage: () {
                       setModalState(() {
-                        attachedFileName = 'mandal_template_${DateTime.now().millisecondsSinceEpoch}.png';
+                        attachedFileName =
+                            'mandal_template_${DateTime.now().millisecondsSinceEpoch}.png';
                       });
                     },
                     onRemoveImage: () {
@@ -135,12 +141,49 @@ class _TemplateCalibrationScreenState extends ConsumerState<TemplateCalibrationS
                       Expanded(
                         child: ElevatedButton.icon(
                           onPressed: () async {
-                            final filename = attachedFileName ?? 'mandal_template_${DateTime.now().millisecondsSinceEpoch}.png';
-                            final dummyBytes = [137, 80, 78, 71, 13, 10, 26, 10, 0, 0, 0, 13, 73, 72, 68, 82, 0, 0, 0, 1, 0, 0, 0, 1, 8, 6, 0, 0, 0, 31, 213, 196, 236];
-                            final uploadedTemplate = await ref.read(templatesProvider.notifier).uploadAndActivateTemplate(
-                              filename: filename,
-                              bytes: dummyBytes,
-                            );
+                            final filename = attachedFileName ??
+                                'mandal_template_${DateTime.now().millisecondsSinceEpoch}.png';
+                            final dummyBytes = [
+                              137,
+                              80,
+                              78,
+                              71,
+                              13,
+                              10,
+                              26,
+                              10,
+                              0,
+                              0,
+                              0,
+                              13,
+                              73,
+                              72,
+                              68,
+                              82,
+                              0,
+                              0,
+                              0,
+                              1,
+                              0,
+                              0,
+                              0,
+                              1,
+                              8,
+                              6,
+                              0,
+                              0,
+                              0,
+                              31,
+                              213,
+                              196,
+                              236
+                            ];
+                            final uploadedTemplate = await ref
+                                .read(templatesProvider.notifier)
+                                .uploadAndActivateTemplate(
+                                  filename: filename,
+                                  bytes: dummyBytes,
+                                );
 
                             if (uploadedTemplate != null) {
                               setState(() {
@@ -156,13 +199,15 @@ class _TemplateCalibrationScreenState extends ConsumerState<TemplateCalibrationS
                             if (context.mounted) {
                               ScaffoldMessenger.of(context).showSnackBar(
                                 SnackBar(
-                                  content: Text('Mandal template "${uploadedTemplate?.name ?? filename}" uploaded & activated!'),
+                                  content: Text(
+                                      'Mandal template "${uploadedTemplate?.name ?? filename}" uploaded & activated!'),
                                   backgroundColor: Colors.green,
                                 ),
                               );
                             }
                           },
-                          icon: const Icon(Icons.cloud_upload_outlined, size: 18),
+                          icon:
+                              const Icon(Icons.cloud_upload_outlined, size: 18),
                           label: const Text('Upload & Calibrate'),
                         ),
                       ),
@@ -199,7 +244,8 @@ class _TemplateCalibrationScreenState extends ConsumerState<TemplateCalibrationS
               Text('Failed to load templates: $err'),
               const SizedBox(height: 12),
               ElevatedButton(
-                onPressed: () => ref.read(templatesProvider.notifier).loadTemplates(),
+                onPressed: () =>
+                    ref.read(templatesProvider.notifier).loadTemplates(),
                 child: const Text('Retry'),
               ),
             ],
@@ -232,340 +278,389 @@ class _TemplateCalibrationScreenState extends ConsumerState<TemplateCalibrationS
             builder: (context, constraints) {
               final isWide = constraints.maxWidth > 800;
 
-          final canvasWidget = Column(
-            children: [
-              // Template Selector Dropdown & Action Toolbar
-              Row(
+              final canvasWidget = Column(
                 children: [
-                  Expanded(
-                    child: DropdownButtonFormField<String>(
-                      isExpanded: true,
-                      initialValue: currentTemplate.id,
-                      decoration: const InputDecoration(
-                        labelText: 'Select Template',
-                        contentPadding: EdgeInsets.symmetric(horizontal: 14, vertical: 10),
-                      ),
-                      selectedItemBuilder: (context) {
-                        return templates.map((t) {
-                          return Align(
-                            alignment: Alignment.centerLeft,
-                            child: Text(
-                              '${t.name} ${t.isActive ? "★ Active" : ""}',
-                              overflow: TextOverflow.ellipsis,
-                              maxLines: 1,
-                              softWrap: false,
-                            ),
-                          );
-                        }).toList();
-                      },
-                      items: templates
-                          .map((t) => DropdownMenuItem(
-                                value: t.id,
+                  // Template Selector Dropdown & Action Toolbar
+                  Row(
+                    children: [
+                      Expanded(
+                        child: DropdownButtonFormField<String>(
+                          isExpanded: true,
+                          initialValue: currentTemplate.id,
+                          decoration: const InputDecoration(
+                            labelText: 'Select Template',
+                            contentPadding: EdgeInsets.symmetric(
+                                horizontal: 14, vertical: 10),
+                          ),
+                          selectedItemBuilder: (context) {
+                            return templates.map((t) {
+                              return Align(
+                                alignment: Alignment.centerLeft,
                                 child: Text(
                                   '${t.name} ${t.isActive ? "★ Active" : ""}',
                                   overflow: TextOverflow.ellipsis,
                                   maxLines: 1,
+                                  softWrap: false,
                                 ),
-                              ))
-                          .toList(),
-                      onChanged: (val) {
-                        if (val != null) {
-                          setState(() {
-                            selectedTemplateId = val;
-                            selectedMarkerId = null;
-                          });
-                        }
-                      },
-                    ),
+                              );
+                            }).toList();
+                          },
+                          items: templates
+                              .map((t) => DropdownMenuItem(
+                                    value: t.id,
+                                    child: Text(
+                                      '${t.name} ${t.isActive ? "★ Active" : ""}',
+                                      overflow: TextOverflow.ellipsis,
+                                      maxLines: 1,
+                                    ),
+                                  ))
+                              .toList(),
+                          onChanged: (val) {
+                            if (val != null) {
+                              setState(() {
+                                selectedTemplateId = val;
+                                selectedMarkerId = null;
+                              });
+                            }
+                          },
+                        ),
+                      ),
+                      const SizedBox(width: 12),
+                      IconButton.filledTonal(
+                        onPressed: () => _showUploadTemplateModal(context),
+                        icon: const Icon(Icons.upload_file),
+                        tooltip: L10n.tr(ref, 'upload_template'),
+                      ),
+                    ],
                   ),
-                  const SizedBox(width: 12),
-                  IconButton.filledTonal(
-                    onPressed: () => _showUploadTemplateModal(context),
-                    icon: const Icon(Icons.upload_file),
-                    tooltip: L10n.tr(ref, 'upload_template'),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 16),
+                  const SizedBox(height: 16),
 
-              // Canvas Preview with Draggable Field Markers
-              Expanded(
-                child: AppCard(
-                  padding: EdgeInsets.zero,
-                  child: ClipRRect(
-                    borderRadius: BorderRadius.circular(16),
-                    child: LayoutBuilder(
-                      builder: (context, canvasConstraints) {
-                        final canvasWidth = canvasConstraints.maxWidth;
-                        final canvasHeight = canvasConstraints.maxHeight;
+                  // Canvas Preview with Draggable Field Markers
+                  Expanded(
+                    child: AppCard(
+                      padding: EdgeInsets.zero,
+                      child: ClipRRect(
+                        borderRadius: BorderRadius.circular(16),
+                        child: LayoutBuilder(
+                          builder: (context, canvasConstraints) {
+                            final canvasWidth = canvasConstraints.maxWidth;
+                            final canvasHeight = canvasConstraints.maxHeight;
 
-                        return Stack(
-                          children: [
-                            // Simulated Receipt Paper Canvas
-                            Container(
-                              width: canvasWidth,
-                              height: canvasHeight,
-                              decoration: BoxDecoration(
-                                color: theme.brightness == Brightness.dark
-                                    ? const Color(0xFF1E293B)
-                                    : const Color(0xFFFFFBEB),
-                                border: Border.all(
-                                  color: currentTemplate.isActive
-                                      ? theme.colorScheme.primary
-                                      : Colors.grey.shade400,
-                                  width: currentTemplate.isActive ? 2 : 1,
+                            return Stack(
+                              children: [
+                                // Simulated Receipt Paper Canvas
+                                Container(
+                                  width: canvasWidth,
+                                  height: canvasHeight,
+                                  decoration: BoxDecoration(
+                                    color: theme.brightness == Brightness.dark
+                                        ? const Color(0xFF1E293B)
+                                        : const Color(0xFFFFFBEB),
+                                    border: Border.all(
+                                      color: currentTemplate.isActive
+                                          ? theme.colorScheme.primary
+                                          : Colors.grey.shade400,
+                                      width: currentTemplate.isActive ? 2 : 1,
+                                    ),
+                                  ),
+                                  child: Stack(
+                                    children: [
+                                      // Header Banner Preview
+                                      Positioned(
+                                        top: 16,
+                                        left: 20,
+                                        right: 20,
+                                        child: Container(
+                                          padding: const EdgeInsets.all(12),
+                                          decoration: BoxDecoration(
+                                            color: theme
+                                                .colorScheme.primaryContainer,
+                                            borderRadius:
+                                                BorderRadius.circular(10),
+                                          ),
+                                          child: Column(
+                                            children: [
+                                              Text(
+                                                currentTemplate.mandalName,
+                                                style: theme
+                                                    .textTheme.titleMedium
+                                                    ?.copyWith(
+                                                  fontWeight: FontWeight.bold,
+                                                  color: theme.colorScheme
+                                                      .onPrimaryContainer,
+                                                ),
+                                              ),
+                                              Text(
+                                                'OFFICIAL PAUTI RECEIPT TEMPLATE',
+                                                style: theme.textTheme.bodySmall
+                                                    ?.copyWith(
+                                                  letterSpacing: 1.2,
+                                                  color: theme.colorScheme
+                                                      .onPrimaryContainer,
+                                                ),
+                                              ),
+                                            ],
+                                          ),
+                                        ),
+                                      ),
+                                      // Watermark
+                                      Center(
+                                        child: Opacity(
+                                          opacity: 0.08,
+                                          child: Icon(
+                                            Icons.account_balance,
+                                            size: 160,
+                                            color: theme.colorScheme.primary,
+                                          ),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
                                 ),
-                              ),
-                              child: Stack(
-                                children: [
-                                  // Header Banner Preview
+
+                                // Draggable Field Marker Overlays
+                                for (final marker
+                                    in currentTemplate.markers) ...[
                                   Positioned(
-                                    top: 16,
-                                    left: 20,
-                                    right: 20,
-                                    child: Container(
-                                      padding: const EdgeInsets.all(12),
-                                      decoration: BoxDecoration(
-                                        color: theme.colorScheme.primaryContainer,
-                                        borderRadius: BorderRadius.circular(10),
-                                      ),
-                                      child: Column(
-                                        children: [
-                                          Text(
-                                            currentTemplate.mandalName,
-                                            style: theme.textTheme.titleMedium?.copyWith(
-                                              fontWeight: FontWeight.bold,
-                                              color: theme.colorScheme.onPrimaryContainer,
-                                            ),
+                                    left: marker.position.dx * canvasWidth,
+                                    top: marker.position.dy * canvasHeight,
+                                    width: marker.size.width * canvasWidth,
+                                    height: marker.size.height * canvasHeight,
+                                    child: GestureDetector(
+                                      onPanUpdate: (details) {
+                                        final newDx =
+                                            (marker.position.dx * canvasWidth +
+                                                    details.delta.dx) /
+                                                canvasWidth;
+                                        final newDy =
+                                            (marker.position.dy * canvasHeight +
+                                                    details.delta.dy) /
+                                                canvasHeight;
+
+                                        final clampedDx = newDx.clamp(
+                                            0.0, 1.0 - marker.size.width);
+                                        final clampedDy = newDy.clamp(
+                                            0.0, 1.0 - marker.size.height);
+
+                                        ref
+                                            .read(templatesProvider.notifier)
+                                            .updateMarkerPosition(
+                                              currentTemplate.id,
+                                              marker.id,
+                                              Offset(clampedDx, clampedDy),
+                                            );
+                                      },
+                                      onTap: () {
+                                        setState(() {
+                                          selectedMarkerId = marker.id;
+                                        });
+                                      },
+                                      child: AnimatedContainer(
+                                        duration:
+                                            const Duration(milliseconds: 100),
+                                        decoration: BoxDecoration(
+                                          color: marker.color
+                                              .withValues(alpha: 0.22),
+                                          border: Border.all(
+                                            color: selectedMarkerId == marker.id
+                                                ? Colors.red
+                                                : marker.color,
+                                            width: selectedMarkerId == marker.id
+                                                ? 2.5
+                                                : 1.5,
                                           ),
-                                          Text(
-                                            'OFFICIAL PAUTI RECEIPT TEMPLATE',
-                                            style: theme.textTheme.bodySmall?.copyWith(
-                                              letterSpacing: 1.2,
-                                              color: theme.colorScheme.onPrimaryContainer,
+                                          borderRadius:
+                                              BorderRadius.circular(6),
+                                        ),
+                                        padding: const EdgeInsets.all(4),
+                                        child: Center(
+                                          child: FittedBox(
+                                            fit: BoxFit.scaleDown,
+                                            child: Text(
+                                              marker.label,
+                                              style: TextStyle(
+                                                color: marker.color,
+                                                fontWeight: FontWeight.bold,
+                                                fontSize: 12,
+                                              ),
                                             ),
-                                          ),
-                                        ],
-                                      ),
-                                    ),
-                                  ),
-                                  // Watermark
-                                  Center(
-                                    child: Opacity(
-                                      opacity: 0.08,
-                                      child: Icon(
-                                        Icons.account_balance,
-                                        size: 160,
-                                        color: theme.colorScheme.primary,
-                                      ),
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-
-                            // Draggable Field Marker Overlays
-                            for (final marker in currentTemplate.markers) ...[
-                              Positioned(
-                                left: marker.position.dx * canvasWidth,
-                                top: marker.position.dy * canvasHeight,
-                                width: marker.size.width * canvasWidth,
-                                height: marker.size.height * canvasHeight,
-                                child: GestureDetector(
-                                  onPanUpdate: (details) {
-                                    final newDx = (marker.position.dx * canvasWidth + details.delta.dx) / canvasWidth;
-                                    final newDy = (marker.position.dy * canvasHeight + details.delta.dy) / canvasHeight;
-
-                                    final clampedDx = newDx.clamp(0.0, 1.0 - marker.size.width);
-                                    final clampedDy = newDy.clamp(0.0, 1.0 - marker.size.height);
-
-                                    ref.read(templatesProvider.notifier).updateMarkerPosition(
-                                          currentTemplate.id,
-                                          marker.id,
-                                          Offset(clampedDx, clampedDy),
-                                        );
-                                  },
-                                  onTap: () {
-                                    setState(() {
-                                      selectedMarkerId = marker.id;
-                                    });
-                                  },
-                                  child: AnimatedContainer(
-                                    duration: const Duration(milliseconds: 100),
-                                    decoration: BoxDecoration(
-                                      color: marker.color.withValues(alpha: 0.22),
-                                      border: Border.all(
-                                        color: selectedMarkerId == marker.id
-                                            ? Colors.red
-                                            : marker.color,
-                                        width: selectedMarkerId == marker.id ? 2.5 : 1.5,
-                                      ),
-                                      borderRadius: BorderRadius.circular(6),
-                                    ),
-                                    padding: const EdgeInsets.all(4),
-                                    child: Center(
-                                      child: FittedBox(
-                                        fit: BoxFit.scaleDown,
-                                        child: Text(
-                                          marker.label,
-                                          style: TextStyle(
-                                            color: marker.color,
-                                            fontWeight: FontWeight.bold,
-                                            fontSize: 12,
                                           ),
                                         ),
                                       ),
                                     ),
                                   ),
-                                ),
-                              ),
-                            ],
+                                ],
 
-                            // Instruction Hint Banner
-                            Positioned(
-                              bottom: 12,
-                              left: 16,
-                              right: 16,
-                              child: Container(
-                                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                                decoration: BoxDecoration(
-                                  color: Colors.black.withValues(alpha: 0.7),
-                                  borderRadius: BorderRadius.circular(8),
+                                // Instruction Hint Banner
+                                Positioned(
+                                  bottom: 12,
+                                  left: 16,
+                                  right: 16,
+                                  child: Container(
+                                    padding: const EdgeInsets.symmetric(
+                                        horizontal: 12, vertical: 8),
+                                    decoration: BoxDecoration(
+                                      color:
+                                          Colors.black.withValues(alpha: 0.7),
+                                      borderRadius: BorderRadius.circular(8),
+                                    ),
+                                    child: const Row(
+                                      children: [
+                                        Icon(Icons.touch_app,
+                                            color: Colors.amber, size: 18),
+                                        SizedBox(width: 8),
+                                        Expanded(
+                                          child: Text(
+                                            'Drag field boxes to align layout markers manually.',
+                                            style: TextStyle(
+                                                color: Colors.white,
+                                                fontSize: 12),
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
                                 ),
-                                child: const Row(
+                              ],
+                            );
+                          },
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              );
+
+              final coordinatesPanel = Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'Calibration Field Coordinates',
+                    style: theme.textTheme.titleMedium
+                        ?.copyWith(fontWeight: FontWeight.bold),
+                  ),
+                  const SizedBox(height: 8),
+                  Text(
+                    'Precise bounding coordinates (X%, Y%) for print alignment.',
+                    style: theme.textTheme.bodySmall,
+                  ),
+                  const SizedBox(height: 16),
+                  Expanded(
+                    child: ListView.separated(
+                      itemCount: currentTemplate.markers.length,
+                      separatorBuilder: (_, __) => const SizedBox(height: 8),
+                      itemBuilder: (context, index) {
+                        final m = currentTemplate.markers[index];
+                        final isSelected = m.id == selectedMarkerId;
+
+                        return Container(
+                          decoration: BoxDecoration(
+                            color: isSelected
+                                ? m.color.withValues(alpha: 0.12)
+                                : theme.colorScheme.surfaceContainerHighest
+                                    .withValues(alpha: 0.3),
+                            borderRadius: BorderRadius.circular(10),
+                            border: Border.all(
+                              color: isSelected
+                                  ? m.color
+                                  : theme.colorScheme.outline,
+                              width: isSelected ? 2 : 1,
+                            ),
+                          ),
+                          padding: const EdgeInsets.all(12),
+                          child: Row(
+                            children: [
+                              Container(
+                                width: 12,
+                                height: 12,
+                                decoration: BoxDecoration(
+                                    color: m.color, shape: BoxShape.circle),
+                              ),
+                              const SizedBox(width: 10),
+                              Expanded(
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
-                                    Icon(Icons.touch_app, color: Colors.amber, size: 18),
-                                    SizedBox(width: 8),
-                                    Expanded(
-                                      child: Text(
-                                        'Drag field boxes to align layout markers manually.',
-                                        style: TextStyle(color: Colors.white, fontSize: 12),
-                                      ),
+                                    Text(
+                                      m.label,
+                                      style: const TextStyle(
+                                          fontWeight: FontWeight.bold,
+                                          fontSize: 13),
+                                    ),
+                                    Text(
+                                      'X: ${(m.position.dx * 100).toStringAsFixed(1)}% | Y: ${(m.position.dy * 100).toStringAsFixed(1)}%',
+                                      style: TextStyle(
+                                          fontSize: 11,
+                                          color: theme
+                                              .colorScheme.onSurfaceVariant),
                                     ),
                                   ],
                                 ),
                               ),
-                            ),
-                          ],
+                            ],
+                          ),
                         );
                       },
                     ),
                   ),
-                ),
-              ),
-            ],
-          );
+                  const SizedBox(height: 16),
 
-          final coordinatesPanel = Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                'Calibration Field Coordinates',
-                style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
-              ),
-              const SizedBox(height: 8),
-              Text(
-                'Precise bounding coordinates (X%, Y%) for print alignment.',
-                style: theme.textTheme.bodySmall,
-              ),
-              const SizedBox(height: 16),
-              Expanded(
-                child: ListView.separated(
-                  itemCount: currentTemplate.markers.length,
-                  separatorBuilder: (_, __) => const SizedBox(height: 8),
-                  itemBuilder: (context, index) {
-                    final m = currentTemplate.markers[index];
-                    final isSelected = m.id == selectedMarkerId;
+                  // Permission Gated Activate Button
+                  PermissionGuard(
+                    hasPermission: permissions.canActivateTemplate,
+                    fallbackTooltip:
+                        'Admin or Auditor role required to activate receipt template',
+                    child: AppButton(
+                      label: currentTemplate.isActive
+                          ? 'Template Active'
+                          : L10n.tr(ref, 'activate_template'),
+                      variant: currentTemplate.isActive
+                          ? AppButtonVariant.secondary
+                          : AppButtonVariant.primary,
+                      icon: currentTemplate.isActive
+                          ? Icons.check_circle
+                          : Icons.offline_pin,
+                      onPressed: currentTemplate.isActive
+                          ? null
+                          : () {
+                              ref
+                                  .read(templatesProvider.notifier)
+                                  .activateTemplate(currentTemplate.id);
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(
+                                  content: Text(
+                                      'Activated template "${currentTemplate.name}" successfully!'),
+                                  backgroundColor: Colors.green,
+                                ),
+                              );
+                            },
+                    ),
+                  ),
+                ],
+              );
 
-                    return Container(
-                      decoration: BoxDecoration(
-                        color: isSelected
-                            ? m.color.withValues(alpha: 0.12)
-                            : theme.colorScheme.surfaceContainerHighest.withValues(alpha: 0.3),
-                        borderRadius: BorderRadius.circular(10),
-                        border: Border.all(
-                          color: isSelected ? m.color : theme.colorScheme.outline,
-                          width: isSelected ? 2 : 1,
-                        ),
-                      ),
-                      padding: const EdgeInsets.all(12),
-                      child: Row(
+              return Padding(
+                padding: const EdgeInsets.all(16),
+                child: isWide
+                    ? Row(
                         children: [
-                          Container(
-                            width: 12,
-                            height: 12,
-                            decoration: BoxDecoration(color: m.color, shape: BoxShape.circle),
-                          ),
-                          const SizedBox(width: 10),
-                          Expanded(
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  m.label,
-                                  style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13),
-                                ),
-                                Text(
-                                  'X: ${(m.position.dx * 100).toStringAsFixed(1)}% | Y: ${(m.position.dy * 100).toStringAsFixed(1)}%',
-                                  style: TextStyle(fontSize: 11, color: theme.colorScheme.onSurfaceVariant),
-                                ),
-                              ],
-                            ),
-                          ),
+                          Expanded(flex: 3, child: canvasWidget),
+                          const SizedBox(width: 16),
+                          Expanded(flex: 2, child: coordinatesPanel),
+                        ],
+                      )
+                    : Column(
+                        children: [
+                          Expanded(flex: 3, child: canvasWidget),
+                          const SizedBox(height: 16),
+                          Expanded(flex: 2, child: coordinatesPanel),
                         ],
                       ),
-                    );
-                  },
-                ),
-              ),
-              const SizedBox(height: 16),
-
-              // Permission Gated Activate Button
-              PermissionGuard(
-                hasPermission: permissions.canActivateTemplate,
-                fallbackTooltip: 'Admin or Auditor role required to activate receipt template',
-                child: AppButton(
-                  label: currentTemplate.isActive ? 'Template Active' : L10n.tr(ref, 'activate_template'),
-                  variant: currentTemplate.isActive ? AppButtonVariant.secondary : AppButtonVariant.primary,
-                  icon: currentTemplate.isActive ? Icons.check_circle : Icons.offline_pin,
-                  onPressed: currentTemplate.isActive
-                      ? null
-                      : () {
-                          ref.read(templatesProvider.notifier).activateTemplate(currentTemplate.id);
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(
-                              content: Text('Activated template "${currentTemplate.name}" successfully!'),
-                              backgroundColor: Colors.green,
-                            ),
-                          );
-                        },
-                ),
-              ),
-            ],
-          );
-
-          return Padding(
-            padding: const EdgeInsets.all(16),
-            child: isWide
-                ? Row(
-                    children: [
-                      Expanded(flex: 3, child: canvasWidget),
-                      const SizedBox(width: 16),
-                      Expanded(flex: 2, child: coordinatesPanel),
-                    ],
-                  )
-                : Column(
-                    children: [
-                      Expanded(flex: 3, child: canvasWidget),
-                      const SizedBox(height: 16),
-                      Expanded(flex: 2, child: coordinatesPanel),
-                    ],
-                  ),
+              );
+            },
           );
         },
-      );
-    },
-  ),
-);
-}
+      ),
+    );
+  }
 }

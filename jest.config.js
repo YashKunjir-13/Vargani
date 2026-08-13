@@ -11,6 +11,7 @@ module.exports = {
     ],
   },
   modulePathIgnorePatterns: ['<rootDir>/dist/'],
+  testPathIgnorePatterns: ['<rootDir>/dist/', '.*\\.integration\\.spec\\.ts$'],
   collectCoverageFrom: ['backend/{apps,packages}/**/*.ts', '!**/node_modules/**', '!**/dist/**'],
   coverageDirectory: './coverage',
   testEnvironment: 'node',

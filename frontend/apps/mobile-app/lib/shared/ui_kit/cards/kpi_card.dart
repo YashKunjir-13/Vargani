@@ -134,7 +134,8 @@ class KpiCard extends StatelessWidget {
             Expanded(
               child: Text(
                 label,
-                style: textTheme.labelMedium?.copyWith(color: colorScheme.onSurfaceVariant),
+                style: textTheme.labelMedium
+                    ?.copyWith(color: colorScheme.onSurfaceVariant),
               ),
             ),
             if (statusBadge != null)
@@ -162,7 +163,8 @@ class KpiCard extends StatelessWidget {
           const SizedBox(height: AppSpacing.space4),
           Text(
             caption!,
-            style: textTheme.labelSmall?.copyWith(color: colorScheme.onSurfaceVariant),
+            style: textTheme.labelSmall
+                ?.copyWith(color: colorScheme.onSurfaceVariant),
           ),
         ],
       ],
@@ -186,14 +188,18 @@ class _TrendLabel extends StatelessWidget {
       TrendSentiment.negative => colorScheme.error,
       TrendSentiment.neutral => colorScheme.onSurfaceVariant,
     };
-    final icon = trend.direction == TrendDirection.up ? Icons.arrow_upward : Icons.arrow_downward;
+    final icon = trend.direction == TrendDirection.up
+        ? Icons.arrow_upward
+        : Icons.arrow_downward;
 
     return Row(
       mainAxisSize: MainAxisSize.min,
       children: [
         Icon(icon, size: 12, color: color),
         const SizedBox(width: 2),
-        Text(trend.label, style: textTheme.labelSmall?.copyWith(color: color, fontWeight: FontWeight.w700)),
+        Text(trend.label,
+            style: textTheme.labelSmall
+                ?.copyWith(color: color, fontWeight: FontWeight.w700)),
       ],
     );
   }

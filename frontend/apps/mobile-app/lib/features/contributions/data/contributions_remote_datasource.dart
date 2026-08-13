@@ -10,7 +10,9 @@ class ContributionsRemoteDataSource {
   Future<List<Contribution>> fetchContributions() async {
     final response = await dio.get('/contributions');
     final data = response.data as List<dynamic>;
-    return data.map((json) => Contribution.fromJson(json as Map<String, dynamic>)).toList();
+    return data
+        .map((json) => Contribution.fromJson(json as Map<String, dynamic>))
+        .toList();
   }
 
   Future<Contribution> getContributionById(String id) async {
@@ -24,7 +26,10 @@ class ContributionsRemoteDataSource {
     required DonationType donationType,
     String? itemDescription,
     double? weightGrams,
+    double? quantity,
+    String? unit,
     double? estimatedValue,
+    String? notes,
     String? certificatePhotoUrl,
   }) async {
     String donationTypeStr;
@@ -47,6 +52,12 @@ class ContributionsRemoteDataSource {
       case DonationType.musicBand:
         donationTypeStr = 'Music Band';
         break;
+      case DonationType.dholPathak:
+        donationTypeStr = 'Dhol Pathak';
+        break;
+      case DonationType.dj:
+        donationTypeStr = 'DJ';
+        break;
       case DonationType.other:
         donationTypeStr = 'Other';
         break;
@@ -59,8 +70,12 @@ class ContributionsRemoteDataSource {
       'donationType': donationTypeStr,
       if (itemDescription != null) 'itemDescription': itemDescription,
       if (weightGrams != null) 'weight': weightGrams,
+      if (quantity != null) 'quantity': quantity,
+      if (unit != null) 'unit': unit,
       if (estimatedValue != null) 'estimatedValue': estimatedValue,
-      if (certificatePhotoUrl != null) 'certificatePhotoUrl': certificatePhotoUrl,
+      if (notes != null) 'notes': notes,
+      if (certificatePhotoUrl != null)
+        'certificatePhotoUrl': certificatePhotoUrl,
     });
 
     return Contribution.fromJson(response.data as Map<String, dynamic>);
@@ -73,7 +88,10 @@ class ContributionsRemoteDataSource {
     DonationType? donationType,
     String? itemDescription,
     double? weightGrams,
+    double? quantity,
+    String? unit,
     double? estimatedValue,
+    String? notes,
     String? certificatePhotoUrl,
   }) async {
     final response = await dio.patch('/contributions/$id', data: {
@@ -81,8 +99,12 @@ class ContributionsRemoteDataSource {
       if (contact != null) 'contactSnapshot': contact,
       if (itemDescription != null) 'itemDescription': itemDescription,
       if (weightGrams != null) 'weight': weightGrams,
+      if (quantity != null) 'quantity': quantity,
+      if (unit != null) 'unit': unit,
       if (estimatedValue != null) 'estimatedValue': estimatedValue,
-      if (certificatePhotoUrl != null) 'certificatePhotoUrl': certificatePhotoUrl,
+      if (notes != null) 'notes': notes,
+      if (certificatePhotoUrl != null)
+        'certificatePhotoUrl': certificatePhotoUrl,
     });
     return Contribution.fromJson(response.data as Map<String, dynamic>);
   }
@@ -93,9 +115,11 @@ class ContributionsRemoteDataSource {
 
   Future<String> uploadCertificatePhoto(File file) async {
     final formData = FormData.fromMap({
-      'file': await MultipartFile.fromFile(file.path, filename: file.path.split('/').last),
+      'file': await MultipartFile.fromFile(file.path,
+          filename: file.path.split('/').last),
     });
-    final response = await dio.post('/contributions/upload-certificate', data: formData);
+    final response =
+        await dio.post('/contributions/upload-certificate', data: formData);
     return response.data['url'] as String;
   }
 }

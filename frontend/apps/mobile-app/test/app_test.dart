@@ -9,12 +9,13 @@ import 'package:pauti_pustak_mobile/features/authentication/presentation/pages/r
 
 void main() {
   testWidgets(
-      'PautiPustakApp starts on the registration landing screen via go_router',
+      'GIVEN an unauthenticated session WHEN PautiPustakApp starts THEN routes to the registration landing screen via go_router',
       (tester) async {
     await tester.pumpWidget(
       ProviderScope(
         overrides: [
-          initialSessionStateProvider.overrideWithValue(SessionState.unauthenticated),
+          initialSessionStateProvider
+              .overrideWithValue(SessionState.unauthenticated),
         ],
         child: const PautiPustakApp(environment: 'test'),
       ),

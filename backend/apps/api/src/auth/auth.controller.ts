@@ -1,7 +1,7 @@
-import { Body, Controller, Get, HttpCode, HttpStatus, Post, Req, UseGuards } from "@nestjs/common";
+import { Body, Controller, Get, HttpCode, HttpStatus, Inject, Post, Req, UseGuards } from "@nestjs/common";
 import { ApiBearerAuth, ApiBody, ApiOperation, ApiTags } from "@nestjs/swagger";
 import { createApiResponse } from "@pauti-pustak/backend-contracts";
-import { AuthenticatedUser, Public } from "@pauti-pustak/backend-security";
+import { AuthenticatedUser, Public, TenantOptional } from "@pauti-pustak/backend-security";
 import { Request } from "express";
 import { AuthService } from "./auth.service";
 import { CurrentUser } from "./current-user.decorator";
@@ -23,7 +23,7 @@ import { JwtAuthGuard } from "./jwt-auth.guard";
 @ApiTags("Authentication")
 @Controller("auth")
 export class AuthController {
-  constructor(private readonly authService: AuthService) {}
+  constructor(@Inject(AuthService) private readonly authService: AuthService) {}
 
   @Post("otp/request")
   @Public()
@@ -136,6 +136,7 @@ export class AuthController {
   @Post("mpin/create")
   @HttpCode(HttpStatus.OK)
   @UseGuards(JwtAuthGuard)
+  @TenantOptional()
   @ApiBearerAuth()
   @ApiOperation({ summary: "Create 6-digit MPIN for authenticated user" })
   @ApiBody({ type: CreateMpinDto })
@@ -157,6 +158,7 @@ export class AuthController {
   @Post("mpin/change")
   @HttpCode(HttpStatus.OK)
   @UseGuards(JwtAuthGuard)
+  @TenantOptional()
   @ApiBearerAuth()
   @ApiOperation({ summary: "Change MPIN for authenticated user" })
   @ApiBody({ type: ChangeMpinDto })

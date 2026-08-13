@@ -11,7 +11,8 @@ class AuditSearchScreen extends StatefulWidget {
   final List<String> recentSearches;
   final Future<List<AuditSearchResult>> Function(String query) onSearch;
 
-  const AuditSearchScreen({super.key, required this.recentSearches, required this.onSearch});
+  const AuditSearchScreen(
+      {super.key, required this.recentSearches, required this.onSearch});
 
   @override
   State<AuditSearchScreen> createState() => _AuditSearchScreenState();
@@ -67,27 +68,32 @@ class _AuditSearchScreenState extends State<AuditSearchScreen> {
       body: Padding(
         padding: const EdgeInsets.all(16),
         child: _query.isEmpty
-            ? _RecentSearches(searches: widget.recentSearches, onTap: (s) {
-                _controller.text = s;
-                _runSearch(s);
-              })
+            ? _RecentSearches(
+                searches: widget.recentSearches,
+                onTap: (s) {
+                  _controller.text = s;
+                  _runSearch(s);
+                })
             : (_searched && _results.isEmpty)
                 ? EmptyState(
                     icon: Icons.search_off,
                     title: 'No results for "$_query"',
-                    message: 'Check spelling, or try a user name, receipt number, or Audit ID.',
+                    message:
+                        'Check spelling, or try a user name, receipt number, or Audit ID.',
                   )
                 : ListView(
                     children: [
                       Text(
                         '${_results.length} results · $moduleCount modules',
-                        style: textTheme.labelMedium?.copyWith(color: colorScheme.onSurfaceVariant),
+                        style: textTheme.labelMedium
+                            ?.copyWith(color: colorScheme.onSurfaceVariant),
                       ),
                       const SizedBox(height: 8),
                       for (final result in _results)
                         ListTile(
                           contentPadding: EdgeInsets.zero,
-                          leading: Icon(result.icon, color: colorScheme.onSurfaceVariant),
+                          leading: Icon(result.icon,
+                              color: colorScheme.onSurfaceVariant),
                           title: Text.rich(
                             TextSpan(
                               style: textTheme.bodyLarge,
@@ -96,7 +102,8 @@ class _AuditSearchScreenState extends State<AuditSearchScreen> {
                                 TextSpan(
                                   text: result.matchText,
                                   style: TextStyle(
-                                    backgroundColor: colorScheme.primaryContainer,
+                                    backgroundColor:
+                                        colorScheme.primaryContainer,
                                     color: colorScheme.onPrimaryContainer,
                                     fontWeight: FontWeight.w700,
                                   ),
@@ -105,7 +112,8 @@ class _AuditSearchScreenState extends State<AuditSearchScreen> {
                               ],
                             ),
                           ),
-                          subtitle: Text('${result.moduleLabel} · ${result.timeLabel}'),
+                          subtitle: Text(
+                              '${result.moduleLabel} · ${result.timeLabel}'),
                         ),
                     ],
                   ),
@@ -129,7 +137,10 @@ class _RecentSearches extends StatelessWidget {
       children: [
         Text(
           'RECENT SEARCHES',
-          style: Theme.of(context).textTheme.labelMedium?.copyWith(color: colorScheme.onSurfaceVariant),
+          style: Theme.of(context)
+              .textTheme
+              .labelMedium
+              ?.copyWith(color: colorScheme.onSurfaceVariant),
         ),
         const SizedBox(height: 8),
         Wrap(

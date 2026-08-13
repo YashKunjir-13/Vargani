@@ -5,7 +5,8 @@ import '../data/volunteer_repository.dart';
 import '../models/volunteer.dart';
 import '../models/volunteer_assignment.dart';
 
-final volunteerRepositoryProvider = Provider<VolunteerRepository>((ref) => MockVolunteerRepository());
+final volunteerRepositoryProvider =
+    Provider<VolunteerRepository>((ref) => MockVolunteerRepository());
 
 class VolunteerListState {
   const VolunteerListState({this.search = '', this.status, this.type});
@@ -54,22 +55,27 @@ class VolunteerListNotifier extends Notifier<VolunteerListState> {
   }
 }
 
-final volunteerListControllerProvider = NotifierProvider<VolunteerListNotifier, VolunteerListState>(
+final volunteerListControllerProvider =
+    NotifierProvider<VolunteerListNotifier, VolunteerListState>(
   VolunteerListNotifier.new,
 );
 
 final volunteerListProvider = FutureProvider<List<Volunteer>>((ref) async {
   final state = ref.watch(volunteerListControllerProvider);
   final repository = ref.watch(volunteerRepositoryProvider);
-  return repository.getVolunteers(search: state.search, status: state.status, type: state.type);
+  return repository.getVolunteers(
+      search: state.search, status: state.status, type: state.type);
 });
 
-final volunteerDetailProvider = FutureProvider.family<Volunteer?, String>((ref, volunteerId) async {
+final volunteerDetailProvider =
+    FutureProvider.family<Volunteer?, String>((ref, volunteerId) async {
   final repository = ref.watch(volunteerRepositoryProvider);
   return repository.getVolunteerById(volunteerId);
 });
 
-final volunteerAssignmentsProvider = FutureProvider.family<List<VolunteerAssignment>, String>((ref, volunteerId) async {
+final volunteerAssignmentsProvider =
+    FutureProvider.family<List<VolunteerAssignment>, String>(
+        (ref, volunteerId) async {
   final repository = ref.watch(volunteerRepositoryProvider);
   return repository.getAssignmentsForVolunteer(volunteerId);
 });

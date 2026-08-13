@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../core/theme/app_colors.dart';
+
 /// Reusable app bar matching the exact screenshot design with prominent Back Button:
 /// - Prominent Back Button ('<')
 /// - Orange 'पप' logo badge
@@ -37,7 +38,8 @@ class PautiAppBar extends ConsumerWidget implements PreferredSizeWidget {
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
         decoration: BoxDecoration(
           color: theme.colorScheme.surface,
-          border: Border(bottom: BorderSide(color: theme.colorScheme.outline, width: 1)),
+          border: Border(
+              bottom: BorderSide(color: theme.colorScheme.outline, width: 1)),
         ),
         child: Row(
           children: [
@@ -57,10 +59,14 @@ class PautiAppBar extends ConsumerWidget implements PreferredSizeWidget {
                   width: 34,
                   height: 34,
                   decoration: BoxDecoration(
-                    color: isDark ? AppColors.surfaceVariantDark : const Color(0xFFFFF7ED),
+                    color: isDark
+                        ? AppColors.surfaceVariantDark
+                        : const Color(0xFFFFF7ED),
                     borderRadius: BorderRadius.circular(10),
                     border: Border.all(
-                      color: isDark ? AppColors.borderDark : const Color(0xFFFFEDD5),
+                      color: isDark
+                          ? AppColors.borderDark
+                          : const Color(0xFFFFEDD5),
                       width: 1.2,
                     ),
                   ),
@@ -123,7 +129,9 @@ class PautiAppBar extends ConsumerWidget implements PreferredSizeWidget {
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                     style: theme.textTheme.bodySmall?.copyWith(
-                      color: isDark ? AppColors.textSecondaryDark : AppColors.textSecondaryLight,
+                      color: isDark
+                          ? AppColors.textSecondaryDark
+                          : AppColors.textSecondaryLight,
                       fontSize: 11,
                       height: 1.1,
                     ),
@@ -145,10 +153,14 @@ class PautiAppBar extends ConsumerWidget implements PreferredSizeWidget {
                 width: 34,
                 height: 34,
                 decoration: BoxDecoration(
-                  color: isDark ? const Color(0xFF3B1515) : const Color(0xFFFFF0F0),
+                  color: isDark
+                      ? const Color(0xFF3B1515)
+                      : const Color(0xFFFFF0F0),
                   borderRadius: BorderRadius.circular(10),
                   border: Border.all(
-                    color: isDark ? const Color(0xFF7F1D1D) : const Color(0xFFFFD6D6),
+                    color: isDark
+                        ? const Color(0xFF7F1D1D)
+                        : const Color(0xFFFFD6D6),
                     width: 1,
                   ),
                 ),

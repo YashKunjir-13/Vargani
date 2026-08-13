@@ -11,7 +11,8 @@ class ExportAuditSheet extends StatefulWidget {
 
   const ExportAuditSheet({super.key, this.activeScopeLabel = 'This week'});
 
-  static Future<void> show(BuildContext context, {String activeScopeLabel = 'This week'}) {
+  static Future<void> show(BuildContext context,
+      {String activeScopeLabel = 'This week'}) {
     return AppBottomSheet.show<void>(
       context,
       builder: (_) => ExportAuditSheet(activeScopeLabel: activeScopeLabel),
@@ -49,7 +50,10 @@ class _ExportAuditSheetState extends State<ExportAuditSheet> {
         children: [
           Text(
             'SCHEDULE',
-            style: Theme.of(context).textTheme.labelMedium?.copyWith(color: colorScheme.onSurfaceVariant),
+            style: Theme.of(context)
+                .textTheme
+                .labelMedium
+                ?.copyWith(color: colorScheme.onSurfaceVariant),
           ),
           SwitchListTile(
             contentPadding: EdgeInsets.zero,

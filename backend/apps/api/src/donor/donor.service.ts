@@ -5,7 +5,7 @@ import {
   Injectable,
   NotFoundException,
 } from "@nestjs/common";
-import { DonorProfileStatus, PrismaService } from "@pauti-pustak/backend-database";
+import { DonorProfileStatus, Prisma, PrismaService } from "@pauti-pustak/backend-database";
 import { PanEncryptionService } from "@pauti-pustak/backend-security";
 import { CreateDonorDto } from "./dto/create-donor.dto";
 import { MergeDonorsDto } from "./dto/merge-donors.dto";
@@ -13,12 +13,14 @@ import { UpdateDonorDto } from "./dto/update-donor.dto";
 import { SelectOrganizationDto } from "./dto/select-organization.dto";
 import { CheckoutPaymentDto } from "./dto/checkout-payment.dto";
 import { CreateContributorAccountDto } from "../contributor/dto/create-contributor-account.dto";
+import { ReceiptsService } from "../receipts/receipts.service";
 
 @Injectable()
 export class DonorService {
   constructor(
     private readonly prisma: PrismaService,
     private readonly panEncryptionService: PanEncryptionService,
+    private readonly receiptsService: ReceiptsService,
   ) {}
 
   async createDonor(userId: string, orgId: string | undefined, dto: CreateDonorDto) {
@@ -505,6 +507,29 @@ export class DonorService {
   async checkoutPayment(userId: string, dto: CheckoutPaymentDto) {
     const profile = await this.getSelfProfile(userId);
 
+    let targetEventId = dto.eventId;
+    if (!targetEventId) {
+      const activeEvent = await this.prisma.event.findFirst({
+        where: { organizationId: dto.organizationId, status: "ACTIVE" },
+        orderBy: { createdAt: "desc" },
+      });
+      if (activeEvent) {
+        targetEventId = activeEvent.id;
+      } else {
+        const defaultEvent = await this.prisma.event.create({
+          data: {
+            organizationId: dto.organizationId,
+            eventTypeCode: "FESTIVAL",
+            code: "GEN-" + Date.now().toString().substring(7),
+            name: "General Festival Donation",
+            status: "ACTIVE",
+            createdByUserId: userId,
+          },
+        });
+        targetEventId = defaultEvent.id;
+      }
+    }
+
     let contributorAccountId = dto.contributorAccountId;
     let bill: any = null;
 
@@ -518,12 +543,12 @@ export class DonorService {
 
     if (!contributorAccountId) {
       const existingAccount = await this.prisma.contributorAccount.findFirst({
-        where: { donorProfileId: profile.id, organizationId: dto.organizationId, eventId: dto.eventId },
+        where: { donorProfileId: profile.id, organizationId: dto.organizationId, eventId: targetEventId },
       });
       if (existingAccount) {
         contributorAccountId = existingAccount.id;
       } else {
-        const newAccount = await this.createDonorContributorAccount(userId, dto.organizationId, dto.eventId, {
+        const newAccount = await this.createDonorContributorAccount(userId, dto.organizationId, targetEventId, {
           displayName: profile.fullName,
           type: "INDIVIDUAL" as any,
           donorProfileId: profile.id,
@@ -539,14 +564,16 @@ export class DonorService {
 
     const amountPaise = BigInt(dto.amountPaise);
     const idempotencyKey = `CHK-${Date.now()}-${Math.random().toString(36).substring(2, 9)}`;
+    const receiptNumber = `RCPT-${new Date().getFullYear()}-${Date.now().toString().substring(7)}`;
 
     const result = await this.prisma.$transaction(async (tx) => {
       const collectionRecord = await tx.collectionRecord.create({
         data: {
           organizationId: dto.organizationId,
-          eventId: dto.eventId,
+          eventId: targetEventId,
           contributorAccountId,
           billId: dto.billId ?? null,
+          receiptId: null,
           status: "CONFIRMED",
           mode: dto.mode,
           source: "PUBLIC_PAYMENT",
@@ -563,6 +590,28 @@ export class DonorService {
         },
       });
 
+      const organization = await tx.organization.findUnique({ where: { id: dto.organizationId } });
+      const mandalNameSnapshot = organization?.name ?? "Unknown Mandal";
+
+      const receipt = await tx.paymentReceipt.create({
+        data: {
+          organizationId: dto.organizationId,
+          festivalYear: new Date().getFullYear(),
+          paymentId: collectionRecord.id,
+          donorId: profile.id,
+          donorNameSnapshot: profile.fullName,
+          amountSnapshot: new Prisma.Decimal(Number(amountPaise) / 100),
+          receiptNumber,
+          mandalNameSnapshot,
+          pdfUrl: "LOCAL-MOCK-PDF",
+        }
+      });
+
+      await tx.collectionRecord.update({
+        where: { id: collectionRecord.id },
+        data: { receiptId: receipt.id },
+      });
+
       if (bill) {
         const newConfirmed = bill.confirmedCollectionPaise + amountPaise;
         const payable = bill.payableAmountPaise ?? BigInt(0);
@@ -577,14 +626,16 @@ export class DonorService {
         });
       }
 
-      return collectionRecord;
+      return { collectionRecord, receipt };
     });
 
     return {
-      collectionRecordId: result.id,
-      amountPaise: result.amountPaise.toString(),
-      status: result.status,
-      collectedAt: result.collectedAt,
+      collectionRecordId: result.collectionRecord.id,
+      amountPaise: result.collectionRecord.amountPaise.toString(),
+      status: result.collectionRecord.status,
+      collectedAt: result.collectionRecord.collectedAt,
+      receiptNumber: receiptNumber,
+      receiptId: result.receipt.id,
     };
   }
 
@@ -660,6 +711,38 @@ export class DonorService {
       paymentReference: collection.paymentReference,
       isTaxExempt80G: true,
     };
+  }
+
+  async getDonorReceiptPdf(userId: string, receiptId: string) {
+    const profile = await this.getSelfProfile(userId);
+
+    const collection = await this.prisma.collectionRecord.findFirst({
+      where: {
+        OR: [{ id: receiptId }, { receiptId }],
+      },
+    });
+
+    if (!collection) {
+      throw new NotFoundException("Receipt not found");
+    }
+
+    const account = await this.prisma.contributorAccount.findUnique({
+      where: { id: collection.contributorAccountId },
+    });
+
+    if (!account || account.donorProfileId !== profile.id) {
+      throw new ForbiddenException("Access denied: You do not own this receipt");
+    }
+
+    const receipt = await this.prisma.paymentReceipt.findFirst({
+      where: { paymentId: collection.id },
+    });
+
+    if (!receipt) {
+      throw new NotFoundException("Receipt document not found");
+    }
+
+    return this.receiptsService.getPdfDocument(receipt.organizationId, receipt.id);
   }
 
   async getDonorContributions(userId: string, organizationId?: string, eventId?: string) {

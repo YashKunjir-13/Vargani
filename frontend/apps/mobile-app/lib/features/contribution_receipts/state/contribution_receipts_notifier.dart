@@ -5,7 +5,8 @@ import '../data/contribution_receipts_mock_data.dart';
 import '../data/contribution_receipts_remote_datasource.dart';
 import '../models/contribution_receipt.dart';
 
-final contributionReceiptsRemoteDataSourceProvider = Provider<ContributionReceiptsRemoteDataSource?>((ref) {
+final contributionReceiptsRemoteDataSourceProvider =
+    Provider<ContributionReceiptsRemoteDataSource?>((ref) {
   try {
     final dio = ref.watch(dioProvider);
     return ContributionReceiptsRemoteDataSource(dio);
@@ -47,7 +48,8 @@ class ContributionReceiptsNotifier extends Notifier<List<ContributionReceipt>> {
     _sequence += 1;
     final receipt = ContributionReceipt(
       id: 'crcpt-${DateTime.now().microsecondsSinceEpoch}',
-      contributionReceiptNumber: 'CRCPT-2026-${_sequence.toString().padLeft(6, '0')}',
+      contributionReceiptNumber:
+          'CRCPT-2026-${_sequence.toString().padLeft(6, '0')}',
       contributionId: contributionId,
       contributorName: contributorName,
       donationType: donationType,
@@ -70,7 +72,8 @@ class ContributionReceiptsNotifier extends Notifier<List<ContributionReceipt>> {
     try {
       final generated = await remote.generateForContribution(contributionId);
       state = [
-        for (final r in state) if (r.contributionId == contributionId) generated else r,
+        for (final r in state)
+          if (r.contributionId == contributionId) generated else r,
       ];
     } catch (_) {}
   }
@@ -101,7 +104,8 @@ class ContributionReceiptsNotifier extends Notifier<List<ContributionReceipt>> {
     state = [
       for (final r in state)
         if (r.id == id && r.status != ContributionReceiptStatus.voided)
-          r.copyWith(status: ContributionReceiptStatus.voided, voidReason: reason)
+          r.copyWith(
+              status: ContributionReceiptStatus.voided, voidReason: reason)
         else
           r,
     ];
@@ -113,11 +117,14 @@ class ContributionReceiptsNotifier extends Notifier<List<ContributionReceipt>> {
     if (remote == null) return;
     try {
       final voided = await remote.voidReceipt(id, reason);
-      state = [for (final r in state) if (r.id == id) voided else r];
+      state = [
+        for (final r in state)
+          if (r.id == id) voided else r
+      ];
     } catch (_) {}
   }
 }
 
 final contributionReceiptsProvider =
-    NotifierProvider<ContributionReceiptsNotifier, List<ContributionReceipt>>(ContributionReceiptsNotifier.new);
-
+    NotifierProvider<ContributionReceiptsNotifier, List<ContributionReceipt>>(
+        ContributionReceiptsNotifier.new);

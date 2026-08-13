@@ -75,7 +75,8 @@ class VaultNotifier extends Notifier<List<VaultDepositRecord>> {
     }).toList();
   }
 
-  void updateStatus(String recordId, VaultStatus newStatus, {String? bankReferenceNumber}) {
+  void updateStatus(String recordId, VaultStatus newStatus,
+      {String? bankReferenceNumber}) {
     state = state.map((r) {
       if (r.id == recordId) {
         return r.copyWith(

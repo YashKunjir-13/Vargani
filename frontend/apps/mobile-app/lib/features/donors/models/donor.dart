@@ -45,8 +45,10 @@ class Donor {
       status: status ?? this.status,
       claimedAt: claimedAt ?? this.claimedAt,
       createdAt: createdAt ?? this.createdAt,
-      totalContributionsCount: totalContributionsCount ?? this.totalContributionsCount,
-      totalConfirmedAmountPaise: totalConfirmedAmountPaise ?? this.totalConfirmedAmountPaise,
+      totalContributionsCount:
+          totalContributionsCount ?? this.totalContributionsCount,
+      totalConfirmedAmountPaise:
+          totalConfirmedAmountPaise ?? this.totalConfirmedAmountPaise,
     );
   }
 }

@@ -83,10 +83,80 @@ class BudgetItem {
   final int allocatedPaise;
   final int spentPaise;
 
-  double get spentPercentage => (spentPaise / allocatedPaise * 100).clamp(0, 100);
+  double get spentPercentage =>
+      (spentPaise / allocatedPaise * 100).clamp(0, 100);
 }
 
 class MandalDashboardData {
+  static const defaultModules = [
+    MandalModuleItem(
+      id: 'contributions',
+      title: 'Contribution Management',
+      subtitle: 'Track & record vargani',
+      icon: Icons.monetization_on_outlined,
+    ),
+    MandalModuleItem(
+      id: 'collection',
+      title: 'Donation Collection',
+      subtitle: 'Spot collection & QR code',
+      icon: Icons.handshake_outlined,
+    ),
+    MandalModuleItem(
+      id: 'receipts',
+      title: 'Receipt Generation',
+      subtitle: 'Instant PDF & SMS receipts',
+      icon: Icons.receipt_long_outlined,
+    ),
+    MandalModuleItem(
+      id: 'budget',
+      title: 'Budget Management',
+      subtitle: 'Allocate & monitor budgets',
+      icon: Icons.account_balance_outlined,
+    ),
+    MandalModuleItem(
+      id: 'bills',
+      title: 'Bill Management',
+      subtitle: 'Vendor invoices & approvals',
+      icon: Icons.description_outlined,
+    ),
+    MandalModuleItem(
+      id: 'kunda',
+      title: 'Donation Box (Kunda)',
+      subtitle: 'Cash counting & log',
+      icon: Icons.inbox_outlined,
+    ),
+    MandalModuleItem(
+      id: 'all_records',
+      title: 'All Records',
+      subtitle: 'Browse all category records',
+      icon: Icons.folder_open_outlined,
+    ),
+    MandalModuleItem(
+      id: 'members',
+      title: 'Member Management',
+      subtitle: 'Trustees & committee',
+      icon: Icons.badge_outlined,
+    ),
+    MandalModuleItem(
+      id: 'reports',
+      title: 'Reports',
+      subtitle: 'P&L, Audit & Tax reports',
+      icon: Icons.assessment_outlined,
+    ),
+    MandalModuleItem(
+      id: 'audit',
+      title: 'Audit Log',
+      subtitle: 'Compliance & immutable logs',
+      icon: Icons.verified_user_outlined,
+    ),
+    MandalModuleItem(
+      id: 'analytics',
+      title: 'Analytics',
+      subtitle: 'Real-time revenue insights',
+      icon: Icons.analytics_outlined,
+    ),
+  ];
+
   const MandalDashboardData({
     required this.mandalName,
     required this.festivalYear,
@@ -101,10 +171,10 @@ class MandalDashboardData {
     required this.totalDonorsCount,
     required this.upcomingEventsCount,
     required this.transactions,
-    required this.modules,
-    required this.topDonors,
-    required this.pendingPayments,
-    required this.budgets,
+    this.modules = defaultModules,
+    this.topDonors = const [],
+    this.pendingPayments = const [],
+    this.budgets = const [],
   });
 
   final String mandalName;
@@ -148,13 +218,16 @@ class MandalDashboardData {
       mandalName: mandalName ?? this.mandalName,
       festivalYear: festivalYear ?? this.festivalYear,
       currentBalancePaise: currentBalancePaise ?? this.currentBalancePaise,
-      todaysCollectionPaise: todaysCollectionPaise ?? this.todaysCollectionPaise,
+      todaysCollectionPaise:
+          todaysCollectionPaise ?? this.todaysCollectionPaise,
       totalCollectionPaise: totalCollectionPaise ?? this.totalCollectionPaise,
       totalExpensesPaise: totalExpensesPaise ?? this.totalExpensesPaise,
       pendingBillsCount: pendingBillsCount ?? this.pendingBillsCount,
-      pendingBillsAmountPaise: pendingBillsAmountPaise ?? this.pendingBillsAmountPaise,
+      pendingBillsAmountPaise:
+          pendingBillsAmountPaise ?? this.pendingBillsAmountPaise,
       pendingReceiptsCount: pendingReceiptsCount ?? this.pendingReceiptsCount,
-      activeVolunteersCount: activeVolunteersCount ?? this.activeVolunteersCount,
+      activeVolunteersCount:
+          activeVolunteersCount ?? this.activeVolunteersCount,
       totalDonorsCount: totalDonorsCount ?? this.totalDonorsCount,
       upcomingEventsCount: upcomingEventsCount ?? this.upcomingEventsCount,
       transactions: transactions ?? this.transactions,
@@ -211,8 +284,10 @@ class DonorDashboardData {
       mobile: mobile ?? this.mobile,
       email: email ?? this.email,
       totalDonationsPaise: totalDonationsPaise ?? this.totalDonationsPaise,
-      thisYearDonationsPaise: thisYearDonationsPaise ?? this.thisYearDonationsPaise,
-      lastDonationAmountPaise: lastDonationAmountPaise ?? this.lastDonationAmountPaise,
+      thisYearDonationsPaise:
+          thisYearDonationsPaise ?? this.thisYearDonationsPaise,
+      lastDonationAmountPaise:
+          lastDonationAmountPaise ?? this.lastDonationAmountPaise,
       lastDonationDate: lastDonationDate ?? this.lastDonationDate,
       favoriteMandalName: favoriteMandalName ?? this.favoriteMandalName,
       digitalReceiptsCount: digitalReceiptsCount ?? this.digitalReceiptsCount,

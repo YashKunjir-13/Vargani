@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:pauti_pustak_mobile/core/localization/localization_extensions.dart';
 import 'package:pauti_pustak_mobile/features/authentication/presentation/widgets/auth_design_tokens.dart';
 import 'package:pauti_pustak_mobile/features/dashboard/data/models/dashboard_models.dart';
 
@@ -129,7 +130,7 @@ class _ModuleCard extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        module.title,
+                        context.localizedModuleTitle(module.id),
                         maxLines: 2,
                         overflow: TextOverflow.ellipsis,
                         style: TextStyle(

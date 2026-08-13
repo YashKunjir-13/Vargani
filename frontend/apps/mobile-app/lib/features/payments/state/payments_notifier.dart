@@ -6,9 +6,10 @@ import '../models/payment.dart';
 import '../../receipts/models/receipt.dart';
 import '../../receipts/state/receipts_notifier.dart';
 
-import '../data/payments_mock_data.dart';
+import '../../donors/providers/donor_providers.dart';
 
-final paymentsRemoteDataSourceProvider = Provider<PaymentsRemoteDataSource>((ref) {
+final paymentsRemoteDataSourceProvider =
+    Provider<PaymentsRemoteDataSource>((ref) {
   return PaymentsRemoteDataSource(ref.watch(dioProvider));
 });
 
@@ -16,7 +17,7 @@ class PaymentsNotifier extends Notifier<AsyncValue<List<Payment>>> {
   @override
   AsyncValue<List<Payment>> build() {
     loadPayments();
-    return AsyncValue.data(buildMockPayments());
+    return const AsyncValue.data([]);
   }
 
   Future<void> loadPayments() async {
@@ -24,13 +25,11 @@ class PaymentsNotifier extends Notifier<AsyncValue<List<Payment>>> {
       final dataSource = ref.read(paymentsRemoteDataSourceProvider);
       final list = await dataSource.fetchPayments();
       if (!ref.mounted) return;
-      if (list.isNotEmpty) {
-        state = AsyncValue.data(list);
-      }
-    } catch (_) {
+      state = AsyncValue.data(list);
+    } catch (err, stack) {
       if (!ref.mounted) return;
       if (state.value == null || state.value!.isEmpty) {
-        state = AsyncValue.data(buildMockPayments());
+        state = AsyncValue.error(err, stack);
       }
     }
   }
@@ -80,7 +79,7 @@ class PaymentsNotifier extends Notifier<AsyncValue<List<Payment>>> {
     } catch (e) {
       final currentList = state.value ?? [];
       final matchPayment = currentList.firstWhere((p) => p.id == id);
-      
+
       // Update local payment state
       state = AsyncValue.data([
         for (final p in currentList)
@@ -104,16 +103,20 @@ class PaymentsNotifier extends Notifier<AsyncValue<List<Payment>>> {
       final currentReceipts = receiptsNotifier.state.value ?? [];
       final offlineReceipt = Receipt(
         id: 'rcpt-${DateTime.now().microsecondsSinceEpoch}',
-        receiptNumber: 'RCPT-2026-${(currentReceipts.length + 1).toString().padLeft(6, '0')}',
+        receiptNumber:
+            'RCPT-2026-${(currentReceipts.length + 1).toString().padLeft(6, '0')}',
         paymentId: id,
         donorName: matchPayment.donorName,
         amount: matchPayment.amount,
         issuedDate: DateTime.now(),
-        mandalName: 'Shree Siddhivinayak Ganpati Mandal',
+        mandalName:
+            ref.read(sessionControllerProvider).user?.organization?.name ??
+                'My Mandal',
         status: ReceiptStatus.active,
         whatsappDeliveryStatus: WhatsappDeliveryStatus.sent,
       );
-      receiptsNotifier.state = AsyncValue.data([...currentReceipts, offlineReceipt]);
+      receiptsNotifier.state =
+          AsyncValue.data([...currentReceipts, offlineReceipt]);
       return true;
     }
   }
@@ -128,6 +131,92 @@ class PaymentsNotifier extends Notifier<AsyncValue<List<Payment>>> {
       return false;
     }
   }
+
+  Future<Receipt?> collectDonationAndGenerateReceipt({
+    required String donorName,
+    String? contact,
+    String? address,
+    required double amount,
+    required String paymentMethod,
+  }) async {
+    try {
+      final dataSource = ref.read(paymentsRemoteDataSourceProvider);
+      final result = await dataSource.collectDonation(
+        donorName: donorName,
+        contact: contact,
+        address: address,
+        amount: amount,
+        paymentMethod: paymentMethod,
+      );
+
+      await loadPayments();
+
+      final receiptsNotifier = ref.read(receiptsProvider.notifier);
+      await receiptsNotifier.loadReceipts();
+
+      if (result['receipt'] != null) {
+        final receipt =
+            Receipt.fromJson(Map<String, dynamic>.from(result['receipt']));
+        return receipt;
+      }
+    } catch (_) {
+      // Offline fallback
+    }
+
+    final paymentId = 'pay-${DateTime.now().microsecondsSinceEpoch}';
+    final channel =
+        paymentMethod == 'UPI' ? PaymentChannel.inApp : PaymentChannel.qrCode;
+    final offlinePayment = Payment(
+      id: paymentId,
+      donorName: donorName,
+      address: address,
+      contact: contact,
+      amount: amount,
+      channel: channel,
+      paymentDateTime: DateTime.now(),
+      status: PaymentStatus.receipted,
+    );
+    final currentPayments = state.value ?? [];
+    state = AsyncValue.data([offlinePayment, ...currentPayments]);
+
+    final receiptsNotifier = ref.read(receiptsProvider.notifier);
+    final currentReceipts = receiptsNotifier.state.value ?? [];
+    final nextSeq = (currentReceipts.length + 1).toString().padLeft(6, '0');
+    final receiptNo = 'RCPT-2026-$nextSeq';
+
+    final offlineReceipt = Receipt(
+      id: 'rcpt-${DateTime.now().microsecondsSinceEpoch}',
+      receiptNumber: receiptNo,
+      paymentId: paymentId,
+      donorName: donorName,
+      contactNumber: contact,
+      amount: amount,
+      issuedDate: DateTime.now(),
+      mandalName:
+          ref.read(sessionControllerProvider).user?.organization?.name ??
+              'My Mandal',
+      status: ReceiptStatus.active,
+      whatsappDeliveryStatus: WhatsappDeliveryStatus.sent,
+    );
+
+    receiptsNotifier.state =
+        AsyncValue.data([offlineReceipt, ...currentReceipts]);
+
+    try {
+      final amountPaise = (amount * 100).round();
+      final donorRepo = ref.read(donorRepositoryProvider);
+      await donorRepo.recordDonationForDonor(
+        fullName: donorName,
+        mobile: contact,
+        amountPaise: amountPaise,
+      );
+      ref.invalidate(donorListProvider);
+    } catch (_) {}
+
+    return offlineReceipt;
+  }
 }
 
-final paymentsProvider = NotifierProvider<PaymentsNotifier, AsyncValue<List<Payment>>>(PaymentsNotifier.new);
+final paymentsProvider =
+    NotifierProvider<PaymentsNotifier, AsyncValue<List<Payment>>>(
+        PaymentsNotifier.new);

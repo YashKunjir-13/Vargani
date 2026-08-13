@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:pauti_pustak_mobile/core/session/session_controller.dart';
+import 'package:pauti_pustak_mobile/features/dashboard/data/dashboard_remote_datasource.dart';
 import 'package:pauti_pustak_mobile/features/dashboard/data/models/dashboard_models.dart';
 
 class DashboardTabNotifier extends Notifier<int> {
@@ -12,199 +14,186 @@ class DashboardTabNotifier extends Notifier<int> {
 final dashboardTabProvider =
     NotifierProvider<DashboardTabNotifier, int>(DashboardTabNotifier.new);
 
+final dashboardRemoteDataSourceProvider =
+    Provider<DashboardRemoteDataSource>((ref) {
+  return DashboardRemoteDataSource(ref.watch(dioProvider));
+});
+
+const _standardModules = [
+  MandalModuleItem(
+    id: 'contributions',
+    title: 'Contribution Management',
+    subtitle: 'Track & record vargani',
+    icon: Icons.monetization_on_outlined,
+  ),
+  MandalModuleItem(
+    id: 'collection',
+    title: 'Donation Collection',
+    subtitle: 'Spot collection & QR code',
+    icon: Icons.handshake_outlined,
+  ),
+  MandalModuleItem(
+    id: 'receipts',
+    title: 'Receipt Generation',
+    subtitle: 'Instant PDF & SMS receipts',
+    icon: Icons.receipt_long_outlined,
+  ),
+  MandalModuleItem(
+    id: 'budget',
+    title: 'Budget Management',
+    subtitle: 'Allocate & monitor budgets',
+    icon: Icons.account_balance_outlined,
+  ),
+  MandalModuleItem(
+    id: 'bills',
+    title: 'Bill Management',
+    subtitle: 'Vendor invoices & approvals',
+    icon: Icons.description_outlined,
+  ),
+  MandalModuleItem(
+    id: 'kunda',
+    title: 'Donation Box (Kunda)',
+    subtitle: 'Cash counting & log',
+    icon: Icons.inbox_outlined,
+  ),
+  MandalModuleItem(
+    id: 'all_records',
+    title: 'All Records',
+    subtitle: 'Browse all category records',
+    icon: Icons.folder_open_outlined,
+  ),
+  MandalModuleItem(
+    id: 'members',
+    title: 'Member Management',
+    subtitle: 'Trustees & committee',
+    icon: Icons.badge_outlined,
+  ),
+  MandalModuleItem(
+    id: 'reports',
+    title: 'Reports',
+    subtitle: 'P&L, Audit & Tax reports',
+    icon: Icons.assessment_outlined,
+  ),
+  MandalModuleItem(
+    id: 'audit',
+    title: 'Audit Log',
+    subtitle: 'Compliance & immutable logs',
+    icon: Icons.verified_user_outlined,
+  ),
+  MandalModuleItem(
+    id: 'analytics',
+    title: 'Analytics',
+    subtitle: 'Real-time revenue insights',
+    icon: Icons.analytics_outlined,
+  ),
+];
+
 class MandalDashboardNotifier extends Notifier<MandalDashboardData> {
   @override
   MandalDashboardData build() {
+    final session = ref.watch(sessionControllerProvider);
+    final orgName = session.user?.organization?.name ??
+        'Shree Siddhivinayak Ganpati Mandal';
+
+    Future.microtask(() => fetchDashboardData());
+
     return MandalDashboardData(
-      mandalName: 'Shree Siddhivinayak Ganpati Mandal',
-      festivalYear: 'Ganpati Utsav 2025',
-      currentBalancePaise: 36750000,
-      todaysCollectionPaise: 4280000,
-      totalCollectionPaise: 48230000,
-      totalExpensesPaise: 11480000,
-      pendingBillsCount: 5,
-      pendingBillsAmountPaise: 1840000,
-      pendingReceiptsCount: 3,
-      activeVolunteersCount: 24,
-      totalDonorsCount: 342,
-      upcomingEventsCount: 1,
-      transactions: [
-        TransactionItem(
-          id: '1',
-          receiptNumber: 'RCT-2025-089',
-          donorName: 'Rajesh Ramniklal Sharma',
-          amountPaise: 500100,
-          paymentMethod: 'UPI (GPay)',
-          date: DateTime(2026, 7, 28, 10, 30),
-          status: 'Confirmed',
-        ),
-        TransactionItem(
-          id: '2',
-          receiptNumber: 'RCT-2025-088',
-          donorName: 'Vijay Vasantrao Kulkarni',
-          amountPaise: 1100000,
-          paymentMethod: 'Cash',
-          date: DateTime(2026, 7, 28, 09, 15),
-          status: 'Confirmed',
-        ),
-        TransactionItem(
-          id: '3',
-          receiptNumber: 'RCT-2025-087',
-          donorName: 'Sunita Prabhakar Deshmukh',
-          amountPaise: 250000,
-          paymentMethod: 'Net Banking',
-          date: DateTime(2026, 7, 27, 18, 45),
-          status: 'Verified',
-        ),
-        TransactionItem(
-          id: '4',
-          receiptNumber: 'RCT-2025-086',
-          donorName: 'Anil Dattatray Shinde',
-          amountPaise: 510000,
-          paymentMethod: 'UPI (PhonePe)',
-          date: DateTime(2026, 7, 27, 14, 20),
-          status: 'Confirmed',
-        ),
-        TransactionItem(
-          id: '5',
-          receiptNumber: 'RCT-2025-085',
-          donorName: 'Meena Suresh Joshi',
-          amountPaise: 100100,
-          paymentMethod: 'Cash',
-          date: DateTime(2026, 7, 26, 11, 10),
-          status: 'Confirmed',
-        ),
-      ],
-      modules: const [
-        MandalModuleItem(
-          id: 'contributions',
-          title: 'Contribution Management',
-          subtitle: 'Track & record vargani',
-          icon: Icons.monetization_on_outlined,
-        ),
-        MandalModuleItem(
-          id: 'collection',
-          title: 'Donation Collection',
-          subtitle: 'Spot collection & QR code',
-          icon: Icons.handshake_outlined,
-        ),
-        MandalModuleItem(
-          id: 'receipts',
-          title: 'Receipt Generation',
-          subtitle: 'Instant PDF & SMS receipts',
-          icon: Icons.receipt_long_outlined,
-        ),
-        MandalModuleItem(
-          id: 'budget',
-          title: 'Budget Management',
-          subtitle: 'Allocate & monitor budgets',
-          icon: Icons.account_balance_outlined,
-        ),
-        MandalModuleItem(
-          id: 'bills',
-          title: 'Bill Management',
-          subtitle: 'Vendor invoices & approvals',
-          icon: Icons.description_outlined,
-          badgeCount: 5,
-        ),
-        MandalModuleItem(
-          id: 'vendor_payments',
-          title: 'Vendor Payments',
-          subtitle: 'Approve & record payouts',
-          icon: Icons.payments_outlined,
-        ),
-        MandalModuleItem(
-          id: 'kunda',
-          title: 'Donation Box (Kunda)',
-          subtitle: 'Cash counting & log',
-          icon: Icons.inbox_outlined,
-        ),
-        MandalModuleItem(
-          id: 'sponsors',
-          title: 'Sponsors',
-          subtitle: 'Banners & main sponsors',
-          icon: Icons.card_membership_outlined,
-        ),
-        MandalModuleItem(
-          id: 'all_records',
-          title: 'All Records',
-          subtitle: 'Browse all category records',
-          icon: Icons.folder_open_outlined,
-        ),
-        MandalModuleItem(
-          id: 'advertisements',
-          title: 'Advertisements',
-          subtitle: 'Souvenir & ad slots',
-          icon: Icons.campaign_outlined,
-        ),
-        MandalModuleItem(
-          id: 'volunteers',
-          title: 'Volunteers',
-          subtitle: 'Duty roster & assignment',
-          icon: Icons.groups_outlined,
-        ),
-        MandalModuleItem(
-          id: 'members',
-          title: 'Member Management',
-          subtitle: 'Trustees & committee',
-          icon: Icons.badge_outlined,
-        ),
-        MandalModuleItem(
-          id: 'reports',
-          title: 'Reports',
-          subtitle: 'P&L, Audit & Tax reports',
-          icon: Icons.assessment_outlined,
-        ),
-        MandalModuleItem(
-          id: 'audit',
-          title: 'Audit Log',
-          subtitle: 'Compliance & immutable logs',
-          icon: Icons.verified_user_outlined,
-        ),
-        MandalModuleItem(
-          id: 'analytics',
-          title: 'Analytics',
-          subtitle: 'Real-time revenue insights',
-          icon: Icons.analytics_outlined,
-        ),
-      ],
-      topDonors: const [
-        TopDonorItem(rank: 1, name: 'Ramesh Shivaji Patil', amountPaise: 2500000),
-        TopDonorItem(rank: 2, name: 'Vijay Vasantrao Kulkarni', amountPaise: 2100000),
-        TopDonorItem(rank: 3, name: 'Mahesh Dattatray Kulkarni', amountPaise: 1500000),
-        TopDonorItem(rank: 4, name: 'Sunita Prabhakar Deshmukh', amountPaise: 1100000),
-        TopDonorItem(rank: 5, name: 'Rajesh Ramniklal Sharma', amountPaise: 1000000),
-      ],
-      pendingPayments: [
-        PendingPaymentItem(
-          id: 'p1',
-          vendorName: 'Sai Decorators & Tent House',
-          description: 'Main Mandap Stage Setup',
-          amountPaise: 1250000,
-          dueDate: DateTime(2026, 8, 5),
-        ),
-        PendingPaymentItem(
-          id: 'p2',
-          vendorName: 'Shree Ganesh Audio Systems',
-          description: 'Sound System & Mic Rental',
-          amountPaise: 350000,
-          dueDate: DateTime(2026, 8, 10),
-        ),
-        PendingPaymentItem(
-          id: 'p3',
-          vendorName: 'Mahalaxmi Caterers',
-          description: 'Prasad & Mahaprasad Preparation',
-          amountPaise: 240000,
-          dueDate: DateTime(2026, 8, 12),
-        ),
-      ],
-      budgets: const [
-        BudgetItem(category: 'Decoration & Lighting', allocatedPaise: 20000000, spentPaise: 17000000),
-        BudgetItem(category: 'Prasad & Catering', allocatedPaise: 15000000, spentPaise: 9000000),
-        BudgetItem(category: 'Sound & Orchestra', allocatedPaise: 8000000, spentPaise: 6400000),
-        BudgetItem(category: 'Security & CCTV', allocatedPaise: 5000000, spentPaise: 2000000),
-      ],
+      mandalName: orgName,
+      festivalYear: session.user?.organization?.code ?? '',
+      currentBalancePaise: 0,
+      todaysCollectionPaise: 0,
+      totalCollectionPaise: 0,
+      totalExpensesPaise: 0,
+      pendingBillsCount: 0,
+      pendingBillsAmountPaise: 0,
+      pendingReceiptsCount: 0,
+      activeVolunteersCount: 0,
+      totalDonorsCount: 0,
+      upcomingEventsCount: 0,
+      transactions: const [],
+      modules: _standardModules,
+      topDonors: const [],
+      pendingPayments: const [],
+      budgets: const [],
     );
+  }
+
+  Future<void> refresh() => fetchDashboardData();
+
+  Future<void> fetchDashboardData() async {
+    final session = ref.read(sessionControllerProvider);
+    final orgName = session.user?.organization?.name ?? state.mandalName;
+
+    try {
+      final dio = ref.read(dioProvider);
+
+      // 1. Fetch Executive Dashboard KPIs from NestJS backend
+      final execResp =
+          await dio.get<Map<String, dynamic>>('/dashboards/executive');
+      final execData = execResp.data?['data'] as Map<String, dynamic>? ?? {};
+
+      final totalCollections =
+          int.tryParse(execData['totalCollectionsPaise']?.toString() ?? '0') ??
+              0;
+      final paidExpenses =
+          int.tryParse(execData['paidExpensesPaise']?.toString() ?? '0') ?? 0;
+      final balance = int.tryParse(
+              execData['netLiquidityBalancePaise']?.toString() ?? '0') ??
+          0;
+      final activeEvents =
+          (execData['activeEventsCount'] as num?)?.toInt() ?? 0;
+      final activeVolunteers =
+          (execData['activeVolunteersCount'] as num?)?.toInt() ?? 0;
+      final collectionsCount =
+          (execData['totalCollectionsCount'] as num?)?.toInt() ?? 0;
+
+      // 2. Fetch Recent Transactions from NestJS Payments API
+      List<TransactionItem> realTransactions = [];
+      try {
+        final payResp = await dio.get<Map<String, dynamic>>('/payments');
+        final payList = payResp.data?['data'] as List<dynamic>? ??
+            (payResp.data is List ? payResp.data as List : []);
+        realTransactions = payList.map((item) {
+          final map = Map<String, dynamic>.from(item as Map);
+          final rawAmount = (map['amountPaise'] as num?)?.toInt() ??
+              ((map['amount'] as num?)?.toDouble() ?? 0.0 * 100).round();
+          final dtStr =
+              map['paymentDateTime'] as String? ?? map['createdAt'] as String?;
+          final dateVal = dtStr != null
+              ? DateTime.tryParse(dtStr) ?? DateTime.now()
+              : DateTime.now();
+          return TransactionItem(
+            id: map['id']?.toString() ?? '',
+            receiptNumber:
+                map['receiptNumber']?.toString() ?? 'RCT-${map['id']}',
+            donorName: map['donorNameSnapshot']?.toString() ??
+                map['donorName']?.toString() ??
+                'Donor',
+            amountPaise: rawAmount,
+            paymentMethod: map['paymentMethod']?.toString() ??
+                map['channel']?.toString() ??
+                'Cash',
+            date: dateVal,
+            status: map['status']?.toString() ?? 'Confirmed',
+          );
+        }).toList();
+      } catch (_) {
+        // Fallback to empty transaction list if payments API fails
+      }
+
+      state = state.copyWith(
+        mandalName: orgName,
+        totalCollectionPaise: totalCollections,
+        totalExpensesPaise: paidExpenses,
+        currentBalancePaise: balance,
+        upcomingEventsCount: activeEvents,
+        activeVolunteersCount: activeVolunteers,
+        totalDonorsCount: collectionsCount,
+        transactions: realTransactions,
+      );
+    } catch (_) {
+      state = state.copyWith(mandalName: orgName);
+    }
   }
 
   void addDonation({
@@ -215,7 +204,8 @@ class MandalDashboardNotifier extends Notifier<MandalDashboardData> {
     final now = DateTime.now();
     final newTx = TransactionItem(
       id: 'new_${now.millisecondsSinceEpoch}',
-      receiptNumber: 'RCT-${now.year}-${now.millisecondsSinceEpoch.toString().substring(9)}',
+      receiptNumber:
+          'RCT-${now.year}-${now.millisecondsSinceEpoch.toString().substring(9)}',
       donorName: donorName,
       amountPaise: amountPaise,
       paymentMethod: paymentMethod,
@@ -230,73 +220,102 @@ class MandalDashboardNotifier extends Notifier<MandalDashboardData> {
       todaysCollectionPaise: state.todaysCollectionPaise + amountPaise,
       totalCollectionPaise: state.totalCollectionPaise + amountPaise,
       currentBalancePaise: state.currentBalancePaise + amountPaise,
+      totalDonorsCount: state.totalDonorsCount + 1,
     );
   }
 }
 
-final mandalDashboardProvider = NotifierProvider<MandalDashboardNotifier, MandalDashboardData>(MandalDashboardNotifier.new);
+final mandalDashboardProvider =
+    NotifierProvider<MandalDashboardNotifier, MandalDashboardData>(
+        MandalDashboardNotifier.new);
 
 class DonorDashboardNotifier extends Notifier<DonorDashboardData> {
   @override
   DonorDashboardData build() {
+    final session = ref.watch(sessionControllerProvider);
+    final user = session.user;
+
+    Future.microtask(() => fetchDashboard());
+
     return DonorDashboardData(
-      donorName: 'Ramesh Shivaji Patil',
-      mobile: '9876543210',
-      email: 'ramesh@email.com',
-      totalDonationsPaise: 5100000,
-      thisYearDonationsPaise: 1500000,
-      lastDonationAmountPaise: 500100,
-      lastDonationDate: DateTime(2026, 7, 20),
-      favoriteMandalName: 'Shree Siddhivinayak Ganpati Mandal',
-      digitalReceiptsCount: 8,
-      recentDonations: [
-        TransactionItem(
-          id: 'd1',
-          receiptNumber: 'RCT-2025-089',
-          donorName: 'Ramesh Shivaji Patil',
-          mandalName: 'Shree Siddhivinayak Ganpati Mandal',
-          amountPaise: 500100,
-          paymentMethod: 'UPI (PhonePe)',
-          date: DateTime(2026, 7, 20),
-          status: 'Confirmed',
-        ),
-        TransactionItem(
-          id: 'd2',
-          receiptNumber: 'RCT-2025-042',
-          donorName: 'Ramesh Shivaji Patil',
-          mandalName: 'Shree Siddhivinayak Ganpati Mandal',
-          amountPaise: 1000000,
-          paymentMethod: 'Net Banking',
-          date: DateTime(2026, 6, 15),
-          status: 'Confirmed',
-        ),
-        TransactionItem(
-          id: 'd3',
-          receiptNumber: 'RCT-2024-192',
-          donorName: 'Ramesh Shivaji Patil',
-          mandalName: 'Lalbaugcha Raja Sarvajanik Ganeshotsav',
-          amountPaise: 2100000,
-          paymentMethod: 'UPI (GPay)',
-          date: DateTime(2024, 9, 10),
-          status: 'Confirmed',
-        ),
-        TransactionItem(
-          id: 'd4',
-          receiptNumber: 'RCT-2024-055',
-          donorName: 'Ramesh Shivaji Patil',
-          mandalName: 'Shree Siddhivinayak Ganpati Mandal',
-          amountPaise: 1500000,
-          paymentMethod: 'Cheque',
-          date: DateTime(2024, 8, 25),
-          status: 'Confirmed',
-        ),
-      ],
-      yearlyBreakdown: const {
-        2024: 3600000,
-        2025: 0,
-        2026: 1500000,
-      },
+      donorName: user?.displayName ?? 'Authenticated Donor',
+      mobile: user?.primaryMobile ?? '',
+      email: user?.primaryEmail ?? '',
+      totalDonationsPaise: 0,
+      thisYearDonationsPaise: 0,
+      lastDonationAmountPaise: 0,
+      lastDonationDate: DateTime.now(),
+      favoriteMandalName: '',
+      digitalReceiptsCount: 0,
+      recentDonations: const [],
+      yearlyBreakdown: const {},
     );
+  }
+
+  Future<void> fetchDashboard() async {
+    try {
+      final dio = ref.read(dioProvider);
+      final response = await dio.get('/donor/dashboard');
+
+      final dynamic resData = response.data;
+      Map<String, dynamic> dataMap = {};
+      if (resData is Map<String, dynamic> && resData.containsKey('data')) {
+        dataMap = resData['data'] as Map<String, dynamic>;
+      } else if (resData is Map<String, dynamic>) {
+        dataMap = resData;
+      }
+
+      final ytdTotal = int.tryParse(
+              dataMap['ytdTotalContributedPaise']?.toString() ?? '0') ??
+          0;
+      final receipts = dataMap['recentReceipts'] as List? ?? [];
+
+      List<TransactionItem> recentList = [];
+      int lastAmount = 0;
+      DateTime lastDate = DateTime.now();
+
+      for (var r in receipts) {
+        if (r is Map<String, dynamic>) {
+          final amt = int.tryParse(r['amountPaise']?.toString() ?? '0') ?? 0;
+          if (lastAmount == 0 && amt > 0) {
+            lastAmount = amt;
+            if (r['collectedAt'] != null) {
+              lastDate = DateTime.tryParse(r['collectedAt'].toString()) ??
+                  DateTime.now();
+            }
+          }
+          recentList.add(
+            TransactionItem(
+              id: r['id']?.toString() ?? '',
+              receiptNumber: r['receiptNumber']?.toString() ??
+                  'RCPT-${r['id']?.toString().substring(0, 8)}',
+              donorName: state.donorName,
+              mandalName: r['organizationName']?.toString() ?? 'Mandal Trust',
+              amountPaise: amt,
+              paymentMethod: r['mode']?.toString() ?? 'UPI',
+              date: r['collectedAt'] != null
+                  ? (DateTime.tryParse(r['collectedAt'].toString()) ??
+                      DateTime.now())
+                  : DateTime.now(),
+              status: 'Confirmed',
+            ),
+          );
+        }
+      }
+
+      state = state.copyWith(
+        totalDonationsPaise: ytdTotal,
+        thisYearDonationsPaise: ytdTotal,
+        lastDonationAmountPaise:
+            lastAmount > 0 ? lastAmount : state.lastDonationAmountPaise,
+        lastDonationDate: lastDate,
+        digitalReceiptsCount: receipts.length,
+        recentDonations:
+            recentList.isNotEmpty ? recentList : state.recentDonations,
+      );
+    } catch (_) {
+      // Keep existing state if offline
+    }
   }
 
   void addDonation({
@@ -307,7 +326,8 @@ class DonorDashboardNotifier extends Notifier<DonorDashboardData> {
     final now = DateTime.now();
     final newTx = TransactionItem(
       id: 'new_${now.millisecondsSinceEpoch}',
-      receiptNumber: 'RCT-${now.year}-${now.millisecondsSinceEpoch.toString().substring(9)}',
+      receiptNumber:
+          'RCT-${now.year}-${now.millisecondsSinceEpoch.toString().substring(9)}',
       donorName: state.donorName,
       mandalName: mandalName,
       amountPaise: amountPaise,
@@ -317,10 +337,11 @@ class DonorDashboardNotifier extends Notifier<DonorDashboardData> {
     );
 
     final newRecentDonations = [newTx, ...state.recentDonations];
-    
+
     final currentYear = now.year;
     final newYearlyBreakdown = Map<int, int>.from(state.yearlyBreakdown);
-    newYearlyBreakdown[currentYear] = (newYearlyBreakdown[currentYear] ?? 0) + amountPaise;
+    newYearlyBreakdown[currentYear] =
+        (newYearlyBreakdown[currentYear] ?? 0) + amountPaise;
 
     state = state.copyWith(
       recentDonations: newRecentDonations,
@@ -331,7 +352,12 @@ class DonorDashboardNotifier extends Notifier<DonorDashboardData> {
       digitalReceiptsCount: state.digitalReceiptsCount + 1,
       yearlyBreakdown: newYearlyBreakdown,
     );
+
+    // Refresh from backend to ensure PostgreSQL source of truth
+    fetchDashboard();
   }
 }
 
-final donorDashboardProvider = NotifierProvider<DonorDashboardNotifier, DonorDashboardData>(DonorDashboardNotifier.new);
+final donorDashboardProvider =
+    NotifierProvider<DonorDashboardNotifier, DonorDashboardData>(
+        DonorDashboardNotifier.new);

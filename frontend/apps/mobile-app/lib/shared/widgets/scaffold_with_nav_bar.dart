@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:pauti_pustak_mobile/core/localization/localization_extensions.dart';
 
 import '../../core/theme/app_colors.dart';
 import '../../features/bills/models/bill.dart';
@@ -53,13 +54,17 @@ class ScaffoldWithNavBar extends ConsumerWidget {
     final bills = ref.watch(billsProvider);
 
     final pendingMatchCount = asyncPayments.maybeWhen(
-      data: (list) => list.where((p) => p.status == PaymentStatus.pendingMatch).length,
+      data: (list) =>
+          list.where((p) => p.status == PaymentStatus.pendingMatch).length,
       orElse: () => 0,
     );
-    final pendingApprovalCount = bills.where((b) => b.status == BillStatus.pendingApproval).length;
+    final pendingApprovalCount =
+        bills.where((b) => b.status == BillStatus.pendingApproval).length;
 
     final theme = Theme.of(context);
     final isDark = theme.brightness == Brightness.dark;
+
+    final l10n = context.l10n;
 
     return Scaffold(
       body: child,
@@ -72,16 +77,17 @@ class ScaffoldWithNavBar extends ConsumerWidget {
               width: 1,
             ),
           ),
-          boxShadow: isDark ? AppColors.softShadowDark : AppColors.softShadowLight,
+          boxShadow:
+              isDark ? AppColors.softShadowDark : AppColors.softShadowLight,
         ),
         child: NavigationBar(
           selectedIndex: selectedIndex,
           onDestinationSelected: (index) => _onItemTapped(index, context),
           destinations: [
-            const NavigationDestination(
-              icon: Icon(Icons.home_outlined),
-              selectedIcon: Icon(Icons.home_rounded),
-              label: 'Home',
+            NavigationDestination(
+              icon: const Icon(Icons.home_outlined),
+              selectedIcon: const Icon(Icons.home_rounded),
+              label: l10n.homeTab,
             ),
             NavigationDestination(
               icon: Badge(
@@ -96,12 +102,12 @@ class ScaffoldWithNavBar extends ConsumerWidget {
                 backgroundColor: AppColors.statusPending,
                 child: const Icon(Icons.qr_code_2_rounded),
               ),
-              label: 'Payments',
+              label: l10n.paymentsTab,
             ),
-            const NavigationDestination(
-              icon: Icon(Icons.receipt_long_outlined),
-              selectedIcon: Icon(Icons.receipt_long_rounded),
-              label: 'Receipts',
+            NavigationDestination(
+              icon: const Icon(Icons.receipt_long_outlined),
+              selectedIcon: const Icon(Icons.receipt_long_rounded),
+              label: l10n.receiptsTab,
             ),
             NavigationDestination(
               icon: Badge(
@@ -116,12 +122,12 @@ class ScaffoldWithNavBar extends ConsumerWidget {
                 backgroundColor: AppColors.primaryLight,
                 child: const Icon(Icons.receipt_rounded),
               ),
-              label: 'Bills',
+              label: l10n.billsTab,
             ),
-            const NavigationDestination(
-              icon: Icon(Icons.volunteer_activism_outlined),
-              selectedIcon: Icon(Icons.volunteer_activism_rounded),
-              label: 'Contributions',
+            NavigationDestination(
+              icon: const Icon(Icons.volunteer_activism_outlined),
+              selectedIcon: const Icon(Icons.volunteer_activism_rounded),
+              label: l10n.contributionsTab,
             ),
           ],
         ),

@@ -172,23 +172,65 @@ abstract class AppLocalizations {
   /// **'Send OTP'**
   String get sendOtp;
 
+  /// No description provided for @verifyOtp.
+  ///
+  /// In en, this message translates to:
+  /// **'Verify OTP'**
+  String get verifyOtp;
+
+  /// No description provided for @enterOtp.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter 6-digit OTP'**
+  String get enterOtp;
+
+  /// No description provided for @resendOtp.
+  ///
+  /// In en, this message translates to:
+  /// **'Resend OTP'**
+  String get resendOtp;
+
+  /// No description provided for @otpSent.
+  ///
+  /// In en, this message translates to:
+  /// **'OTP sent successfully'**
+  String get otpSent;
+
+  /// No description provided for @otpExpired.
+  ///
+  /// In en, this message translates to:
+  /// **'OTP challenge expired'**
+  String get otpExpired;
+
+  /// No description provided for @invalidOtp.
+  ///
+  /// In en, this message translates to:
+  /// **'Invalid OTP code'**
+  String get invalidOtp;
+
+  /// No description provided for @mobileVerified.
+  ///
+  /// In en, this message translates to:
+  /// **'Mobile Verified'**
+  String get mobileVerified;
+
+  /// No description provided for @loginWithPassword.
+  ///
+  /// In en, this message translates to:
+  /// **'Password Login'**
+  String get loginWithPassword;
+
+  /// No description provided for @loginWithOtp.
+  ///
+  /// In en, this message translates to:
+  /// **'OTP Login'**
+  String get loginWithOtp;
+
   /// No description provided for @backToRegistration.
   ///
   /// In en, this message translates to:
   /// **'Back to Registration'**
   String get backToRegistration;
-
-  /// No description provided for @otpNotAvailable.
-  ///
-  /// In en, this message translates to:
-  /// **'OTP delivery will be connected in a future phase.'**
-  String get otpNotAvailable;
-
-  /// No description provided for @registrationNotAvailable.
-  ///
-  /// In en, this message translates to:
-  /// **'Registration submission will be connected in a future phase.'**
-  String get registrationNotAvailable;
 
   /// No description provided for @mandalDetails.
   ///
@@ -789,6 +831,186 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Privacy & Security'**
   String get privacy;
+
+  /// No description provided for @enterMpin.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter 6-Digit MPIN'**
+  String get enterMpin;
+
+  /// No description provided for @createMpin.
+  ///
+  /// In en, this message translates to:
+  /// **'Create 6-Digit MPIN'**
+  String get createMpin;
+
+  /// No description provided for @confirmMpin.
+  ///
+  /// In en, this message translates to:
+  /// **'Confirm 6-Digit MPIN'**
+  String get confirmMpin;
+
+  /// No description provided for @createMpinDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Set a secure 6-digit MPIN for quick daily login'**
+  String get createMpinDescription;
+
+  /// No description provided for @errorMpinTooShort.
+  ///
+  /// In en, this message translates to:
+  /// **'MPIN must be exactly 6 numeric digits.'**
+  String get errorMpinTooShort;
+
+  /// No description provided for @errorMpinMismatch.
+  ///
+  /// In en, this message translates to:
+  /// **'MPINs do not match.'**
+  String get errorMpinMismatch;
+
+  /// No description provided for @loginWithMpin.
+  ///
+  /// In en, this message translates to:
+  /// **'Login with MPIN'**
+  String get loginWithMpin;
+
+  /// No description provided for @forgotMpin.
+  ///
+  /// In en, this message translates to:
+  /// **'Forgot MPIN?'**
+  String get forgotMpin;
+
+  /// No description provided for @resetMpin.
+  ///
+  /// In en, this message translates to:
+  /// **'Reset MPIN'**
+  String get resetMpin;
+
+  /// No description provided for @resendCodeIn.
+  ///
+  /// In en, this message translates to:
+  /// **'Resend code in'**
+  String get resendCodeIn;
+
+  /// No description provided for @seconds.
+  ///
+  /// In en, this message translates to:
+  /// **'seconds'**
+  String get seconds;
+
+  /// No description provided for @createMpinButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Create MPIN & Finish'**
+  String get createMpinButton;
+
+  /// No description provided for @saveNewMpin.
+  ///
+  /// In en, this message translates to:
+  /// **'Save New MPIN'**
+  String get saveNewMpin;
+
+  /// No description provided for @homeTab.
+  ///
+  /// In en, this message translates to:
+  /// **'Home'**
+  String get homeTab;
+
+  /// No description provided for @contributionsTab.
+  ///
+  /// In en, this message translates to:
+  /// **'Contributions'**
+  String get contributionsTab;
+
+  /// No description provided for @billsTab.
+  ///
+  /// In en, this message translates to:
+  /// **'Bills'**
+  String get billsTab;
+
+  /// No description provided for @reportsTab.
+  ///
+  /// In en, this message translates to:
+  /// **'Reports'**
+  String get reportsTab;
+
+  /// No description provided for @receiptsTab.
+  ///
+  /// In en, this message translates to:
+  /// **'Receipts'**
+  String get receiptsTab;
+
+  /// No description provided for @historyTab.
+  ///
+  /// In en, this message translates to:
+  /// **'History'**
+  String get historyTab;
+
+  /// No description provided for @paymentsTab.
+  ///
+  /// In en, this message translates to:
+  /// **'Payments'**
+  String get paymentsTab;
+
+  /// No description provided for @allRecordsTab.
+  ///
+  /// In en, this message translates to:
+  /// **'All Records'**
+  String get allRecordsTab;
+
+  /// No description provided for @quickSummarySection.
+  ///
+  /// In en, this message translates to:
+  /// **'QUICK SUMMARY'**
+  String get quickSummarySection;
+
+  /// No description provided for @keyHighlightsSection.
+  ///
+  /// In en, this message translates to:
+  /// **'KEY HIGHLIGHTS'**
+  String get keyHighlightsSection;
+
+  /// No description provided for @bankDetailsSection.
+  ///
+  /// In en, this message translates to:
+  /// **'Bank Details & VPA'**
+  String get bankDetailsSection;
+
+  /// No description provided for @accountHolderLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Account Holder'**
+  String get accountHolderLabel;
+
+  /// No description provided for @bankNameLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Bank Name'**
+  String get bankNameLabel;
+
+  /// No description provided for @accountNumberLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Account Number'**
+  String get accountNumberLabel;
+
+  /// No description provided for @ifscCodeLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'IFSC Code'**
+  String get ifscCodeLabel;
+
+  /// No description provided for @branchNameLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Branch Name'**
+  String get branchNameLabel;
+
+  /// No description provided for @vpaLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'VPA / UPI ID'**
+  String get vpaLabel;
 }
 
 class _AppLocalizationsDelegate

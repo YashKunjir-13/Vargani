@@ -12,7 +12,8 @@ final environmentProvider = Provider<String>((ref) => 'dev');
 
 /// Pre-computed at bootstrap by attempting to restore a persisted session,
 /// so the router never has to guess or show a flash of the wrong screen.
-final initialSessionStateProvider = Provider<SessionState>((ref) => SessionState.unauthenticated);
+final initialSessionStateProvider =
+    Provider<SessionState>((ref) => SessionState.unauthenticated);
 
 final tokenStorageProvider = Provider<TokenStorage>((ref) => TokenStorage());
 
@@ -30,7 +31,8 @@ final authRepositoryProvider = Provider<AuthRepository>((ref) {
   );
 });
 
-final sessionControllerProvider = NotifierProvider<SessionController, SessionState>(
+final sessionControllerProvider =
+    NotifierProvider<SessionController, SessionState>(
   SessionController.new,
 );
 
@@ -39,7 +41,29 @@ class SessionController extends Notifier<SessionState> {
   SessionState build() => ref.watch(initialSessionStateProvider);
 
   void setAuthenticated(AuthUser user, LoginRole activeRole) {
-    state = SessionState(status: SessionStatus.authenticated, user: user, activeRole: activeRole);
+    state = SessionState(
+        status: SessionStatus.authenticated,
+        user: user,
+        activeRole: activeRole);
+  }
+
+  void updateUserProfile(
+      {required String displayName,
+      required String primaryMobile,
+      String? primaryEmail}) {
+    if (state.user != null) {
+      final updatedUser = state.user!.copyWith(
+        displayName: displayName,
+        primaryMobile: primaryMobile,
+        primaryEmail: primaryEmail,
+        donorProfile: state.user!.donorProfile?.copyWith(fullName: displayName),
+      );
+      state = SessionState(
+        status: state.status,
+        user: updatedUser,
+        activeRole: state.activeRole,
+      );
+    }
   }
 
   /// Always ends the local session, even if revoking it on the server

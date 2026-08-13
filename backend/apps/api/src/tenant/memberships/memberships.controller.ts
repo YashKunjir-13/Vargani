@@ -7,6 +7,7 @@ import { JwtAuthGuard } from "../../auth/jwt-auth.guard";
 import { AssignRoleDto } from "./dto/assign-role.dto";
 import { CreateDirectMemberDto } from "./dto/create-direct-member.dto";
 import { CreateInvitationDto } from "./dto/create-invitation.dto";
+import { CreateMoneyRequestDto } from "./dto/create-money-request.dto";
 import { TransferOwnershipDto } from "./dto/transfer-ownership.dto";
 import { UpdateMembershipStatusDto } from "./dto/update-membership-status.dto";
 import { MembershipsService } from "./memberships.service";
@@ -107,5 +108,51 @@ export class MembershipsController {
     }
     const result = await this.membershipsService.transferOwnership(user.organizationId, user.userId, dto);
     return createApiResponse(result, HttpStatus.OK, "Ownership transferred");
+  }
+
+  @Post("money-requests")
+  @HttpCode(HttpStatus.CREATED)
+  @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth()
+  @ApiOperation({ summary: "Create a money request from a member (President/Authorized role)" })
+  async createMoneyRequest(@CurrentUser() user: AuthenticatedUser, @Body() dto: CreateMoneyRequestDto) {
+    if (!user.organizationId) {
+      throw new Error("No organization context present");
+    }
+    const result = await this.membershipsService.createMoneyRequest(user.organizationId, user.userId, dto);
+    return createApiResponse(result, HttpStatus.CREATED, "Money request created successfully");
+  }
+
+  @Get("money-requests")
+  @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth()
+  @ApiOperation({ summary: "List money requests for organization or member" })
+  async listMoneyRequests(@CurrentUser() user: AuthenticatedUser) {
+    if (!user.organizationId) {
+      throw new Error("No organization context present");
+    }
+    const result = await this.membershipsService.listMoneyRequests(user.organizationId);
+    return createApiResponse(result, HttpStatus.OK);
+  }
+
+  @Patch("money-requests/:id/status")
+  @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth()
+  @ApiOperation({ summary: "Update status of a money request" })
+  async updateMoneyRequestStatus(
+    @CurrentUser() user: AuthenticatedUser,
+    @Param("id") id: string,
+    @Body() body: { status: "PENDING" | "ACCEPTED" | "COMPLETED" | "CANCELLED" | "DECLINED"; paymentRecordId?: string },
+  ) {
+    if (!user.organizationId) {
+      throw new Error("No organization context present");
+    }
+    const result = await this.membershipsService.updateMoneyRequestStatus(
+      user.organizationId,
+      id,
+      body.status,
+      body.paymentRecordId,
+    );
+    return createApiResponse(result, HttpStatus.OK, "Money request status updated");
   }
 }

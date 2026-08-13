@@ -33,8 +33,8 @@ dependencies:
   path: ^1.9.0
   path_provider: ^2.1.2
   flutter_secure_storage: ^10.3.1
+  shared_preferences: ^2.5.3
   connectivity_plus: ^7.3.1
-  shared_preferences: ^2.2.3
 
   # Firebase Services
   firebase_core: ^4.12.1
@@ -47,6 +47,7 @@ dependencies:
   pdf: ^3.10.8
   cross_file: ^0.3.4+1
   mime: ^2.0.0
+  web_socket_channel: ^3.0.3
 
 dev_dependencies:
   flutter_test:

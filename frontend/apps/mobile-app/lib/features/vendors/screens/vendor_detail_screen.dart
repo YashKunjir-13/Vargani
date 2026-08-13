@@ -54,7 +54,8 @@ class VendorDetailScreen extends ConsumerWidget {
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                Text(vendor.name, style: textTheme.headlineMedium),
+                                Text(vendor.name,
+                                    style: textTheme.headlineMedium),
                                 const SizedBox(height: AppSpacing.space4),
                                 Text(
                                   vendor.category ?? 'Uncategorized Vendor',
@@ -66,16 +67,19 @@ class VendorDetailScreen extends ConsumerWidget {
                               ],
                             ),
                           ),
-                          VendorContractStatusBadge(status: vendor.contractStatus),
+                          VendorContractStatusBadge(
+                              status: vendor.contractStatus),
                         ],
                       ),
                       const SizedBox(height: AppSpacing.space16),
-                      _infoRow(context, 'Contact Person', vendor.contactPerson ?? '—'),
+                      _infoRow(context, 'Contact Person',
+                          vendor.contactPerson ?? '—'),
                       _infoRow(
                         context,
                         'Mobile',
                         vendor.mobile != null
-                            ? maskMobile(vendor.mobile!, canViewSensitive: canManageVendors)
+                            ? maskMobile(vendor.mobile!,
+                                canViewSensitive: canManageVendors)
                             : '—',
                       ),
                       _infoRow(context, 'Email', vendor.email ?? '—'),
@@ -99,18 +103,21 @@ class VendorDetailScreen extends ConsumerWidget {
                     children: [
                       Row(
                         children: [
-                          Icon(Icons.account_balance_rounded, color: colors.brandOrange, size: 22),
+                          Icon(Icons.account_balance_rounded,
+                              color: colors.brandOrange, size: 22),
                           const SizedBox(width: 8),
                           Text(
                             'Tax & Bank Information (Masked Encrypted)',
-                            style: textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
+                            style: textTheme.titleMedium
+                                ?.copyWith(fontWeight: FontWeight.bold),
                           ),
                         ],
                       ),
                       const SizedBox(height: 12),
                       _infoRow(context, 'GSTIN', vendor.maskedGstin),
                       _infoRow(context, 'PAN Tax ID', vendor.maskedPan),
-                      _infoRow(context, 'Bank Account', vendor.maskedBankAccount),
+                      _infoRow(
+                          context, 'Bank Account', vendor.maskedBankAccount),
                       _infoRow(context, 'Bank IFSC', vendor.maskedBankIfsc),
                     ],
                   ),
@@ -127,7 +134,8 @@ class VendorDetailScreen extends ConsumerWidget {
                   ),
                   child: Row(
                     children: [
-                      Icon(Icons.lock_clock_rounded, color: colors.secondaryText, size: 20),
+                      Icon(Icons.lock_clock_rounded,
+                          color: colors.secondaryText, size: 20),
                       const SizedBox(width: 10),
                       Expanded(
                         child: Text(
@@ -149,11 +157,13 @@ class VendorDetailScreen extends ConsumerWidget {
                     decoration: BoxDecoration(
                       color: Colors.amber.withValues(alpha: 0.1),
                       borderRadius: BorderRadius.circular(12),
-                      border: Border.all(color: Colors.amber.withValues(alpha: 0.4)),
+                      border: Border.all(
+                          color: Colors.amber.withValues(alpha: 0.4)),
                     ),
                     child: Row(
                       children: [
-                        const Icon(Icons.block_rounded, color: Colors.amber, size: 24),
+                        const Icon(Icons.block_rounded,
+                            color: Colors.amber, size: 24),
                         const SizedBox(width: 12),
                         Expanded(
                           child: Text(
@@ -192,7 +202,8 @@ class VendorDetailScreen extends ConsumerWidget {
                     Expanded(
                       child: AppSummaryStatCard(
                         label: 'Outstanding',
-                        value: formatPaiseAsRupees(vendor.outstandingAmountPaise),
+                        value:
+                            formatPaiseAsRupees(vendor.outstandingAmountPaise),
                         valueColor: vendor.outstandingAmountPaise > 0
                             ? AppColors.lightError
                             : AppColors.lightSuccess,
@@ -212,7 +223,8 @@ class VendorDetailScreen extends ConsumerWidget {
                           onPressed: () {
                             Navigator.of(context).push(
                               MaterialPageRoute(
-                                builder: (_) => VendorFormScreen(vendorId: vendor.id),
+                                builder: (_) =>
+                                    VendorFormScreen(vendorId: vendor.id),
                               ),
                             );
                           },
@@ -234,7 +246,8 @@ class VendorDetailScreen extends ConsumerWidget {
                                   ),
                                   actions: [
                                     TextButton(
-                                      onPressed: () => Navigator.pop(ctx, false),
+                                      onPressed: () =>
+                                          Navigator.pop(ctx, false),
                                       child: const Text('Cancel'),
                                     ),
                                     AppButton(

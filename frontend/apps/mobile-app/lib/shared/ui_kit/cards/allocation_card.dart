@@ -72,7 +72,8 @@ class AllocationCard extends StatelessWidget {
             color: colorScheme.surfaceContainer,
             borderRadius: BorderRadius.circular(AppRadius.small),
           ),
-          child: Icon(icon, size: AppIconSize.small, color: colorScheme.onSurfaceVariant),
+          child: Icon(icon,
+              size: AppIconSize.small, color: colorScheme.onSurfaceVariant),
         ),
         const SizedBox(width: AppSpacing.space12),
         Expanded(
@@ -83,7 +84,13 @@ class AllocationCard extends StatelessWidget {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Expanded(
-                    child: Text(name, style: textTheme.bodyLarge?.copyWith(fontWeight: FontWeight.w700)),
+                    child: Text(
+                      name,
+                      style: textTheme.bodyLarge
+                          ?.copyWith(fontWeight: FontWeight.w700),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
                   ),
                   if (trailing != null) trailing!,
                 ],
@@ -102,13 +109,25 @@ class AllocationCard extends StatelessWidget {
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Text(
-                    '$spentLabel spent',
-                    style: textTheme.bodyMedium?.copyWith(color: colorScheme.onSurfaceVariant),
+                  Expanded(
+                    child: Text(
+                      '$spentLabel spent',
+                      style: textTheme.bodyMedium
+                          ?.copyWith(color: colorScheme.onSurfaceVariant),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
                   ),
-                  Text(
-                    'of $allocatedLabel${footnote != null ? ' · $footnote' : ''}',
-                    style: textTheme.bodyMedium?.copyWith(color: colorScheme.onSurfaceVariant),
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: Text(
+                      'of $allocatedLabel${footnote != null ? ' · $footnote' : ''}',
+                      textAlign: TextAlign.end,
+                      style: textTheme.bodyMedium
+                          ?.copyWith(color: colorScheme.onSurfaceVariant),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
                   ),
                 ],
               ),

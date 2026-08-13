@@ -25,10 +25,12 @@ class NotificationSettingsScreen extends StatefulWidget {
   });
 
   @override
-  State<NotificationSettingsScreen> createState() => _NotificationSettingsScreenState();
+  State<NotificationSettingsScreen> createState() =>
+      _NotificationSettingsScreenState();
 }
 
-class _NotificationSettingsScreenState extends State<NotificationSettingsScreen> {
+class _NotificationSettingsScreenState
+    extends State<NotificationSettingsScreen> {
   final List<NotificationCategorySetting> _categories = [];
   late bool _quietHoursEnabled = widget.quietHoursEnabled;
   late String _digestFrequency = widget.digestFrequency;
@@ -64,7 +66,8 @@ class _NotificationSettingsScreenState extends State<NotificationSettingsScreen>
             children: [
               Text('Categories', style: textTheme.titleMedium),
               Text('E · Email  P · Push  A · In-App',
-                  style: textTheme.labelSmall?.copyWith(color: colorScheme.onSurfaceVariant)),
+                  style: textTheme.labelSmall
+                      ?.copyWith(color: colorScheme.onSurfaceVariant)),
             ],
           ),
           const SizedBox(height: 8),
@@ -75,7 +78,8 @@ class _NotificationSettingsScreenState extends State<NotificationSettingsScreen>
                 for (var i = 0; i < _categories.length; i++) ...[
                   _CategoryRow(
                     setting: _categories[i],
-                    onChanged: (updated) => setState(() => _categories[i] = updated),
+                    onChanged: (updated) =>
+                        setState(() => _categories[i] = updated),
                   ),
                   if (i != _categories.length - 1) const Divider(height: 1),
                 ],
@@ -88,7 +92,8 @@ class _NotificationSettingsScreenState extends State<NotificationSettingsScreen>
           Card(
             margin: EdgeInsets.zero,
             child: SwitchListTile(
-              title: Text('${widget.quietHoursStart} – ${widget.quietHoursEnd}'),
+              title:
+                  Text('${widget.quietHoursStart} – ${widget.quietHoursEnd}'),
               value: _quietHoursEnabled,
               onChanged: (value) => setState(() => _quietHoursEnabled = value),
             ),
@@ -97,10 +102,13 @@ class _NotificationSettingsScreenState extends State<NotificationSettingsScreen>
           Text('Reminder frequency', style: textTheme.titleMedium),
           const SizedBox(height: 8),
           SegmentedButton<String>(
-            segments: _digestOptions.map((o) => ButtonSegment(value: o, label: Text(o))).toList(),
+            segments: _digestOptions
+                .map((o) => ButtonSegment(value: o, label: Text(o)))
+                .toList(),
             selected: {_digestFrequency},
             showSelectedIcon: false,
-            onSelectionChanged: (s) => setState(() => _digestFrequency = s.first),
+            onSelectionChanged: (s) =>
+                setState(() => _digestFrequency = s.first),
           ),
           const SizedBox(height: 24),
           Card(
@@ -109,7 +117,8 @@ class _NotificationSettingsScreenState extends State<NotificationSettingsScreen>
               title: const Text('Weekly summary email'),
               subtitle: const Text('Every Monday, 8 AM'),
               value: _weeklySummaryEnabled,
-              onChanged: (value) => setState(() => _weeklySummaryEnabled = value),
+              onChanged: (value) =>
+                  setState(() => _weeklySummaryEnabled = value),
             ),
           ),
         ],
@@ -135,17 +144,26 @@ class _CategoryRow extends StatelessWidget {
           _ChannelDot(
             label: 'E',
             enabled: setting.emailEnabled,
-            onTap: setting.isLocked ? null : () => onChanged(setting.copyWith(emailEnabled: !setting.emailEnabled)),
+            onTap: setting.isLocked
+                ? null
+                : () => onChanged(
+                    setting.copyWith(emailEnabled: !setting.emailEnabled)),
           ),
           _ChannelDot(
             label: 'P',
             enabled: setting.pushEnabled,
-            onTap: setting.isLocked ? null : () => onChanged(setting.copyWith(pushEnabled: !setting.pushEnabled)),
+            onTap: setting.isLocked
+                ? null
+                : () => onChanged(
+                    setting.copyWith(pushEnabled: !setting.pushEnabled)),
           ),
           _ChannelDot(
             label: 'A',
             enabled: setting.inAppEnabled,
-            onTap: setting.isLocked ? null : () => onChanged(setting.copyWith(inAppEnabled: !setting.inAppEnabled)),
+            onTap: setting.isLocked
+                ? null
+                : () => onChanged(
+                    setting.copyWith(inAppEnabled: !setting.inAppEnabled)),
           ),
         ],
       ),
@@ -158,7 +176,8 @@ class _ChannelDot extends StatelessWidget {
   final bool enabled;
   final VoidCallback? onTap;
 
-  const _ChannelDot({required this.label, required this.enabled, required this.onTap});
+  const _ChannelDot(
+      {required this.label, required this.enabled, required this.onTap});
 
   @override
   Widget build(BuildContext context) {
@@ -176,12 +195,16 @@ class _ChannelDot extends StatelessWidget {
           alignment: Alignment.center,
           decoration: BoxDecoration(
             shape: BoxShape.circle,
-            color: enabled ? colorScheme.primaryContainer : colorScheme.surfaceContainerHighest,
+            color: enabled
+                ? colorScheme.primaryContainer
+                : colorScheme.surfaceContainerHighest,
           ),
           child: Text(
             label,
             style: textTheme.labelSmall?.copyWith(
-              color: enabled ? colorScheme.onPrimaryContainer : colorScheme.onSurfaceVariant,
+              color: enabled
+                  ? colorScheme.onPrimaryContainer
+                  : colorScheme.onSurfaceVariant,
               fontWeight: FontWeight.w800,
             ),
           ),

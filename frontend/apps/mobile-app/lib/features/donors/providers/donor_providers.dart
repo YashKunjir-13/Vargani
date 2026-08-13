@@ -4,7 +4,8 @@ import '../data/donor_repository.dart';
 import '../data/mock_donor_repository.dart';
 import '../models/donor.dart';
 
-final donorRepositoryProvider = Provider<DonorRepository>((ref) => MockDonorRepository());
+final donorRepositoryProvider =
+    Provider<DonorRepository>((ref) => MockDonorRepository());
 
 class DonorListState {
   const DonorListState({this.search = '', this.status});
@@ -41,7 +42,8 @@ class DonorListNotifier extends Notifier<DonorListState> {
   }
 }
 
-final donorListControllerProvider = NotifierProvider<DonorListNotifier, DonorListState>(
+final donorListControllerProvider =
+    NotifierProvider<DonorListNotifier, DonorListState>(
   DonorListNotifier.new,
 );
 
@@ -51,7 +53,8 @@ final donorListProvider = FutureProvider<List<Donor>>((ref) async {
   return repository.getDonors(search: state.search, status: state.status);
 });
 
-final donorDetailProvider = FutureProvider.family<Donor?, String>((ref, donorId) async {
+final donorDetailProvider =
+    FutureProvider.family<Donor?, String>((ref, donorId) async {
   final repository = ref.watch(donorRepositoryProvider);
   return repository.getDonorById(donorId);
 });

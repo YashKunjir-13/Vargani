@@ -26,4 +26,9 @@ export class CreatePaymentOrderDto {
   @IsOptional()
   @IsString()
   donorNameSnapshot?: string;
+
+  @ApiPropertyOptional({ example: "c20054eb-7e3e-4b6d-a111-d0061e3ad811" })
+  @IsOptional()
+  @IsString()
+  donorId?: string;
 }

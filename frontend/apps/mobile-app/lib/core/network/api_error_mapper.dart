@@ -9,6 +9,38 @@ Future<T> guardApiCall<T>(Future<T> Function() call) async {
   try {
     return await call();
   } on DioException catch (error) {
+    // Debug logging added for login/connection troubleshooting
+    // ignore: avoid_print
+    print('--- DIO EXCEPTION CAUGHT ---');
+    // ignore: avoid_print
+    print('REQUEST URL: ${error.requestOptions.uri}');
+    // ignore: avoid_print
+    print('REQUEST METHOD: ${error.requestOptions.method}');
+
+    // Sanitize request body if it contains sensitive info
+    final data = error.requestOptions.data;
+    if (data is Map) {
+      final safeData = Map<String, dynamic>.from(data);
+      safeData.remove('password');
+      safeData.remove('mpin');
+      // ignore: avoid_print
+      print('REQUEST BODY: $safeData');
+    } else {
+      // ignore: avoid_print
+      print('REQUEST BODY: $data');
+    }
+
+    // ignore: avoid_print
+    print('STATUS CODE: ${error.response?.statusCode}');
+    // ignore: avoid_print
+    print('RESPONSE DATA: ${error.response?.data}');
+    // ignore: avoid_print
+    print('DioException type: ${error.type}');
+    // ignore: avoid_print
+    print('DioException error message: ${error.message}');
+    // ignore: avoid_print
+    print('----------------------------');
+
     throw _mapDioException(error);
   }
 }
@@ -25,7 +57,8 @@ ApiException _mapDioException(DioException error) {
     case DioExceptionType.cancel:
       return const NetworkApiException('Request was cancelled.');
     case DioExceptionType.badCertificate:
-      return const NetworkApiException('Could not establish a secure connection.');
+      return const NetworkApiException(
+          'Could not establish a secure connection.');
     case DioExceptionType.badResponse:
       return _mapStatusCode(error.response);
     case DioExceptionType.unknown:
@@ -45,23 +78,28 @@ ApiException _mapStatusCode(Response<dynamic>? response) {
   switch (statusCode) {
     case 400:
     case 422:
-      return ValidationApiException(message ?? 'Please check the form and try again.',
+      return ValidationApiException(
+          message ?? 'Please check the form and try again.',
           fieldErrors: fieldErrors);
     case 401:
       return UnauthorizedApiException(message ?? 'Invalid credentials.');
     case 403:
-      return ForbiddenApiException(message ?? 'You are not allowed to do that.');
+      return ForbiddenApiException(
+          message ?? 'You are not allowed to do that.');
     case 404:
-      return NotFoundApiException(message ?? 'The requested resource was not found.');
+      return NotFoundApiException(
+          message ?? 'The requested resource was not found.');
     case 409:
       return ConflictApiException(message ?? 'This already exists.');
     default:
       if (statusCode >= 500) {
         return ServerApiException(
-          message ?? 'Something went wrong on our end. Please try again shortly.',
+          message ??
+              'Something went wrong on our end. Please try again shortly.',
         );
       }
-      return UnknownApiException(message ?? 'Something went wrong. Please try again.');
+      return UnknownApiException(
+          message ?? 'Something went wrong. Please try again.');
   }
 }
 

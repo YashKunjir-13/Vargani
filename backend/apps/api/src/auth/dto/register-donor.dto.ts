@@ -59,12 +59,12 @@ export class RegisterDonorDto {
   @Matches(/^[6-9]\d{9}$/, { message: "phoneNumber must be a valid 10-digit mobile number" })
   phoneNumber!: string;
 
-  @ApiProperty({ example: "StrongPass#123", minLength: 8 })
-  @IsNotEmpty()
+  @ApiPropertyOptional({ example: "StrongPass#123", minLength: 8, description: "Optional account password for fallback login" })
+  @IsOptional()
   @IsString()
   @MinLength(8)
   @MaxLength(72)
-  password!: string;
+  password?: string;
 
   @ApiProperty({ enum: PreferredLanguage, example: PreferredLanguage.EN })
   @IsNotEmpty()

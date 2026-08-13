@@ -5,7 +5,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 class PermissionGuard extends ConsumerWidget {
   final bool hasPermission;
   final Widget child;
-  final bool hideWhenUnauthorized; // If true, hides; if false, disables child with tooltip.
+  final bool
+      hideWhenUnauthorized; // If true, hides; if false, disables child with tooltip.
   final String fallbackTooltip;
 
   const PermissionGuard({
@@ -13,7 +14,8 @@ class PermissionGuard extends ConsumerWidget {
     required this.hasPermission,
     required this.child,
     this.hideWhenUnauthorized = false,
-    this.fallbackTooltip = 'Your current role lacks permission for this action.',
+    this.fallbackTooltip =
+        'Your current role lacks permission for this action.',
   });
 
   @override

@@ -79,13 +79,15 @@ class _LineChartPainter extends CustomPainter {
 
   @override
   void paint(Canvas canvas, Size size) {
-    final chartHeight = size.height - 24; // reserve top space for a callout bubble
+    final chartHeight =
+        size.height - 24; // reserve top space for a callout bubble
     final maxValue = values.reduce((a, b) => a > b ? a : b);
     final minValue = values.reduce((a, b) => a < b ? a : b);
     final range = (maxValue - minValue).abs() < 1e-9 ? 1 : maxValue - minValue;
     final stepX = size.width / (values.length - 1).clamp(1, double.infinity);
 
-    double yFor(double value) => 24 + chartHeight * (1 - (value - minValue) / range);
+    double yFor(double value) =>
+        24 + chartHeight * (1 - (value - minValue) / range);
 
     final gridPaint = Paint()
       ..color = gridColor
@@ -124,11 +126,14 @@ class _LineChartPainter extends CustomPainter {
     canvas.drawCircle(endPoint, 4, Paint()..color = color);
 
     if (highlightIndex != null && highlightLabel != null) {
-      final point = Offset(highlightIndex! * stepX, yFor(values[highlightIndex!]));
+      final point =
+          Offset(highlightIndex! * stepX, yFor(values[highlightIndex!]));
       canvas.drawCircle(point, 4, Paint()..color = color);
 
       final textPainter = TextPainter(
-        text: TextSpan(text: highlightLabel, style: labelStyle?.copyWith(color: labelColor)),
+        text: TextSpan(
+            text: highlightLabel,
+            style: labelStyle?.copyWith(color: labelColor)),
         textDirection: TextDirection.ltr,
       )..layout();
 
@@ -136,7 +141,8 @@ class _LineChartPainter extends CustomPainter {
       const bubbleHeight = 20.0;
       var bubbleLeft = point.dx - bubbleWidth / 2;
       bubbleLeft = bubbleLeft.clamp(0, size.width - bubbleWidth);
-      final bubbleRect = Rect.fromLTWH(bubbleLeft, 0, bubbleWidth, bubbleHeight);
+      final bubbleRect =
+          Rect.fromLTWH(bubbleLeft, 0, bubbleWidth, bubbleHeight);
 
       canvas.drawRRect(
         RRect.fromRectAndRadius(bubbleRect, const Radius.circular(6)),
@@ -144,7 +150,8 @@ class _LineChartPainter extends CustomPainter {
       );
       textPainter.paint(
         canvas,
-        Offset(bubbleRect.left + 8, bubbleRect.top + (bubbleHeight - textPainter.height) / 2),
+        Offset(bubbleRect.left + 8,
+            bubbleRect.top + (bubbleHeight - textPainter.height) / 2),
       );
     }
   }

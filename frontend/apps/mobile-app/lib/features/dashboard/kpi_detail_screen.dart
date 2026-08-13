@@ -47,21 +47,26 @@ class _KpiDetailScreenState extends State<KpiDetailScreen> {
               const SizedBox(width: 2),
               Text(
                 data.deltaLabel,
-                style: textTheme.labelLarge?.copyWith(color: colorScheme.primary),
+                style:
+                    textTheme.labelLarge?.copyWith(color: colorScheme.primary),
               ),
             ],
           ),
           const SizedBox(height: 4),
           Text(
             data.comparisonCaption,
-            style: textTheme.labelMedium?.copyWith(color: colorScheme.onSurfaceVariant),
+            style: textTheme.labelMedium
+                ?.copyWith(color: colorScheme.onSurfaceVariant),
           ),
           const SizedBox(height: 20),
           SegmentedButton<String>(
-            segments: _periods.map((p) => ButtonSegment(value: p, label: Text(p))).toList(),
+            segments: _periods
+                .map((p) => ButtonSegment(value: p, label: Text(p)))
+                .toList(),
             selected: {_selectedPeriod},
             showSelectedIcon: false,
-            onSelectionChanged: (selection) => setState(() => _selectedPeriod = selection.first),
+            onSelectionChanged: (selection) =>
+                setState(() => _selectedPeriod = selection.first),
           ),
           const SizedBox(height: 20),
           AppLineChart(
@@ -75,9 +80,17 @@ class _KpiDetailScreenState extends State<KpiDetailScreen> {
           const SizedBox(height: 12),
           Row(
             children: [
-              Expanded(child: _ComparisonTile(label: data.thisPeriodLabel, value: data.thisPeriodValue, emphasize: true)),
+              Expanded(
+                  child: _ComparisonTile(
+                      label: data.thisPeriodLabel,
+                      value: data.thisPeriodValue,
+                      emphasize: true)),
               const SizedBox(width: 12),
-              Expanded(child: _ComparisonTile(label: data.lastPeriodLabel, value: data.lastPeriodValue, emphasize: false)),
+              Expanded(
+                  child: _ComparisonTile(
+                      label: data.lastPeriodLabel,
+                      value: data.lastPeriodValue,
+                      emphasize: false)),
             ],
           ),
           const SizedBox(height: 24),
@@ -95,9 +108,11 @@ class _KpiDetailScreenState extends State<KpiDetailScreen> {
               TextButton(onPressed: () {}, child: const Text('View all')),
             ],
           ),
-          for (final activity in data.relatedTransactions) TimelineItem(data: activity),
+          for (final activity in data.relatedTransactions)
+            TimelineItem(data: activity),
           const SizedBox(height: 12),
-          SecondaryButton(label: 'Export this view', onPressed: () {}, expand: true),
+          SecondaryButton(
+              label: 'Export this view', onPressed: () {}, expand: true),
         ],
       ),
     );
@@ -109,7 +124,8 @@ class _ComparisonTile extends StatelessWidget {
   final String value;
   final bool emphasize;
 
-  const _ComparisonTile({required this.label, required this.value, required this.emphasize});
+  const _ComparisonTile(
+      {required this.label, required this.value, required this.emphasize});
 
   @override
   Widget build(BuildContext context) {
@@ -125,12 +141,16 @@ class _ComparisonTile extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(label, style: textTheme.labelMedium?.copyWith(color: colorScheme.onSurfaceVariant)),
+          Text(label,
+              style: textTheme.labelMedium
+                  ?.copyWith(color: colorScheme.onSurfaceVariant)),
           const SizedBox(height: 4),
           Text(
             value,
             style: textTheme.titleMedium?.copyWith(
-              color: emphasize ? colorScheme.onSurface : colorScheme.onSurfaceVariant,
+              color: emphasize
+                  ? colorScheme.onSurface
+                  : colorScheme.onSurfaceVariant,
             ),
           ),
         ],
@@ -155,7 +175,9 @@ class _BreakdownRow extends StatelessWidget {
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            Text(item.label, style: textTheme.bodyLarge?.copyWith(fontWeight: FontWeight.w700)),
+            Text(item.label,
+                style:
+                    textTheme.bodyLarge?.copyWith(fontWeight: FontWeight.w700)),
             Text(item.valueLabel, style: textTheme.bodyLarge),
           ],
         ),

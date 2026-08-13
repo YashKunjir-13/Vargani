@@ -117,6 +117,8 @@ class _AuthPasswordFieldState extends State<AuthPasswordField> {
   }
 }
 
+typedef AuthPhoneField = AuthPhoneNumberField;
+
 class AuthPhoneNumberField extends StatelessWidget {
   const AuthPhoneNumberField({
     super.key,

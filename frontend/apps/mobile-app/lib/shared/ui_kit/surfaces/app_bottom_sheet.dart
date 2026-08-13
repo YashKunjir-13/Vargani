@@ -29,7 +29,8 @@ class AppBottomSheet extends StatelessWidget {
   /// Presents [builder]'s content inside the standard modal bottom sheet
   /// chrome (scroll-controlled, safe-area aware, transparent barrier so the
   /// sheet's own rounded corners show through).
-  static Future<T?> show<T>(BuildContext context, {required WidgetBuilder builder}) {
+  static Future<T?> show<T>(BuildContext context,
+      {required WidgetBuilder builder}) {
     return showModalBottomSheet<T>(
       context: context,
       isScrollControlled: true,
@@ -46,7 +47,8 @@ class AppBottomSheet extends StatelessWidget {
 
     return Material(
       color: colorScheme.surface,
-      borderRadius: const BorderRadius.vertical(top: Radius.circular(AppRadius.large)),
+      borderRadius:
+          const BorderRadius.vertical(top: Radius.circular(AppRadius.large)),
       clipBehavior: Clip.antiAlias,
       child: Column(
         mainAxisSize: MainAxisSize.min,

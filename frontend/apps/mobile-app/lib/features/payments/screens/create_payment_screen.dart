@@ -15,7 +15,8 @@ class CreatePaymentScreen extends ConsumerStatefulWidget {
   const CreatePaymentScreen({super.key});
 
   @override
-  ConsumerState<CreatePaymentScreen> createState() => _CreatePaymentScreenState();
+  ConsumerState<CreatePaymentScreen> createState() =>
+      _CreatePaymentScreenState();
 }
 
 class _CreatePaymentScreenState extends ConsumerState<CreatePaymentScreen> {
@@ -51,8 +52,12 @@ class _CreatePaymentScreenState extends ConsumerState<CreatePaymentScreen> {
     final payment = await ref.read(paymentsProvider.notifier).create(
           donorName: _donorNameCtrl.text.trim(),
           amount: amount,
-          address: _addressCtrl.text.trim().isEmpty ? null : _addressCtrl.text.trim(),
-          contact: _contactCtrl.text.trim().isEmpty ? null : _contactCtrl.text.trim(),
+          address: _addressCtrl.text.trim().isEmpty
+              ? null
+              : _addressCtrl.text.trim(),
+          contact: _contactCtrl.text.trim().isEmpty
+              ? null
+              : _contactCtrl.text.trim(),
           channel: _channel,
         );
 
@@ -61,7 +66,8 @@ class _CreatePaymentScreenState extends ConsumerState<CreatePaymentScreen> {
     if (payment != null) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text('Payment recorded in database with status: ${payment.status.label}'),
+          content: Text(
+              'Payment recorded in database with status: ${payment.status.label}'),
           backgroundColor: Colors.green,
         ),
       );
@@ -84,7 +90,7 @@ class _CreatePaymentScreenState extends ConsumerState<CreatePaymentScreen> {
     return Scaffold(
       appBar: PautiAppBar(
         title: L10n.tr(ref, 'record_payment'),
-        subtitle: 'Treasurer Portal',
+        subtitle: 'Donation Collection',
         showBackButton: true,
       ),
       body: SingleChildScrollView(
@@ -100,7 +106,8 @@ class _CreatePaymentScreenState extends ConsumerState<CreatePaymentScreen> {
                   children: [
                     Text(
                       'Payment Channel',
-                      style: theme.textTheme.titleSmall?.copyWith(fontWeight: FontWeight.bold),
+                      style: theme.textTheme.titleSmall
+                          ?.copyWith(fontWeight: FontWeight.bold),
                     ),
                     const SizedBox(height: 10),
                     SegmentedButton<PaymentChannel>(
@@ -131,16 +138,21 @@ class _CreatePaymentScreenState extends ConsumerState<CreatePaymentScreen> {
                 label: L10n.tr(ref, 'donor_name'),
                 controller: _donorNameCtrl,
                 prefixIcon: Icons.person_outline,
-                validator: (val) => val == null || val.trim().isEmpty ? 'Donor name is required' : null,
+                validator: (val) => val == null || val.trim().isEmpty
+                    ? 'Donor name is required'
+                    : null,
               ),
               const SizedBox(height: 16),
 
               AppTextField(
                 label: L10n.tr(ref, 'amount'),
                 controller: _amountCtrl,
-                keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                keyboardType:
+                    const TextInputType.numberWithOptions(decimal: true),
                 prefixIcon: Icons.currency_rupee,
-                validator: (val) => val == null || val.trim().isEmpty ? 'Amount is required' : null,
+                validator: (val) => val == null || val.trim().isEmpty
+                    ? 'Amount is required'
+                    : null,
               ),
               const SizedBox(height: 16),
 
@@ -149,7 +161,8 @@ class _CreatePaymentScreenState extends ConsumerState<CreatePaymentScreen> {
                 label: 'Payment Date & Time',
                 readOnly: true,
                 prefixIcon: Icons.calendar_today_outlined,
-                controller: TextEditingController(text: dateFormat.format(_paymentDateTime)),
+                controller: TextEditingController(
+                    text: dateFormat.format(_paymentDateTime)),
                 onTap: () async {
                   final pickedDate = await showDatePicker(
                     context: context,

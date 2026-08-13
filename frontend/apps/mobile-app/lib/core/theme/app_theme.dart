@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'app_colors.dart';
 import 'app_typography.dart';
+import 'semantic_colors.dart';
 
 /// Centralized ThemeData for Pauti Pustak design system matching the Figma / screenshot specification.
 class AppTheme {
@@ -35,6 +36,7 @@ class AppTheme {
         error: Color(0xFFDC2626),
         onError: Colors.white,
       ),
+      extensions: const [SemanticColors.light],
       textTheme: textTheme,
       appBarTheme: AppBarTheme(
         elevation: 0,
@@ -42,7 +44,8 @@ class AppTheme {
         backgroundColor: AppColors.surfaceLight,
         foregroundColor: AppColors.textPrimaryLight,
         surfaceTintColor: Colors.transparent,
-        titleTextStyle: textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
+        titleTextStyle:
+            textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
         iconTheme: const IconThemeData(color: AppColors.textPrimaryLight),
       ),
       cardTheme: CardThemeData(
@@ -59,7 +62,8 @@ class AppTheme {
       inputDecorationTheme: InputDecorationTheme(
         filled: true,
         fillColor: AppColors.surfaceLight,
-        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+        contentPadding:
+            const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
           borderSide: const BorderSide(color: AppColors.borderLight, width: 1),
@@ -80,8 +84,10 @@ class AppTheme {
           borderRadius: BorderRadius.circular(12),
           borderSide: const BorderSide(color: Color(0xFFDC2626), width: 2),
         ),
-        hintStyle: textTheme.bodyMedium?.copyWith(color: AppColors.textMutedLight),
-        labelStyle: textTheme.bodyMedium?.copyWith(color: AppColors.textSecondaryLight),
+        hintStyle:
+            textTheme.bodyMedium?.copyWith(color: AppColors.textMutedLight),
+        labelStyle:
+            textTheme.bodyMedium?.copyWith(color: AppColors.textSecondaryLight),
       ),
       elevatedButtonTheme: ElevatedButtonThemeData(
         style: ElevatedButton.styleFrom(
@@ -89,7 +95,8 @@ class AppTheme {
           foregroundColor: Colors.white,
           elevation: 0,
           padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+          shape:
+              RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
           textStyle: const TextStyle(fontSize: 15, fontWeight: FontWeight.w600),
         ),
       ),
@@ -98,7 +105,8 @@ class AppTheme {
           foregroundColor: AppColors.primaryLight,
           side: const BorderSide(color: AppColors.borderLight, width: 1.5),
           padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+          shape:
+              RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
           textStyle: const TextStyle(fontSize: 15, fontWeight: FontWeight.w600),
         ),
       ),
@@ -150,7 +158,8 @@ class AppTheme {
           if (states.contains(WidgetState.selected)) {
             return const IconThemeData(color: AppColors.primaryLight, size: 24);
           }
-          return const IconThemeData(color: AppColors.textSecondaryLight, size: 22);
+          return const IconThemeData(
+              color: AppColors.textSecondaryLight, size: 22);
         }),
       ),
       snackBarTheme: SnackBarThemeData(
@@ -207,6 +216,7 @@ class AppTheme {
         error: Color(0xFFEF4444),
         onError: Colors.black,
       ),
+      extensions: const [SemanticColors.dark],
       textTheme: textTheme,
       appBarTheme: AppBarTheme(
         elevation: 0,
@@ -214,7 +224,8 @@ class AppTheme {
         backgroundColor: AppColors.surfaceDark,
         foregroundColor: AppColors.textPrimaryDark,
         surfaceTintColor: Colors.transparent,
-        titleTextStyle: textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
+        titleTextStyle:
+            textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
         iconTheme: const IconThemeData(color: AppColors.textPrimaryDark),
       ),
       cardTheme: CardThemeData(
@@ -231,7 +242,8 @@ class AppTheme {
       inputDecorationTheme: InputDecorationTheme(
         filled: true,
         fillColor: AppColors.surfaceDark,
-        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+        contentPadding:
+            const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
           borderSide: const BorderSide(color: AppColors.borderDark, width: 1),
@@ -252,8 +264,10 @@ class AppTheme {
           borderRadius: BorderRadius.circular(12),
           borderSide: const BorderSide(color: Color(0xFFEF4444), width: 2),
         ),
-        hintStyle: textTheme.bodyMedium?.copyWith(color: AppColors.textMutedDark),
-        labelStyle: textTheme.bodyMedium?.copyWith(color: AppColors.textSecondaryDark),
+        hintStyle:
+            textTheme.bodyMedium?.copyWith(color: AppColors.textMutedDark),
+        labelStyle:
+            textTheme.bodyMedium?.copyWith(color: AppColors.textSecondaryDark),
       ),
       elevatedButtonTheme: ElevatedButtonThemeData(
         style: ElevatedButton.styleFrom(
@@ -261,7 +275,8 @@ class AppTheme {
           foregroundColor: Colors.black,
           elevation: 0,
           padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+          shape:
+              RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
           textStyle: const TextStyle(fontSize: 15, fontWeight: FontWeight.w600),
         ),
       ),
@@ -270,7 +285,8 @@ class AppTheme {
           foregroundColor: AppColors.secondaryDark,
           side: const BorderSide(color: AppColors.borderDark, width: 1.5),
           padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+          shape:
+              RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
           textStyle: const TextStyle(fontSize: 15, fontWeight: FontWeight.w600),
         ),
       ),
@@ -322,7 +338,8 @@ class AppTheme {
           if (states.contains(WidgetState.selected)) {
             return const IconThemeData(color: AppColors.primaryDark, size: 24);
           }
-          return const IconThemeData(color: AppColors.textSecondaryDark, size: 22);
+          return const IconThemeData(
+              color: AppColors.textSecondaryDark, size: 22);
         }),
       ),
       snackBarTheme: SnackBarThemeData(
@@ -370,4 +387,5 @@ class AppThemeModeNotifier extends Notifier<ThemeMode> {
   }
 }
 
-final appThemeModeProvider = NotifierProvider<AppThemeModeNotifier, ThemeMode>(AppThemeModeNotifier.new);
+final appThemeModeProvider =
+    NotifierProvider<AppThemeModeNotifier, ThemeMode>(AppThemeModeNotifier.new);

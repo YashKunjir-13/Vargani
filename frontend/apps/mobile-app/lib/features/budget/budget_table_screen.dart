@@ -1,37 +1,45 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../shared/ui_kit/chips/status_chip.dart';
 import '../../shared/ui_kit/overlays/bulk_action_bar.dart';
 import 'models/budget_models.dart';
+import 'presentation/providers/budget_providers.dart';
 
-/// The full enterprise budget table -- its own screen rather than folded
-/// into the Overview scroll, since search, column visibility, bulk export
-/// and pagination need room the hub can't spare.
-class BudgetTableScreen extends StatefulWidget {
-  final List<BudgetCategoryData> categories;
-
-  const BudgetTableScreen({super.key, required this.categories});
-
-  @override
-  State<BudgetTableScreen> createState() => _BudgetTableScreenState();
+String _formatCurrency(int paise) {
+  return '₹${(paise / 100).round()}';
 }
 
-class _BudgetTableScreenState extends State<BudgetTableScreen> {
+/// The full enterprise budget table
+class BudgetTableScreen extends ConsumerStatefulWidget {
+  const BudgetTableScreen({super.key});
+
+  @override
+  ConsumerState<BudgetTableScreen> createState() => _BudgetTableScreenState();
+}
+
+class _BudgetTableScreenState extends ConsumerState<BudgetTableScreen> {
   final Set<String> _selected = {};
   String _query = '';
   int? _sortColumnIndex;
   bool _sortAscending = true;
 
-  List<BudgetCategoryData> get _filtered {
+  List<MockBudgetCategory> _getFiltered(List<MockBudgetCategory> categories) {
     final list = _query.isEmpty
-        ? widget.categories
-        : widget.categories.where((c) => c.name.toLowerCase().contains(_query.toLowerCase())).toList();
+        ? categories
+        : categories
+            .where((c) => c.name.toLowerCase().contains(_query.toLowerCase()))
+            .toList();
     if (_sortColumnIndex == null) return list;
     final sorted = [...list];
     sorted.sort((a, b) {
+      final aProgress =
+          a.allocatedPaise > 0 ? (a.utilizedPaise / a.allocatedPaise) : 0.0;
+      final bProgress =
+          b.allocatedPaise > 0 ? (b.utilizedPaise / b.allocatedPaise) : 0.0;
       final result = switch (_sortColumnIndex) {
-        1 => a.name.compareTo(b.name),
-        4 => a.progress.compareTo(b.progress),
+        0 => a.name.compareTo(b.name),
+        3 => aProgress.compareTo(bProgress),
         _ => 0,
       };
       return _sortAscending ? result : -result;
@@ -41,13 +49,22 @@ class _BudgetTableScreenState extends State<BudgetTableScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final rows = _filtered;
+    final budget = ref.watch(budgetProvider);
+    if (budget == null) {
+      return Scaffold(
+        appBar: AppBar(title: const Text('Budget Details')),
+        body: const Center(child: Text('Unauthorized or budget not found.')),
+      );
+    }
+
+    final rows = _getFiltered(budget.categories);
 
     return Scaffold(
       appBar: AppBar(
-        title: Text('Budget Details · ${widget.categories.length} categories'),
+        title: Text('Budget Details · ${budget.categories.length} categories'),
         actions: [
-          IconButton(onPressed: () {}, icon: const Icon(Icons.view_column_outlined)),
+          IconButton(
+              onPressed: () {}, icon: const Icon(Icons.view_column_outlined)),
         ],
       ),
       body: Column(
@@ -93,31 +110,43 @@ class _BudgetTableScreenState extends State<BudgetTableScreen> {
                     const DataColumn(label: Text('Status')),
                   ],
                   rows: [
-                    for (final category in rows)
-                      DataRow(
-                        selected: _selected.contains(category.id),
-                        onSelectChanged: (selected) => setState(() {
-                          if (selected ?? false) {
-                            _selected.add(category.id);
-                          } else {
-                            _selected.remove(category.id);
-                          }
-                        }),
-                        cells: [
-                          DataCell(Text(category.name)),
-                          DataCell(Text(category.allocatedLabel)),
-                          DataCell(Text(category.spentLabel)),
-                          DataCell(Text(category.percentLabel)),
-                          DataCell(
-                            StatusChip(
-                              label: category.percentLabel,
-                              type: category.progress >= 1.0
-                                  ? StatusChipType.error
-                                  : (category.progress >= 0.8 ? StatusChipType.warning : StatusChipType.success),
+                    for (final category in rows) ...[
+                      () {
+                        final progress = category.allocatedPaise > 0
+                            ? (category.utilizedPaise / category.allocatedPaise)
+                            : 0.0;
+                        final percentLabel =
+                            '${(progress * 100).toStringAsFixed(0)}%';
+                        return DataRow(
+                          selected: _selected.contains(category.id),
+                          onSelectChanged: (selected) => setState(() {
+                            if (selected ?? false) {
+                              _selected.add(category.id);
+                            } else {
+                              _selected.remove(category.id);
+                            }
+                          }),
+                          cells: [
+                            DataCell(Text(category.name)),
+                            DataCell(
+                                Text(_formatCurrency(category.allocatedPaise))),
+                            DataCell(
+                                Text(_formatCurrency(category.utilizedPaise))),
+                            DataCell(Text(percentLabel)),
+                            DataCell(
+                              StatusChip(
+                                label: percentLabel,
+                                type: progress >= 1.0
+                                    ? StatusChipType.error
+                                    : (progress >= 0.8
+                                        ? StatusChipType.warning
+                                        : StatusChipType.success),
+                              ),
                             ),
-                          ),
-                        ],
-                      ),
+                          ],
+                        );
+                      }()
+                    ]
                   ],
                 ),
               ),
@@ -128,11 +157,15 @@ class _BudgetTableScreenState extends State<BudgetTableScreen> {
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Text('1-${rows.length} of ${widget.categories.length} categories'),
+                Text(
+                    '1-${rows.length} of ${budget.categories.length} categories'),
                 Row(
                   children: [
-                    IconButton(onPressed: () {}, icon: const Icon(Icons.chevron_left)),
-                    IconButton(onPressed: () {}, icon: const Icon(Icons.chevron_right)),
+                    IconButton(
+                        onPressed: () {}, icon: const Icon(Icons.chevron_left)),
+                    IconButton(
+                        onPressed: () {},
+                        icon: const Icon(Icons.chevron_right)),
                   ],
                 ),
               ],

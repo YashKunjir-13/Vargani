@@ -1,9 +1,13 @@
 import { ConflictException, ForbiddenException, Inject, Injectable, Logger, NotFoundException, Optional, ServiceUnavailableException } from "@nestjs/common";
 import { Payment, PaymentChannel, PaymentStatus, PrismaService } from "@pauti-pustak/backend-database";
 import { FestivalYearService } from "../common/festival-year/festival-year.service";
-import { CreatePaymentDto } from "./dto/create-payment.dto";
+import { CollectDonationDto } from "./dto/collect-donation.dto";
 import { CreatePaymentOrderDto } from "./dto/create-payment-order.dto";
+import { CreatePaymentDto } from "./dto/create-payment.dto";
 import { ListPaymentsQueryDto } from "./dto/list-payments-query.dto";
+import { MockPaymentOutcome, ProcessMockPaymentDto } from "./dto/process-mock-payment.dto";
+import { CancelPaymentDto } from "./dto/cancel-payment.dto";
+import { RetryPaymentDto } from "./dto/retry-payment.dto";
 import { RefundPaymentDto } from "./dto/refund-payment.dto";
 import { UpdatePaymentDto } from "./dto/update-payment.dto";
 import { VerifyPaymentSignatureDto } from "./dto/verify-payment-signature.dto";
@@ -32,7 +36,7 @@ export class PaymentsService {
     @Inject(PrismaService) private readonly prisma: PrismaService,
     @Inject(FestivalYearService) private readonly festivalYear: FestivalYearService,
     @Inject(RECEIPT_GENERATION_PORT) private readonly receiptGeneration: ReceiptGenerationPort,
-    @Inject(RAZORPAY_ORDERS_PORT) private readonly razorpayOrders: RazorpayOrdersPort,
+    @Optional() @Inject(RAZORPAY_ORDERS_PORT) private readonly razorpayOrders?: RazorpayOrdersPort,
     @Optional() @Inject(PAYMENT_GATEWAY_PORT) private readonly gateway?: PaymentGatewayPort,
   ) {}
 
@@ -74,6 +78,9 @@ export class PaymentsService {
     }
 
     try {
+      if (!this.razorpayOrders) {
+        throw new ServiceUnavailableException("Razorpay gateway integration is disabled");
+      }
       const order = await this.razorpayOrders.createOrder({
         amountRupees: dto.amount,
         receipt: payment.id,
@@ -95,6 +102,50 @@ export class PaymentsService {
       );
       throw new ServiceUnavailableException("Unable to start the Razorpay payment. Please try again.");
     }
+  }
+
+  /**
+   * Directly records a confirmed donation (Cash/UPI/Net Banking/Cheque)
+   * and auto-triggers Receipt Generation in a single atomic flow.
+   */
+  async collectDonation(
+    organizationId: string,
+    createdByUserId: string,
+    dto: CollectDonationDto,
+  ): Promise<{ payment: Payment; receipt: any }> {
+    const { festivalYear } = await this.festivalYear.getActiveFestivalYear(organizationId);
+
+    const channel = dto.paymentMethod === "UPI" ? PaymentChannel.IN_APP : PaymentChannel.QR_CODE;
+
+    const payment = await this.prisma.payment.create({
+      data: {
+        organizationId,
+        festivalYear,
+        donorId: dto.donorId ?? null,
+        donorNameSnapshot: dto.donorNameSnapshot,
+        addressSnapshot: dto.addressSnapshot ?? null,
+        contactSnapshot: dto.contactSnapshot ?? null,
+        amount: dto.amount,
+        paymentDateTime: new Date(),
+        channel,
+        razorpayOrderId: null,
+        collectedByUserId: createdByUserId,
+        status: PaymentStatus.CONFIRMED,
+        matchedByUserId: createdByUserId,
+        matchedAt: new Date(),
+        createdByUserId,
+      },
+    });
+
+    await this.writeAuditEvent(organizationId, payment.id, "direct_donation_collected", createdByUserId);
+
+    const receiptedPayment = await this.advanceToReceipted(payment, createdByUserId);
+
+    const receipt = await this.prisma.paymentReceipt.findUnique({
+      where: { paymentId: receiptedPayment.id },
+    });
+
+    return { payment: receiptedPayment, receipt };
   }
 
   async list(organizationId: string, filter: ListPaymentsQueryDto): Promise<Payment[]> {
@@ -317,6 +368,7 @@ export class PaymentsService {
       data: {
         organizationId,
         festivalYear,
+        donorId: dto.donorId && dto.donorId.length === 36 ? dto.donorId : null,
         donorNameSnapshot: dto.donorNameSnapshot ?? "Online Contributor",
         amount: amountDecimal,
         paymentDateTime: new Date(),
@@ -493,4 +545,163 @@ export class PaymentsService {
       })),
     };
   }
+
+  /**
+   * Presentation/Demo Mode Mock Payment Processor
+   * Processes simulated payment outcomes (SUCCESS, FAILED, CANCELLED, PENDING).
+   * For SUCCESS, advances status CONFIRMED -> RECEIPTED & auto-triggers Receipt Generation.
+   */
+  async processMockPayment(organizationId: string, createdByUserId: string, dto: ProcessMockPaymentDto) {
+    const payment = await this.requireOwnedPayment(organizationId, dto.paymentId);
+
+    // Idempotency check: if already confirmed or receipted, return existing record
+    if (payment.status === PaymentStatus.CONFIRMED || payment.status === PaymentStatus.RECEIPTED) {
+      const receipt = await this.prisma.paymentReceipt.findUnique({
+        where: { paymentId: payment.id },
+      });
+      return {
+        payment,
+        receipt,
+        status: payment.status,
+        message: "Payment already successfully processed",
+      };
+    }
+
+    if (dto.outcome === MockPaymentOutcome.SUCCESS) {
+      const mockPaymentId = `pay_mock_${payment.id.replace(/-/g, "").substring(0, 14)}`;
+
+      const confirmed = await this.prisma.payment.update({
+        where: { id: payment.id },
+        data: {
+          status: PaymentStatus.CONFIRMED,
+          razorpayPaymentId: mockPaymentId,
+          matchedAt: new Date(),
+          matchedByUserId: createdByUserId,
+        },
+      });
+
+      await this.writeAuditEvent(organizationId, confirmed.id, "mock_payment_captured", createdByUserId);
+
+      const receipted = await this.advanceToReceipted(confirmed, createdByUserId);
+
+      const receipt = await this.prisma.paymentReceipt.findUnique({
+        where: { paymentId: receipted.id },
+      });
+
+      return {
+        payment: receipted,
+        receipt,
+        status: PaymentStatus.RECEIPTED,
+        message: "Mock payment captured successfully. Receipt generated.",
+      };
+    }
+
+    if (dto.outcome === MockPaymentOutcome.FAILED) {
+      const voided = await this.prisma.payment.update({
+        where: { id: payment.id },
+        data: {
+          status: PaymentStatus.VOIDED,
+          voidReason: dto.reason ?? "Simulated payment failure",
+        },
+      });
+      await this.writeAuditEvent(organizationId, voided.id, "mock_payment_failed", createdByUserId, dto.reason);
+
+      return {
+        payment: voided,
+        status: "FAILED",
+        reason: dto.reason ?? "Simulated payment failure",
+      };
+    }
+
+    if (dto.outcome === MockPaymentOutcome.CANCELLED) {
+      const voided = await this.prisma.payment.update({
+        where: { id: payment.id },
+        data: {
+          status: PaymentStatus.VOIDED,
+          voidReason: dto.reason ?? "User cancelled payment",
+        },
+      });
+      await this.writeAuditEvent(organizationId, voided.id, "mock_payment_cancelled", createdByUserId, dto.reason);
+
+      return {
+        payment: voided,
+        status: "CANCELLED",
+        reason: dto.reason ?? "User cancelled payment",
+      };
+    }
+
+    // PENDING case
+    await this.writeAuditEvent(organizationId, payment.id, "mock_payment_pending", createdByUserId);
+    return {
+      payment,
+      status: PaymentStatus.PENDING_MATCH,
+      message: "Payment remains pending verification",
+    };
+  }
+
+  /**
+   * Cancels a pending payment order.
+   */
+  async cancelPayment(organizationId: string, paymentId: string, actorUserId: string, dto: CancelPaymentDto) {
+    const payment = await this.requireOwnedPayment(organizationId, paymentId);
+
+    if (payment.status === PaymentStatus.RECEIPTED || payment.status === PaymentStatus.CONFIRMED) {
+      throw new ForbiddenException("Cannot cancel an already confirmed or receipted payment");
+    }
+
+    const cancelled = await this.prisma.payment.update({
+      where: { id: payment.id },
+      data: {
+        status: PaymentStatus.VOIDED,
+        voidReason: dto.reason ?? "Payment cancelled by user",
+      },
+    });
+
+    await this.writeAuditEvent(organizationId, cancelled.id, "payment_cancelled", actorUserId, dto.reason);
+    return cancelled;
+  }
+
+  /**
+   * Retries a failed or cancelled payment by resetting it or creating a new order attempt.
+   */
+  async retryPayment(organizationId: string, paymentId: string, actorUserId: string, dto: RetryPaymentDto) {
+    const payment = await this.requireOwnedPayment(organizationId, paymentId);
+
+    if (payment.status === PaymentStatus.RECEIPTED || payment.status === PaymentStatus.CONFIRMED) {
+      throw new ConflictException("Payment is already confirmed and cannot be retried");
+    }
+
+    const resetPayment = await this.prisma.payment.update({
+      where: { id: payment.id },
+      data: {
+        status: PaymentStatus.PENDING_MATCH,
+        voidReason: null,
+      },
+    });
+
+    await this.writeAuditEvent(organizationId, resetPayment.id, "payment_retried", actorUserId);
+    return resetPayment;
+  }
+
+  /**
+   * Retrieves real-time payment status.
+   */
+  async getPaymentStatus(organizationId: string, paymentId: string) {
+    const payment = await this.requireOwnedPayment(organizationId, paymentId);
+    const receipt = await this.prisma.paymentReceipt.findUnique({
+      where: { paymentId: payment.id },
+    });
+
+    return {
+      paymentId: payment.id,
+      status: payment.status,
+      amount: Number(payment.amount),
+      razorpayOrderId: payment.razorpayOrderId,
+      razorpayPaymentId: payment.razorpayPaymentId,
+      receiptId: receipt?.id ?? null,
+      receiptNumber: receipt?.receiptNumber ?? null,
+      updatedAt: payment.updatedAt,
+    };
+  }
 }
+

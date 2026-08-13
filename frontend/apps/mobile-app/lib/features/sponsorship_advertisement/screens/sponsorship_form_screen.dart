@@ -37,7 +37,8 @@ class _SponsorshipFormScreenState extends ConsumerState<SponsorshipFormScreen> {
 
   Future<void> _loadExisting() async {
     final repository = ref.read(sponsorshipRepositoryProvider);
-    final sponsorship = await repository.getSponsorshipById(widget.sponsorshipId!);
+    final sponsorship =
+        await repository.getSponsorshipById(widget.sponsorshipId!);
     if (sponsorship != null && mounted) {
       setState(() {
         _existingSponsorship = sponsorship;
@@ -45,7 +46,8 @@ class _SponsorshipFormScreenState extends ConsumerState<SponsorshipFormScreen> {
         _contactPersonController.text = sponsorship.contactPerson ?? '';
         _mobileController.text = sponsorship.mobile ?? '';
         _selectedTier = sponsorship.tier;
-        _pledgedAmountController.text = (sponsorship.pledgedAmountPaise ~/ 100).toString();
+        _pledgedAmountController.text =
+            (sponsorship.pledgedAmountPaise ~/ 100).toString();
       });
     }
   }
@@ -164,7 +166,8 @@ class _SponsorshipFormScreenState extends ConsumerState<SponsorshipFormScreen> {
     final paise = rupees * 100;
 
     final sponsorship = Sponsorship(
-      id: widget.sponsorshipId ?? 'spon-${DateTime.now().millisecondsSinceEpoch}',
+      id: widget.sponsorshipId ??
+          'spon-${DateTime.now().millisecondsSinceEpoch}',
       sponsorName: _sponsorNameController.text.trim(),
       contactPerson: _contactPersonController.text.trim().isEmpty
           ? null

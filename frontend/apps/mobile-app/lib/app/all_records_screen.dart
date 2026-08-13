@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import 'package:go_router/go_router.dart';
+
 import '../core/core.dart';
 import '../shared/shared.dart';
 import '../features/donors/screens/donor_list_screen.dart';
@@ -43,7 +45,8 @@ class AllRecordsScreen extends ConsumerWidget {
             label: context.advertisements,
             description: context.advertisementsDesc,
             onTap: () => Navigator.of(context).push(
-              MaterialPageRoute(builder: (_) => const AdvertisementListScreen()),
+              MaterialPageRoute(
+                  builder: (_) => const AdvertisementListScreen()),
             ),
           ),
           const SizedBox(height: AppSpacing.space16),
@@ -72,6 +75,13 @@ class AllRecordsScreen extends ConsumerWidget {
             onTap: () => Navigator.of(context).push(
               MaterialPageRoute(builder: (_) => const VendorListScreen()),
             ),
+          ),
+          const SizedBox(height: AppSpacing.space16),
+          _RecordCategoryCard(
+            icon: Icons.flag_outlined,
+            label: 'Milestones & Work',
+            description: 'Track festival milestones & task progress',
+            onTap: () => context.push('/milestones'),
           ),
         ],
       ),

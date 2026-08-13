@@ -155,8 +155,7 @@ class _RoleTile extends StatelessWidget {
               child: Text(
                 role.label,
                 style: textTheme.bodyLarge?.copyWith(
-                  fontWeight:
-                      isSelected ? FontWeight.bold : FontWeight.normal,
+                  fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
                   color: isSelected ? color : null,
                 ),
               ),

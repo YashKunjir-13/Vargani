@@ -1,5 +1,34 @@
 enum LoginRole { mandal, donor }
 
+// ignore_for_file: constant_identifier_names
+
+enum OtpPurpose {
+  LOGIN,
+  VERIFY_MOBILE,
+  PASSWORD_RESET,
+  INVITATION_ACCEPTANCE,
+  MPIN_RESET
+}
+
+class OtpRequestResult {
+  const OtpRequestResult({
+    required this.challengeId,
+    required this.expiresAt,
+    this.debugOtp,
+  });
+
+  factory OtpRequestResult.fromJson(Map<String, dynamic> json) =>
+      OtpRequestResult(
+        challengeId: json['challengeId'] as String,
+        expiresAt: DateTime.parse(json['expiresAt'] as String),
+        debugOtp: json['debugOtp'] as String?,
+      );
+
+  final String challengeId;
+  final DateTime expiresAt;
+  final String? debugOtp;
+}
+
 class AuthOrganization {
   const AuthOrganization({
     required this.id,
@@ -8,7 +37,8 @@ class AuthOrganization {
     required this.status,
   });
 
-  factory AuthOrganization.fromJson(Map<String, dynamic> json) => AuthOrganization(
+  factory AuthOrganization.fromJson(Map<String, dynamic> json) =>
+      AuthOrganization(
         id: json['id'] as String,
         name: json['name'] as String,
         code: json['code'] as String,
@@ -22,9 +52,11 @@ class AuthOrganization {
 }
 
 class AuthDonorProfile {
-  const AuthDonorProfile({required this.id, required this.fullName, required this.status});
+  const AuthDonorProfile(
+      {required this.id, required this.fullName, required this.status});
 
-  factory AuthDonorProfile.fromJson(Map<String, dynamic> json) => AuthDonorProfile(
+  factory AuthDonorProfile.fromJson(Map<String, dynamic> json) =>
+      AuthDonorProfile(
         id: json['id'] as String,
         fullName: json['fullName'] as String,
         status: json['status'] as String,
@@ -33,6 +65,17 @@ class AuthDonorProfile {
   final String id;
   final String fullName;
   final String status;
+
+  AuthDonorProfile copyWith({
+    String? fullName,
+    String? status,
+  }) {
+    return AuthDonorProfile(
+      id: id,
+      fullName: fullName ?? this.fullName,
+      status: status ?? this.status,
+    );
+  }
 }
 
 class AuthUser {
@@ -58,10 +101,12 @@ class AuthUser {
         status: json['status'] as String,
         organization: json['organization'] == null
             ? null
-            : AuthOrganization.fromJson(json['organization'] as Map<String, dynamic>),
+            : AuthOrganization.fromJson(
+                json['organization'] as Map<String, dynamic>),
         donorProfile: json['donorProfile'] == null
             ? null
-            : AuthDonorProfile.fromJson(json['donorProfile'] as Map<String, dynamic>),
+            : AuthDonorProfile.fromJson(
+                json['donorProfile'] as Map<String, dynamic>),
       );
 
   final String id;
@@ -74,6 +119,26 @@ class AuthUser {
   final AuthOrganization? organization;
   final AuthDonorProfile? donorProfile;
 
+  AuthUser copyWith({
+    String? displayName,
+    String? primaryMobile,
+    String? primaryEmail,
+    String? preferredLanguage,
+    AuthDonorProfile? donorProfile,
+  }) {
+    return AuthUser(
+      id: id,
+      displayName: displayName ?? this.displayName,
+      primaryMobile: primaryMobile ?? this.primaryMobile,
+      primaryEmail: primaryEmail ?? this.primaryEmail,
+      preferredLanguage: preferredLanguage ?? this.preferredLanguage,
+      platformRole: platformRole,
+      status: status,
+      organization: organization,
+      donorProfile: donorProfile ?? this.donorProfile,
+    );
+  }
+
   bool get isTrustOwner => organization != null;
   bool get isDonor => donorProfile != null;
 }
@@ -84,17 +149,21 @@ class AuthSession {
     required this.accessToken,
     required this.refreshToken,
     required this.accessTokenExpiresAt,
+    this.hasMpin,
   });
 
   factory AuthSession.fromJson(Map<String, dynamic> json) => AuthSession(
         user: AuthUser.fromJson(json['user'] as Map<String, dynamic>),
         accessToken: json['accessToken'] as String,
         refreshToken: json['refreshToken'] as String,
-        accessTokenExpiresAt: DateTime.parse(json['accessTokenExpiresAt'] as String),
+        accessTokenExpiresAt:
+            DateTime.parse(json['accessTokenExpiresAt'] as String),
+        hasMpin: json['hasMpin'] as bool?,
       );
 
   final AuthUser user;
   final String accessToken;
   final String refreshToken;
   final DateTime accessTokenExpiresAt;
+  final bool? hasMpin;
 }

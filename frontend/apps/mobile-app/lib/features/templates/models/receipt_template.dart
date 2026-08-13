@@ -125,7 +125,8 @@ class ReceiptTemplate {
     final name = 'Template v$version ($type)';
     final sourceUrl = json['sourceFileUrl'] as String? ?? '';
     final isActive = json['isActive'] as bool? ?? false;
-    final detectionStatus = json['detectionStatus'] as String? ?? 'AUTO_DETECTED';
+    final detectionStatus =
+        json['detectionStatus'] as String? ?? 'AUTO_DETECTED';
 
     final fieldMapList = json['fieldMap'] as List<dynamic>? ?? [];
     List<FieldMarker> markers = fieldMapList
@@ -134,11 +135,36 @@ class ReceiptTemplate {
 
     if (markers.isEmpty) {
       markers = [
-        FieldMarker(id: 'donor_name', label: 'Donor Name', position: const Offset(0.20, 0.32), size: const Size(0.55, 0.08), color: Colors.blue),
-        FieldMarker(id: 'amount', label: 'Amount (₹)', position: const Offset(0.70, 0.45), size: const Size(0.25, 0.08), color: Colors.green),
-        FieldMarker(id: 'receipt_no', label: 'Receipt No', position: const Offset(0.70, 0.20), size: const Size(0.25, 0.06), color: Colors.orange),
-        FieldMarker(id: 'date', label: 'Date & Time', position: const Offset(0.10, 0.20), size: const Size(0.30, 0.06), color: Colors.purple),
-        FieldMarker(id: 'signature', label: 'Trustee Signature', position: const Offset(0.65, 0.75), size: const Size(0.30, 0.12), color: Colors.teal),
+        FieldMarker(
+            id: 'donor_name',
+            label: 'Donor Name',
+            position: const Offset(0.20, 0.32),
+            size: const Size(0.55, 0.08),
+            color: Colors.blue),
+        FieldMarker(
+            id: 'amount',
+            label: 'Amount (₹)',
+            position: const Offset(0.70, 0.45),
+            size: const Size(0.25, 0.08),
+            color: Colors.green),
+        FieldMarker(
+            id: 'receipt_no',
+            label: 'Receipt No',
+            position: const Offset(0.70, 0.20),
+            size: const Size(0.25, 0.06),
+            color: Colors.orange),
+        FieldMarker(
+            id: 'date',
+            label: 'Date & Time',
+            position: const Offset(0.10, 0.20),
+            size: const Size(0.30, 0.06),
+            color: Colors.purple),
+        FieldMarker(
+            id: 'signature',
+            label: 'Trustee Signature',
+            position: const Offset(0.65, 0.75),
+            size: const Size(0.30, 0.12),
+            color: Colors.teal),
       ];
     }
 
@@ -146,7 +172,9 @@ class ReceiptTemplate {
       id: id,
       name: name,
       mandalName: 'Mandal Financial Trust',
-      imageUrl: sourceUrl.startsWith('http') ? sourceUrl : 'assets/images/template_saffron.png',
+      imageUrl: sourceUrl.startsWith('http')
+          ? sourceUrl
+          : 'assets/images/template_saffron.png',
       isActive: isActive,
       detectionStatus: detectionStatus,
       markers: markers,

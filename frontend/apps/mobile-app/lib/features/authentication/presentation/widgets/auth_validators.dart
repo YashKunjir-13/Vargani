@@ -12,8 +12,9 @@ abstract final class AuthValidators {
   static final _pan = RegExp(r'^[A-Z]{5}\d{4}[A-Z]$');
 
   static FieldValidator required(AppLocalizations l10n) {
-    return (value) =>
-        (value == null || value.trim().isEmpty) ? l10n.errorRequiredField : null;
+    return (value) => (value == null || value.trim().isEmpty)
+        ? l10n.errorRequiredField
+        : null;
   }
 
   static FieldValidator phone(AppLocalizations l10n) {
@@ -31,6 +32,8 @@ abstract final class AuthValidators {
       return _email.hasMatch(trimmed) ? null : l10n.errorInvalidEmail;
     };
   }
+
+  static FieldValidator optionalEmail(AppLocalizations l10n) => email(l10n);
 
   static FieldValidator pinCode(AppLocalizations l10n) {
     return (value) {
@@ -56,7 +59,8 @@ abstract final class AuthValidators {
     };
   }
 
-  static FieldValidator confirmPassword(AppLocalizations l10n, TextEditingController password) {
+  static FieldValidator confirmPassword(
+      AppLocalizations l10n, TextEditingController password) {
     return (value) {
       final trimmed = value ?? '';
       if (trimmed.isEmpty) return l10n.errorRequiredField;
@@ -71,6 +75,8 @@ abstract final class AuthValidators {
       return _pan.hasMatch(trimmed) ? null : l10n.errorInvalidPanNumber;
     };
   }
+
+  static FieldValidator optionalPan(AppLocalizations l10n) => pan(l10n);
 
   /// Runs a list of validators drawn from this class against their
   /// controllers and reports whether every one currently passes, without

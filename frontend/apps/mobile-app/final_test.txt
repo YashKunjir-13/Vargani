@@ -1,0 +1,306 @@
+Resolving dependencies...
+Downloading packages...
+  _fe_analyzer_shared 91.0.0 (105.0.0 available)
+  _flutterfire_internals 1.3.75 (1.3.76 available)
+  analysis_server_plugin 0.3.3 (0.3.20 available)
+  analyzer 8.4.0 (14.1.0 available)
+  analyzer_buffer 0.1.11 (0.3.3 available)
+  analyzer_plugin 0.13.10 (0.14.14 available)
+  build 4.0.7 (4.0.10 available)
+  build_daemon 4.1.3 (retracted, 4.1.5 available)
+  build_runner 2.15.1 (2.16.0 available)
+  built_value 8.12.6 (8.12.7 available)
+  cli_util 0.4.2 (0.5.2 available)
+  custom_lint_core 0.8.1 (0.8.2 available)
+  custom_lint_visitor 1.0.0+8.4.0 (1.0.0+9.0.0 available)
+  dart_style 3.1.3 (3.1.12 available)
+  dbus 0.7.13 (0.7.14 available)
+  drift 2.31.0 (2.34.3 available)
+  drift_dev 2.31.0 (2.34.5 available)
+  firebase_core 4.12.1 (4.13.0 available)
+  firebase_core_platform_interface 8.0.0 (8.1.0 available)
+  firebase_core_web 3.9.1 (3.10.0 available)
+  firebase_crashlytics 5.2.6 (5.2.7 available)
+  firebase_crashlytics_platform_interface 3.8.26 (3.8.27 available)
+  firebase_messaging 16.4.3 (16.5.0 available)
+  firebase_messaging_platform_interface 4.9.2 (4.9.3 available)
+  firebase_messaging_web 4.2.3 (4.2.4 available)
+  flutter_riverpod 3.1.0 (3.4.2 available)
+  flutter_secure_storage 10.3.1 (11.0.0 available)
+  flutter_secure_storage_darwin 0.3.2 (0.4.0 available)
+  flutter_secure_storage_linux 3.0.1 (3.0.2 available)
+  flutter_secure_storage_platform_interface 2.0.2 (2.0.3 available)
+  freezed 3.2.3 (3.2.5 available)
+  go_router 17.3.0 (17.5.0 available)
+  golden_toolkit 0.15.0 (discontinued)
+  hooks 2.0.2 (2.1.0 available)
+  intl 0.20.2 (0.20.3 available)
+  jni 1.0.2 (1.0.3 available)
+  json_annotation 4.9.0 (4.12.0 available)
+  json_serializable 6.11.2 (6.14.1 available)
+  matcher 0.12.19 (0.12.20 available)
+  material_color_utilities 0.13.0 (0.13.1 available)
+  meta 1.18.0 (1.19.0 available)
+  mockito 5.6.4 (5.8.1 available)
+  package_config 2.2.0 (3.0.0 available)
+  qr 3.0.2 (4.0.0 available)
+  record_use 0.6.0 (1.1.0 available)
+  riverpod 3.1.0 (3.4.2 available)
+  riverpod_analyzer_utils 1.0.0-dev.8 (1.0.0-dev.11 available)
+  riverpod_annotation 4.0.0 (4.0.6 available)
+  riverpod_generator 4.0.0+1 (4.0.8 available)
+  riverpod_lint 3.1.0 (3.1.8 available)
+  source_helper 1.3.8 (1.3.13 available)
+  sqlite3 2.9.4 (3.5.1 available)
+  sqlparser 0.43.1 (0.45.0 available)
+  test 1.31.0 (1.31.2 available)
+  test_api 0.7.11 (0.7.13 available)
+  test_core 0.6.17 (0.6.19 available)
+  vector_math 2.2.0 (2.4.2 available)
+  win32 6.3.0 (6.4.0 available)
+Got dependencies!
+1 package is discontinued.
+57 packages have newer versions incompatible with dependency constraints.
+Try `flutter pub outdated` for more information.
+00:00 +0: loading /Users/ujwal/Documents/PautiPustakDoc/PP/Vargani/frontend/apps/mobile-app/test/core/theme/theme_and_role_gate_test.dart
+00:00 +0: /Users/ujwal/Documents/PautiPustakDoc/PP/Vargani/frontend/apps/mobile-app/test/core/localization/localization_test.dart: Localization System Tests LocaleController switches and updates global locale state
+00:00 +1: /Users/ujwal/Documents/PautiPustakDoc/PP/Vargani/frontend/apps/mobile-app/test/core/localization/localization_test.dart: Localization System Tests Instant app-wide localization update upon locale selection
+00:00 +2: /Users/ujwal/Documents/PautiPustakDoc/PP/Vargani/frontend/apps/mobile-app/test/core/localization/localization_test.dart: Localization System Tests Instant app-wide localization update upon locale selection
+00:00 +3: /Users/ujwal/Documents/PautiPustakDoc/PP/Vargani/frontend/apps/mobile-app/test/core/localization/localization_test.dart: Localization System Tests Instant app-wide localization update upon locale selection
+00:00 +4: /Users/ujwal/Documents/PautiPustakDoc/PP/Vargani/frontend/apps/mobile-app/test/core/theme/theme_and_role_gate_test.dart: RoleGate toggles child visibility based on selected role
+00:01 +5: /Users/ujwal/Documents/PautiPustakDoc/PP/Vargani/frontend/apps/mobile-app/test/dashboard_test.dart: Dashboard Screens — GIVEN-WHEN-THEN UI States GIVEN an active Mandal session WHEN MandalDashboardScreen is rendered THEN shows header, overview cards, and module navigation
+══╡ EXCEPTION CAUGHT BY WIDGETS LIBRARY ╞═══════════════════════════════════════════════════════════
+The following StateError was thrown building Consumer(dirty, dependencies: [_EffectiveTickerMode,
+_UncontrolledProviderScope], state: _ConsumerState#af30d):
+Bad state: No element
+
+The relevant error-causing widget was:
+  Consumer
+  Consumer:file:///Users/ujwal/Documents/PautiPustakDoc/PP/Vargani/frontend/apps/mobile-app/lib/features/dashboard/presentation/pages/mandal_dashboard_screen.dart:758:15
+
+When the exception was thrown, this was the stack:
+#0      _Array.first (dart:core-patch/array.dart:52:5)
+#1      _MandalDashboardScreenState._buildMandalProfileView.<anonymous closure> (package:pauti_pustak_mobile/features/dashboard/presentation/pages/mandal_dashboard_screen.dart:768:33)
+#2      Consumer.build (package:flutter_riverpod/src/core/consumer.dart:182:19)
+#3      _ConsumerState.build (package:flutter_riverpod/src/core/consumer.dart:283:48)
+#4      StatefulElement.build (package:flutter/src/widgets/framework.dart:5931:27)
+#5      ConsumerStatefulElement.build (package:flutter_riverpod/src/core/consumer.dart:421:20)
+#6      ComponentElement.performRebuild (package:flutter/src/widgets/framework.dart:5817:15)
+#7      StatefulElement.performRebuild (package:flutter/src/widgets/framework.dart:5982:11)
+#8      Element.rebuild (package:flutter/src/widgets/framework.dart:5529:7)
+#9      ComponentElement._firstBuild (package:flutter/src/widgets/framework.dart:5799:5)
+#10     StatefulElement._firstBuild (package:flutter/src/widgets/framework.dart:5973:11)
+#11     ComponentElement.mount (package:flutter/src/widgets/framework.dart:5793:5)
+#12     Element.inflateWidget (package:flutter/src/widgets/framework.dart:4587:20)
+#13     MultiChildRenderObjectElement.inflateWidget (package:flutter/src/widgets/framework.dart:7264:36)
+#14     MultiChildRenderObjectElement.mount (package:flutter/src/widgets/framework.dart:7279:32)
+...     Normal element mounting (53 frames)
+#67     Element.inflateWidget (package:flutter/src/widgets/framework.dart:4587:20)
+#68     Element.updateChild (package:flutter/src/widgets/framework.dart:4059:18)
+#69     SliverMultiBoxAdaptorElement.updateChild (package:flutter/src/widgets/sliver.dart:1086:37)
+#70     SliverMultiBoxAdaptorElement.createChild.<anonymous closure> (package:flutter/src/widgets/sliver.dart:1071:20)
+#71     BuildOwner.buildScope (package:flutter/src/widgets/framework.dart:3101:19)
+#72     SliverMultiBoxAdaptorElement.createChild (package:flutter/src/widgets/sliver.dart:1061:12)
+#73     RenderSliverMultiBoxAdaptor._createOrObtainChild.<anonymous closure> (package:flutter/src/rendering/sliver_multi_box_adaptor.dart:368:23)
+#74     RenderObject.invokeLayoutCallback.<anonymous closure> (package:flutter/src/rendering/object.dart:3026:17)
+#75     PipelineOwner._enableMutationsToDirtySubtrees (package:flutter/src/rendering/object.dart:1223:15)
+#76     RenderObject.invokeLayoutCallback (package:flutter/src/rendering/object.dart:3025:14)
+#77     RenderSliverMultiBoxAdaptor._createOrObtainChild (package:flutter/src/rendering/sliver_multi_box_adaptor.dart:357:5)
+#78     RenderSliverMultiBoxAdaptor.insertAndLayoutChild (package:flutter/src/rendering/sliver_multi_box_adaptor.dart:517:5)
+#79     RenderSliverList.performLayout.advance (package:flutter/src/rendering/sliver_list.dart:238:19)
+#80     RenderSliverList.performLayout (package:flutter/src/rendering/sliver_list.dart:278:12)
+#81     RenderObject.layout (package:flutter/src/rendering/object.dart:2907:7)
+#82     RenderSliverEdgeInsetsPadding.performLayout (package:flutter/src/rendering/sliver_padding.dart:133:12)
+#83     RenderSliverPadding.performLayout (package:flutter/src/rendering/sliver_padding.dart:368:11)
+#84     RenderObject.layout (package:flutter/src/rendering/object.dart:2907:7)
+#85     RenderViewportBase.layoutChildSequence (package:flutter/src/rendering/viewport.dart:821:13)
+#86     RenderViewport._attemptLayout (package:flutter/src/rendering/viewport.dart:1831:12)
+#87     RenderViewport.performLayout (package:flutter/src/rendering/viewport.dart:1724:20)
+#88     RenderObject.layout (package:flutter/src/rendering/object.dart:2907:7)
+#89     RenderProxyBoxMixin.performLayout (package:flutter/src/rendering/proxy_box.dart:118:18)
+#90     RenderObject.layout (package:flutter/src/rendering/object.dart:2907:7)
+#91     RenderProxyBoxMixin.performLayout (package:flutter/src/rendering/proxy_box.dart:118:18)
+#92     RenderObject.layout (package:flutter/src/rendering/object.dart:2907:7)
+#93     RenderProxyBoxMixin.performLayout (package:flutter/src/rendering/proxy_box.dart:118:18)
+#94     RenderObject.layout (package:flutter/src/rendering/object.dart:2907:7)
+#95     RenderProxyBoxMixin.performLayout (package:flutter/src/rendering/proxy_box.dart:118:18)
+#96     RenderObject.layout (package:flutter/src/rendering/object.dart:2907:7)
+#97     RenderProxyBoxMixin.performLayout (package:flutter/src/rendering/proxy_box.dart:118:18)
+#98     RenderObject.layout (package:flutter/src/rendering/object.dart:2907:7)
+#99     RenderProxyBoxMixin.performLayout (package:flutter/src/rendering/proxy_box.dart:118:18)
+#100    RenderObject.layout (package:flutter/src/rendering/object.dart:2907:7)
+#101    RenderProxyBoxMixin.performLayout (package:flutter/src/rendering/proxy_box.dart:118:18)
+#102    RenderObject.layout (package:flutter/src/rendering/object.dart:2907:7)
+#103    RenderProxyBoxMixin.performLayout (package:flutter/src/rendering/proxy_box.dart:118:18)
+#104    _RenderCustomClip.performLayout (package:flutter/src/rendering/proxy_box.dart:1549:11)
+#105    RenderObject.layout (package:flutter/src/rendering/object.dart:2907:7)
+#106    RenderProxyBoxMixin.performLayout (package:flutter/src/rendering/proxy_box.dart:118:18)
+#107    RenderObject.layout (package:flutter/src/rendering/object.dart:2907:7)
+#108    RenderProxyBoxMixin.performLayout (package:flutter/src/rendering/proxy_box.dart:118:18)
+#109    RenderObject.layout (package:flutter/src/rendering/object.dart:2907:7)
+#110    ChildLayoutHelper.layoutChild (package:flutter/src/rendering/layout_helper.dart:62:11)
+#111    RenderStack._computeSize (package:flutter/src/rendering/stack.dart:647:43)
+#112    RenderStack.performLayout (package:flutter/src/rendering/stack.dart:682:12)
+#113    RenderObject.layout (package:flutter/src/rendering/object.dart:2907:7)
+#114    RenderPadding.performLayout (package:flutter/src/rendering/shifted_box.dart:262:12)
+#115    RenderObject.layout (package:flutter/src/rendering/object.dart:2907:7)
+#116    MultiChildLayoutDelegate.layoutChild (package:flutter/src/rendering/custom_layout.dart:180:12)
+#117    _ScaffoldLayout.performLayout (package:flutter/src/material/scaffold.dart:1113:7)
+#118    MultiChildLayoutDelegate._callPerformLayout (package:flutter/src/rendering/custom_layout.dart:246:7)
+#119    RenderCustomMultiChildLayoutBox.performLayout (package:flutter/src/rendering/custom_layout.dart:417:14)
+#120    RenderObject.layout (package:flutter/src/rendering/object.dart:2907:7)
+#121    RenderProxyBoxMixin.performLayout (package:flutter/src/rendering/proxy_box.dart:118:18)
+#122    RenderObject.layout (package:flutter/src/rendering/object.dart:2907:7)
+#123    RenderProxyBoxMixin.performLayout (package:flutter/src/rendering/proxy_box.dart:118:18)
+#124    _RenderCustomClip.performLayout (package:flutter/src/rendering/proxy_box.dart:1549:11)
+#125    RenderObject.layout (package:flutter/src/rendering/object.dart:2907:7)
+#126    RenderProxyBoxMixin.performLayout (package:flutter/src/rendering/proxy_box.dart:118:18)
+#127    RenderObject.layout (package:flutter/src/rendering/object.dart:2907:7)
+#128    RenderProxyBoxMixin.performLayout (package:flutter/src/rendering/proxy_box.dart:118:18)
+#129    RenderObject.layout (package:flutter/src/rendering/object.dart:2907:7)
+#130    RenderProxyBoxMixin.performLayout (package:flutter/src/rendering/proxy_box.dart:118:18)
+#131    RenderObject.layout (package:flutter/src/rendering/object.dart:2907:7)
+#132    RenderProxyBoxMixin.performLayout (package:flutter/src/rendering/proxy_box.dart:118:18)
+#133    RenderObject.layout (package:flutter/src/rendering/object.dart:2907:7)
+#134    RenderProxyBoxMixin.performLayout (package:flutter/src/rendering/proxy_box.dart:118:18)
+#135    RenderObject.layout (package:flutter/src/rendering/object.dart:2907:7)
+#136    RenderProxyBoxMixin.performLayout (package:flutter/src/rendering/proxy_box.dart:118:18)
+#137    RenderObject.layout (package:flutter/src/rendering/object.dart:2907:7)
+#138    RenderProxyBoxMixin.performLayout (package:flutter/src/rendering/proxy_box.dart:118:18)
+#139    RenderObject.layout (package:flutter/src/rendering/object.dart:2907:7)
+#140    RenderProxyBoxMixin.performLayout (package:flutter/src/rendering/proxy_box.dart:118:18)
+#141    RenderObject.layout (package:flutter/src/rendering/object.dart:2907:7)
+#142    RenderProxyBoxMixin.performLayout (package:flutter/src/rendering/proxy_box.dart:118:18)
+#143    RenderObject.layout (package:flutter/src/rendering/object.dart:2907:7)
+#144    RenderProxyBoxMixin.performLayout (package:flutter/src/rendering/proxy_box.dart:118:18)
+#145    RenderOffstage.performLayout (package:flutter/src/rendering/proxy_box.dart:3923:13)
+#146    RenderObject.layout (package:flutter/src/rendering/object.dart:2907:7)
+#147    RenderProxyBoxMixin.performLayout (package:flutter/src/rendering/proxy_box.dart:118:18)
+#148    RenderObject.layout (package:flutter/src/rendering/object.dart:2907:7)
+#149    _RenderTheaterMixin.layoutChild (package:flutter/src/widgets/overlay.dart:1124:13)
+#150    _RenderTheater.performLayout (package:flutter/src/widgets/overlay.dart:1481:9)
+#151    RenderObject.layout (package:flutter/src/rendering/object.dart:2907:7)
+#152    RenderProxyBoxMixin.performLayout (package:flutter/src/rendering/proxy_box.dart:118:18)
+#153    RenderObject.layout (package:flutter/src/rendering/object.dart:2907:7)
+#154    RenderProxyBoxMixin.performLayout (package:flutter/src/rendering/proxy_box.dart:118:18)
+#155    RenderObject.layout (package:flutter/src/rendering/object.dart:2907:7)
+#156    RenderProxyBoxMixin.performLayout (package:flutter/src/rendering/proxy_box.dart:118:18)
+#157    RenderObject.layout (package:flutter/src/rendering/object.dart:2907:7)
+#158    RenderProxyBoxMixin.performLayout (package:flutter/src/rendering/proxy_box.dart:118:18)
+#159    RenderCustomPaint.performLayout (package:flutter/src/rendering/custom_paint.dart:574:11)
+#160    RenderObject.layout (package:flutter/src/rendering/object.dart:2907:7)
+#161    RenderProxyBoxMixin.performLayout (package:flutter/src/rendering/proxy_box.dart:118:18)
+#162    RenderObject.layout (package:flutter/src/rendering/object.dart:2907:7)
+#163    RenderProxyBoxMixin.performLayout (package:flutter/src/rendering/proxy_box.dart:118:18)
+#164    RenderObject.layout (package:flutter/src/rendering/object.dart:2907:7)
+#165    RenderProxyBoxMixin.performLayout (package:flutter/src/rendering/proxy_box.dart:118:18)
+#166    RenderObject.layout (package:flutter/src/rendering/object.dart:2907:7)
+#167    RenderProxyBoxMixin.performLayout (package:flutter/src/rendering/proxy_box.dart:118:18)
+#168    RenderObject.layout (package:flutter/src/rendering/object.dart:2907:7)
+#169    RenderProxyBoxMixin.performLayout (package:flutter/src/rendering/proxy_box.dart:118:18)
+#170    RenderObject.layout (package:flutter/src/rendering/object.dart:2907:7)
+#171    RenderProxyBoxMixin.performLayout (package:flutter/src/rendering/proxy_box.dart:118:18)
+#172    RenderObject.layout (package:flutter/src/rendering/object.dart:2907:7)
+#173    RenderView.performLayout (package:flutter/src/rendering/view.dart:292:12)
+#174    RenderObject._layoutWithoutResize (package:flutter/src/rendering/object.dart:2755:7)
+#175    PipelineOwner.flushLayout (package:flutter/src/rendering/object.dart:1174:18)
+#176    PipelineOwner.flushLayout (package:flutter/src/rendering/object.dart:1187:15)
+#177    AutomatedTestWidgetsFlutterBinding.drawFrame (package:flutter_test/src/binding.dart:2433:27)
+#178    RendererBinding._handlePersistentFrameCallback (package:flutter/src/rendering/binding.dart:509:5)
+#179    SchedulerBinding._invokeFrameCallback (package:flutter/src/scheduler/binding.dart:1430:15)
+#180    SchedulerBinding.handleDrawFrame (package:flutter/src/scheduler/binding.dart:1345:9)
+#181    AutomatedTestWidgetsFlutterBinding.pump.<anonymous closure> (package:flutter_test/src/binding.dart:2260:9)
+#184    TestAsyncUtils.guard (package:flutter_test/src/test_async_utils.dart:74:41)
+#185    AutomatedTestWidgetsFlutterBinding.pump (package:flutter_test/src/binding.dart:2249:27)
+#186    WidgetTester.pumpWidget.<anonymous closure> (package:flutter_test/src/widget_tester.dart:598:22)
+#189    TestAsyncUtils.guard (package:flutter_test/src/test_async_utils.dart:74:41)
+#190    WidgetTester.pumpWidget (package:flutter_test/src/widget_tester.dart:595:27)
+#191    main.<anonymous closure>.<anonymous closure> (file:///Users/ujwal/Documents/PautiPustakDoc/PP/Vargani/frontend/apps/mobile-app/test/dashboard_test.dart:48:22)
+#192    testWidgets.<anonymous closure>.<anonymous closure> (package:flutter_test/src/widget_tester.dart:192:29)
+<asynchronous suspension>
+#193    TestWidgetsFlutterBinding._runTestBody (package:flutter_test/src/binding.dart:1952:5)
+<asynchronous suspension>
+<asynchronous suspension>
+(elided 5 frames from dart:async and package:stack_trace)
+
+════════════════════════════════════════════════════════════════════════════════════════════════════
+══╡ EXCEPTION CAUGHT BY RENDERING LIBRARY ╞═════════════════════════════════════════════════════════
+The following assertion was thrown during layout:
+A RenderFlex overflowed by 157 pixels on the right.
+
+The relevant error-causing widget was:
+  Row
+  Row:file:///Users/ujwal/Documents/PautiPustakDoc/PP/Vargani/frontend/apps/mobile-app/lib/features/dashboard/presentation/widgets/analytics_charts.dart:43:11
+
+The overflowing RenderFlex has an orientation of Axis.horizontal.
+The edge of the RenderFlex that is overflowing has been marked in the rendering with a yellow and
+black striped pattern. This is usually caused by the contents being too big for the RenderFlex.
+Consider applying a flex factor (e.g. using an Expanded widget) to force the children of the
+RenderFlex to fit within the available space instead of being sized to their natural size.
+This is considered an error condition because it indicates that there is content that cannot be
+seen. If the content is legitimately bigger than the available space, consider clipping it with a
+ClipRect widget before putting it in the flex, or using a scrollable container rather than a Flex,
+like a ListView.
+The specific RenderFlex in question is: RenderFlex#4c405 relayoutBoundary=up19 OVERFLOWING:
+  creator: Row ← Column ← Padding ← DecoratedBox ← Container ← IncomeVsExpenseCard ← Column ← Padding
+    ← _SingleChildViewport ← IgnorePointer-[GlobalKey#297af] ← Semantics ← Listener ← ⋯
+  parentData: offset=Offset(0.0, 0.0); flex=null; fit=null (can use size)
+  constraints: BoxConstraints(0.0<=w<=286.0, 0.0<=h<=Infinity)
+  size: Size(286.0, 25.0)
+  direction: horizontal
+  mainAxisAlignment: spaceBetween
+  mainAxisSize: max
+  crossAxisAlignment: center
+  textDirection: ltr
+  verticalDirection: down
+  spacing: 0.0
+◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤
+════════════════════════════════════════════════════════════════════════════════════════════════════
+══╡ EXCEPTION CAUGHT BY RENDERING LIBRARY ╞═════════════════════════════════════════════════════════
+The following assertion was thrown during layout:
+A RenderFlex overflowed by 60 pixels on the right.
+
+The relevant error-causing widget was:
+  Row
+  Row:file:///Users/ujwal/Documents/PautiPustakDoc/PP/Vargani/frontend/apps/mobile-app/lib/features/dashboard/presentation/widgets/analytics_charts.dart:93:11
+
+The overflowing RenderFlex has an orientation of Axis.horizontal.
+The edge of the RenderFlex that is overflowing has been marked in the rendering with a yellow and
+black striped pattern. This is usually caused by the contents being too big for the RenderFlex.
+Consider applying a flex factor (e.g. using an Expanded widget) to force the children of the
+RenderFlex to fit within the available space instead of being sized to their natural size.
+This is considered an error condition because it indicates that there is content that cannot be
+seen. If the content is legitimately bigger than the available space, consider clipping it with a
+ClipRect widget before putting it in the flex, or using a scrollable container rather than a Flex,
+like a ListView.
+The specific RenderFlex in question is: RenderFlex#9589f relayoutBoundary=up19 OVERFLOWING:
+  creator: Row ← Column ← Padding ← DecoratedBox ← Container ← IncomeVsExpenseCard ← Column ← Padding
+    ← _SingleChildViewport ← IgnorePointer-[GlobalKey#297af] ← Semantics ← Listener ← ⋯
+  parentData: offset=Offset(0.0, 75.0); flex=null; fit=null (can use size)
+  constraints: BoxConstraints(0.0<=w<=286.0, 0.0<=h<=Infinity)
+  size: Size(286.0, 38.0)
+  direction: horizontal
+  mainAxisAlignment: spaceBetween
+  mainAxisSize: max
+  crossAxisAlignment: center
+  textDirection: ltr
+  verticalDirection: down
+  spacing: 0.0
+◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤
+════════════════════════════════════════════════════════════════════════════════════════════════════
+PUMP EXCEPTION: Multiple exceptions (3) were detected during the running of the current test, and at least one was unexpected.
+00:01 +6: /Users/ujwal/Documents/PautiPustakDoc/PP/Vargani/frontend/apps/mobile-app/test/dashboard_test.dart: Dashboard Screens — GIVEN-WHEN-THEN UI States GIVEN an active Donor session WHEN DonorDashboardScreen is rendered THEN shows donor profile, overview, highlights and receipts
+00:01 +7: /Users/ujwal/Documents/PautiPustakDoc/PP/Vargani/frontend/apps/mobile-app/test/dashboard_test.dart: (tearDownAll)
+00:01 +7: /Users/ujwal/Documents/PautiPustakDoc/PP/Vargani/frontend/apps/mobile-app/test/features/profile/bank_details_test.dart: BankDetails Model & Validation parses bank details JSON correctly and masks account number
+00:01 +8: /Users/ujwal/Documents/PautiPustakDoc/PP/Vargani/frontend/apps/mobile-app/test/features/profile/bank_details_test.dart: BankDetails Model & Validation serializes to JSON accurately
+00:02 +9: /Users/ujwal/Documents/PautiPustakDoc/PP/Vargani/frontend/apps/mobile-app/test/features/donors/mock_donor_repository_test.dart: MockDonorRepository filters donors by search and status while hiding merged by default
+00:02 +10: /Users/ujwal/Documents/PautiPustakDoc/PP/Vargani/frontend/apps/mobile-app/test/features/donors/mock_donor_repository_test.dart: MockDonorRepository creates and updates a donor in memory
+00:02 +11: /Users/ujwal/Documents/PautiPustakDoc/PP/Vargani/frontend/apps/mobile-app/test/features/donors/mock_donor_repository_test.dart: MockDonorRepository records donation for donor and updates total count and amount
+00:02 +12: /Users/ujwal/Documents/PautiPustakDoc/PP/Vargani/frontend/apps/mobile-app/test/features/volunteers/mock_volunteer_repository_test.dart: filters volunteers by search, status, and type
+00:02 +13: /Users/ujwal/Documents/PautiPustakDoc/PP/Vargani/frontend/apps/mobile-app/test/features/volunteers/mock_volunteer_repository_test.dart: creates and updates volunteers in memory
+00:02 +14: /Users/ujwal/Documents/PautiPustakDoc/PP/Vargani/frontend/apps/mobile-app/test/app_test.dart: GIVEN an unauthenticated session WHEN PautiPustakApp starts THEN routes to the registration landing screen via go_router
+00:02 +15: /Users/ujwal/Documents/PautiPustakDoc/PP/Vargani/frontend/apps/mobile-app/test/app_test.dart: GIVEN an unauthenticated session WHEN PautiPustakApp starts THEN routes to the registration landing screen via go_router
+00:02 +16: /Users/ujwal/Documents/PautiPustakDoc/PP/Vargani/frontend/apps/mobile-app/test/app_test.dart: GIVEN an unauthenticated session WHEN PautiPustakApp starts THEN routes to the registration landing screen via go_router
+00:02 +17: /Users/ujwal/Documents/PautiPustakDoc/PP/Vargani/frontend/apps/mobile-app/test/app_test.dart: GIVEN an unauthenticated session WHEN PautiPustakApp starts THEN routes to the registration landing screen via go_router
+00:02 +18: /Users/ujwal/Documents/PautiPustakDoc/PP/Vargani/frontend/apps/mobile-app/test/app_test.dart: GIVEN an unauthenticated session WHEN PautiPustakApp starts THEN routes to the registration landing screen via go_router
+00:03 +19: All tests passed!

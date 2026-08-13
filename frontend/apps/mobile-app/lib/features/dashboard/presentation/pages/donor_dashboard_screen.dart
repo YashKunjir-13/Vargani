@@ -14,17 +14,27 @@ import 'package:pauti_pustak_mobile/features/dashboard/presentation/widgets/quic
 import 'package:pauti_pustak_mobile/features/dashboard/presentation/widgets/summary_card.dart';
 import 'package:pauti_pustak_mobile/features/dashboard/presentation/widgets/transaction_list.dart';
 import 'package:pauti_pustak_mobile/features/dashboard/presentation/pages/search_mandal_screen.dart';
+import 'package:pauti_pustak_mobile/features/profile/screens/edit_profile_screen.dart';
 import 'package:pauti_pustak_mobile/shared/widgets/app_bottom_nav.dart';
 
 class DonorDashboardScreen extends ConsumerStatefulWidget {
   const DonorDashboardScreen({super.key});
 
   @override
-  ConsumerState<DonorDashboardScreen> createState() => _DonorDashboardScreenState();
+  ConsumerState<DonorDashboardScreen> createState() =>
+      _DonorDashboardScreenState();
 }
 
 class _DonorDashboardScreenState extends ConsumerState<DonorDashboardScreen> {
   int _currentIndex = 0;
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      ref.read(donorDashboardProvider.notifier).fetchDashboard();
+    });
+  }
 
   String _formatAmount(int paise) {
     final rupees = (paise / 100).floor();
@@ -38,14 +48,15 @@ class _DonorDashboardScreenState extends ConsumerState<DonorDashboardScreen> {
     final user = ref.watch(sessionControllerProvider).user;
     final l10n = context.l10n;
 
-    final donorName = user?.donorProfile?.fullName ?? user?.displayName ?? data.donorName;
+    final donorName =
+        user?.donorProfile?.fullName ?? user?.displayName ?? data.donorName;
 
     return Scaffold(
       backgroundColor: colors.background,
       appBar: DashboardHeader(
         title: l10n.welcomeBack,
         subtitle: donorName,
-        badgeText: 'दे',
+        badgeText: 'ॐ',
         onProfileTap: () => setState(() => _currentIndex = 3),
         onSearchTap: () {
           Navigator.push(
@@ -83,22 +94,22 @@ class _DonorDashboardScreenState extends ConsumerState<DonorDashboardScreen> {
           currentIndex: _currentIndex,
           onTap: (index) => setState(() => _currentIndex = index),
           items: [
-            const AppBottomNavItem(
+            AppBottomNavItem(
               icon: Icons.home_outlined,
               selectedIcon: Icons.home,
-              label: 'Home',
+              label: l10n.homeTab,
               route: '',
             ),
-            const AppBottomNavItem(
+            AppBottomNavItem(
               icon: Icons.history_outlined,
               selectedIcon: Icons.history,
-              label: 'History',
+              label: l10n.historyTab,
               route: '',
             ),
-            const AppBottomNavItem(
+            AppBottomNavItem(
               icon: Icons.receipt_outlined,
               selectedIcon: Icons.receipt,
-              label: 'Receipts',
+              label: l10n.receiptsTab,
               route: '',
             ),
             AppBottomNavItem(
@@ -210,12 +221,23 @@ class _DonorDashboardScreenState extends ConsumerState<DonorDashboardScreen> {
           const SizedBox(height: 12),
           QuickActionsGrid(
             actions: [
-              const QuickActionButtonItem(id: 'donate', label: 'New Donation', icon: Icons.volunteer_activism, primary: true),
-              QuickActionButtonItem(id: 'view_receipts', label: l10n.viewReceipts, icon: Icons.receipt_long),
-              QuickActionButtonItem(id: 'history', label: l10n.contributionHistory, icon: Icons.history),
-              QuickActionButtonItem(id: 'campaigns', label: l10n.supportCampaigns, icon: Icons.campaign),
-              QuickActionButtonItem(id: 'favs', label: l10n.favouriteMandals, icon: Icons.star_border),
-              QuickActionButtonItem(id: 'download', label: l10n.downloadReceiptPdf, icon: Icons.download),
+              const QuickActionButtonItem(
+                  id: 'donate',
+                  label: 'New Donation',
+                  icon: Icons.volunteer_activism,
+                  primary: true),
+              QuickActionButtonItem(
+                  id: 'view_receipts',
+                  label: l10n.viewReceipts,
+                  icon: Icons.receipt_long),
+              QuickActionButtonItem(
+                  id: 'history',
+                  label: l10n.contributionHistory,
+                  icon: Icons.history),
+              QuickActionButtonItem(
+                  id: 'download',
+                  label: l10n.downloadReceiptPdf,
+                  icon: Icons.download),
             ],
             onActionTap: (action) {
               if (action.id == 'donate') {
@@ -225,8 +247,11 @@ class _DonorDashboardScreenState extends ConsumerState<DonorDashboardScreen> {
                     builder: (context) => const SearchMandalScreen(),
                   ),
                 );
-              } else if (action.id == 'view_receipts' || action.id == 'download') {
+              } else if (action.id == 'view_receipts' ||
+                  action.id == 'download') {
                 setState(() => _currentIndex = 2);
+              } else if (action.id == 'history') {
+                setState(() => _currentIndex = 1);
               } else {
                 ScaffoldMessenger.of(context).showSnackBar(
                   SnackBar(
@@ -255,7 +280,10 @@ class _DonorDashboardScreenState extends ConsumerState<DonorDashboardScreen> {
               ),
               TextButton(
                 onPressed: () => setState(() => _currentIndex = 1),
-                child: Text('View History', style: TextStyle(color: colors.brandOrange, fontWeight: FontWeight.w800)),
+                child: Text('View History',
+                    style: TextStyle(
+                        color: colors.brandOrange,
+                        fontWeight: FontWeight.w800)),
               ),
             ],
           ),
@@ -266,6 +294,7 @@ class _DonorDashboardScreenState extends ConsumerState<DonorDashboardScreen> {
               onTap: () {
                 DashboardActionSheets.showReceiptDetailModal(
                   context,
+                  tx.id,
                   tx.receiptNumber,
                   tx.donorName,
                   _formatAmount(tx.amountPaise),
@@ -339,8 +368,16 @@ class _DonorDashboardScreenState extends ConsumerState<DonorDashboardScreen> {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Text('$year Contribution', style: TextStyle(color: colors.text, fontWeight: FontWeight.w800, fontSize: 13)),
-                      Text(_formatAmount(amount), style: TextStyle(color: colors.brandOrange, fontWeight: FontWeight.w900, fontSize: 13)),
+                      Text('$year Contribution',
+                          style: TextStyle(
+                              color: colors.text,
+                              fontWeight: FontWeight.w800,
+                              fontSize: 13)),
+                      Text(_formatAmount(amount),
+                          style: TextStyle(
+                              color: colors.brandOrange,
+                              fontWeight: FontWeight.w900,
+                              fontSize: 13)),
                     ],
                   ),
                   const SizedBox(height: 6),
@@ -350,7 +387,8 @@ class _DonorDashboardScreenState extends ConsumerState<DonorDashboardScreen> {
                       value: percentage,
                       minHeight: 8,
                       backgroundColor: colors.surfaceMuted,
-                      valueColor: AlwaysStoppedAnimation<Color>(colors.brandOrange),
+                      valueColor:
+                          AlwaysStoppedAnimation<Color>(colors.brandOrange),
                     ),
                   ),
                 ],
@@ -362,22 +400,28 @@ class _DonorDashboardScreenState extends ConsumerState<DonorDashboardScreen> {
     );
   }
 
-  Widget _buildDonorHistoryView(BuildContext context, DonorDashboardData data, AuthColors colors, AppLocalizations l10n) {
+  Widget _buildDonorHistoryView(BuildContext context, DonorDashboardData data,
+      AuthColors colors, AppLocalizations l10n) {
     return ListView(
       padding: const EdgeInsets.all(16),
       children: [
-        Text(l10n.contributionHistory, style: TextStyle(color: colors.text, fontSize: 20, fontWeight: FontWeight.w900)),
+        Text(l10n.contributionHistory,
+            style: TextStyle(
+                color: colors.text, fontSize: 20, fontWeight: FontWeight.w900)),
         const SizedBox(height: 16),
         ...data.recentDonations.map((tx) => TransactionListItem(item: tx)),
       ],
     );
   }
 
-  Widget _buildDonorReceiptsView(BuildContext context, DonorDashboardData data, AuthColors colors, AppLocalizations l10n) {
+  Widget _buildDonorReceiptsView(BuildContext context, DonorDashboardData data,
+      AuthColors colors, AppLocalizations l10n) {
     return ListView(
       padding: const EdgeInsets.all(16),
       children: [
-        Text(l10n.digitalReceipts, style: TextStyle(color: colors.text, fontSize: 20, fontWeight: FontWeight.w900)),
+        Text(l10n.digitalReceipts,
+            style: TextStyle(
+                color: colors.text, fontSize: 20, fontWeight: FontWeight.w900)),
         const SizedBox(height: 16),
         ...data.recentDonations.map((tx) {
           return Container(
@@ -390,15 +434,22 @@ class _DonorDashboardScreenState extends ConsumerState<DonorDashboardScreen> {
             ),
             child: Row(
               children: [
-                const Icon(Icons.picture_as_pdf, color: Colors.redAccent, size: 32),
+                const Icon(Icons.picture_as_pdf,
+                    color: Colors.redAccent, size: 32),
                 const SizedBox(width: 14),
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text('Receipt ${tx.receiptNumber}', style: TextStyle(color: colors.text, fontWeight: FontWeight.w800, fontSize: 15)),
+                      Text('Receipt ${tx.receiptNumber}',
+                          style: TextStyle(
+                              color: colors.text,
+                              fontWeight: FontWeight.w800,
+                              fontSize: 15)),
                       const SizedBox(height: 2),
-                      Text(tx.mandalName ?? 'Ganpati Mandal', style: TextStyle(color: colors.secondaryText, fontSize: 13)),
+                      Text(tx.mandalName ?? 'Ganpati Mandal',
+                          style: TextStyle(
+                              color: colors.secondaryText, fontSize: 13)),
                     ],
                   ),
                 ),
@@ -406,11 +457,13 @@ class _DonorDashboardScreenState extends ConsumerState<DonorDashboardScreen> {
                   style: ElevatedButton.styleFrom(
                     backgroundColor: colors.brandOrange,
                     foregroundColor: Colors.white,
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                    shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(10)),
                   ),
                   onPressed: () {
                     DashboardActionSheets.showReceiptDetailModal(
                       context,
+                      tx.id,
                       tx.receiptNumber,
                       tx.donorName,
                       _formatAmount(tx.amountPaise),
@@ -449,8 +502,13 @@ class _DonorDashboardScreenState extends ConsumerState<DonorDashboardScreen> {
               ),
               const SizedBox(height: 12),
               Text(
-                user?.donorProfile?.fullName ?? user?.displayName ?? data.donorName,
-                style: TextStyle(color: colors.text, fontSize: 20, fontWeight: FontWeight.w900),
+                user?.donorProfile?.fullName ??
+                    user?.displayName ??
+                    data.donorName,
+                style: TextStyle(
+                    color: colors.text,
+                    fontSize: 20,
+                    fontWeight: FontWeight.w900),
               ),
               const SizedBox(height: 4),
               Text(
@@ -463,43 +521,65 @@ class _DonorDashboardScreenState extends ConsumerState<DonorDashboardScreen> {
         const SizedBox(height: 32),
         ListTile(
           leading: Icon(Icons.edit_outlined, color: colors.brandOrange),
-          title: Text(l10n.editProfile, style: TextStyle(color: colors.text, fontWeight: FontWeight.w700)),
+          title: Text(l10n.editProfile,
+              style:
+                  TextStyle(color: colors.text, fontWeight: FontWeight.w700)),
           trailing: Icon(Icons.chevron_right, color: colors.secondaryText),
-          onTap: () {},
+          onTap: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => const EditProfileScreen(),
+              ),
+            );
+          },
         ),
         const Divider(),
         ListTile(
           leading: Icon(Icons.language, color: colors.brandOrange),
-          title: Text(l10n.selectLanguage, style: TextStyle(color: colors.text, fontWeight: FontWeight.w700)),
+          title: Text(l10n.selectLanguage,
+              style:
+                  TextStyle(color: colors.text, fontWeight: FontWeight.w700)),
           trailing: const AuthLanguageSelector(),
         ),
         const Divider(),
         SwitchListTile(
           secondary: Icon(Icons.dark_mode_outlined, color: colors.brandOrange),
-          title: Text(l10n.darkMode, style: TextStyle(color: colors.text, fontWeight: FontWeight.w700)),
+          title: Text(l10n.darkMode,
+              style:
+                  TextStyle(color: colors.text, fontWeight: FontWeight.w700)),
           value: isDark,
           onChanged: (val) {
-            ref.read(appThemeModeProvider.notifier).setThemeMode(val ? ThemeMode.dark : ThemeMode.light);
+            ref
+                .read(appThemeModeProvider.notifier)
+                .setThemeMode(val ? ThemeMode.dark : ThemeMode.light);
           },
         ),
         const Divider(),
         ListTile(
-          leading: Icon(Icons.notifications_outlined, color: colors.brandOrange),
-          title: Text(l10n.notifications, style: TextStyle(color: colors.text, fontWeight: FontWeight.w700)),
+          leading:
+              Icon(Icons.notifications_outlined, color: colors.brandOrange),
+          title: Text(l10n.notifications,
+              style:
+                  TextStyle(color: colors.text, fontWeight: FontWeight.w700)),
           trailing: Icon(Icons.chevron_right, color: colors.secondaryText),
           onTap: () {},
         ),
         const Divider(),
         ListTile(
           leading: Icon(Icons.privacy_tip_outlined, color: colors.brandOrange),
-          title: Text(l10n.privacy, style: TextStyle(color: colors.text, fontWeight: FontWeight.w700)),
+          title: Text(l10n.privacy,
+              style:
+                  TextStyle(color: colors.text, fontWeight: FontWeight.w700)),
           trailing: Icon(Icons.chevron_right, color: colors.secondaryText),
           onTap: () {},
         ),
         const Divider(),
         ListTile(
           leading: const Icon(Icons.logout, color: Colors.red),
-          title: Text(l10n.logout, style: const TextStyle(color: Colors.red, fontWeight: FontWeight.w800)),
+          title: Text(l10n.logout,
+              style: const TextStyle(
+                  color: Colors.red, fontWeight: FontWeight.w800)),
           onTap: () {
             ref.read(sessionControllerProvider.notifier).logout();
           },

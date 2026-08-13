@@ -6,6 +6,7 @@ import { ReceiptsService } from "../receipts/receipts.service";
 import { PaymentsController } from "./payments.controller";
 import { PaymentsService } from "./payments.service";
 import { RazorpayGatewayAdapter } from "./adapters/razorpay-gateway.adapter";
+import { MockPaymentAdapter } from "./adapters/mock-payment.adapter";
 import { PAYMENT_GATEWAY_PORT } from "./ports/payment-gateway.port";
 import { RAZORPAY_ORDERS_PORT, RazorpayOrdersClient } from "./razorpay-orders.client";
 import { RAZORPAY_SIGNATURE_VERIFIER, HmacRazorpaySignatureVerifier } from "./razorpay-signature.verifier";
@@ -17,7 +18,11 @@ import { RECEIPT_GENERATION_PORT } from "./receipt-generation.port";
   providers: [
     PaymentsService,
     RazorpayGatewayAdapter,
-    { provide: PAYMENT_GATEWAY_PORT, useClass: RazorpayGatewayAdapter },
+    MockPaymentAdapter,
+    {
+      provide: PAYMENT_GATEWAY_PORT,
+      useClass: process.env.PAYMENT_MODE === "RAZORPAY" ? RazorpayGatewayAdapter : MockPaymentAdapter,
+    },
     { provide: RECEIPT_GENERATION_PORT, useExisting: ReceiptsService },
     { provide: RAZORPAY_SIGNATURE_VERIFIER, useClass: HmacRazorpaySignatureVerifier },
     { provide: RAZORPAY_ORDERS_PORT, useClass: RazorpayOrdersClient },

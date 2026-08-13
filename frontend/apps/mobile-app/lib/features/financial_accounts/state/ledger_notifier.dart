@@ -13,7 +13,8 @@ final bankAccountProvider = Provider<BankAccountData>((ref) {
   );
 });
 
-final bankDepositsProvider = NotifierProvider<BankDepositsNotifier, List<BankDepositEntry>>(
+final bankDepositsProvider =
+    NotifierProvider<BankDepositsNotifier, List<BankDepositEntry>>(
   BankDepositsNotifier.new,
 );
 

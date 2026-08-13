@@ -17,6 +17,72 @@ export class OrganizationsService {
     private readonly panEncryptionService: PanEncryptionService,
   ) {}
 
+  async searchPublicOrganizations(params: { q?: string; city?: string; limit?: number }) {
+    const { q, city, limit = 50 } = params;
+    const where: any = {
+      status: OrganizationStatus.ACTIVE,
+    };
+
+    if (q) {
+      const searchTerm = q.trim();
+      where.OR = [
+        { name: { contains: searchTerm, mode: "insensitive" } },
+        { city: { contains: searchTerm, mode: "insensitive" } },
+        { code: { contains: searchTerm, mode: "insensitive" } },
+      ];
+    } else if (city) {
+      where.city = { contains: city.trim(), mode: "insensitive" };
+    }
+
+    return this.prisma.organization.findMany({
+      where,
+      select: {
+        id: true,
+        code: true,
+        name: true,
+        city: true,
+        state: true,
+        logoDocumentId: true,
+        primaryMobile: true,
+        primaryEmail: true,
+      },
+      orderBy: { name: "asc" },
+      take: limit,
+    });
+  }
+
+  async getPublicOrganizationDetails(organizationId: string) {
+    const org = await this.prisma.organization.findUnique({
+      where: { id: organizationId, status: OrganizationStatus.ACTIVE },
+      select: {
+        id: true,
+        code: true,
+        name: true,
+        addressLine1: true,
+        addressLine2: true,
+        city: true,
+        state: true,
+        postalCode: true,
+        registrationNumber: true,
+        presidentName: true,
+        primaryMobile: true,
+        primaryEmail: true,
+        bankAccountName: true,
+        bankName: true,
+        accountNumber: true,
+        ifscCode: true,
+        branchName: true,
+        vpa: true,
+        bankAccountConfigured: true,
+        upiConfigured: true,
+      },
+    });
+    if (!org) {
+      throw new NotFoundException("Organization not found or inactive");
+    }
+    return org;
+  }
+
   async getCurrent(organizationId: string) {
     const org = await this.prisma.organization.findUnique({
       where: { id: organizationId },
@@ -65,12 +131,20 @@ export class OrganizationsService {
       ? this.panEncryptionService.encrypt(dto.panNumber)
       : org.panEncrypted;
 
+    const vpaValue = (dto.vpa || dto.upiId)?.trim();
+
     const updated = await this.prisma.organization.update({
       where: { id: organizationId },
       data: {
         panEncrypted,
-        bankAccountConfigured: Boolean(dto.accountNumber && dto.ifscCode) || org.bankAccountConfigured,
-        upiConfigured: Boolean(dto.upiId) || org.upiConfigured,
+        ...(dto.bankAccountName !== undefined ? { bankAccountName: dto.bankAccountName.trim() } : {}),
+        ...(dto.bankName !== undefined ? { bankName: dto.bankName.trim() } : {}),
+        ...(dto.accountNumber !== undefined ? { accountNumber: dto.accountNumber.trim() } : {}),
+        ...(dto.ifscCode !== undefined ? { ifscCode: dto.ifscCode.trim().toUpperCase() } : {}),
+        ...(dto.branchName !== undefined ? { branchName: dto.branchName.trim() } : {}),
+        ...(vpaValue !== undefined ? { vpa: vpaValue } : {}),
+        bankAccountConfigured: Boolean(dto.accountNumber || dto.ifscCode) || org.bankAccountConfigured,
+        upiConfigured: Boolean(vpaValue) || org.upiConfigured,
       },
     });
 
@@ -132,10 +206,18 @@ export class OrganizationsService {
       }
     }
 
+    let accountNumberMasked: string | null = null;
+    if (org.accountNumber && org.accountNumber.length > 4) {
+      accountNumberMasked = `XXXX XXXX ${org.accountNumber.slice(-4)}`;
+    } else if (org.accountNumber) {
+      accountNumberMasked = org.accountNumber;
+    }
+
     const { panEncrypted, ...safeOrg } = org;
     return {
       ...safeOrg,
       panMasked,
+      accountNumberMasked,
     };
   }
 }

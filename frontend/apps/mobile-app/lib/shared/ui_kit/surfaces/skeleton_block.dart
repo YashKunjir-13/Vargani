@@ -25,7 +25,8 @@ class SkeletonBlock extends StatefulWidget {
   State<SkeletonBlock> createState() => _SkeletonBlockState();
 }
 
-class _SkeletonBlockState extends State<SkeletonBlock> with SingleTickerProviderStateMixin {
+class _SkeletonBlockState extends State<SkeletonBlock>
+    with SingleTickerProviderStateMixin {
   late final AnimationController _controller = AnimationController(
     vsync: this,
     duration: const Duration(milliseconds: 1400),
@@ -53,13 +54,15 @@ class _SkeletonBlockState extends State<SkeletonBlock> with SingleTickerProvider
   @override
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
-    final radius = widget.borderRadius ?? BorderRadius.circular(AppRadius.small);
+    final radius =
+        widget.borderRadius ?? BorderRadius.circular(AppRadius.small);
 
     if (_reduceMotion) {
       return Container(
         width: widget.width,
         height: widget.height,
-        decoration: BoxDecoration(color: colorScheme.surfaceContainer, borderRadius: radius),
+        decoration: BoxDecoration(
+            color: colorScheme.surfaceContainer, borderRadius: radius),
       );
     }
 
